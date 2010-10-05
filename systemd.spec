@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        10
-Release:        2%{?dist}
+Release:        2%{?dist}.1
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Session Manager
@@ -244,6 +244,9 @@ fi
 %{_mandir}/man8/runlevel.*
 
 %changelog
+* Tue Oct 05 2010 jkeating - 10-2.1
+- Rebuilt for gcc bug 634757
+
 * Tue Sep 14 2010 Lennart Poettering <lpoetter@redhat.com> - 10-2
 - Enable audit
 - https://bugzilla.redhat.com/show_bug.cgi?id=633771
