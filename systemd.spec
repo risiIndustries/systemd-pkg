@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        2%{?dist}
+Release:        3%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -40,6 +40,9 @@ Patch0:         0001-dbus-common-fix-segfault-when-a-DBus-message-has-no-.patch
 Patch1:         0001-readahead-collect-ignore-EACCES-for-fanotify.patch
 Patch2:         0001-vconsole-use-open_terminal-instead-of-open.patch
 Patch3:         0001-pam-downgrade-a-few-log-msgs.patch
+Patch4:         0001-systemctl-fix-double-unref-of-a-dbus-message.patch
+Patch5:         0001-cryptsetup-generator-fix-etc-cryptsetup-options.patch
+Patch6:         0001-readahead-common-fix-total-memory-size-detection.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -97,6 +100,9 @@ SysV compatibility tools for systemd
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %configure --with-rootdir= --with-distro=fedora
@@ -299,6 +305,12 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Sun Jun 12 2011 Michal Schmidt <mschmidt@redhat.com> - 26-3
+- Pick bugfixes from upstream:
+- systemctl: fix double unref of a dbus message (BZ#709909)
+- cryptsetup-generator: fix /etc/cryptsetup options (BZ#710839)
+- readahead-common: fix total memory size detection (BZ#712341)
+
 * Wed May 25 2011 Lennart Poettering <lpoetter@redhat.com> - 26-2
 - Bugfix release
 - https://bugzilla.redhat.com/show_bug.cgi?id=707507
