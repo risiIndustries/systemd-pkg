@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        3%{?dist}
+Release:        4%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -43,6 +43,9 @@ Patch3:         0001-pam-downgrade-a-few-log-msgs.patch
 Patch4:         0001-systemctl-fix-double-unref-of-a-dbus-message.patch
 Patch5:         0001-cryptsetup-generator-fix-etc-cryptsetup-options.patch
 Patch6:         0001-readahead-common-fix-total-memory-size-detection.patch
+Patch7:         0001-systemctl-fix-is-enabled-for-native-units-under-lib.patch
+Patch8:         0001-dbus-fix-name-of-capability-property.patch
+Patch9:         0001-pam-module-add-debug-parameter.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -103,6 +106,9 @@ SysV compatibility tools for systemd
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
 
 %build
 %configure --with-rootdir= --with-distro=fedora
@@ -305,6 +311,12 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Wed Jun 15 2011 Michal Schmidt <mschmidt@redhat.com> - 26-4
+- Pick bugfixes from upstream:
+- systemctl: fix 'is-enabled' for native units under /lib (BZ#699027)
+- dbus: fix name of capability property
+- pam-module: add debug= parameter (BZ#705427)
+
 * Sun Jun 12 2011 Michal Schmidt <mschmidt@redhat.com> - 26-3
 - Pick bugfixes from upstream:
 - systemctl: fix double unref of a dbus message (BZ#709909)

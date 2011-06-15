@@ -1,0 +1,39 @@
+From 7c3d67eff3e165b50084bf9c3269ec582d90c403 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 15 Jun 2011 10:16:49 +0200
+Subject: [PATCH] dbus: fix name of capability property
+
+---
+ src/dbus-execute.c |    2 +-
+ src/dbus-execute.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/dbus-execute.c b/src/dbus-execute.c
+index 3f8fafe..6ceffc5 100644
+--- a/src/dbus-execute.c
++++ b/src/dbus-execute.c
+@@ -235,7 +235,7 @@ int bus_execute_append_capability_bs(DBusMessageIter *i, const char *property, v
+         assert(property);
+         assert(c);
+ 
+-        /* We store this negated internally, to match the kernel, bu
++        /* We store this negated internally, to match the kernel, but
+          * we expose it normalized. */
+ 
+         normal = *(uint64_t*) data;
+diff --git a/src/dbus-execute.h b/src/dbus-execute.h
+index 42df5aa..56c5bcd 100644
+--- a/src/dbus-execute.h
++++ b/src/dbus-execute.h
+@@ -77,7 +77,7 @@
+         "  <property name=\"SyslogLevelPrefix\" type=\"b\" access=\"read\"/>\n" \
+         "  <property name=\"Capabilities\" type=\"s\" access=\"read\"/>\n" \
+         "  <property name=\"SecureBits\" type=\"i\" access=\"read\"/>\n" \
+-        "  <property name=\"CapabilityBoundingSetDrop\" type=\"t\" access=\"read\"/>\n" \
++        "  <property name=\"CapabilityBoundingSet\" type=\"t\" access=\"read\"/>\n" \
+         "  <property name=\"User\" type=\"s\" access=\"read\"/>\n"      \
+         "  <property name=\"Group\" type=\"s\" access=\"read\"/>\n"     \
+         "  <property name=\"SupplementaryGroups\" type=\"as\" access=\"read\"/>\n" \
+-- 
+1.7.4.4
+
