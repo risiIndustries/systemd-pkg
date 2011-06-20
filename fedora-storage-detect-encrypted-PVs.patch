@@ -1,0 +1,26 @@
+allow fedora-storage-init to detect encrypted PVs
+
+After unlocking an encrypted volume, let LVM detect a possible PV on it.
+This way fedora-storage-init-late.service will be able to activate the VG.
+
+This is a non-upstream patch and it is only temporary until lvm2 is updated
+to use udev and to get rid of /etc/lvm/cache. According to Milan Brož it is
+already implemented upstream.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=708684
+
+Index: systemd-26/src/cryptsetup-generator.c
+===================================================================
+--- systemd-26.orig/src/cryptsetup-generator.c
++++ systemd-26/src/cryptsetup-generator.c
+@@ -131,8 +131,10 @@ static int create_disk(
+                 "RemainAfterExit=yes\n"
+                 "TimeoutSec=0\n" /* the binary handles timeouts anyway */
+                 "ExecStart=" SYSTEMD_CRYPTSETUP_PATH " attach '%s' '%s' '%s' '%s'\n"
++                "ExecStart=-/sbin/pvs -o pv_uuid '/dev/mapper/%s'\n"
+                 "ExecStop=" SYSTEMD_CRYPTSETUP_PATH " detach '%s'\n",
+                 name, u, strempty(password), strempty(options),
++                name,
+                 name);
+ 
+         if (has_option(options, "tmp"))

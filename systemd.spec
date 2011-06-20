@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        4%{?dist}
+Release:        5%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -46,6 +46,7 @@ Patch6:         0001-readahead-common-fix-total-memory-size-detection.patch
 Patch7:         0001-systemctl-fix-is-enabled-for-native-units-under-lib.patch
 Patch8:         0001-dbus-fix-name-of-capability-property.patch
 Patch9:         0001-pam-module-add-debug-parameter.patch
+Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -109,6 +110,7 @@ SysV compatibility tools for systemd
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch100 -p1
 
 %build
 %configure --with-rootdir= --with-distro=fedora
@@ -311,6 +313,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Mon Jun 20 2011 Michal Schmidt <mschmidt@redhat.com> - 26-5
+- Temporary workaround to detect LVM VGs on encrypted PVs. (BZ#708684)
+
 * Wed Jun 15 2011 Michal Schmidt <mschmidt@redhat.com> - 26-4
 - Pick bugfixes from upstream:
 - systemctl: fix 'is-enabled' for native units under /lib (BZ#699027)
