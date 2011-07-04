@@ -1,0 +1,74 @@
+From 30923233b34e23ed1b3ffa7317f6219f695fec2f Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sat, 2 Jul 2011 23:40:42 +0200
+Subject: [PATCH] shutdown: print the standard wall message even when the user
+ provided one
+
+Print the user-provided wall message in addition to the standard one, not
+instead of it.
+
+Related to: https://bugzilla.redhat.com/show_bug.cgi?id=624149
+---
+ src/shutdownd.c |   38 +++++++++++++++++---------------------
+ 1 files changed, 17 insertions(+), 21 deletions(-)
+
+diff --git a/src/shutdownd.c b/src/shutdownd.c
+index 7fd9573..49ab886 100644
+--- a/src/shutdownd.c
++++ b/src/shutdownd.c
+@@ -100,6 +100,9 @@ static int read_packet(int fd, struct shutdownd_command *_c) {
+ }
+ 
+ static void warn_wall(usec_t n, struct shutdownd_command *c) {
++        char date[FORMAT_TIMESTAMP_MAX];
++        const char *prefix;
++        char *l = NULL;
+ 
+         assert(c);
+         assert(c->warn_wall);
+@@ -107,28 +110,21 @@ static void warn_wall(usec_t n, struct shutdownd_command *c) {
+         if (n >= c->elapse)
+                 return;
+ 
+-        if (c->wall_message[0])
+-                utmp_wall(c->wall_message, NULL);
++        if (c->mode == 'H')
++                prefix = "The system is going down for system halt at ";
++        else if (c->mode == 'P')
++                prefix = "The system is going down for power-off at ";
++        else if (c->mode == 'r')
++                prefix = "The system is going down for reboot at ";
++        else
++                assert_not_reached("Unknown mode!");
++
++        if (asprintf(&l, "%s%s%s%s!", c->wall_message, c->wall_message[0] ? "\n" : "",
++                     prefix, format_timestamp(date, sizeof(date), c->elapse)) < 0)
++                log_error("Failed to allocate wall message");
+         else {
+-                char date[FORMAT_TIMESTAMP_MAX];
+-                const char* prefix;
+-                char *l = NULL;
+-
+-                if (c->mode == 'H')
+-                        prefix = "The system is going down for system halt at ";
+-                else if (c->mode == 'P')
+-                        prefix = "The system is going down for power-off at ";
+-                else if (c->mode == 'r')
+-                        prefix = "The system is going down for reboot at ";
+-                else
+-                        assert_not_reached("Unknown mode!");
+-
+-                if (asprintf(&l, "%s%s!", prefix, format_timestamp(date, sizeof(date), c->elapse)) < 0)
+-                        log_error("Failed to allocate wall message");
+-                else {
+-                        utmp_wall(l, NULL);
+-                        free(l);
+-                }
++                utmp_wall(l, NULL);
++                free(l);
+         }
+ }
+ 
+-- 
+1.7.4.4
+

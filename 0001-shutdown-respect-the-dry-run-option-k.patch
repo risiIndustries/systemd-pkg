@@ -1,0 +1,80 @@
+From 52c002150a34c07a59369ee952bcd3a1f8f316ca Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sat, 2 Jul 2011 23:09:59 +0200
+Subject: [PATCH] shutdown: respect the dry run option '-k'
+
+Don't do the actual power-off/reboot when '-k' is passed to shutdown.
+
+Related to: https://bugzilla.redhat.com/show_bug.cgi?id=624149
+---
+ src/shutdownd.c |    2 +-
+ src/shutdownd.h |    1 +
+ src/systemctl.c |    6 ++++--
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/src/shutdownd.c b/src/shutdownd.c
+index 1381941..7fd9573 100644
+--- a/src/shutdownd.c
++++ b/src/shutdownd.c
+@@ -348,7 +348,7 @@ finish:
+         if (unlink_nologin)
+                 unlink("/run/nologin");
+ 
+-        if (exec_shutdown) {
++        if (exec_shutdown && !c.dry_run) {
+                 char sw[3];
+ 
+                 sw[0] = '-';
+diff --git a/src/shutdownd.h b/src/shutdownd.h
+index ed8a704..4581649 100644
+--- a/src/shutdownd.h
++++ b/src/shutdownd.h
+@@ -33,6 +33,7 @@ _packed_ struct shutdownd_command {
+         char mode; /* H, P, r, i.e. the switches usually passed to
+                     * shutdown to select whether to halt, power-off or
+                     * reboot the machine */
++        bool dry_run;
+         bool warn_wall;
+ 
+         /* Yepp, sometimes we are lazy and use fixed-size strings like
+diff --git a/src/systemctl.c b/src/systemctl.c
+index b584e70..8f904c1 100644
+--- a/src/systemctl.c
++++ b/src/systemctl.c
+@@ -5422,7 +5422,7 @@ static int systemctl_main(DBusConnection *bus, int argc, char *argv[], DBusError
+         return verbs[i].dispatch(bus, argv + optind, left);
+ }
+ 
+-static int send_shutdownd(usec_t t, char mode, bool warn, const char *message) {
++static int send_shutdownd(usec_t t, char mode, bool dry_run, bool warn, const char *message) {
+         int fd = -1;
+         struct msghdr msghdr;
+         struct iovec iovec;
+@@ -5432,6 +5432,7 @@ static int send_shutdownd(usec_t t, char mode, bool warn, const char *message) {
+         zero(c);
+         c.elapse = t;
+         c.mode = mode;
++        c.dry_run = dry_run;
+         c.warn_wall = warn;
+ 
+         if (message)
+@@ -5527,6 +5528,7 @@ static int halt_main(DBusConnection *bus) {
+                                    arg_action == ACTION_HALT     ? 'H' :
+                                    arg_action == ACTION_POWEROFF ? 'P' :
+                                                                    'r',
++                                   arg_dry,
+                                    !arg_no_wall,
+                                    m);
+                 free(m);
+@@ -5774,7 +5776,7 @@ int main(int argc, char*argv[]) {
+                 break;
+ 
+         case ACTION_CANCEL_SHUTDOWN:
+-                r = send_shutdownd(0, 0, false, NULL);
++                r = send_shutdownd(0, 0, false, false, NULL);
+                 break;
+ 
+         case ACTION_INVALID:
+-- 
+1.7.4.4
+

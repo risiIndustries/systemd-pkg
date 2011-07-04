@@ -1,0 +1,54 @@
+From abebb5af9a7f5da77425aab1ecadd9bfcad53009 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Skytt=C3=A4?= <ville.skytta@iki.fi>
+Date: Sat, 18 Jun 2011 16:23:43 +0300
+Subject: [PATCH] systemctl: Add SYSTEMD_PAGER for setting the pager to use in
+ systemctl
+
+---
+ man/systemctl.xml |   16 ++++++++++++++++
+ src/systemctl.c   |    2 +-
+ 2 files changed, 17 insertions(+), 1 deletions(-)
+
+diff --git a/man/systemctl.xml b/man/systemctl.xml
+index a9e86ce..2fd2b7b 100644
+--- a/man/systemctl.xml
++++ b/man/systemctl.xml
+@@ -1022,6 +1022,22 @@
+         </refsect1>
+ 
+         <refsect1>
++                <title>Environment</title>
++
++                <variablelist>
++                        <varlistentry>
++                                <term><varname>$SYSTEMD_PAGER</varname></term>
++                                <listitem><para>Pager to use when
++                                <option>--no-pager</option> is not given;
++                                overrides <varname>$PAGER</varname>.  Setting
++                                this to an empty string or the value
++                                <literal>cat</literal> is equivalent to passing
++                                <option>--no-pager</option>.</para></listitem>
++                        </varlistentry>
++                </variablelist>
++        </refsect1>
++
++        <refsect1>
+                 <title>See Also</title>
+                 <para>
+                         <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+diff --git a/src/systemctl.c b/src/systemctl.c
+index 08c7fab..ab41566 100644
+--- a/src/systemctl.c
++++ b/src/systemctl.c
+@@ -5572,7 +5572,7 @@ static void pager_open(void) {
+         if (!on_tty() || arg_no_pager)
+                 return;
+ 
+-        if ((pager = getenv("PAGER")))
++        if ((pager = getenv("SYSTEMD_PAGER")) || (pager = getenv("PAGER")))
+                 if (!*pager || streq(pager, "cat"))
+                         return;
+ 
+-- 
+1.7.4.4
+

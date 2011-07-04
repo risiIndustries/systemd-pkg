@@ -1,0 +1,35 @@
+From 1a63987788624a8819b94b199aa6748665f5e957 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sat, 2 Jul 2011 20:41:36 +0200
+Subject: [PATCH] shutdown: accept minutes argument without '+'
+
+Both SysVinit's and upstart's shutdown commands accept the number of
+minutes with or without the plus sign.
+'shutdown -h 1' works in RHEL 5, Fedora 14, Debian 6.
+Let's be compatible.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=708886
+---
+ src/systemctl.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/systemctl.c b/src/systemctl.c
+index f6dca5b..b584e70 100644
+--- a/src/systemctl.c
++++ b/src/systemctl.c
+@@ -4815,10 +4815,10 @@ static int parse_time_spec(const char *t, usec_t *_u) {
+ 
+         if (streq(t, "now"))
+                 *_u = 0;
+-        else if (t[0] == '+') {
++        else if (!strchr(t, ':')) {
+                 uint64_t u;
+ 
+-                if (safe_atou64(t + 1, &u) < 0)
++                if (safe_atou64(t, &u) < 0)
+                         return -EINVAL;
+ 
+                 *_u = now(CLOCK_REALTIME) + USEC_PER_MINUTE * u;
+-- 
+1.7.4.4
+

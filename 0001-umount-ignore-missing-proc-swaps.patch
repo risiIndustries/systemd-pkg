@@ -1,0 +1,27 @@
+From dee87d612d295d9c8642b76c716b8e357411e65a Mon Sep 17 00:00:00 2001
+From: Michael Olbrich <m.olbrich@pengutronix.de>
+Date: Tue, 28 Jun 2011 09:30:08 +0200
+Subject: [PATCH] umount: ignore missing /proc/swaps
+
+/proc/swaps does not exist when swap is disabled in the kernel.
+Just report an empty list of mountpoints to unmount in this case.
+---
+ src/umount.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/umount.c b/src/umount.c
+index 3d328e0..95efa82 100644
+--- a/src/umount.c
++++ b/src/umount.c
+@@ -146,7 +146,7 @@ static int swap_list_get(MountPoint **head) {
+         assert(head);
+ 
+         if (!(proc_swaps = fopen("/proc/swaps", "re")))
+-                return -errno;
++                return (errno == ENOENT) ? 0 : -errno;
+ 
+         (void) fscanf(proc_swaps, "%*s %*s %*s %*s %*s\n");
+ 
+-- 
+1.7.4.4
+

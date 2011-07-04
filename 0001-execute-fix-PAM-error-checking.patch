@@ -1,0 +1,25 @@
+From 7fbf31dfe3cb2f9619df28258208eba36922e9d3 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 30 Jun 2011 04:15:53 +0200
+Subject: [PATCH] execute: fix PAM error checking
+
+---
+ src/execute.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/execute.c b/src/execute.c
+index c69442d..d297e0a 100644
+--- a/src/execute.c
++++ b/src/execute.c
+@@ -1269,7 +1269,7 @@ int exec_spawn(ExecCommand *command,
+ 
+ #ifdef HAVE_PAM
+                 if (context->pam_name && username) {
+-                        if (setup_pam(context->pam_name, username, context->tty_path, &pam_env, fds, n_fds) < 0) {
++                        if (setup_pam(context->pam_name, username, context->tty_path, &pam_env, fds, n_fds) != 0) {
+                                 r = EXIT_PAM;
+                                 goto fail_child;
+                         }
+-- 
+1.7.4.4
+

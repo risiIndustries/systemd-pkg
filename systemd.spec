@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        5%{?dist}
+Release:        6%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -46,6 +46,22 @@ Patch6:         0001-readahead-common-fix-total-memory-size-detection.patch
 Patch7:         0001-systemctl-fix-is-enabled-for-native-units-under-lib.patch
 Patch8:         0001-dbus-fix-name-of-capability-property.patch
 Patch9:         0001-pam-module-add-debug-parameter.patch
+Patch10:        0001-systemctl-Add-SYSTEMD_PAGER-for-setting-the-pager-to.patch
+Patch11:        0001-manager-include-full-systemctl-status-command-line-i.patch
+Patch12:        0001-swap-ignore-missing-proc-swaps.patch
+Patch13:        0001-unit-when-loading-symlinked-template-units-properly-.patch
+Patch14:        0001-execute-don-t-choke-when-systemd-was-compiled-with-a.patch
+Patch15:        0001-execute-fix-PAM-error-checking.patch
+Patch16:        0001-umount-ignore-missing-proc-swaps.patch
+Patch17:        0001-units-enable-dev-hugepages.automount-and-dev-mqueue..patch
+Patch18:        0001-tmpfiles-don-t-exit-with-an-error-code-if-we-cannot-.patch
+Patch19:        0001-manager-consider-the-active-job-when-merging.patch
+Patch20:        0001-shutdown-accept-minutes-argument-without.patch
+Patch21:        0001-shutdown-respect-the-dry-run-option-k.patch
+Patch22:        0001-shutdown-print-the-standard-wall-message-even-when-t.patch
+Patch23:        0001-systemadm-report-GLib.Error-only-to-stderr.patch
+Patch24:        0001-password-agent-make-sure-not-to-access-unallocated-m.patch
+Patch25:        0001-password-agent-actually-really-don-t-access-unalloca.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -110,6 +126,22 @@ SysV compatibility tools for systemd
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
+%patch19 -p1
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
 %patch100 -p1
 
 %build
@@ -313,6 +345,12 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Mon Jul 04 2011 Michal Schmidt <mschmidt@redhat.com> 26-6
+- Cherry-picked a bunch of upstream patches.
+- Fixes: BZ#633774, BZ#708886, BZ#712710, BZ#716663
+- Partially fixes: BZ#624149
+- other small fixes
+
 * Mon Jun 20 2011 Michal Schmidt <mschmidt@redhat.com> - 26-5
 - Temporary workaround to detect LVM VGs on encrypted PVs. (BZ#708684)
 

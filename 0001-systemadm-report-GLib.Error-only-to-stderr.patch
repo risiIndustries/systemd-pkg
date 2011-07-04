@@ -1,0 +1,29 @@
+From b8590c197deceab623d37dbb95e30eec9cf47d14 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sun, 3 Jul 2011 01:47:21 +0200
+Subject: [PATCH] systemadm: report GLib.Error only to stderr
+
+When a GLib.Error happens, it is likely that showing a message box would fail
+too.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=716663
+---
+ src/systemadm.vala |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/systemadm.vala b/src/systemadm.vala
+index c262794..d45ec64 100644
+--- a/src/systemadm.vala
++++ b/src/systemadm.vala
+@@ -1011,7 +1011,7 @@ int main(string[] args) {
+         } catch (IOError e) {
+                 show_error(e.message);
+         } catch (GLib.Error e) {
+-                show_error(e.message);
++                stderr.printf("%s\n", e.message);
+         }
+ 
+         return 0;
+-- 
+1.7.4.4
+

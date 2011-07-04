@@ -1,0 +1,33 @@
+[hand-removed a TODO hunk -- michich]
+
+From 3661ac04b4f2840d3345605aa35963bbde3c469d Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 20 Jun 2011 21:39:28 +0200
+Subject: [PATCH] manager: include full systemctl status command line in error
+ message
+
+---
+ TODO          |    2 ++
+ src/manager.c |    5 +++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/manager.c b/src/manager.c
+index 68d43ad..62451a0 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -1468,9 +1468,10 @@ static int transaction_add_job_and_dependencies(
+         if (type != JOB_STOP && unit->meta.load_state == UNIT_ERROR) {
+                 dbus_set_error(e, BUS_ERROR_LOAD_FAILED,
+                                "Unit %s failed to load: %s. "
+-                               "See system logs and 'systemctl status' for details.",
++                               "See system logs and 'systemctl status %s' for details.",
+                                unit->meta.id,
+-                               strerror(-unit->meta.load_error));
++                               strerror(-unit->meta.load_error),
++                               unit->meta.id);
+                 return -EINVAL;
+         }
+ 
+-- 
+1.7.4.4
+

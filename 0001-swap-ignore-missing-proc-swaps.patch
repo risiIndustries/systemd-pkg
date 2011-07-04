@@ -1,0 +1,27 @@
+From 3f8587327556c97ae4fc4c8b3ea0df122f769d4b Mon Sep 17 00:00:00 2001
+From: Michael Olbrich <m.olbrich@pengutronix.de>
+Date: Fri, 24 Jun 2011 13:43:19 +0200
+Subject: [PATCH] swap: ignore missing /proc/swaps
+
+Otherwise systemd reports "Failed to fully start up daemon: No such file or
+directory" when swap is disabled in the kernel.
+---
+ src/swap.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/swap.c b/src/swap.c
+index 14719ad..7675e6a 100644
+--- a/src/swap.c
++++ b/src/swap.c
+@@ -1237,7 +1237,7 @@ static int swap_enumerate(Manager *m) {
+ 
+         if (!m->proc_swaps) {
+                 if (!(m->proc_swaps = fopen("/proc/swaps", "re")))
+-                        return -errno;
++                        return (errno == ENOENT) ? 0 : -errno;
+ 
+                 m->swap_watch.type = WATCH_SWAP;
+                 m->swap_watch.fd = fileno(m->proc_swaps);
+-- 
+1.7.4.4
+

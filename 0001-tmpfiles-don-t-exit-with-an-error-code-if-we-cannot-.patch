@@ -1,0 +1,44 @@
+[hand-removed the TODO hunk -- michich]
+
+From 21bdae12e11ae20460715475d8a0c991f15464ac Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 2 Jul 2011 01:44:49 +0200
+Subject: [PATCH] tmpfiles: don't exit with an error code if we cannot access
+ all files
+
+This is just to avoid confusion if people use stuff like FUSE file
+systems or SELinux which might disallow access to files even if tmpfiles
+is running as root.
+
+We still log away if we cannot access a file, but we do not return a
+failure exit code in the end.
+---
+ TODO           |    4 ++++
+ src/tmpfiles.c |    8 ++------
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/tmpfiles.c b/src/tmpfiles.c
+index 954c3b7..4394f0d 100644
+--- a/src/tmpfiles.c
++++ b/src/tmpfiles.c
+@@ -983,15 +983,11 @@ int main(int argc, char *argv[]) {
+                 strv_free(files);
+         }
+ 
+-
+-
+         HASHMAP_FOREACH(i, globs, iterator)
+-                if (process_item(i) < 0)
+-                        r = EXIT_FAILURE;
++                process_item(i);
+ 
+         HASHMAP_FOREACH(i, items, iterator)
+-                if (process_item(i) < 0)
+-                        r = EXIT_FAILURE;
++                process_item(i);
+ 
+ finish:
+         while ((i = hashmap_steal_first(items)))
+-- 
+1.7.4.4
+

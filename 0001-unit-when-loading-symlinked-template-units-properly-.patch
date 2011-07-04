@@ -1,0 +1,60 @@
+[hand-removed an irrelevant non-applicable hunk for logind.h -- michich]
+
+From 15e11d81e7c26439f583e1cf67ac3c712430a79e Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 28 Jun 2011 02:53:15 +0200
+Subject: [PATCH] unit: when loading symlinked template units, properly add
+ all names on the way to the unit
+
+---
+ src/load-fragment.c |   11 +++++++----
+ src/logind.h        |    3 +--
+ src/unit-name.c     |    7 ++++---
+ 3 files changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/src/load-fragment.c b/src/load-fragment.c
+index 56eaed9..352db6b 100644
+--- a/src/load-fragment.c
++++ b/src/load-fragment.c
+@@ -1661,13 +1661,16 @@ static int open_follow(char **filename, FILE **_f, Set *names, char **_final) {
+                  * unit name. */
+                 name = file_name_from_path(*filename);
+ 
+-                if (unit_name_is_valid(name, false)) {
+-                        if (!(id = set_get(names, name))) {
++                if (unit_name_is_valid(name, true)) {
+ 
+-                                if (!(id = strdup(name)))
++                        id = set_get(names, name);
++                        if (!id) {
++                                id = strdup(name);
++                                if (!id)
+                                         return -ENOMEM;
+ 
+-                                if ((r = set_put(names, id)) < 0) {
++                                r = set_put(names, id);
++                                if (r < 0) {
+                                         free(id);
+                                         return r;
+                                 }
+diff --git a/src/unit-name.c b/src/unit-name.c
+index be4e73e..6d45576 100644
+--- a/src/unit-name.c
++++ b/src/unit-name.c
+@@ -272,9 +272,10 @@ char *unit_name_unescape(const char *f) {
+                 else if (*f == '\\') {
+                         int a, b;
+ 
+-                        if (f[1] != 'x' || (a = unhexchar(f[2])) < 0 ||
+-					(b = unhexchar(f[3])) < 0) {
+-				/* Invalid escape code, let's take it literal then */
++                        if (f[1] != 'x' ||
++                            (a = unhexchar(f[2])) < 0 ||
++                            (b = unhexchar(f[3])) < 0) {
++                                /* Invalid escape code, let's take it literal then */
+                                 *(t++) = '\\';
+                         } else {
+                                 *(t++) = (char) ((a << 4) | b);
+-- 
+1.7.4.4
+

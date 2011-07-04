@@ -1,0 +1,38 @@
+From 1b562e4604f8833bc21fd251b8bdb45c9c224df4 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sat, 2 Jul 2011 14:52:52 +0200
+Subject: [PATCH] manager: consider the active job when merging
+
+In some cases systemd forgets to start enabled services, e.g. in this scenario:
+1. The job "sendmail.service/start" is installed.
+2. Before systemd proceeds with this job, a process requests a reload of
+   sendmail. The job "sendmail.service/reload" is enqueued.
+3. The original job is silently discarded. The service is not started.
+   The reload job proceeds by doing nothing.
+
+The fix is to allow merging transaction jobs with the active job.
+With the fix the resulting merged job "sendmail.service/reload-or-start" is
+installed and the service works as expected.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=633774
+---
+ src/manager.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/src/manager.c b/src/manager.c
+index 92a6dff..258b3ca 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -897,6 +897,9 @@ static int transaction_merge_jobs(Manager *m, DBusError *e) {
+                                 transaction_merge_and_delete_job(m, j, k, t);
+                 }
+ 
++                if (j->unit->meta.job && !j->installed)
++                        transaction_merge_and_delete_job(m, j, j->unit->meta.job, t);
++
+                 assert(!j->transaction_next);
+                 assert(!j->transaction_prev);
+         }
+-- 
+1.7.4.4
+
