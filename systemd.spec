@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        6%{?dist}
+Release:        7%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -62,6 +62,9 @@ Patch22:        0001-shutdown-print-the-standard-wall-message-even-when-t.patch
 Patch23:        0001-systemadm-report-GLib.Error-only-to-stderr.patch
 Patch24:        0001-password-agent-make-sure-not-to-access-unallocated-m.patch
 Patch25:        0001-password-agent-actually-really-don-t-access-unalloca.patch
+Patch26:        0001-service-pidfile-in-SysV-chkconfig-header-implies-a-r.patch
+Patch27:        0001-cgroup-don-t-trim-a-cgroup-we-create-we-might-just-t.patch
+Patch28:        0001-manager-merge-serialization-and-desrialization-count.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -142,6 +145,9 @@ SysV compatibility tools for systemd
 %patch23 -p1
 %patch24 -p1
 %patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch28 -p1
 %patch100 -p1
 
 %build
@@ -345,7 +351,12 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
-* Mon Jul 04 2011 Michal Schmidt <mschmidt@redhat.com> 26-6
+* Wed Jul 06 2011 Michal Schmidt <mschmidt@redhat.com> - 26-7
+- Add more fixes from upstream:
+  - don't trim cgroups on reexec (BZ#678555)
+  - treat SysV services with "pidfile:" header as real daemons (BZ#702621)
+
+* Mon Jul 04 2011 Michal Schmidt <mschmidt@redhat.com> - 26-6
 - Cherry-picked a bunch of upstream patches.
 - Fixes: BZ#633774, BZ#708886, BZ#712710, BZ#716663
 - Partially fixes: BZ#624149

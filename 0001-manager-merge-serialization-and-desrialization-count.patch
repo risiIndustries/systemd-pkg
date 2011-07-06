@@ -1,0 +1,289 @@
+From a75560529663e5fd055884e32ab9c73f47f8aaa5 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 6 Jul 2011 00:47:39 +0200
+Subject: [PATCH] manager: merge serialization and desrialization counter into
+ one, and increase it when reexecuting
+
+Instead of having individual counters n_serializing and n_deserializing
+have a single one n_reloading, which should be sufficient.
+
+Set n_reloading when we are about to go down for reexecution to avoid
+cgroup trimming when we free the units for reexecution.
+---
+ src/fdset.c    |    6 ++++++
+ src/main.c     |    3 +++
+ src/manager.c  |   41 ++++++++++++++++++-----------------------
+ src/manager.h  |    4 ++--
+ src/service.c  |    2 +-
+ src/snapshot.c |    2 +-
+ src/unit.c     |   10 +++++-----
+ 7 files changed, 36 insertions(+), 32 deletions(-)
+
+diff --git a/src/fdset.c b/src/fdset.c
+index 9bf3788..e67fe6f 100644
+--- a/src/fdset.c
++++ b/src/fdset.c
+@@ -49,6 +49,12 @@ void fdset_free(FDSet *s) {
+                  * here, so that the EBADFD that valgrind will return
+                  * us on close() doesn't influence us */
+ 
++                /* When reloading duplicates of the private bus
++                 * connection fds and suchlike are closed here, which
++                 * has no effect at all, since they are only
++                 * duplicates. So don't be surprised about these log
++                 * messages. */
++
+                 log_debug("Closing left-over fd %i", PTR_TO_FD(p));
+                 close_nointr(PTR_TO_FD(p));
+         }
+diff --git a/src/main.c b/src/main.c
+index 76a0943..5a8ef52 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -898,6 +898,9 @@ static int prepare_reexecute(Manager *m, FILE **_f, FDSet **_fds) {
+         assert(_f);
+         assert(_fds);
+ 
++        /* Make sure nothing is really destructed when we shut down */
++        m->n_reloading ++;
++
+         if ((r = manager_open_serialization(m, &f)) < 0) {
+                 log_error("Failed to create serialization file: %s", strerror(-r));
+                 goto fail;
+diff --git a/src/manager.c b/src/manager.c
+index 7b725e3..3291275 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -595,7 +595,7 @@ int manager_startup(Manager *m, FILE *serialization, FDSet *fds) {
+          * this is already known, so we increase the counter here
+          * already */
+         if (serialization)
+-                m->n_deserializing ++;
++                m->n_reloading ++;
+ 
+         /* First, enumerate what we can from all config files */
+         r = manager_enumerate(m);
+@@ -610,8 +610,8 @@ int manager_startup(Manager *m, FILE *serialization, FDSet *fds) {
+                 r = q;
+ 
+         if (serialization) {
+-                assert(m->n_deserializing > 0);
+-                m->n_deserializing --;
++                assert(m->n_reloading > 0);
++                m->n_reloading --;
+         }
+ 
+         return r;
+@@ -2476,7 +2476,7 @@ void manager_send_unit_audit(Manager *m, Unit *u, int type, bool success) {
+ 
+         /* Don't generate audit events if the service was already
+          * started and we're just deserializing */
+-        if (m->n_deserializing > 0)
++        if (m->n_reloading > 0)
+                 return;
+ 
+         if (m->running_as != MANAGER_SYSTEM)
+@@ -2517,7 +2517,7 @@ void manager_send_unit_plymouth(Manager *m, Unit *u) {
+ 
+         /* Don't generate plymouth events if the service was already
+          * started and we're just deserializing */
+-        if (m->n_deserializing > 0)
++        if (m->n_reloading > 0)
+                 return;
+ 
+         if (m->running_as != MANAGER_SYSTEM)
+@@ -2659,7 +2659,7 @@ int manager_serialize(Manager *m, FILE *f, FDSet *fds) {
+         assert(f);
+         assert(fds);
+ 
+-        m->n_serializing ++;
++        m->n_reloading ++;
+ 
+         fprintf(f, "current-job-id=%i\n", m->current_job_id);
+         fprintf(f, "taint-usr=%s\n", yes_no(m->taint_usr));
+@@ -2682,13 +2682,13 @@ int manager_serialize(Manager *m, FILE *f, FDSet *fds) {
+                 fputc('\n', f);
+ 
+                 if ((r = unit_serialize(u, f, fds)) < 0) {
+-                        m->n_serializing --;
++                        m->n_reloading --;
+                         return r;
+                 }
+         }
+ 
+-        assert(m->n_serializing > 0);
+-        m->n_serializing --;
++        assert(m->n_reloading > 0);
++        m->n_reloading --;
+ 
+         if (ferror(f))
+                 return -EIO;
+@@ -2708,7 +2708,7 @@ int manager_deserialize(Manager *m, FILE *f, FDSet *fds) {
+ 
+         log_debug("Deserializing state...");
+ 
+-        m->n_deserializing ++;
++        m->n_reloading ++;
+ 
+         for (;;) {
+                 char line[LINE_MAX], *l;
+@@ -2781,8 +2781,8 @@ finish:
+                 goto finish;
+         }
+ 
+-        assert(m->n_deserializing > 0);
+-        m->n_deserializing --;
++        assert(m->n_reloading > 0);
++        m->n_reloading --;
+ 
+         return r;
+ }
+@@ -2797,21 +2797,21 @@ int manager_reload(Manager *m) {
+         if ((r = manager_open_serialization(m, &f)) < 0)
+                 return r;
+ 
+-        m->n_serializing ++;
++        m->n_reloading ++;
+ 
+         if (!(fds = fdset_new())) {
+-                m->n_serializing --;
++                m->n_reloading --;
+                 r = -ENOMEM;
+                 goto finish;
+         }
+ 
+         if ((r = manager_serialize(m, f, fds)) < 0) {
+-                m->n_serializing --;
++                m->n_reloading --;
+                 goto finish;
+         }
+ 
+         if (fseeko(f, 0, SEEK_SET) < 0) {
+-                m->n_serializing --;
++                m->n_reloading --;
+                 r = -errno;
+                 goto finish;
+         }
+@@ -2820,9 +2820,6 @@ int manager_reload(Manager *m) {
+         manager_clear_jobs_and_units(m);
+         manager_undo_generators(m);
+ 
+-        assert(m->n_serializing > 0);
+-        m->n_serializing --;
+-
+         /* Find new unit paths */
+         lookup_paths_free(&m->lookup_paths);
+         if ((q = lookup_paths_init(&m->lookup_paths, m->running_as)) < 0)
+@@ -2832,8 +2829,6 @@ int manager_reload(Manager *m) {
+ 
+         manager_build_unit_path_cache(m);
+ 
+-        m->n_deserializing ++;
+-
+         /* First, enumerate what we can from all config files */
+         if ((q = manager_enumerate(m)) < 0)
+                 r = q;
+@@ -2849,8 +2844,8 @@ int manager_reload(Manager *m) {
+         if ((q = manager_coldplug(m)) < 0)
+                 r = q;
+ 
+-        assert(m->n_deserializing > 0);
+-        m->n_deserializing--;
++        assert(m->n_reloading > 0);
++        m->n_reloading--;
+ 
+ finish:
+         if (f)
+diff --git a/src/manager.h b/src/manager.h
+index 4557d5f..22730d2 100644
+--- a/src/manager.h
++++ b/src/manager.h
+@@ -223,8 +223,8 @@ struct Manager {
+ 
+         ExecOutput default_std_output, default_std_error;
+ 
+-        int n_serializing;
+-        int n_deserializing;
++        /* non-zero if we are reloading or reexecuting, */
++        int n_reloading;
+ 
+         unsigned n_installed_jobs;
+         unsigned n_failed_jobs;
+diff --git a/src/service.c b/src/service.c
+index 5c7e62f..b684a37 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -1496,7 +1496,7 @@ static void service_set_state(Service *s, ServiceState state) {
+ 
+         /* For the inactive states unit_notify() will trim the cgroup,
+          * but for exit we have to do that ourselves... */
+-        if (state == SERVICE_EXITED && s->meta.manager->n_deserializing <= 0)
++        if (state == SERVICE_EXITED && s->meta.manager->n_reloading <= 0)
+                 cgroup_bonding_trim_list(s->meta.cgroup_bondings, true);
+ 
+         if (old_state != state)
+diff --git a/src/snapshot.c b/src/snapshot.c
+index 9825f90..270dc4f 100644
+--- a/src/snapshot.c
++++ b/src/snapshot.c
+@@ -66,7 +66,7 @@ static int snapshot_load(Unit *u) {
+ 
+         /* Make sure that only snapshots created via snapshot_create()
+          * can be loaded */
+-        if (!s->by_snapshot_create && s->meta.manager->n_deserializing <= 0)
++        if (!s->by_snapshot_create && s->meta.manager->n_reloading <= 0)
+                 return -ENOENT;
+ 
+         u->meta.load_state = UNIT_LOADED;
+diff --git a/src/unit.c b/src/unit.c
+index a207262..d414209 100644
+--- a/src/unit.c
++++ b/src/unit.c
+@@ -370,7 +370,7 @@ void unit_free(Unit *u) {
+                 u->meta.manager->n_in_gc_queue--;
+         }
+ 
+-        cgroup_bonding_free_list(u->meta.cgroup_bondings, u->meta.manager->n_serializing <= 0);
++        cgroup_bonding_free_list(u->meta.cgroup_bondings, u->meta.manager->n_reloading <= 0);
+ 
+         free(u->meta.description);
+         free(u->meta.fragment_path);
+@@ -1137,7 +1137,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+          * behaviour here. For example: if a mount point is remounted
+          * this function will be called too! */
+ 
+-        if (u->meta.manager->n_deserializing <= 0) {
++        if (u->meta.manager->n_reloading <= 0) {
+                 dual_timestamp ts;
+ 
+                 dual_timestamp_get(&ts);
+@@ -1225,7 +1225,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+         } else
+                 unexpected = true;
+ 
+-        if (u->meta.manager->n_deserializing <= 0) {
++        if (u->meta.manager->n_reloading <= 0) {
+ 
+                 /* If this state change happened without being
+                  * requested by a job, then let's retroactively start
+@@ -1258,7 +1258,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+ 
+                 if (u->meta.type == UNIT_SERVICE &&
+                     !UNIT_IS_ACTIVE_OR_RELOADING(os) &&
+-                    u->meta.manager->n_deserializing <= 0) {
++                    u->meta.manager->n_reloading <= 0) {
+                         /* Write audit record if we have just finished starting up */
+                         manager_send_unit_audit(u->meta.manager, u, AUDIT_SERVICE_START, true);
+                         u->meta.in_audit = true;
+@@ -1275,7 +1275,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+                 if (u->meta.type == UNIT_SERVICE &&
+                     UNIT_IS_INACTIVE_OR_FAILED(ns) &&
+                     !UNIT_IS_INACTIVE_OR_FAILED(os) &&
+-                    u->meta.manager->n_deserializing <= 0) {
++                    u->meta.manager->n_reloading <= 0) {
+ 
+                         /* Hmm, if there was no start record written
+                          * write it now, so that we always have a nice
+-- 
+1.7.4.4
+

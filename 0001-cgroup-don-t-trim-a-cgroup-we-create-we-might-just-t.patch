@@ -1,0 +1,27 @@
+From 38a285d776cc0bf4440efe79fc7691032bcf3d67 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 6 Jul 2011 00:14:26 +0200
+Subject: [PATCH] cgroup: don't trim a cgroup we create, we might just take it
+ over from somebody else
+
+---
+ src/cgroup.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
+
+diff --git a/src/cgroup.c b/src/cgroup.c
+index d16b5f8..4aa01f1 100644
+--- a/src/cgroup.c
++++ b/src/cgroup.c
+@@ -46,9 +46,6 @@ int cgroup_bonding_realize(CGroupBonding *b) {
+ 
+         b->realized = true;
+ 
+-        if (b->ours)
+-                cg_trim(b->controller, b->path, false);
+-
+         return 0;
+ }
+ 
+-- 
+1.7.4.4
+
