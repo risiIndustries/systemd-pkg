@@ -1,0 +1,45 @@
+From 980fc73d1fcda8c2a494a18dbd3262fdb97f5fbe Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 1 Aug 2011 20:27:57 +0200
+Subject: [PATCH] getty: automatically spawn getty on xen console xvc0
+
+https://bugzilla.redhat.com/show_bug.cgi?id=726976
+---
+ src/99-systemd.rules    |    2 +-
+ src/getty-generator.c   |    8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletions(-)
+
+diff --git a/src/99-systemd.rules b/src/99-systemd.rules
+index e0aa49d..6aaf827 100644
+--- a/src/99-systemd.rules
++++ b/src/99-systemd.rules
+@@ -8,7 +8,7 @@
+ ACTION!="add|change", GOTO="systemd_end"
+ 
+ SUBSYSTEM=="tty", KERNEL=="tty[0-9]|tty1[0-2]", TAG+="systemd"
+-SUBSYSTEM=="tty", KERNEL=="tty[a-zA-Z]*|hvc*", TAG+="systemd"
++SUBSYSTEM=="tty", KERNEL=="tty[a-zA-Z]*|hvc*|xvc*", TAG+="systemd"
+ 
+ SUBSYSTEM=="block", KERNEL!="ram*|loop*", TAG+="systemd"
+ SUBSYSTEM=="block", KERNEL!="ram*|loop*", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=="1", ENV{SYSTEMD_READY}="0"
+diff --git a/src/getty-generator.c b/src/getty-generator.c
+index 683775a..141402b 100644
+--- a/src/getty-generator.c
++++ b/src/getty-generator.c
+@@ -119,6 +119,14 @@ int main(int argc, char *argv[]) {
+ 
+                 if (add_symlink("serial-getty@.service", "serial-getty@hvc0.service") < 0)
+                         r = EXIT_FAILURE;
++
++        }
++
++        if (access("/sys/class/tty/xvc0", F_OK) == 0) {
++                log_debug("Automatic adding serial getty for xvc0.");
++
++                if (add_symlink("serial-getty@.service", "serial-getty@xvc0.service") < 0)
++                        r = EXIT_FAILURE;
+         }
+ 
+ finish:
+-- 
+1.7.6

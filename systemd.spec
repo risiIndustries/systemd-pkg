@@ -66,6 +66,9 @@ Patch25:        0001-password-agent-actually-really-don-t-access-unalloca.patch
 #Patch26:        0001-service-pidfile-in-SysV-chkconfig-header-implies-a-r.patch
 Patch27:        0001-cgroup-don-t-trim-a-cgroup-we-create-we-might-just-t.patch
 Patch28:        0001-manager-merge-serialization-and-desrialization-count.patch
+Patch29:        0001-execute-properly-enforce-group.patch
+Patch30:        0001-manager-call-generators-with-umask-0022.patch
+Patch31:        0001-getty-automatically-spawn-getty-on-xen-console-xvc0.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -149,6 +152,9 @@ SysV compatibility tools for systemd
 #% patch26 -p1
 %patch27 -p1
 %patch28 -p1
+%patch29 -p1
+%patch30 -p1
+%patch31 -p1
 %patch100 -p1
 
 %build
@@ -352,6 +358,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Tue Aug 23 2011 Lennart Poettering <lpoetter@redhat.com> - 26-8
+- Fix a couple of bugs (#723892, #726976)
+
 * Fri Jul 08 2011 Michal Schmidt <mschmidt@redhat.com> - 26-8
 - Drop the pidfile patch for now. It exposes a bug in sendmail (BZ#719884)
 

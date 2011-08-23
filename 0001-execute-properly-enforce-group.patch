@@ -1,0 +1,25 @@
+From fa8f36ac15f6c3985f053cdd3698655958442f7f Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 1 Aug 2011 21:34:42 +0200
+Subject: [PATCH] execute: properly enforce group
+
+https://bugzilla.redhat.com/show_bug.cgi?id=723892
+---
+ src/execute.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/execute.c b/src/execute.c
+index f07d018..668bf9d 100644
+--- a/src/execute.c
++++ b/src/execute.c
+@@ -1193,7 +1193,7 @@ int exec_spawn(ExecCommand *command,
+ #endif
+ 
+                 if (apply_permissions)
+-                        if (enforce_groups(context, username, uid) < 0) {
++                        if (enforce_groups(context, username, gid) < 0) {
+                                 r = EXIT_GROUP;
+                                 goto fail_child;
+                         }
+-- 
+1.7.6
