@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        8%{?dist}
+Release:        9%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -358,7 +358,7 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
-* Tue Aug 23 2011 Lennart Poettering <lpoetter@redhat.com> - 26-8
+* Tue Aug 23 2011 Lennart Poettering <lpoetter@redhat.com> - 26-9
 - Fix a couple of bugs (#723892, #726976)
 
 * Fri Jul 08 2011 Michal Schmidt <mschmidt@redhat.com> - 26-8
