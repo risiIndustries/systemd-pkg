@@ -1,0 +1,24 @@
+From 149e180ac35564b6c8bf7757301634b31e3d0054 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 30 Aug 2011 16:49:17 +0200
+Subject: [PATCH] specifier: drop misplaced assert()
+
+---
+ src/specifier.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/src/specifier.c b/src/specifier.c
+index 497d395..a9fff88 100644
+--- a/src/specifier.c
++++ b/src/specifier.c
+@@ -104,7 +104,5 @@ char *specifier_printf(const char *text, const Specifier table[], void *userdata
+ /* Generic handler for simple string replacements */
+ 
+ char* specifier_string(char specifier, void *data, void *userdata) {
+-        assert(data);
+-
+         return strdup(strempty(data));
+ }
+-- 
+1.7.4.4
+

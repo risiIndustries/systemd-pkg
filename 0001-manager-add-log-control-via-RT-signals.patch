@@ -1,0 +1,117 @@
+From 253ee27a0c7a410d27d490bb79ea97caed6a2b68 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 23 Jul 2011 04:15:38 +0200
+Subject: [PATCH] manager: add log control via RT signals
+
+
+---
+[hand-edited to remove unrelated TODO edits -- michich]
+
+diff --git a/man/systemd.xml b/man/systemd.xml
+index 142c1d6..5129fbb 100644
+--- a/man/systemd.xml
++++ b/man/systemd.xml
+@@ -800,6 +800,44 @@
+                                 on the kernel command
+                                 line.</para></listitem>
+                         </varlistentry>
++
++                        <varlistentry>
++                                <term>SIGRTMIN+22</term>
++                                <term>SIGRTMIN+23</term>
++
++                                <listitem><para>Sets the log level to
++                                <literal>debug</literal>
++                                (resp. <literal>info</literal> on
++                                <literal>SIGRTMIN+32</literal>), as
++                                controlled via
++                                <varname>systemd.log_level=debug</varname>
++                                (resp. <varname>systemd.log_level=info</varname>
++                                on <literal>SIGRTMIN+23</literal>) on
++                                the kernel command
++                                line.</para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term>SIGRTMIN+27</term>
++                                <term>SIGRTMIN+28</term>
++                                <term>SIGRTMIN+29</term>
++
++                                <listitem><para>Sets the log level to
++                                <literal>console</literal>
++                                (resp. <literal>kmsg</literal> on
++                                <literal>SIGRTMIN+28</literal>;
++                                resp.<literal>syslog-or-kmsg</literal>
++                                on <literal>SIGRTMIN+29</literal>), as
++                                controlled via
++                                <varname>systemd.log_target=console</varname>
++                                (resp. <varname>systemd.log_target=kmsg</varname>
++                                on <literal>SIGRTMIN+28</literal>;
++                                resp
++                                <varname>systemd.log_target=syslog-or-kmsg</varname>
++                                on <literal>SIGRTMIN+29</literal>) on
++                                the kernel command
++                                line.</para></listitem>
++                        </varlistentry>
+                 </variablelist>
+         </refsect1>
+ 
+diff --git a/src/manager.c b/src/manager.c
+index c1242ae..cdd618e 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -186,6 +186,11 @@ static int manager_setup_signals(Manager *m) {
+                         SIGRTMIN+16, /* systemd: Immediate kexec */
+                         SIGRTMIN+20, /* systemd: enable status messages */
+                         SIGRTMIN+21, /* systemd: disable status messages */
++                        SIGRTMIN+22, /* systemd: set log level to LOG_DEBUG */
++                        SIGRTMIN+23, /* systemd: set log level to LOG_INFO */
++                        SIGRTMIN+27, /* systemd: set log target to console */
++                        SIGRTMIN+28, /* systemd: set log target to kmsg */
++                        SIGRTMIN+29, /* systemd: set log target to syslog-or-kmsg */
+                         -1);
+         assert_se(sigprocmask(SIG_SETMASK, &mask, NULL) == 0);
+ 
+@@ -2200,6 +2205,7 @@ static int manager_process_signal_fd(Manager *m) {
+                         break;
+ 
+                 default: {
++
+                         /* Starting SIGRTMIN+0 */
+                         static const char * const target_table[] = {
+                                 [0] = SPECIAL_DEFAULT_TARGET,
+@@ -2244,6 +2250,31 @@ static int manager_process_signal_fd(Manager *m) {
+                                 m->show_status = false;
+                                 break;
+ 
++                        case 22:
++                                log_set_max_level(LOG_DEBUG);
++                                log_notice("Setting log level to debug.");
++                                break;
++
++                        case 23:
++                                log_set_max_level(LOG_INFO);
++                                log_notice("Setting log level to info.");
++                                break;
++
++                        case 27:
++                                log_set_target(LOG_TARGET_CONSOLE);
++                                log_notice("Setting log target to console.");
++                                break;
++
++                        case 28:
++                                log_set_target(LOG_TARGET_KMSG);
++                                log_notice("Setting log target to kmsg.");
++                                break;
++
++                        case 29:
++                                log_set_target(LOG_TARGET_SYSLOG_OR_KMSG);
++                                log_notice("Setting log target to syslog-or-kmsg.");
++                                break;
++
+                         default:
+                                 log_warning("Got unhandled signal <%s>.", strna(signal_to_string(sfsi.ssi_signo)));
+                         }
+-- 
+1.7.4.4
+

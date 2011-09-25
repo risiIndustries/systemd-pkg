@@ -1,0 +1,29 @@
+From 764e9b5f073e1d5216de150045ec85475835fe3c Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Fri, 23 Sep 2011 09:37:45 +0200
+Subject: [PATCH] manager: fix job mode for SIGRTMIN+1, +2
+
+The test did not work as intended and always resulted in JOB_REPLACE.
+---
+ src/manager.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/manager.c b/src/manager.c
+index 6311c10..cf308ac 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -2233,8 +2233,9 @@ static int manager_process_signal_fd(Manager *m) {
+ 
+                         if ((int) sfsi.ssi_signo >= SIGRTMIN+0 &&
+                             (int) sfsi.ssi_signo < SIGRTMIN+(int) ELEMENTSOF(target_table)) {
+-                                manager_start_target(m, target_table[sfsi.ssi_signo - SIGRTMIN],
+-                                                     (sfsi.ssi_signo == 1 || sfsi.ssi_signo == 2) ? JOB_ISOLATE : JOB_REPLACE);
++                                int idx = (int) sfsi.ssi_signo - SIGRTMIN;
++                                manager_start_target(m, target_table[idx],
++                                                     (idx == 1 || idx == 2) ? JOB_ISOLATE : JOB_REPLACE);
+                                 break;
+                         }
+ 
+-- 
+1.7.4.4
+

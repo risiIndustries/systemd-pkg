@@ -1,0 +1,101 @@
+From 07bceef2a9c520e24da427c7ce500ad36ad37571 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 31 Aug 2011 14:09:14 +0200
+Subject: [PATCH] locale: support $LANGUAGE too
+
+$LANGUAGE is a GNU extension that is probably worth supporting, since it
+allows specifiying an order of languages.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=40510
+---
+
+[removed the localed.c patch -- michich]
+
+ man/locale.conf.xml     |    2 ++
+ src/locale-setup.c      |    8 ++++++--
+ units/getty@.service.m4 |    2 +-
+ 4 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/man/locale.conf.xml b/man/locale.conf.xml
+index 742c5eb..3723997 100644
+--- a/man/locale.conf.xml
++++ b/man/locale.conf.xml
+@@ -69,6 +69,7 @@
+ 
+                 <para>Note that the kernel command line options
+                 <varname>locale.LANG=</varname>,
++                <varname>locale.LANGUAGE=</varname>,
+                 <varname>locale.LC_CTYPE=</varname>,
+                 <varname>locale.LC_NUMERIC=</varname>,
+                 <varname>locale.LC_TIME=</varname>,
+@@ -101,6 +102,7 @@
+                 <para>The following locale settings may be set using
+                 <filename>/etc/locale.conf</filename>:
+                 <varname>LANG=</varname>,
++                <varname>LANGUAGE=</varname>,
+                 <varname>LC_CTYPE=</varname>,
+                 <varname>LC_NUMERIC=</varname>,
+                 <varname>LC_TIME=</varname>,
+diff --git a/src/locale-setup.c b/src/locale-setup.c
+index 33111da..41eb50b 100644
+--- a/src/locale-setup.c
++++ b/src/locale-setup.c
+@@ -32,6 +32,7 @@ enum {
+          * using LANG instead. */
+ 
+         VARIABLE_LANG,
++        VARIABLE_LANGUAGE,
+         VARIABLE_LC_CTYPE,
+         VARIABLE_LC_NUMERIC,
+         VARIABLE_LC_TIME,
+@@ -49,6 +50,7 @@ enum {
+ 
+ static const char * const variable_names[_VARIABLE_MAX] = {
+         [VARIABLE_LANG] = "LANG",
++        [VARIABLE_LANGUAGE] = "LANGUAGE",
+         [VARIABLE_LC_CTYPE] = "LC_CTYPE",
+         [VARIABLE_LC_NUMERIC] = "LC_NUMERIC",
+         [VARIABLE_LC_TIME] = "LC_TIME",
+@@ -75,6 +77,7 @@ int locale_setup(void) {
+                                         "LANG",                     &variables[VARIABLE_LANG],
+ #endif
+                                         "locale.LANG",              &variables[VARIABLE_LANG],
++                                        "locale.LANGUAGE",          &variables[VARIABLE_LANGUAGE],
+                                         "locale.LC_CTYPE",          &variables[VARIABLE_LC_CTYPE],
+                                         "locale.LC_NUMERIC",        &variables[VARIABLE_LC_NUMERIC],
+                                         "locale.LC_TIME",           &variables[VARIABLE_LC_TIME],
+@@ -98,6 +101,7 @@ int locale_setup(void) {
+         if (r <= 0 &&
+             (r = parse_env_file("/etc/locale.conf", NEWLINE,
+                                "LANG",              &variables[VARIABLE_LANG],
++                               "LANGUAGE",          &variables[VARIABLE_LANGUAGE],
+                                "LC_CTYPE",          &variables[VARIABLE_LC_CTYPE],
+                                "LC_NUMERIC",        &variables[VARIABLE_LC_NUMERIC],
+                                "LC_TIME",           &variables[VARIABLE_LC_TIME],
+@@ -212,8 +216,8 @@ int locale_setup(void) {
+                                 "LC_IDENTIFICATION", &variables[VARIABLE_LC_IDENTIFICATION],
+                                 NULL)) < 0) {
+ 
+-		if (r != -ENOENT)
+-			log_warning("Failed to read /etc/sysconfig/i18n: %s", strerror(-r));
++                if (r != -ENOENT)
++                        log_warning("Failed to read /etc/sysconfig/i18n: %s", strerror(-r));
+         }
+ 
+ #endif
+diff --git a/units/getty@.service.m4 b/units/getty@.service.m4
+index b111567..14d8187 100644
+--- a/units/getty@.service.m4
++++ b/units/getty@.service.m4
+@@ -44,7 +44,7 @@ KillMode=process
+ 
+ # Unset locale for the console getty since the console has problems
+ # displaying some internationalized messages.
+-Environment=LANG= LC_CTYPE= LC_NUMERIC= LC_TIME= LC_COLLATE= LC_MONETARY= LC_MESSAGES= LC_PAPER= LC_NAME= LC_ADDRESS= LC_TELEPHONE= LC_MEASUREMENT= LC_IDENTIFICATION=
++Environment=LANG= LANGUAGE= LC_CTYPE= LC_NUMERIC= LC_TIME= LC_COLLATE= LC_MONETARY= LC_MESSAGES= LC_PAPER= LC_NAME= LC_ADDRESS= LC_TELEPHONE= LC_MEASUREMENT= LC_IDENTIFICATION=
+ 
+ # Some login implementations ignore SIGTERM, so we send SIGHUP
+ # instead, to ensure that login terminates cleanly.
+-- 
+1.7.4.4
+

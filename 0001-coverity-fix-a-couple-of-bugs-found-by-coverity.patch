@@ -1,0 +1,108 @@
+From 8ea913b2eaadbd92e069ea6b71cc5f5df409decf Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 23 Sep 2011 01:43:28 +0200
+Subject: [PATCH] coverity: fix a couple of bugs found by coverity
+
+---
+
+[ removed hunks for code which does not exist in F15 -- michich ]
+
+Index: systemd-26/src/binfmt.c
+===================================================================
+--- systemd-26.orig/src/binfmt.c
++++ systemd-26/src/binfmt.c
+@@ -33,7 +33,7 @@
+ #include "util.h"
+ 
+ static int delete_rule(const char *rule) {
+-        char *x, *fn, *e;
++        char *x, *fn = NULL, *e;
+         int r;
+ 
+         assert(rule[0]);
+Index: systemd-26/src/conf-parser.c
+===================================================================
+--- systemd-26.orig/src/conf-parser.c
++++ systemd-26/src/conf-parser.c
+@@ -194,9 +194,12 @@ int config_parse(const char *filename, F
+ 
+                         if (c)
+                                 continuation = c;
+-                        else if (!(continuation = strdup(l))) {
+-                                r = -ENOMEM;
+-                                goto finish;
++                        else {
++                                continuation = strdup(l);
++                                if (!continuation) {
++                                        r = -ENOMEM;
++                                        goto finish;
++                                }
+                         }
+ 
+                         continue;
+Index: systemd-26/src/load-fragment.c
+===================================================================
+--- systemd-26.orig/src/load-fragment.c
++++ systemd-26/src/load-fragment.c
+@@ -498,6 +498,7 @@ static int config_parse_exec(
+                 if (!n[0]) {
+                         log_error("[%s:%u] Invalid command line, ignoring: %s", filename, line, rvalue);
+                         strv_free(n);
++                        free(path);
+                         return 0;
+                 }
+ 
+Index: systemd-26/src/modules-load.c
+===================================================================
+--- systemd-26.orig/src/modules-load.c
++++ systemd-26/src/modules-load.c
+@@ -73,7 +73,6 @@ int main(int argc, char *argv[]) {
+                                 continue;
+ 
+                         log_error("Failed to open %s: %m", *fn);
+-                        free(fn);
+                         r = EXIT_FAILURE;
+                         continue;
+                 }
+Index: systemd-26/src/path.c
+===================================================================
+--- systemd-26.orig/src/path.c
++++ systemd-26/src/path.c
+@@ -558,7 +558,7 @@ static void path_fd_event(Unit *u, int f
+         assert(l > 0);
+ 
+         if (!(buf = malloc(l))) {
+-                log_error("Failed to allocate buffer: %s", strerror(-ENOMEM));
++                log_error("Failed to allocate buffer: %s", strerror(ENOMEM));
+                 goto fail;
+         }
+ 
+Index: systemd-26/src/strv.c
+===================================================================
+--- systemd-26.orig/src/strv.c
++++ systemd-26/src/strv.c
+@@ -202,12 +202,19 @@ char **strv_merge_concat(char **a, char 
+         if (!(r = new(char*, strv_length(a)+strv_length(b)+1)))
+                 return NULL;
+ 
+-        for (k = r; *a; k++, a++)
+-                if (!(*k = strdup(*a)))
+-                        goto fail;
+-        for (; *b; k++, b++)
+-                if (!(*k = strappend(*b, suffix)))
++        k = r;
++        if (a)
++                for (; *a; k++, a++) {
++                        *k = strdup(*a);
++                        if (!*k)
++                                goto fail;
++                }
++
++        for (; *b; k++, b++) {
++                *k = strappend(*b, suffix);
++                if (!*k)
+                         goto fail;
++        }
+ 
+         *k = NULL;
+         return r;

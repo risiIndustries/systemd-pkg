@@ -1,0 +1,32 @@
+From de3756ab9916551f3f4f1f360aee59aeed238b5b Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 23 Sep 2011 02:39:28 +0200
+Subject: [PATCH] llvm-analyze: fix some bugs found by llvm-analyze
+
+---
+
+[ removed hunks for code not present in F15 -- michich ]
+
+ src/socket.c   |    6 ++++++
+ 3 files changed, 30 insertions(+), 20 deletions(-)
+
+diff --git a/src/socket.c b/src/socket.c
+index a1b451e..7ddf326 100644
+--- a/src/socket.c
++++ b/src/socket.c
+@@ -1962,6 +1962,12 @@ int socket_collect_fds(Socket *s, int **fds, unsigned *n_fds) {
+                 if (p->fd >= 0)
+                         rn_fds++;
+ 
++        if (rn_fds <= 0) {
++                *fds = NULL;
++                *n_fds = 0;
++                return 0;
++        }
++
+         if (!(rfds = new(int, rn_fds)))
+                 return -ENOMEM;
+ 
+-- 
+1.7.4.4
+

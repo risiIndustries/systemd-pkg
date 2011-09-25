@@ -1,0 +1,29 @@
+From 43de46ab92e3b343c2e35b42cf0728a9adf48f1c Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 1 Sep 2011 21:15:00 +0200
+Subject: [PATCH] stdout-bridge: set facility of messages with no facility to
+ configured facility instead of LOG_USER
+
+---
+
+[ fixed the filename -- michich ]
+
+diff --git a/src/stdout-syslog-bridge.c b/src/stdout-syslog-bridge.c
+index 48a301f..7358a42 100644
+--- a/src/logger.c
++++ b/src/logger.c
+@@ -111,9 +111,9 @@ static int stream_log(Stream *s, char *p, usec_t ts) {
+         if (*p == 0)
+                 return 0;
+ 
+-        /* Patch in LOG_USER facility if necessary */
++        /* Patch in configured facility if necessary */
+         if ((priority & LOG_FACMASK) == 0)
+-                priority = LOG_USER | LOG_PRI(priority);
++                priority = (s->priority & LOG_FACMASK) | priority;
+ 
+         /*
+          * The format glibc uses to talk to the syslog daemon is:
+-- 
+1.7.4.4
+

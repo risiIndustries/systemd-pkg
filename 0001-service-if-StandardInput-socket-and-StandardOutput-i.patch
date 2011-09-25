@@ -1,0 +1,74 @@
+From 4dfc092a7176f74102b6be205f11008e1de59bb3 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 22 Sep 2011 03:29:51 +0200
+Subject: [PATCH] service: if StandardInput=socket and StandardOutput=inherit
+ imply socket for output, don't imply default output
+
+This is useful for inetd-style per-connection services, so that they
+again can simply specify StandardOutput=socket to connect all three fds
+to the socket.
+---
+
+[ unfuzzed with quilt -- michich ]
+
+Index: systemd-26/src/service.c
+===================================================================
+--- systemd-26.orig/src/service.c
++++ systemd-26/src/service.c
+@@ -121,8 +121,6 @@ static void service_init(Unit *u) {
+         s->guess_main_pid = true;
+ 
+         exec_context_init(&s->exec_context);
+-        s->exec_context.std_output = u->meta.manager->default_std_output;
+-        s->exec_context.std_error = u->meta.manager->default_std_error;
+ 
+         RATELIMIT_INIT(s->ratelimit, 10*USEC_PER_SEC, 5);
+ 
+@@ -830,9 +828,10 @@ static int service_load_sysv_path(Servic
+         s->type = SERVICE_FORKING;
+         s->remain_after_exit = true;
+         s->restart = SERVICE_RESTART_NO;
+-        s->exec_context.std_output =
+-                (s->meta.manager->sysv_console || s->exec_context.std_input == EXEC_INPUT_TTY)
+-                ? EXEC_OUTPUT_TTY : s->meta.manager->default_std_output;
++
++        if (s->meta.manager->sysv_console)
++                s->exec_context.std_output = EXEC_OUTPUT_TTY;
++
+         s->exec_context.kill_mode = KILL_PROCESS;
+ 
+         /* We use the long description only if
+@@ -1095,6 +1094,24 @@ static int service_add_default_dependenc
+         return unit_add_two_dependencies_by_name(UNIT(s), UNIT_BEFORE, UNIT_CONFLICTS, SPECIAL_SHUTDOWN_TARGET, NULL, true);
+ }
+ 
++static void service_fix_output(Service *s) {
++        assert(s);
++
++        /* If nothing has been explicitly configured, patch default
++         * output in. If input is socket/tty we avoid this however,
++         * since in that case we want output to default to the same
++         * place as we read input from. */
++
++        if (s->exec_context.std_error == EXEC_OUTPUT_INHERIT &&
++            s->exec_context.std_output == EXEC_OUTPUT_INHERIT &&
++            s->exec_context.std_input == EXEC_INPUT_NULL)
++                s->exec_context.std_error = s->meta.manager->default_std_error;
++
++        if (s->exec_context.std_output == EXEC_OUTPUT_INHERIT &&
++            s->exec_context.std_input == EXEC_INPUT_NULL)
++                s->exec_context.std_output = s->meta.manager->default_std_output;
++}
++
+ static int service_load(Unit *u) {
+         int r;
+         Service *s = SERVICE(u);
+@@ -1151,6 +1168,8 @@ static int service_load(Unit *u) {
+                 if (s->meta.default_dependencies)
+                         if ((r = service_add_default_dependencies(s)) < 0)
+                                 return r;
++
++                service_fix_output(s);
+         }
+ 
+         return service_verify(s);

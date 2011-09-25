@@ -1,0 +1,23 @@
+From 3b09f343fe2414cfb36860f1692f327011c4bc44 Mon Sep 17 00:00:00 2001
+From: Josh Triplett <josh@joshtriplett.org>
+Date: Sat, 6 Aug 2011 15:56:39 -0700
+Subject: [PATCH] tmpfiles: Remove X11 lock files for displays :10 and higher
+ too
+
+---
+ tmpfiles.d/x11.conf |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/tmpfiles.d/x11.conf b/tmpfiles.d/x11.conf
+index 5072b58..7f81af6 100644
+--- a/tmpfiles.d/x11.conf
++++ b/tmpfiles.d/x11.conf
+@@ -15,4 +15,4 @@ d /tmp/.font-unix 1777 root root 10d
+ d /tmp/.Test-unix 1777 root root 10d
+ 
+ # Unlink the X11 lock files
+-r /tmp/.X[0-9]-lock
++r /tmp/.X[0-9]*-lock
+-- 
+1.7.4.4
+

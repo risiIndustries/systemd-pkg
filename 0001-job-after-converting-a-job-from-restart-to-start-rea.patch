@@ -1,0 +1,40 @@
+From 57981b98123a6504c68981c7e3cd43f7cc1668f7 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 21 Sep 2011 19:56:15 +0200
+Subject: [PATCH] job: after converting a job from restart to start readd it
+ to run queue
+
+When we converted a restart job it's time to look again whether any of
+its dependencies are now runnable.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=735013
+---
+ src/job.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/src/job.c b/src/job.c
+index 26e1a7c..5c0913b 100644
+--- a/src/job.c
++++ b/src/job.c
+@@ -544,7 +544,9 @@ int job_finish_and_invalidate(Job *j, JobResult result) {
+                 j->type = JOB_START;
+ 
+                 job_add_to_run_queue(j);
+-                return 0;
++
++                u = j->unit;
++                goto finish;
+         }
+ 
+         j->result = result;
+@@ -613,6 +615,7 @@ int job_finish_and_invalidate(Job *j, JobResult result) {
+                 unit_trigger_on_failure(u);
+         }
+ 
++finish:
+         /* Try to start the next jobs that can be started */
+         SET_FOREACH(other, u->meta.dependencies[UNIT_AFTER], i)
+                 if (other->meta.job)
+-- 
+1.7.4.4
+

@@ -1,0 +1,59 @@
+From f917c3e5e189ea062adbad8432c16ea2408d3368 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 31 Aug 2011 03:55:38 +0200
+Subject: [PATCH] dropin: don't fail if random files are stored in .wants
+ directories
+
+https://bugs.freedesktop.org/show_bug.cgi?id=39957
+---
+
+[rediffed with quilt to unfuzz -- michich]
+
+Index: systemd-26/src/load-dropin.c
+===================================================================
+--- systemd-26.orig/src/load-dropin.c
++++ systemd-26/src/load-dropin.c
+@@ -36,7 +36,8 @@ static int iterate_dir(Unit *u, const ch
+         assert(u);
+         assert(path);
+ 
+-        if (!(d = opendir(path))) {
++        d = opendir(path);
++        if (!d) {
+ 
+                 if (errno == ENOENT)
+                         return 0;
+@@ -59,7 +60,7 @@ static int iterate_dir(Unit *u, const ch
+                 free(f);
+ 
+                 if (r < 0)
+-                        goto finish;
++                        log_error("Cannot add dependency %s to %s, ignoring: %s", de->d_name, u->meta.id, strerror(-r));
+         }
+ 
+         r = 0;
+@@ -95,7 +96,8 @@ static int process_dir(Unit *u, const ch
+                 char *template;
+                 /* Also try the template dir */
+ 
+-                if (!(template = unit_name_template(name)))
++                template = unit_name_template(name);
++                if (!template)
+                         return -ENOMEM;
+ 
+                 r = asprintf(&path, "%s/%s%s", unit_path, template, suffix);
+@@ -132,10 +134,12 @@ int unit_load_dropin(Unit *u) {
+                 STRV_FOREACH(p, u->meta.manager->lookup_paths.unit_path) {
+                         int r;
+ 
+-                        if ((r = process_dir(u, *p, t, ".wants", UNIT_WANTS)) < 0)
++                        r = process_dir(u, *p, t, ".wants", UNIT_WANTS);
++                        if (r < 0)
+                                 return r;
+ 
+-                        if ((r = process_dir(u, *p, t, ".requires", UNIT_REQUIRES)) < 0)
++                        r = process_dir(u, *p, t, ".requires", UNIT_REQUIRES);
++                        if (r < 0)
+                                 return r;
+                 }
+         }

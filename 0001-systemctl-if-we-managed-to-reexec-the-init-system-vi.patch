@@ -1,0 +1,28 @@
+From d76702a7b22c85c40c740a63d727a0f114e177ad Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 31 Aug 2011 03:31:27 +0200
+Subject: [PATCH] systemctl: if we managed to reexec the init system via the
+ bus don't retry via signal
+
+If we managed to reeexec the init system via the bus this allows us to
+provide synchronous behaviour to callers. This is all lost if we then
+repeat the reexecution via SIGTERM.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=698198
+---
+
+[rediffed with quilt to apply -- michich]
+
+Index: systemd-26/src/systemctl.c
+===================================================================
+--- systemd-26.orig/src/systemctl.c
++++ systemd-26/src/systemctl.c
+@@ -5428,7 +5428,7 @@ static int reload_with_fallback(DBusConn
+ 
+         if (bus) {
+                 /* First, try systemd via D-Bus. */
+-                if (daemon_reload(bus, NULL, 0) > 0)
++                if (daemon_reload(bus, NULL, 0) >= 0)
+                         return 0;
+         }
+ 

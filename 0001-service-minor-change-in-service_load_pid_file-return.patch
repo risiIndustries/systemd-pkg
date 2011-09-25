@@ -1,0 +1,39 @@
+From 13230d5d3c89e866f1b9b689d41f0edc90af707a Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Wed, 21 Sep 2011 02:25:17 +0200
+Subject: [PATCH] service: minor change in service_load_pid_file return value
+
+Return 0 only if the PID was really loaded. If no PIDFile= is defined,
+return -ENOENT.
+
+Only one caller cares about the return value of this function and this
+change makes the usage nicer.
+---
+ src/service.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/service.c b/src/service.c
+index 8f827aa..5050bca 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -1270,7 +1270,7 @@ static int service_load_pid_file(Service *s) {
+         assert(s);
+ 
+         if (!s->pid_file)
+-                return 0;
++                return -ENOENT;
+ 
+         if ((r = read_one_line_file(s->pid_file, &k)) < 0)
+                 return r;
+@@ -2585,7 +2585,7 @@ static void service_sigchld_event(Unit *u, pid_t pid, int code, int status) {
+                 /* Forking services may occasionally move to a new PID.
+                  * As long as they update the PID file before exiting the old
+                  * PID, they're fine. */
+-                if (s->pid_file && service_load_pid_file(s) == 0)
++                if (service_load_pid_file(s) == 0)
+                         return;
+ 
+                 s->main_pid = 0;
+-- 
+1.7.4.4
+

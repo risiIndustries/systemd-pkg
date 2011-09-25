@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        9%{?dist}
+Release:        10%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -69,6 +69,42 @@ Patch28:        0001-manager-merge-serialization-and-desrialization-count.patch
 Patch29:        0001-execute-properly-enforce-group.patch
 Patch30:        0001-manager-call-generators-with-umask-0022.patch
 Patch31:        0001-getty-automatically-spawn-getty-on-xen-console-xvc0.patch
+Patch32:        0001-manager-add-log-control-via-RT-signals.patch
+Patch33:        0001-Don-t-show-a-warning-message-in-non-enforcing-mode.patch
+Patch34:        0001-strv-fix-counting-in-strv_env_delete.patch
+Patch35:        0001-tmpfiles-Remove-X11-lock-files-for-displays-10-and-h.patch
+Patch36:        0001-cryptsetup-accept-none-option.patch
+# May cause a new dep cycle, related to bz711150
+#Patch37:        0001-cryptsetup-generator-block-boot-when-querying-passph.patch
+Patch38:        0001-execute-fix-bus-serialization-for-commands.patch
+Patch39:        0001-specifier-drop-misplaced-assert.patch
+Patch40:        0001-getty-generator-ignore-if-symlinks-already-exist.patch
+Patch41:        0001-mount-fix-parsing-of-prio-value.patch
+Patch42:        0001-systemctl-if-we-managed-to-reexec-the-init-system-vi.patch
+Patch43:        0001-dropin-don-t-fail-if-random-files-are-stored-in-.wan.patch
+Patch44:        0001-getty-automatically-add-getty-on-hvsi0-virtualizer-c.patch
+Patch45:        0001-getty-simplify-things-a-bit.patch
+Patch46:        0001-locale-support-LANGUAGE-too.patch
+Patch47:        0001-fsck-show-progress-while-fscking-at-boot.patch
+Patch48:        0001-stdout-bridge-set-facility-of-messages-with-no-facil.patch
+Patch49:        0001-condition-opt-out-of-proc-cmdline-parsing-only-when-.patch
+Patch50:        0001-stdout-syslog-bridge-properly-handle-overly-long-log.patch
+Patch51:        0001-units-direct-stdout-stderr-of-rescue-shells-to-tty.patch
+Patch52:        0001-service-handle-forking-services-that-move-to-a-new-P.patch
+Patch53:        0001-service-minor-change-in-service_load_pid_file-return.patch
+Patch54:        0001-modules-load-filter-out-double-modules.patch
+Patch55:        0001-job-after-converting-a-job-from-restart-to-start-rea.patch
+Patch56:        0001-mount-pull-in-quota-tools-from-fstab-lines-with-quot.patch
+Patch57:        0001-service-if-StandardInput-socket-and-StandardOutput-i.patch
+Patch58:        0001-unit-don-t-recheck-conditions-when-a-unit-is-already.patch
+Patch59:        0001-units-fix-rescue.service-race-with-plymouth.patch
+Patch60:        0001-coverity-fix-a-couple-of-bugs-found-by-coverity.patch
+Patch61:        0001-condition-fix-reversed-tests-if-path-does-not-exist-.patch
+Patch62:        0001-manager-fix-job-mode-for-SIGRTMIN-1-2.patch
+Patch63:        0001-llvm-analyze-fix-some-bugs-found-by-llvm-analyze.patch
+# May be risky. See what it caused in F16 in bz741078.
+#Patch64:        0001-unit-fix-complementing-of-requirement-deps-with-Afte.patch
+Patch65:        0001-service-fix-up-std-output-error-before-we-add-depend.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -155,6 +191,40 @@ SysV compatibility tools for systemd
 %patch29 -p1
 %patch30 -p1
 %patch31 -p1
+%patch32 -p1
+%patch33 -p1
+%patch34 -p1
+%patch35 -p1
+%patch36 -p1
+#% patch37 -p1
+%patch38 -p1
+%patch39 -p1
+%patch40 -p1
+%patch41 -p1
+%patch42 -p1
+%patch43 -p1
+%patch44 -p1
+%patch45 -p1
+%patch46 -p1
+%patch47 -p1
+%patch48 -p1
+%patch49 -p1
+%patch50 -p1
+%patch51 -p1
+%patch52 -p1
+%patch53 -p1
+%patch54 -p1
+%patch55 -p1
+%patch56 -p1
+%patch57 -p1
+%patch58 -p1
+%patch59 -p1
+%patch60 -p1
+%patch61 -p1
+%patch62 -p1
+%patch63 -p1
+#% patch64 -p1
+%patch65 -p1
 %patch100 -p1
 
 %build
@@ -358,6 +428,16 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Sun Sep 25 2011 Michal Schmidt <mschmidt@redhat.com> - 26-10
+- Pick lots of fixes from upstream up to v36.
+- A few features added too:
+  - support more types of virtual serial consoles in getty-generator
+  - log control via RT signals
+  - support for LANGUAGE in environment
+  - show fsck progress on the console
+- Fixes: BZ#735013, BZ#722803, BZ#736360, BZ#698198, BZ#710487
+- Fixes: fdo39957, fdo39818, fdo40510
+
 * Tue Aug 23 2011 Lennart Poettering <lpoetter@redhat.com> - 26-9
 - Fix a couple of bugs (#723892, #726976)
 

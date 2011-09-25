@@ -1,0 +1,35 @@
+From 4e2b0f9b149e6fc1adb5ce49a6adaeed130577be Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 23 Sep 2011 17:42:21 +0200
+Subject: [PATCH] service: fix up std output/error before we add dependencies
+ to the bridge socket
+
+---
+ src/service.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/service.c b/src/service.c
+index 2ae8785..c2053ce 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -1145,6 +1145,8 @@ static int service_load(Unit *u) {
+ 
+         /* This is a new unit? Then let's add in some extras */
+         if (u->meta.load_state == UNIT_LOADED) {
++                service_fix_output(s);
++
+                 if ((r = unit_add_exec_dependencies(u, &s->exec_context)) < 0)
+                         return r;
+ 
+@@ -1173,8 +1175,6 @@ static int service_load(Unit *u) {
+                 if (s->meta.default_dependencies)
+                         if ((r = service_add_default_dependencies(s)) < 0)
+                                 return r;
+-
+-                service_fix_output(s);
+         }
+ 
+         return service_verify(s);
+-- 
+1.7.4.4
+

@@ -1,0 +1,28 @@
+From 1c5224b33630a1f95952796b2cb582be052e0c27 Mon Sep 17 00:00:00 2001
+From: Frederic Crozat <fcrozat@suse.com>
+Date: Thu, 4 Aug 2011 16:46:33 +0200
+Subject: [PATCH] cryptsetup-generator: block boot when querying passphrase.
+
+Ensure we wait for passphrase before starting tty1 or graphical display.
+Needed when not using plymouth.
+---
+ src/cryptsetup-generator.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/src/cryptsetup-generator.c b/src/cryptsetup-generator.c
+index a340218..6f3aa78 100644
+--- a/src/cryptsetup-generator.c
++++ b/src/cryptsetup-generator.c
+@@ -112,7 +112,8 @@ static int create_disk(
+                 "DefaultDependencies=no\n"
+                 "BindTo=%s dev-mapper-%%i.device\n"
+                 "After=systemd-readahead-collect.service systemd-readahead-replay.service %s\n"
+-                "Before=umount.target\n",
++                "Before=umount.target\n"
++                "Before=local-fs.target\n",
+                 d, d);
+ 
+         if (!nofail)
+-- 
+1.7.4.4
+

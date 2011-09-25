@@ -1,0 +1,33 @@
+From d3354f66c23aa29b3a15a4c5903fb2edcc8acfda Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 21 Sep 2011 20:19:43 +0200
+Subject: [PATCH] mount: pull in quota tools from fstab lines with 'quota'
+ option, too
+
+https://bugzilla.redhat.com/show_bug.cgi?id=736360
+---
+
+[ dropped TODO hunk -- michich ]
+
+ src/mount.c |    5 ++++-
+ 2 files changed, 6 insertions(+), 1 deletions(-)
+
+diff --git a/src/mount.c b/src/mount.c
+index 829c2cc..2fc799a 100644
+--- a/src/mount.c
++++ b/src/mount.c
+@@ -320,7 +320,10 @@ static bool needs_quota(MountParameters *p) {
+                 return false;
+ 
+         return mount_test_option(p->options, "usrquota") ||
+-                mount_test_option(p->options, "grpquota");
++                mount_test_option(p->options, "grpquota") ||
++                mount_test_option(p->options, "quota") ||
++                mount_test_option(p->options, "usrjquota") ||
++                mount_test_option(p->options, "grpjquota");
+ }
+ 
+ static int mount_add_fstab_links(Mount *m) {
+-- 
+1.7.4.4
+

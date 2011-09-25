@@ -1,0 +1,59 @@
+From db01f8b3f870611a013b913636bb7fefaab34018 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 20 Sep 2011 21:43:30 +0200
+Subject: [PATCH] service: handle forking services that move to a new PID
+
+When some forking daemons receive a SIGHUP, they re-execute themselves
+and consequently change to a new main PID. As long as they update the
+PID file in the right order (before exiting the old PID), we can detect
+that and avoid killing them.
+---
+
+[ unfuzzed with quilt -- michich ]
+
+ src/service.c |   18 +++++++++++++++---
+ 1 files changed, 15 insertions(+), 3 deletions(-)
+
+Index: systemd-26/src/service.c
+===================================================================
+--- systemd-26.orig/src/service.c
++++ systemd-26/src/service.c
+@@ -1264,9 +1264,6 @@ static int service_load_pid_file(Service
+ 
+         assert(s);
+ 
+-        if (s->main_pid_known)
+-                return 0;
+-
+         if (!s->pid_file)
+                 return 0;
+ 
+@@ -1285,6 +1282,16 @@ static int service_load_pid_file(Service
+                 return -ESRCH;
+         }
+ 
++        if (s->main_pid_known) {
++                if (pid == s->main_pid)
++                        return 0;
++
++                log_debug("Main PID changing: %lu -> %lu",
++                          (unsigned long) s->main_pid, (unsigned long) pid);
++                service_unwatch_main_pid(s);
++                s->main_pid_known = false;
++        }
++
+         if ((r = service_set_main_pid(s, pid)) < 0)
+                 return r;
+ 
+@@ -2569,6 +2576,11 @@ static void service_sigchld_event(Unit *
+                 success = is_clean_exit(code, status);
+ 
+         if (s->main_pid == pid) {
++                /* Forking services may occasionally move to a new PID.
++                 * As long as they update the PID file before exiting the old
++                 * PID, they're fine. */
++                if (s->pid_file && service_load_pid_file(s) == 0)
++                        return;
+ 
+                 s->main_pid = 0;
+                 exec_status_exit(&s->main_exec_status, pid, code, status, s->exec_context.utmp_id);

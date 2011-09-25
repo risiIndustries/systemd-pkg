@@ -1,0 +1,60 @@
+From cbe8269481a0272a51d72dc35a54a1fe20c93dfc Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 20 Sep 2011 12:11:04 +0200
+Subject: [PATCH] units: direct stdout/stderr of rescue shells to tty
+
+With output of services going to syslog by default now, the rescue shell
+units need to direct their output to tty explicitly.
+Specify stderr too, just in case.
+
+[ the default has not changed in F15, but someone might change their config
+  -- michich ]
+
+---
+ units/console-shell.service.m4 |    2 ++
+ units/emergency.service        |    2 ++
+ units/rescue.service.m4        |    2 ++
+ 3 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/units/console-shell.service.m4 b/units/console-shell.service.m4
+index cce2d5a..a4a9108 100644
+--- a/units/console-shell.service.m4
++++ b/units/console-shell.service.m4
+@@ -31,6 +31,8 @@ WorkingDirectory=/root
+ ExecStart=-/sbin/sulogin
+ ExecStopPost=-/bin/systemctl poweroff
+ StandardInput=tty-force
++StandardOutput=inherit
++StandardError=inherit
+ KillMode=process
+ 
+ # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
+diff --git a/units/emergency.service b/units/emergency.service
+index eff5261..4847f4f 100644
+--- a/units/emergency.service
++++ b/units/emergency.service
+@@ -21,6 +21,8 @@ ExecStartPre=-/bin/echo 'Welcome to emergency mode. Use "systemctl default" or ^
+ ExecStart=-/sbin/sulogin
+ ExecStopPost=/bin/systemctl --fail --no-block default
+ StandardInput=tty-force
++StandardOutput=inherit
++StandardError=inherit
+ KillMode=process
+ 
+ # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
+diff --git a/units/rescue.service.m4 b/units/rescue.service.m4
+index d2fd582..5b4ab6e 100644
+--- a/units/rescue.service.m4
++++ b/units/rescue.service.m4
+@@ -31,6 +31,8 @@ m4_ifdef(`TARGET_MEEGO',
+ ExecStart=-/bin/bash -c "exec ${SINGLE}"',)))
+ ExecStopPost=-/bin/systemctl --fail --no-block default
+ StandardInput=tty-force
++StandardOutput=inherit
++StandardError=inherit
+ KillMode=process
+ 
+ # Bash ignores SIGTERM, so we send SIGHUP instead, to ensure that bash
+-- 
+1.7.4.4
+

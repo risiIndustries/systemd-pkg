@@ -1,0 +1,25 @@
+From 41e6f28acc906960f21658c94ac79652705ded0c Mon Sep 17 00:00:00 2001
+From: Frederic Crozat <fcrozat@suse.com>
+Date: Thu, 4 Aug 2011 16:04:43 +0200
+Subject: [PATCH] cryptsetup: accept "none" option
+
+---
+ src/cryptsetup.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/cryptsetup.c b/src/cryptsetup.c
+index cf288de..ac7b6d6 100644
+--- a/src/cryptsetup.c
++++ b/src/cryptsetup.c
+@@ -110,7 +110,7 @@ static int parse_one_option(const char *option) {
+                         return 0;
+                 }
+ 
+-        } else
++        } else if (!streq(option, "none"))
+                 log_error("Encountered unknown /etc/crypttab option '%s', ignoring.", option);
+ 
+         return 0;
+-- 
+1.7.4.4
+

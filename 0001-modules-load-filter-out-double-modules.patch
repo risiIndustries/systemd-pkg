@@ -1,0 +1,24 @@
+From c72dcc54315a5bb854849e17a34c6ad8a3f9dfaa Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 21 Sep 2011 02:57:02 +0200
+Subject: [PATCH] modules-load: filter out double modules
+
+---
+ src/modules-load.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/src/modules-load.c b/src/modules-load.c
+index 4b3b121..17b5e0b 100644
+--- a/src/modules-load.c
++++ b/src/modules-load.c
+@@ -131,6 +131,7 @@ finish:
+ 
+         if (n_arguments > 3) {
+                 arguments[n_arguments] = NULL;
++                strv_uniq(arguments);
+                 execv("/sbin/modprobe", arguments);
+ 
+                 log_error("Failed to execute /sbin/modprobe: %m");
+-- 
+1.7.4.4
+

@@ -1,0 +1,33 @@
+From 0fe9972f3c2e20b649e0e7da0e61945253622128 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Thu, 22 Sep 2011 23:52:38 +0200
+Subject: [PATCH] units: fix rescue.service race with plymouth
+
+It was possible for the "ExecStartPre=-/bin/plymouth quit" to race
+with plymouth-start.service which is pulled in indirectly by
+basic.target -> sysinit.target.
+
+The race left plymouth running on the terminal, making it unusable for
+rescue purposes.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=710487
+---
+ units/rescue.service.m4 |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/units/rescue.service.m4 b/units/rescue.service.m4
+index 8f29de8..19b30d8 100644
+--- a/units/rescue.service.m4
++++ b/units/rescue.service.m4
+@@ -11,7 +11,7 @@
+ Description=Rescue Shell
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+-After=basic.target
++After=basic.target plymouth-start.service
+ Before=shutdown.target
+ 
+ [Service]
+-- 
+1.7.4.4
+

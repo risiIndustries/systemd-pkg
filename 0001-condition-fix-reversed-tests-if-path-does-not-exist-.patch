@@ -1,0 +1,26 @@
+From 1f8fef5a44e6ce711808665bca6eb43d604fe279 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Fri, 23 Sep 2011 02:10:00 +0200
+Subject: [PATCH] condition: fix reversed tests if path does not exist at all
+
+CONDITION_PATH_IS_DIRECTORY, CONDITION_PATH_IS_SYMBOLIC_LINK and
+CONDITION_FILE_IS_EXECUTABLE gave reversed results when the path
+did not exist at all.
+
+[ in F15 there's only CONDITION_PATH_IS_DIRECTORY  -- michich ]
+
+---
+
+Index: systemd-26/src/condition.c
+===================================================================
+--- systemd-26.orig/src/condition.c
++++ systemd-26/src/condition.c
+@@ -152,7 +152,7 @@ bool condition_test(Condition *c) {
+                 struct stat st;
+ 
+                 if (lstat(c->parameter, &st) < 0)
+-                        return !c->negate;
++                        return c->negate;
+                 return S_ISDIR(st.st_mode) == !c->negate;
+         }
+ 
