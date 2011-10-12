@@ -1,0 +1,148 @@
+From 21e557edcc1894ce4eeb70b71ca16e82e95bc0df Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 11 Oct 2011 03:33:53 +0200
+Subject: [PATCH] units: introduce local-fs-pre.target and
+ remote-fs-pre.target
+
+This hook target enables services to order themselves between
+network.target and remote mounts, which is needed for GFS2 and similar
+systems.
+---
+
+[ patching Makefile.in too to avoid the need for autotools -- michich ]
+
+ Makefile.am                |    2 ++
+ Makefile.in                |    4 +++-
+ man/systemd.special.xml.in |   26 ++++++++++++++++++++++++++
+ src/mount.c                |    6 ++++--
+ src/special.h              |    2 ++
+ 5 files changed, 37 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 873090e..26fc1f8 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -237,6 +237,8 @@ dist_systemunit_DATA = \
+ 	units/halt.target \
+ 	units/kexec.target \
+ 	units/local-fs.target \
++	units/local-fs-pre.target \
++	units/remote-fs-pre.target \
+ 	units/cryptsetup.target \
+ 	units/network.target \
+ 	units/nss-lookup.target \
+diff --git a/Makefile.in b/Makefile.in
+index 9897e73..611c392 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -845,7 +845,8 @@ am__dist_systemunit_DATA_DIST = units/graphical.target \
+ 	units/multi-user.target units/emergency.service \
+ 	units/emergency.target units/sysinit.target units/basic.target \
+ 	units/getty.target units/halt.target units/kexec.target \
+-	units/local-fs.target units/cryptsetup.target \
++	units/local-fs.target units/local-fs-pre.target \
++	units/remote-fs-pre.target units/cryptsetup.target \
+ 	units/network.target units/nss-lookup.target \
+ 	units/mail-transfer-agent.target units/http-daemon.target \
+ 	units/poweroff.target units/reboot.target units/rescue.target \
+@@ -1135,6 +1136,7 @@ dist_systemunit_DATA = units/graphical.target units/multi-user.target \
+ 	units/emergency.service units/emergency.target \
+ 	units/sysinit.target units/basic.target units/getty.target \
+ 	units/halt.target units/kexec.target units/local-fs.target \
++	units/local-fs-pre.target units/remote-fs-pre.target \
+ 	units/cryptsetup.target units/network.target \
+ 	units/nss-lookup.target units/mail-transfer-agent.target \
+ 	units/http-daemon.target units/poweroff.target \
+diff --git a/man/systemd.special.xml.in b/man/systemd.special.xml.in
+index ecc9dde..24f2d65 100644
+--- a/man/systemd.special.xml.in
++++ b/man/systemd.special.xml.in
+@@ -59,6 +59,7 @@
+                 <filename>halt.target</filename>,
+                 <filename>kbrequest.target</filename>,
+                 <filename>local-fs.target</filename>,
++                <filename>local-fs-pre.target</filename>,
+                 <filename>mail-transfer-agent.target</filename>,
+                 <filename>multi-user.target</filename>,
+                 <filename>network.target</filename>,
+@@ -66,6 +67,7 @@
+                 <filename>poweroff.target</filename>,
+                 <filename>reboot.target</filename>,
+                 <filename>remote-fs.target</filename>,
++                <filename>remote-fs-pre.target</filename>,
+                 <filename>rescue.target</filename>,
+                 <filename>rpcbind.target</filename>,
+                 <filename>time-sync.target</filename>,
+@@ -261,6 +263,18 @@
+                                 </listitem>
+                         </varlistentry>
+                         <varlistentry>
++                                <term><filename>local-fs-pre.target</filename></term>
++                                <listitem>
++                                        <para>This target unit is
++                                        automatically ordered before
++                                        all local mount points marked
++                                        with <option>auto</option>
++                                        (see above). It can be used to
++                                        execute certain units before
++                                        all local mounts.</para>
++                                </listitem>
++                        </varlistentry>
++                        <varlistentry>
+                                 <term><filename>mail-transfer-agent.target</filename></term>
+                                 <listitem>
+                                         <para>The mail transfer agent
+@@ -374,6 +388,18 @@
+                                 </listitem>
+                         </varlistentry>
+                         <varlistentry>
++                                <term><filename>remote-fs-pre.target</filename></term>
++                                <listitem>
++                                        <para>This target unit is
++                                        automatically ordered before
++                                        all remote mount points marked
++                                        with <option>auto</option>
++                                        (see above). It can be used to
++                                        execute certain units before
++                                        all remote mounts.</para>
++                                </listitem>
++                        </varlistentry>
++                        <varlistentry>
+                                 <term><filename>rescue.target</filename></term>
+                                 <listitem>
+                                         <para>A special target unit
+diff --git a/src/mount.c b/src/mount.c
+index 11b6e83..1a9505e 100644
+--- a/src/mount.c
++++ b/src/mount.c
+@@ -357,9 +357,11 @@ static int mount_add_fstab_links(Mount *m) {
+ 
+         if (mount_is_network(p)) {
+                 target = SPECIAL_REMOTE_FS_TARGET;
+-                after = SPECIAL_NETWORK_TARGET;
+-        } else
++                after = SPECIAL_REMOTE_FS_PRE_TARGET;
++        } else {
+                 target = SPECIAL_LOCAL_FS_TARGET;
++                after = SPECIAL_LOCAL_FS_PRE_TARGET;
++        }
+ 
+         if (!path_equal(m->where, "/"))
+                 if ((r = unit_add_two_dependencies_by_name(UNIT(m), UNIT_BEFORE, UNIT_CONFLICTS, SPECIAL_UMOUNT_TARGET, NULL, true)) < 0)
+diff --git a/src/special.h b/src/special.h
+index 08dae11..703559b 100644
+--- a/src/special.h
++++ b/src/special.h
+@@ -45,7 +45,9 @@
+ #define SPECIAL_SYSINIT_TARGET "sysinit.target"
+ #define SPECIAL_SOCKETS_TARGET "sockets.target"
+ #define SPECIAL_LOCAL_FS_TARGET "local-fs.target"         /* LSB's $local_fs */
++#define SPECIAL_LOCAL_FS_PRE_TARGET "local-fs-pre.target"
+ #define SPECIAL_REMOTE_FS_TARGET "remote-fs.target"       /* LSB's $remote_fs */
++#define SPECIAL_REMOTE_FS_PRE_TARGET "remote-fs-pre.target"
+ #define SPECIAL_SWAP_TARGET "swap.target"
+ #define SPECIAL_BASIC_TARGET "basic.target"
+ 
+-- 
+1.7.4.4
+

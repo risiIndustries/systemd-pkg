@@ -1,0 +1,47 @@
+From 8266f984df0b069a345bf959628bac70877ce5e1 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 11 Oct 2011 03:41:04 +0200
+Subject: [PATCH] units: remount root and API FS before all mount units are
+ applied
+
+In order to ensure that bind mounts copy the final mount settings to the
+new bind mount make the root and API FS mount options are applied before
+the other file systems are mounted.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=718464
+---
+ units/remount-rootfs.service             |    3 ++-
+ units/systemd-remount-api-vfs.service.in |    3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/units/remount-rootfs.service b/units/remount-rootfs.service
+index e95023f..89a16c8 100644
+--- a/units/remount-rootfs.service
++++ b/units/remount-rootfs.service
+@@ -10,7 +10,8 @@ Description=Remount Root FS
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+ After=systemd-readahead-collect.service systemd-readahead-replay.service fsck-root.service
+-Before=local-fs.target shutdown.target
++Before=local-fs-pre.target local-fs.target shutdown.target
++Wants=local-fs-pre.target
+ 
+ [Service]
+ Type=oneshot
+diff --git a/units/systemd-remount-api-vfs.service.in b/units/systemd-remount-api-vfs.service.in
+index 2ccbe23..6339ee6 100644
+--- a/units/systemd-remount-api-vfs.service.in
++++ b/units/systemd-remount-api-vfs.service.in
+@@ -10,7 +10,8 @@ Description=Remount API VFS
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+ After=systemd-readahead-collect.service systemd-readahead-replay.service
+-Before=local-fs.target shutdown.target
++Before=local-fs-pre.target local-fs.target shutdown.target
++Wants=local-fs-pre.target
+ 
+ [Service]
+ Type=oneshot
+-- 
+1.7.4.4
+

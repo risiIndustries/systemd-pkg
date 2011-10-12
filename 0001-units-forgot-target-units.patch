@@ -1,0 +1,53 @@
+From 822b18599d1c9465449c7111fe7e7b86fbf44a57 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 11 Oct 2011 14:26:20 +0200
+Subject: [PATCH] units: forgot target units
+
+---
+ units/local-fs-pre.target  |   11 +++++++++++
+ units/remote-fs-pre.target |   15 +++++++++++++++
+ 2 files changed, 26 insertions(+), 0 deletions(-)
+ create mode 100644 units/local-fs-pre.target
+ create mode 100644 units/remote-fs-pre.target
+
+diff --git a/units/local-fs-pre.target b/units/local-fs-pre.target
+new file mode 100644
+index 0000000..11e67ba
+--- /dev/null
++++ b/units/local-fs-pre.target
+@@ -0,0 +1,11 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++# See systemd.special(7) for details
++
++[Unit]
++Description=Local File Systems (Pre)
+diff --git a/units/remote-fs-pre.target b/units/remote-fs-pre.target
+new file mode 100644
+index 0000000..5406aa2
+--- /dev/null
++++ b/units/remote-fs-pre.target
+@@ -0,0 +1,15 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++# See systemd.special(7) for details
++
++[Unit]
++Description=Remote File Systems (Pre)
++After=network.target
++
++[Install]
++WantedBy=multi-user.target
+-- 
+1.7.4.4
+

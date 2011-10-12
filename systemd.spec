@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        10%{?dist}
+Release:        11%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -105,6 +105,14 @@ Patch63:        0001-llvm-analyze-fix-some-bugs-found-by-llvm-analyze.patch
 # May be risky. See what it caused in F16 in bz741078.
 #Patch64:        0001-unit-fix-complementing-of-requirement-deps-with-Afte.patch
 Patch65:        0001-service-fix-up-std-output-error-before-we-add-depend.patch
+Patch66:        0001-test_virtualization-do-not-try-to-compare-id-in-virt.patch
+Patch67:        0001-tmpfiles-fix-file-descriptor-leak.patch
+Patch68:        0001-util-fix-close-call-on-wrong-variable.patch
+Patch69:        0001-readahead-lower-max-file-size-for-readahead.patch
+Patch70:        0001-units-introduce-local-fs-pre.target-and-remote-fs-pr.patch
+Patch71:        0001-units-forgot-target-units.patch
+Patch72:        0001-units-remount-root-and-API-FS-before-all-mount-units.patch
+Patch73:        0001-service-don-t-try-to-guess-PID-for-SysV-services-any.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -159,73 +167,12 @@ SysV compatibility tools for systemd
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p1
-%patch24 -p1
-%patch25 -p1
-#% patch26 -p1
-%patch27 -p1
-%patch28 -p1
-%patch29 -p1
-%patch30 -p1
-%patch31 -p1
-%patch32 -p1
-%patch33 -p1
-%patch34 -p1
-%patch35 -p1
-%patch36 -p1
-#% patch37 -p1
-%patch38 -p1
-%patch39 -p1
-%patch40 -p1
-%patch41 -p1
-%patch42 -p1
-%patch43 -p1
-%patch44 -p1
-%patch45 -p1
-%patch46 -p1
-%patch47 -p1
-%patch48 -p1
-%patch49 -p1
-%patch50 -p1
-%patch51 -p1
-%patch52 -p1
-%patch53 -p1
-%patch54 -p1
-%patch55 -p1
-%patch56 -p1
-%patch57 -p1
-%patch58 -p1
-%patch59 -p1
-%patch60 -p1
-%patch61 -p1
-%patch62 -p1
-%patch63 -p1
-#% patch64 -p1
-%patch65 -p1
-%patch100 -p1
+set +x
+for p in %{patches}; do
+        echo "Applying $p"
+        patch -p1 < $p
+done
+set -x
 
 %build
 %configure --with-rootdir= --with-distro=fedora
@@ -428,6 +375,12 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Wed Oct 12 2011 Michal Schmidt <mschmidt@redhat.com> - 26-11
+- Pick a few fixes from upstream v37.
+- Including the change to disable main PID guessing for SysV services.
+- Loop over %%{patches} in the spec.
+- Fixes: BZ#718464, fdo#41336
+
 * Sun Sep 25 2011 Michal Schmidt <mschmidt@redhat.com> - 26-10
 - Pick lots of fixes from upstream up to v36.
 - A few features added too:

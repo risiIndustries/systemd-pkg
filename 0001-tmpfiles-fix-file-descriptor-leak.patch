@@ -1,0 +1,25 @@
+From 10d975f54c88223fb8762a226fd011ec3f30f2eb Mon Sep 17 00:00:00 2001
+From: Thomas Jarosch <thomas.jarosch@intra2net.com>
+Date: Wed, 5 Oct 2011 22:30:49 +0200
+Subject: [PATCH] tmpfiles: fix file descriptor leak
+
+Detected by "cppcheck"
+---
+ src/tmpfiles.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/src/tmpfiles.c b/src/tmpfiles.c
+index a6b8f85..21bf44d 100644
+--- a/src/tmpfiles.c
++++ b/src/tmpfiles.c
+@@ -157,6 +157,7 @@ static void load_unix_sockets(void) {
+                 }
+         }
+ 
++        fclose(f);
+         return;
+ 
+ fail:
+-- 
+1.7.4.4
+

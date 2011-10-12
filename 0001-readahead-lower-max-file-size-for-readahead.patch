@@ -1,0 +1,26 @@
+From 53273a6aefeb27f62c439e25f28c26859023c7df Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <bonzini@gnu.org>
+Date: Tue, 11 Oct 2011 01:43:58 +0200
+Subject: [PATCH] readahead: lower max file size for readahead
+
+https://bugs.freedesktop.org/show_bug.cgi?id=41336
+---
+ src/readahead-common.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/readahead-common.h b/src/readahead-common.h
+index 167df31..9547ad2 100644
+--- a/src/readahead-common.h
++++ b/src/readahead-common.h
+@@ -27,7 +27,7 @@
+ 
+ #include "macro.h"
+ 
+-#define READAHEAD_FILE_SIZE_MAX (128*1024*1024)
++#define READAHEAD_FILE_SIZE_MAX (10*1024*1024)
+ 
+ int file_verify(int fd, const char *fn, off_t file_size_max, struct stat *st);
+ 
+-- 
+1.7.4.4
+

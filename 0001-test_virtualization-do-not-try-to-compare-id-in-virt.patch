@@ -1,0 +1,23 @@
+From e5396fed3f33cb80699561b55090dc3ba7c95de8 Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay.sievers@vrfy.org>
+Date: Sun, 9 Oct 2011 16:36:45 +0200
+Subject: [PATCH] test_virtualization: do not try to compare id in !virt
+ context
+
+---
+
+[ simple backport -- michich ]
+
+Index: systemd-26/src/condition.c
+===================================================================
+--- systemd-26.orig/src/condition.c
++++ systemd-26/src/condition.c
+@@ -129,7 +129,7 @@ static bool test_virtualization(const ch
+         if (r == 0 && b == 0)
+                 return true;
+ 
+-        return streq(parameter, id);
++        return r > 0 && streq(parameter, id);
+ }
+ 
+ static bool test_security(const char *parameter) {
