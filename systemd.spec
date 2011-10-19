@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        11%{?dist}
+Release:        12%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -113,6 +113,7 @@ Patch70:        0001-units-introduce-local-fs-pre.target-and-remote-fs-pr.patch
 Patch71:        0001-units-forgot-target-units.patch
 Patch72:        0001-units-remount-root-and-API-FS-before-all-mount-units.patch
 Patch73:        0001-service-don-t-try-to-guess-PID-for-SysV-services-any.patch
+Patch74:        0002-manager-fix-a-crash-in-isolating.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -375,6 +376,10 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Wed Oct 19 2011 Michal Schmidt <mschmidt@redhat.com> - 26-12
+- Fix a crash in isolating.
+- Fixes: BZ#717325
+
 * Wed Oct 12 2011 Michal Schmidt <mschmidt@redhat.com> - 26-11
 - Pick a few fixes from upstream v37.
 - Including the change to disable main PID guessing for SysV services.
