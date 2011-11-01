@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        12%{?dist}
+Release:        13%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -114,6 +114,8 @@ Patch71:        0001-units-forgot-target-units.patch
 Patch72:        0001-units-remount-root-and-API-FS-before-all-mount-units.patch
 Patch73:        0001-service-don-t-try-to-guess-PID-for-SysV-services-any.patch
 Patch74:        0002-manager-fix-a-crash-in-isolating.patch
+Patch75:        0001-mount-order-remote-mounts-after-both-network.target-.patch
+Patch76:        0001-units-drop-Install-section-from-remote-fs-pre.target.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -376,6 +378,10 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Wed Nov 02 2011 Michal Schmidt <mschmidt@redhat.com> - 26-13
+- Fix remote-fs-pre.target and its ordering.
+- Fixes: BZ#749940
+
 * Wed Oct 19 2011 Michal Schmidt <mschmidt@redhat.com> - 26-12
 - Fix a crash in isolating.
 - Fixes: BZ#717325
