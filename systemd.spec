@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        4%{?dist}
+Release:        5%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -52,6 +52,7 @@ Patch1:         0002-manager-fix-a-crash-in-isolating.patch
 Patch2:         0005-systemctl-completion-always-invoke-with-no-legend.patch
 Patch3:         0001-mount-order-remote-mounts-after-both-network.target-.patch
 Patch4:         0001-units-drop-Install-section-from-remote-fs-pre.target.patch
+Patch5:         systemd-37-bug744415.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -119,6 +120,7 @@ SysV compatibility tools for systemd
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %build
 %configure --with-rootdir= --with-distro=fedora --with-rootlibdir=/%{_lib}
@@ -367,6 +369,10 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Thu Dec 02 2011 Karsten Hopp <karsten@redhat.com> 37-5
+- add upstream patch for bugzilla 744415, encrypted filesystem passphrases 
+  fail on runtime systems in hvc consoles
+
 * Tue Nov 15 2011 Michal Schmidt <mschmidt@redhat.com> - 37-4
 - Run authconfig if /etc/pam.d/system-auth is not a symlink.
 - Resolves: #753160
