@@ -1,9 +1,8 @@
 From ae1e1f08b63b11eee857598076dbc5aaa9020032 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 30 Dec 2011 15:34:21 +0100
-Subject: [PATCH 100/126] remount-api-vfs: handle another OOM condition
- (cherry picked from commit
- adb2ce5f694cb528f9294219941b1e37dc6a9530)
+Subject: [PATCH] remount-api-vfs: handle another OOM condition (cherry picked
+ from commit adb2ce5f694cb528f9294219941b1e37dc6a9530)
 
 ---
  src/remount-api-vfs.c |   23 +++++++++++++++++------

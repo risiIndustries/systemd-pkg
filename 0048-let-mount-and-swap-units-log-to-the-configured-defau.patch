@@ -1,8 +1,7 @@
 From 003cb5ce02b9660a790ab330796e92b5d79806b6 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 19 Nov 2011 02:47:09 +0100
-Subject: [PATCH 048/126] let mount and swap units log to the configured
- defaults
+Subject: [PATCH] let mount and swap units log to the configured defaults
 
 Related-to: https://bugzilla.redhat.com/show_bug.cgi?id=750032
 (cherry picked from commit f6cebb3bd5a00d79c8131637c0f6796a75e6af99)

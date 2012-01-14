@@ -1,7 +1,7 @@
 From 362fa48aecfac175e3601d4075bbc1eb18684625 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 13:57:07 +0100
-Subject: [PATCH 094/126] man: add sd-login(7) page (cherry picked from commit
+Subject: [PATCH] man: add sd-login(7) page (cherry picked from commit
  01448ff92d9549785242ffab453bf5bcde348c61)
 
 ---

@@ -1,7 +1,7 @@
 From 2c023ff55f1449a841aa8449f03792a8436c2481 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 16 Dec 2011 18:00:11 +0100
-Subject: [PATCH 080/126] tmpfiles: apply chown, chmod for 'Z' entries too
+Subject: [PATCH] tmpfiles: apply chown, chmod for 'Z' entries too
 
 If changing ownership or permissions is not desired, they can be
 configured to '-' or omitted entirely.

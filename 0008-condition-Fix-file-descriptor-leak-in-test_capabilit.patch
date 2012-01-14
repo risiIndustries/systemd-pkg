@@ -1,8 +1,7 @@
 From 62f4ee1b584845c8a3d4caf41c572ec5e7d7af66 Mon Sep 17 00:00:00 2001
 From: Thomas Jarosch <thomas.jarosch@intra2net.com>
 Date: Wed, 26 Oct 2011 09:38:39 +0200
-Subject: [PATCH 008/126] condition: Fix file descriptor leak in
- test_capability()
+Subject: [PATCH] condition: Fix file descriptor leak in test_capability()
 
 Detected by cppcheck.
 (cherry picked from commit 7670e5a2aab543bc6b442ab0683411770e06fe26)

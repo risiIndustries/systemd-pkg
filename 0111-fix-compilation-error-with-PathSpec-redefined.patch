@@ -1,8 +1,8 @@
 From 6cddfe340771dd1c120e13379646e0cc9d012b11 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 5 Jan 2012 00:56:21 +0100
-Subject: [PATCH 111/126] fix compilation error with 'PathSpec redefined'
- (cherry picked from commit
+Subject: [PATCH] fix compilation error with 'PathSpec redefined' (cherry
+ picked from commit
  9cf3ab0e16af7db666ca3cf7d73dc4d616deb8fa)
 
 ---

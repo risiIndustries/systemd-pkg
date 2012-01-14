@@ -1,8 +1,7 @@
 From 80c991c323a08ee03131d51c34b45286ae72001f Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 1 Nov 2011 22:29:48 +0100
-Subject: [PATCH 012/126] units: drop [Install] section from
- remote-fs-pre.target
+Subject: [PATCH] units: drop [Install] section from remote-fs-pre.target
 
 remote-fs-pre.target is not a unit a user should ever explicitly enable.
 Instead services which need to hook before network mounts should pull it

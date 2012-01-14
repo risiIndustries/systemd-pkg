@@ -1,8 +1,8 @@
 From 3fdac700a322217421675774e25cfd5cb09c2dd2 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 10 Nov 2011 09:55:47 +0100
-Subject: [PATCH 039/126] service: don't warn if the pidfile still exists
- after SIGCHLD
+Subject: [PATCH] service: don't warn if the pidfile still exists after
+ SIGCHLD
 
 A service that drops its privileges may not be able to remove it when it
 exits. The stale pidfile is not a problem as long as the service

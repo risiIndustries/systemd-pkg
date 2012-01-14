@@ -1,9 +1,8 @@
 From 410c7e298a2937bd3c69e70b31d6ee0c4754c566 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 8 Nov 2011 18:18:48 +0100
-Subject: [PATCH 088/126] macro: fix ALIGN_TO macro definition (cherry picked
- from commit
- 9b3c575ed90bb1165a192dfae2fb2330baab583c)
+Subject: [PATCH] macro: fix ALIGN_TO macro definition (cherry picked from
+ commit 9b3c575ed90bb1165a192dfae2fb2330baab583c)
 
 ---
  src/macro.h |    2 +-

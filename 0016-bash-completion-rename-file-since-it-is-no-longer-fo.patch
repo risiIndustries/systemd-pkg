@@ -1,8 +1,8 @@
 From b7ff1f56d52becdc0820d54a26b2fbec7fbd698c Mon Sep 17 00:00:00 2001
 From: Ran Benita <ran234@gmail.com>
 Date: Wed, 2 Nov 2011 10:48:51 +0200
-Subject: [PATCH 016/126] bash-completion: rename file since it is no longer
- for systemctl only (cherry picked from commit
+Subject: [PATCH] bash-completion: rename file since it is no longer for
+ systemctl only (cherry picked from commit
  f5a613c03c54cc82e92c38af0b3e1c130003a68b)
 
 ---

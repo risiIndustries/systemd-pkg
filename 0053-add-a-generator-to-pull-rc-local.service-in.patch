@@ -1,7 +1,7 @@
 From a40cb5c2aaa67a66c20b17f18cb30fd7b65154d4 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 2 Dec 2011 10:18:46 +0100
-Subject: [PATCH 053/126] add a generator to pull rc-local.service in
+Subject: [PATCH] add a generator to pull rc-local.service in
 
 rc-local.service acts as an ordering barrier even if its condition is
 false, because conditions are evaluated when the service is about to be

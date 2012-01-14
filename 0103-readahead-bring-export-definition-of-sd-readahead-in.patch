@@ -1,8 +1,8 @@
 From 24954dcfd60261600c04ffdfc9cd0b1980a4b7d3 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 3 Jan 2012 20:34:09 +0100
-Subject: [PATCH 103/126] readahead: bring export definition of sd-readahead
- in line with sd-daemon (cherry picked from commit
+Subject: [PATCH] readahead: bring export definition of sd-readahead in line
+ with sd-daemon (cherry picked from commit
  4f3656e1cec7fe3d7d3537e23a406cb88d734502)
 
 ---

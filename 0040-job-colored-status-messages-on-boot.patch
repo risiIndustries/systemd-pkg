@@ -1,7 +1,7 @@
 From dd36a516b3945e64578ab4190499266ae44b1155 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 10 Nov 2011 12:53:39 +0100
-Subject: [PATCH 040/126] job: colored status messages on boot
+Subject: [PATCH] job: colored status messages on boot
 
 The lack or green/red status marks on boot has been described by some
 users as "critical", "dramatic", "dealbreaker", "showstopper". Seriously.

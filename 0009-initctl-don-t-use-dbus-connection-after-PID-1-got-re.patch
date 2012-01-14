@@ -1,8 +1,7 @@
 From 3e750716de6acad59112a34d3d79f50da680d023 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 1 Nov 2011 18:18:17 +0100
-Subject: [PATCH 009/126] initctl: don't use dbus connection after PID 1 got
- respawned
+Subject: [PATCH] initctl: don't use dbus connection after PID 1 got respawned
 
 After reexec PID 1 our bus connection is invalidated. Hence don't try to
 reuse it, just terminate so that when we are spawned the next time we

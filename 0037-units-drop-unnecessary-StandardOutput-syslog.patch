@@ -1,7 +1,7 @@
 From 27b67ec67a39321dd52828002a50868071cb5bbf Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 9 Nov 2011 08:42:03 +0100
-Subject: [PATCH 037/126] units: drop unnecessary 'StandardOutput=syslog'
+Subject: [PATCH] units: drop unnecessary 'StandardOutput=syslog'
 
 DefaultStandardOutput is syslog anyway. There's no reason to assume that
 the administrator would want these units to be excluded when he configures

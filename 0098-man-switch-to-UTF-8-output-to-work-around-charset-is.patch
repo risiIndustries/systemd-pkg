@@ -1,8 +1,8 @@
 From 1b6836c15717a62ef81cef8e9617fc7df6c7e605 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 20:25:52 +0100
-Subject: [PATCH 098/126] man: switch to UTF-8 output, to work around charset
- issues (cherry picked from commit
+Subject: [PATCH] man: switch to UTF-8 output, to work around charset issues
+ (cherry picked from commit
  76318284fc970b30e9dc4c079960807345331dad)
 
 ---

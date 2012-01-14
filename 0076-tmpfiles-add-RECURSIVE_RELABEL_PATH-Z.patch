@@ -1,7 +1,7 @@
 From 265c05c53ac71337feb5db53eb8c7acf13901a31 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 15 Dec 2011 23:11:07 +0100
-Subject: [PATCH 076/126] tmpfiles: add RECURSIVE_RELABEL_PATH ('Z')
+Subject: [PATCH] tmpfiles: add RECURSIVE_RELABEL_PATH ('Z')
 
 Feature requested by Dan Walsh.
 (cherry picked from commit a8d8878329893d19106053e5008f0075f149aa16)

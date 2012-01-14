@@ -1,7 +1,7 @@
 From 1d0ba48a582be7b9a539cbb5cbf6bbdf5f7b08e1 Mon Sep 17 00:00:00 2001
 From: Jonathan Nieder <jrnieder@gmail.com>
 Date: Mon, 17 Oct 2011 21:01:40 +0200
-Subject: [PATCH 003/126] audit: do not complain if kernel lacks audit
+Subject: [PATCH] audit: do not complain if kernel lacks audit
 
 When running on a kernel without audit support, systemd currently
 writes a mysterious-sounding error to its log:

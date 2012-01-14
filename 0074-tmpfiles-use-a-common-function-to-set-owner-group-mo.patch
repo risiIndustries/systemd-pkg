@@ -1,7 +1,7 @@
 From 35bb56b851308370435c0ff28c2d73a790043fbb Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 15 Dec 2011 23:44:23 +0100
-Subject: [PATCH 074/126] tmpfiles: use a common function to set
+Subject: [PATCH] tmpfiles: use a common function to set
  owner/group/mode/label (cherry picked from commit
  f05bc3f7f1d85ce4d31fa9c9b2780797ef3953cd)
 

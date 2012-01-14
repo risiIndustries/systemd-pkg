@@ -1,8 +1,7 @@
 From cb1d467a016e97e74222fc775fefe4ee3790f8fb Mon Sep 17 00:00:00 2001
 From: Ran Benita <ran234@gmail.com>
 Date: Wed, 2 Nov 2011 10:48:50 +0200
-Subject: [PATCH 015/126] bash-completion: add completions for
- systemd-loginctl
+Subject: [PATCH] bash-completion: add completions for systemd-loginctl
 
 This script is straightforward and should give proper completions for
 all of systemd-loginctl's verbs.

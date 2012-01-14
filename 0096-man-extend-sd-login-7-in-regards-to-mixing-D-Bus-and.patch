@@ -1,9 +1,8 @@
 From d54ac9394336db0564b3bca712d43042486dacc1 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 17:40:31 +0100
-Subject: [PATCH 096/126] man: extend sd-login(7) in regards to mixing D-Bus
- and synchronous library calls a bit (cherry picked
- from commit
+Subject: [PATCH] man: extend sd-login(7) in regards to mixing D-Bus and
+ synchronous library calls a bit (cherry picked from commit
  5079a105e701f17439635e76d8cb3052badbb34c)
 
 ---

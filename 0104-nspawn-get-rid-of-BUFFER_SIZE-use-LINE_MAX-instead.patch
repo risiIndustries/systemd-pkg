@@ -1,8 +1,8 @@
 From 79dbd0ccda06dc6b9d1a6a8a04a214895b0d91e8 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 3 Jan 2012 20:41:20 +0100
-Subject: [PATCH 104/126] nspawn: get rid of BUFFER_SIZE, use LINE_MAX instead
- (cherry picked from commit
+Subject: [PATCH] nspawn: get rid of BUFFER_SIZE, use LINE_MAX instead (cherry
+ picked from commit
  b72491a2fd8c237299055c636d4f748bca2b4b1f)
 
 ---

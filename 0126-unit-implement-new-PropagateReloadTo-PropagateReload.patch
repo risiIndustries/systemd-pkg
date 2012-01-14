@@ -1,9 +1,8 @@
 From ca96079f33b100e32dd2eb624a946058b6ff49f1 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 11 Jan 2012 02:47:14 +0100
-Subject: [PATCH 126/126] unit: implement new
- PropagateReloadTo=/PropagateReloadFrom= operations
- (cherry picked from commit
+Subject: [PATCH] unit: implement new PropagateReloadTo=/PropagateReloadFrom=
+ operations (cherry picked from commit
  4dcc1cb4155c4a72155e36a5461ab0847d4f1bf1)
 
 ---

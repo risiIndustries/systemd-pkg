@@ -1,8 +1,8 @@
 From 24924bc68792f49d73cfaf0ff4dd2975d1c3c765 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 25 Feb 2011 18:20:16 +0100
-Subject: [PATCH 019/126] systemadm: split the type+status combo box into type
- combo & status checkbox (cherry picked from commit
+Subject: [PATCH] systemadm: split the type+status combo box into type combo &
+ status checkbox (cherry picked from commit
  a3c159a23c7cae889f89ed69bbe82c272bf163ca)
 
 ---

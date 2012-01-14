@@ -1,7 +1,7 @@
 From e9926ed4c022cd98b6174d675546b04900df91e4 Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay.sievers@vrfy.org>
 Date: Sat, 7 Jan 2012 02:12:43 +0100
-Subject: [PATCH 123/126] fix compiler warning (cherry picked from commit
+Subject: [PATCH] fix compiler warning (cherry picked from commit
  ebd91b34d749cf29308d15601b5fbc971b4dab89)
 
 ---

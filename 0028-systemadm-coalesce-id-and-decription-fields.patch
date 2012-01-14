@@ -1,7 +1,7 @@
 From 5581802cca0ebea3b8a3193f94c80cfc4d0a3111 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 18 Sep 2011 17:00:12 +0200
-Subject: [PATCH 028/126] systemadm: coalesce id and decription fields
+Subject: [PATCH] systemadm: coalesce id and decription fields
 
 This is just in interest of saving space (e.g. 5 lines for multi-user.target).
 (cherry picked from commit 8f38d5a4c6e627180809db739b2bdaa5ca0c645a)

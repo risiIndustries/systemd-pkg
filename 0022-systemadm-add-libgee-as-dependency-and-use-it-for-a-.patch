@@ -1,8 +1,8 @@
 From 6c8061acd30f7cb604953dd75f00bb8f8cc7323b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 3 Mar 2011 20:54:01 +0100
-Subject: [PATCH 022/126] systemadm: add libgee as dependency and use it for a
- unit map (cherry picked from commit
+Subject: [PATCH] systemadm: add libgee as dependency and use it for a unit
+ map (cherry picked from commit
  11216eb0bd5aab6b14af004fd2f24d423e3d356d)
 
 ---

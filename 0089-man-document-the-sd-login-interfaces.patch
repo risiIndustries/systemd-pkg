@@ -1,9 +1,8 @@
 From caaed693b9e8b16102c794fa52850bbcb7cc6fd9 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 03:02:17 +0100
-Subject: [PATCH 089/126] man: document the sd-login interfaces (cherry picked
- from commit
- 0b3b020a178cf3b957fed627de13c895773995ec)
+Subject: [PATCH] man: document the sd-login interfaces (cherry picked from
+ commit 0b3b020a178cf3b957fed627de13c895773995ec)
 
 ---
  man/sd_get_seats.xml         |  125 +++++++++++++++++++++++++++++

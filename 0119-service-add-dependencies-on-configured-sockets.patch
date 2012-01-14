@@ -1,8 +1,8 @@
 From 423d96b0e5e351ae6489370ebc4af1bd18008b5d Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 6 Jan 2012 19:23:03 +0100
-Subject: [PATCH 119/126] service: add dependencies on configured sockets
- (cherry picked from commit
+Subject: [PATCH] service: add dependencies on configured sockets (cherry
+ picked from commit
  73aa0c00df8b101bad4c3a038148a633df88610c)
 
 ---

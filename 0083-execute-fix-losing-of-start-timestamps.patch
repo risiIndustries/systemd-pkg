@@ -1,7 +1,7 @@
 From ef50636c71f16165e58b38c25890213e2a6b073b Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 17 Dec 2011 01:33:40 +0100
-Subject: [PATCH 083/126] execute: fix losing of start timestamps
+Subject: [PATCH] execute: fix losing of start timestamps
 
 Start timestamps were always cleared before saving exit timestamps.
 Fix it by removing a condition that makes no sense any way I look at it.

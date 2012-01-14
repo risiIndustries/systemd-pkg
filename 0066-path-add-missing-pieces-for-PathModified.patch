@@ -1,7 +1,7 @@
 From 7cae93f652dff82e998a3d1f99f1a18a3f908c30 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 8 Dec 2011 12:09:10 +0100
-Subject: [PATCH 066/126] path: add missing pieces for PathModified
+Subject: [PATCH] path: add missing pieces for PathModified
 
 PATH_MODIFIED worked internally for PID files detection, but was unusable
 in units.

@@ -1,7 +1,7 @@
 From 0d380f2f2d27eabcab8167a52e2d7196720f3d6a Mon Sep 17 00:00:00 2001
 From: Gregs Gregs <gregpuppy01@yahoo.gr>
 Date: Mon, 14 Nov 2011 19:58:03 +0200
-Subject: [PATCH 070/126] fsck: Fix typo in comment (cherry picked from commit
+Subject: [PATCH] fsck: Fix typo in comment (cherry picked from commit
  b911442003350c56673e5689328f173ed03bbabd)
 
 ---

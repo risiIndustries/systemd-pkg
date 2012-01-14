@@ -1,7 +1,7 @@
 From 69086d0499fb8ae161ab9bd83da19f098317f6bc Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 3 Dec 2011 01:38:30 +0100
-Subject: [PATCH 058/126] path: refactor PathSpec usage
+Subject: [PATCH] path: refactor PathSpec usage
 
 path_*() functions operate on "Path *p" and they do not touch PathSpec
 internals directly.

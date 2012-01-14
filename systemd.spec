@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        6%{?dist}
+Release:        7%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -173,6 +173,11 @@ Patch0123:      0123-fix-compiler-warning.patch
 Patch0124:      0124-shutdown-exclude-processes-with-argv-0-0-from-killin.patch
 Patch0125:      0125-shutdown-add-link-to-root-storage-daemon-text.patch
 Patch0126:      0126-unit-implement-new-PropagateReloadTo-PropagateReload.patch
+# from v39:
+Patch0127:      0127-tmpfiles-fix-parsing-of-proc-net-unix-on-32Bit-machi.patch
+Patch0128:      0128-pam-work-correctly-if-a-seat-is-specified-but-not-vt.patch
+Patch0129:      0129-pam-fix-build.patch
+Patch0130:      0130-mount-fix-quota.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -491,6 +496,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Sat Jan 14 2012 Michal Schmidt <mschmidt@redhat.com> - 37-7
+- Fix for quota and a couple of other issues.
+
 * Wed Jan 11 2012 Michal Schmidt <mschmidt@redhat.com> - 37-6
 - Fixes and low-risk enhancements (no journald) from upstream v38.
 

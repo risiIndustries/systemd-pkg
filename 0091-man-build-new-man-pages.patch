@@ -1,7 +1,7 @@
 From 271f93368eee2784ad360fe6cfed0b684f4a1032 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 13:12:36 +0100
-Subject: [PATCH 091/126] man: build new man pages (cherry picked from commit
+Subject: [PATCH] man: build new man pages (cherry picked from commit
  f0d2e205a28e37528ef791cc2913e6664d0dde7f)
 
 ---

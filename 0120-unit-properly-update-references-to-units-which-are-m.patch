@@ -1,8 +1,7 @@
 From a1f378075e7ff6f07031ab1d2f653110f7d0e1f2 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 6 Jan 2012 23:08:54 +0100
-Subject: [PATCH 120/126] unit: properly update references to units which are
- merged
+Subject: [PATCH] unit: properly update references to units which are merged
 
 When we merge units that some kind of object points to, those pointers
 might become invalidated, and needs to be updated. Introduce a UnitRef

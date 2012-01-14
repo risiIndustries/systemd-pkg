@@ -1,8 +1,7 @@
 From 62403a219c01f907e69012e502a73cdb9aeeb251 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 24 Oct 2011 11:49:59 +0200
-Subject: [PATCH 005/126] systemctl: make list-unit-files output more
- economical
+Subject: [PATCH] systemctl: make list-unit-files output more economical
 
 The first column is given the width of the widest entry,
 if possible, otherwise all entries are ellipsized to fit

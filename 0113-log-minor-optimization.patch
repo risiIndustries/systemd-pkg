@@ -1,7 +1,7 @@
 From 3e1a7de638aec192ae7ac25baea7e8c343ab414b Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 5 Jan 2012 03:25:10 +0100
-Subject: [PATCH 113/126] log: minor optimization (cherry picked from commit
+Subject: [PATCH] log: minor optimization (cherry picked from commit
  674f8283698517047a7c0e78cff1e18932a97b05)
 
 ---

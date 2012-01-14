@@ -1,7 +1,7 @@
 From 20f36bebf9cb9655cb8ac606b70461e4db7ecbde Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 30 Nov 2011 09:37:13 +0100
-Subject: [PATCH 051/126] syslog: use PassCred=yes for the /dev/log socket
+Subject: [PATCH] syslog: use PassCred=yes for the /dev/log socket
 
 Both kmsg-syslogd and the real syslog service want to receive
 SCM_CREDENTIALS. With socket activation it is too late to set

@@ -1,9 +1,8 @@
 From 741e7c477da184725f18f928fed7174d97732419 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 13:25:00 +0100
-Subject: [PATCH 093/126] build-sys: add rules for man page aliases (cherry
- picked from commit
- c10eb7b02eb048eb23f0c9f239bfe1f9e7bc8e4a)
+Subject: [PATCH] build-sys: add rules for man page aliases (cherry picked
+ from commit c10eb7b02eb048eb23f0c9f239bfe1f9e7bc8e4a)
 
 ---
  Makefile.am |   14 ++++++++++++++

@@ -1,9 +1,8 @@
 From afa63b4de8367c2c48c639471e18962c1e1b5ad5 Mon Sep 17 00:00:00 2001
 From: Dan Walsh <dwalsh@redhat.com>
 Date: Mon, 19 Dec 2011 23:55:29 +0100
-Subject: [PATCH 084/126] label: fix labeling of symbolic links (cherry picked
- from commit
- 81c3f1f6aba52ac5e95241b51083b61c7401be44)
+Subject: [PATCH] label: fix labeling of symbolic links (cherry picked from
+ commit 81c3f1f6aba52ac5e95241b51083b61c7401be44)
 
 ---
  src/label.c |    2 +-

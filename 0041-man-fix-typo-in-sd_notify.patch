@@ -1,7 +1,7 @@
 From acd5d830990975310998d28800cad086357a80c0 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 11 Nov 2011 10:48:17 +0100
-Subject: [PATCH 041/126] man: fix typo in sd_notify
+Subject: [PATCH] man: fix typo in sd_notify
 
 Noticed by guzu.
 (cherry picked from commit 9f84624270432cdff35c4f499fbdb9e0f94fe705)

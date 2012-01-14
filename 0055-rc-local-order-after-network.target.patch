@@ -1,7 +1,7 @@
 From 7f0aa58747b7335c7856fb7153be6cd1e22b74b6 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 2 Dec 2011 11:32:52 +0100
-Subject: [PATCH 055/126] rc-local: order after network.target
+Subject: [PATCH] rc-local: order after network.target
 
 As suggested by Bill Nottingham: rc.local is often used for frobbing the
 network.

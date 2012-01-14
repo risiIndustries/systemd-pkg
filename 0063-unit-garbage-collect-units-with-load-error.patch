@@ -1,7 +1,7 @@
 From 069a85095fb07d894ae1825db5f7300c5b5f092b Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 6 Dec 2011 00:47:28 +0100
-Subject: [PATCH 063/126] unit: garbage collect units with load error
+Subject: [PATCH] unit: garbage collect units with load error
 
 Units that failed to load were never cleaned up. It was possible to
 reach the 128K limit of units by attempting to load a bunch of nonsense.

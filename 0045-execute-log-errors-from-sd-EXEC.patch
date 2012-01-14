@@ -1,7 +1,7 @@
 From 43516d8c437d0afd7f4a70592487291e45675101 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 17 Nov 2011 00:21:16 +0100
-Subject: [PATCH 045/126] execute: log errors from "sd(EXEC)"
+Subject: [PATCH] execute: log errors from "sd(EXEC)"
 
 To give the administrator more hints about failures occuring in spawning
 of commands than just the exit code, log the strerror.

@@ -1,8 +1,7 @@
 From 859dc200c20c5dd7e49e443bd29ab6c31dfb0b69 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 17 Nov 2011 00:16:22 +0100
-Subject: [PATCH 044/126] execute: make setup_pam() return -errno when
- possible
+Subject: [PATCH] execute: make setup_pam() return -errno when possible
 
 The only caller currently checks if the result is non-zero,
 so nothing changes there.

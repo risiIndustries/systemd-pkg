@@ -1,8 +1,7 @@
 From b1d7dbb539fcbd671ec4ddce1d162fe3543440ea Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 30 Nov 2011 11:06:35 +0100
-Subject: [PATCH 052/126] man: document the PassCred option (cherry picked
- from commit
+Subject: [PATCH] man: document the PassCred option (cherry picked from commit
  42e87475cfe20a5e79da882012629f9d3ae63648)
 
 ---

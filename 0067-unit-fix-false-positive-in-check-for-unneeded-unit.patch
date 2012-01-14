@@ -1,7 +1,7 @@
 From 43664cdd8565ae24b27c3f91be1de64ae9021608 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 9 Dec 2011 15:24:04 +0100
-Subject: [PATCH 067/126] unit: fix false positive in check for unneeded unit
+Subject: [PATCH] unit: fix false positive in check for unneeded unit
 
 A freshly started unit A was immediately considered unneeded just because
 unit B, which Requires A, was starting later in the transaction.

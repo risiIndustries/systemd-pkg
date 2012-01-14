@@ -1,7 +1,7 @@
 From 4cff61c8150be456da22cc737696fad925c1393f Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 1 Nov 2011 14:20:31 +0100
-Subject: [PATCH 006/126] plymouth: fix ply proto endianess issues
+Subject: [PATCH] plymouth: fix ply proto endianess issues
 
 Plymouth enforces LE even for the local Ply proto, hence we should do
 the conversion properly for BE arch compat.

@@ -1,8 +1,7 @@
 From 1b2395f867d283bb08862e1ce421ab3ac1b02968 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 3 Dec 2011 02:13:30 +0100
-Subject: [PATCH 060/126] service: handle services with racy daemonization
- gracefully
+Subject: [PATCH] service: handle services with racy daemonization gracefully
 
 There are a lot of forking daemons that do not exactly follow the
 initialization steps as described in daemon(7). It is common that they

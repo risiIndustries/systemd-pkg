@@ -1,9 +1,8 @@
 From a8bd50e0b09cb537bb3019845560e645899960ed Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 5 Jan 2012 15:35:16 +0100
-Subject: [PATCH 114/126] util: never ellipsize welcome message (cherry picked
- from commit
- 67e5cc4f3ed41feaed399cfed77c6fbb41e14a8c)
+Subject: [PATCH] util: never ellipsize welcome message (cherry picked from
+ commit 67e5cc4f3ed41feaed399cfed77c6fbb41e14a8c)
 
 ---
  src/unit.c |    2 +-

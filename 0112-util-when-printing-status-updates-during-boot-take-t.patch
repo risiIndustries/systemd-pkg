@@ -1,9 +1,9 @@
 From 36318b0838442ef35fff111910d5657c20f1a71c Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 5 Jan 2012 03:24:39 +0100
-Subject: [PATCH 112/126] util: when printing status updates during boot, take
- terminal width into account (cherry picked from
- commit 81beb7508e72b29ae7cec60b50231cbe0c1d582e)
+Subject: [PATCH] util: when printing status updates during boot, take
+ terminal width into account (cherry picked from commit
+ 81beb7508e72b29ae7cec60b50231cbe0c1d582e)
 
 Conflicts:
 

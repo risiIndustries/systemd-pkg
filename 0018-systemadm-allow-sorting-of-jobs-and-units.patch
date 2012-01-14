@@ -1,9 +1,8 @@
 From 5a7251ffb8ea53dd6c0e0b78e78af704bbb1cbb2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 24 Feb 2011 16:29:24 +0100
-Subject: [PATCH 018/126] systemadm: allow sorting of jobs and units (cherry
- picked from commit
- 661ece1029ea454ff76093a5f1b40e9209cac86d)
+Subject: [PATCH] systemadm: allow sorting of jobs and units (cherry picked
+ from commit 661ece1029ea454ff76093a5f1b40e9209cac86d)
 
 ---
  src/systemadm.vala |   31 ++++++++++++++++++++-----------

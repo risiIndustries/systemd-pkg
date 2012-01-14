@@ -1,7 +1,7 @@
 From 550fab31953acced44a6e7b2acc050b8270dd558 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 14:42:59 +0100
-Subject: [PATCH 095/126] man: various updates (cherry picked from commit
+Subject: [PATCH] man: various updates (cherry picked from commit
  595aae376fae21f885ec9af2cac1aaf3ff3e9bee)
 
 ---

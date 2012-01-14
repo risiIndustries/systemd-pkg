@@ -1,7 +1,7 @@
 From b3070998c22feaa3b85337c56fb437527aec962e Mon Sep 17 00:00:00 2001
 From: Thomas Jarosch <thomas.jarosch@intra2net.com>
 Date: Wed, 9 Nov 2011 20:48:31 +0100
-Subject: [PATCH 042/126] Fix same expression on both sides of '&&'
+Subject: [PATCH] Fix same expression on both sides of '&&'
 
 The code should probably look like the statements above it.
 Please verify, I just detected it using cppcheck.

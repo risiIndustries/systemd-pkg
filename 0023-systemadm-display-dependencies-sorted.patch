@@ -1,9 +1,8 @@
 From 9a11d4dc5b77fc3b9b33f96888f1a46f5a013786 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 3 Mar 2011 01:30:08 +0100
-Subject: [PATCH 023/126] systemadm: display dependencies sorted (cherry
- picked from commit
- 8278f06953f5339646e5ff98900321f1525c0a21)
+Subject: [PATCH] systemadm: display dependencies sorted (cherry picked from
+ commit 8278f06953f5339646e5ff98900321f1525c0a21)
 
 ---
  src/systemadm.vala |    6 +++++-

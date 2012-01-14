@@ -1,9 +1,9 @@
 From c190c0e59e4dfa52a523a220a82b94b3bbfd3ad9 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 3 Jan 2012 21:47:54 +0100
-Subject: [PATCH 106/126] logind: if we can't open /dev/tty0, assume there is
- no VT subsystem and don't pretend we could do VT
- switching (cherry picked from commit
+Subject: [PATCH] logind: if we can't open /dev/tty0, assume there is no VT
+ subsystem and don't pretend we could do VT switching
+ (cherry picked from commit
  addedec48ba0ffc4472ef6d3b5a45c9d4239f1cd)
 
 ---

@@ -1,8 +1,8 @@
 From 10e099981a14b6f435552854d4c9d5eaaa65c4da Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 1 Nov 2011 22:27:48 +0100
-Subject: [PATCH 011/126] mount: order remote mounts after both network.target
- and remote-fs-pre.target
+Subject: [PATCH] mount: order remote mounts after both network.target and
+ remote-fs-pre.target
 
 Since remote-fs-pre.target is optional we cannot count on it to order
 remote mounts after network.target, so let's add that order explicitly

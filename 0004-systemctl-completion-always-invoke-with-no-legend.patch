@@ -1,7 +1,7 @@
 From fb4f5f218e83eb1496f2fdfa67b27e458b2bd6a4 Mon Sep 17 00:00:00 2001
 From: Dave Reisner <d@falconindy.com>
 Date: Tue, 11 Oct 2011 20:56:53 -0400
-Subject: [PATCH 004/126] systemctl-completion: always invoke with --no-legend
+Subject: [PATCH] systemctl-completion: always invoke with --no-legend
 
 In the case of completion for the 'restart' verb, passing the invalid
 unit name (the colums header) causes completion to cease functioning

@@ -1,7 +1,7 @@
 From 21ee8544227b293260e864c2a6bcf47a1e0d7a4c Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 6 Jan 2012 01:32:34 +0100
-Subject: [PATCH 118/126] util: switch the console to text mode on reset
+Subject: [PATCH] util: switch the console to text mode on reset
 
 In case we're taking over the console after a killed X server.
 

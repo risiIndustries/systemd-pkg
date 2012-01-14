@@ -1,8 +1,8 @@
 From f2a7f81850607590c5d64efe5beedadc85be9909 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 17 Dec 2011 00:39:19 +0100
-Subject: [PATCH 082/126] man: fix misplaced remark in description of Sockets=
- (cherry picked from commit
+Subject: [PATCH] man: fix misplaced remark in description of Sockets= (cherry
+ picked from commit
  4f025f4c4f9e043a06a05bcd4fc9fa65ee232ecc)
 
 ---

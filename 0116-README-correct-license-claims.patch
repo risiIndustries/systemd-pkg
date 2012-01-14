@@ -1,8 +1,8 @@
 From 7ac8afd6e39c4f485d3b066f61d755d0f678f4f8 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 5 Jan 2012 18:24:18 +0100
-Subject: [PATCH 116/126] README: correct license claims (cherry picked from
- commit 0df4f9d669bec2d34777735f8cdd40797b1fd753)
+Subject: [PATCH] README: correct license claims (cherry picked from commit
+ 0df4f9d669bec2d34777735f8cdd40797b1fd753)
 
 ---
  README |    3 ++-

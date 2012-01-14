@@ -1,7 +1,7 @@
 From 360ab562c360ec375f76fb88318546323a835459 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 3 Dec 2011 00:41:34 +0100
-Subject: [PATCH 056/126] util: fix error checking after fgets()
+Subject: [PATCH] util: fix error checking after fgets()
 
 fgets() does not set errno on EOF.
 (cherry picked from commit 35d50f55f346c71fd5e957d35ebcae1c50b1f9ce)

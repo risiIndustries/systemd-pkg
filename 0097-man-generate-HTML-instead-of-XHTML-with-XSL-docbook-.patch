@@ -1,9 +1,9 @@
 From d522760b761ddb9e92eb068c656c68ed60bdb50e Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 19:55:54 +0100
-Subject: [PATCH 097/126] man: generate HTML instead of XHTML with XSL docbook
- to work around 'fsfunc' noise (cherry picked from
- commit 38c67e2a442d875c1de6f5aae46647a195230b05)
+Subject: [PATCH] man: generate HTML instead of XHTML with XSL docbook to work
+ around 'fsfunc' noise (cherry picked from commit
+ 38c67e2a442d875c1de6f5aae46647a195230b05)
 
 ---
  Makefile.am |    4 ++--

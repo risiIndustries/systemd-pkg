@@ -1,7 +1,7 @@
 From 88230ce30fcd48f8f6fadcdf838e6f047a91acdf Mon Sep 17 00:00:00 2001
 From: Tom Gundersen <teg@jklm.no>
 Date: Mon, 17 Oct 2011 13:01:08 +0200
-Subject: [PATCH 013/126] cryptsetup-generator: avoid ordering cycle on swap
+Subject: [PATCH] cryptsetup-generator: avoid ordering cycle on swap
 
 Devices with random keys (swap), should not be ordered before local-fs.target,
 as this creates a cycle with systemd-load-random-seed.service (and also it

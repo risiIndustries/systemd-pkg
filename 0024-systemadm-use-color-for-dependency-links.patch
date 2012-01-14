@@ -1,9 +1,8 @@
 From c9e50116433d60c2f296f7f542e43e13a872cc75 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 3 Mar 2011 22:20:19 +0100
-Subject: [PATCH 024/126] systemadm: use color for dependency links (cherry
- picked from commit
- 23b51f17b1cf473bff3ae5332477e2028a5c5f53)
+Subject: [PATCH] systemadm: use color for dependency links (cherry picked
+ from commit 23b51f17b1cf473bff3ae5332477e2028a5c5f53)
 
 ---
  src/systemadm.vala |   21 ++++++++++++++++++++-

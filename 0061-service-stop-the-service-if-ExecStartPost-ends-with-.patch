@@ -1,8 +1,8 @@
 From 4035af799be35919232a68dfb0786af4f54257a1 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 3 Dec 2011 21:34:34 +0100
-Subject: [PATCH 061/126] service: stop the service if ExecStartPost ends with
- a failure
+Subject: [PATCH] service: stop the service if ExecStartPost ends with a
+ failure
 
 The handling of failures in ExecStartPost is inconsistent. If the
 command times out, the service is stopped. But if the command exits

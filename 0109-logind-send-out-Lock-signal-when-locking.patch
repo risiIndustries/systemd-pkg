@@ -1,9 +1,8 @@
 From 02ed8bfecd03c02b39c0d9d04c846e7deb905381 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 3 Jan 2012 23:08:15 +0100
-Subject: [PATCH 109/126] logind: send out Lock signal when locking (cherry
- picked from commit
- bda061759c3baef4383a2ec0bf1b538905cb30b0)
+Subject: [PATCH] logind: send out Lock signal when locking (cherry picked
+ from commit bda061759c3baef4383a2ec0bf1b538905cb30b0)
 
 Conflicts:
 

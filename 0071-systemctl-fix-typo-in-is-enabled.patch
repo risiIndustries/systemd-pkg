@@ -1,7 +1,7 @@
 From b63edf0ecaab0cb26bba99b139511ac22d3bf785 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 14 Dec 2011 22:23:56 +0100
-Subject: [PATCH 071/126] systemctl: fix typo in 'is-enabled'
+Subject: [PATCH] systemctl: fix typo in 'is-enabled'
 
 It prevented the action from working without dbus.
 (cherry picked from commit c971700e41e0ac9883ab0744921b79dd396170dc)

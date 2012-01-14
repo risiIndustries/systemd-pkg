@@ -1,7 +1,7 @@
 From 3fc55e7a9f4dc14ca74ed6b293e1fac03e1fec74 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 6 Dec 2011 01:14:36 +0100
-Subject: [PATCH 064/126] systemctl: print 'error' load state in red
+Subject: [PATCH] systemctl: print 'error' load state in red
 
 Be consistent in coloring of load states in list-units and status.
 Print only 'error' in red.

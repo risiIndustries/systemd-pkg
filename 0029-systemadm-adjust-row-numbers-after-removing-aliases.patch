@@ -1,8 +1,8 @@
 From e3eece11dcdef669d90fef5f42428a921cad33b1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 19 Sep 2011 08:14:02 +0200
-Subject: [PATCH 029/126] systemadm: adjust row numbers after removing
- 'aliases' (cherry picked from commit
+Subject: [PATCH] systemadm: adjust row numbers after removing 'aliases'
+ (cherry picked from commit
  fe7e28146f30ec442c0dd7f71002a1b482d910a9)
 
 ---

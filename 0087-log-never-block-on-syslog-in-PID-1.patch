@@ -1,7 +1,7 @@
 From 58a06a6dfb11121bc1220c1c21fdf11ae65ac895 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sun, 18 Dec 2011 14:57:54 +0100
-Subject: [PATCH 087/126] log: never block on syslog in PID 1
+Subject: [PATCH] log: never block on syslog in PID 1
 
 Use a non-blocking syslog socket if logging from PID 1.
 If sendmsg fails with EAGAIN, fall back to kmsg or console only for the

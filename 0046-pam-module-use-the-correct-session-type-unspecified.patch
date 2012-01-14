@@ -1,8 +1,7 @@
 From d9e63f3d535758350a83b9b39050e98e01d8d638 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 19 Nov 2011 01:14:11 +0100
-Subject: [PATCH 046/126] pam-module: use the correct session type
- "unspecified"
+Subject: [PATCH] pam-module: use the correct session type "unspecified"
 
 logind does not understand "other".
 (cherry picked from commit 1dc995370987660ff045ff4d7cf512da0390cf96)

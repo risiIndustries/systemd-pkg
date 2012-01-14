@@ -1,7 +1,7 @@
 From 1a542f80955b0d425412f5c3dd604483747db133 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 29 Nov 2011 22:15:41 +0100
-Subject: [PATCH 049/126] socket: add option for SO_PASSCRED
+Subject: [PATCH] socket: add option for SO_PASSCRED
 
 Add an option to enable SO_PASSCRED for unix sockets.
 (cherry picked from commit d68af58657ce0e99594dff199fbb9b319cf6af96)

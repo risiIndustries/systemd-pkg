@@ -1,7 +1,7 @@
 From ecac03685b4679d53c0ec86db257e061bec2d2c9 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 19 Nov 2011 01:17:46 +0100
-Subject: [PATCH 047/126] pam-module: treat "cron" in PAM_TTY as empty tty
+Subject: [PATCH] pam-module: treat "cron" in PAM_TTY as empty tty
 
 cron sets PAM_TTY to "cron" and it has been doing it for a long time.
 It cannot be changed because user configurations may depend on it.

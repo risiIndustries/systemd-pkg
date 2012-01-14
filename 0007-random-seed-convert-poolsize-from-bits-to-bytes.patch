@@ -1,7 +1,7 @@
 From fb47a8a6bc8903d8b4b7b71707baa2c7585a0407 Mon Sep 17 00:00:00 2001
 From: Tom Gundersen <teg@jklm.no>
 Date: Sat, 22 Oct 2011 18:47:08 +0200
-Subject: [PATCH 007/126] random-seed: convert poolsize from bits to bytes
+Subject: [PATCH] random-seed: convert poolsize from bits to bytes
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

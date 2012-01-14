@@ -1,8 +1,7 @@
 From 54a91c5eae72181cc7aadf618c152e18ac336b5e Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 3 Nov 2011 19:42:53 +0100
-Subject: [PATCH 031/126] cgroup: immediately remove all cgroups which run
- empty
+Subject: [PATCH] cgroup: immediately remove all cgroups which run empty
 
 Some controllers have scaling problems when many empty cgroups exist.
 Hence, as soon as we get a notification that a cgroup is empty, delete

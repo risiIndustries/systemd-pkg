@@ -1,9 +1,8 @@
 From a783d0af2d7a5a40942c8c2355a9119e3344dcc2 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 16 Dec 2011 00:38:22 +0100
-Subject: [PATCH 078/126] man: mention that 'Z' ignores uid/gid/mode (cherry
- picked from commit
- a37b560a63f9b48980b94fc1cf9cd4fe25e3b904)
+Subject: [PATCH] man: mention that 'Z' ignores uid/gid/mode (cherry picked
+ from commit a37b560a63f9b48980b94fc1cf9cd4fe25e3b904)
 
 ---
  man/tmpfiles.d.xml |    4 ++--

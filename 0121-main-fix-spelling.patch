@@ -1,7 +1,7 @@
 From df9aafc94497610c8a8c9ccb0fcf5a67aa230087 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Sat, 7 Jan 2012 00:59:15 +0100
-Subject: [PATCH 121/126] main: fix spelling (cherry picked from commit
+Subject: [PATCH] main: fix spelling (cherry picked from commit
  509b6efbbe8d0486d33036892293c575bd4d0736)
 
 ---

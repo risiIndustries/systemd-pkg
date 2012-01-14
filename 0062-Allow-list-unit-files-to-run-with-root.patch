@@ -1,7 +1,7 @@
 From 7c3d4fb80496c466d6523b88d5720a7f4ff7939d Mon Sep 17 00:00:00 2001
 From: Bill Nottingham <notting@redhat.com>
 Date: Tue, 22 Nov 2011 15:45:34 -0500
-Subject: [PATCH 062/126] Allow 'list-unit-files' to run with --root.
+Subject: [PATCH] Allow 'list-unit-files' to run with --root.
 
 To do so, move the check for the bus to the bus-using portion of
 list_unit_files(), and ensure that get_config_path doesn't abort when

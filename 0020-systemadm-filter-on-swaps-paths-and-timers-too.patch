@@ -1,8 +1,8 @@
 From ad2d88f188922c5267f15e25446e7ece114b5ac0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 28 Feb 2011 10:35:23 +0100
-Subject: [PATCH 020/126] systemadm: filter on swaps, paths, and timers too.
- (cherry picked from commit
+Subject: [PATCH] systemadm: filter on swaps, paths, and timers too. (cherry
+ picked from commit
  e377ad0d11e1bd9954c6084956494ebbf41b4486)
 
 ---

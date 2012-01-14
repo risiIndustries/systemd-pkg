@@ -1,7 +1,7 @@
 From b93ae6c00edfe8ef2f0fd70177dee1d111598fe0 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Mon, 17 Oct 2011 11:12:12 +0200
-Subject: [PATCH 002/126] manager: fix a crash in isolating
+Subject: [PATCH] manager: fix a crash in isolating
 
 HASHMAP_FOREACH is safe against the removal of the current entry, but
 not against the removal of other entries. job_finish_and_invalidate()

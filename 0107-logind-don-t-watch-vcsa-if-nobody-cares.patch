@@ -1,9 +1,8 @@
 From a00aab29d1970ef575ee395b016363cf48d39a7d Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 3 Jan 2012 21:50:02 +0100
-Subject: [PATCH 107/126] logind: don't watch vcsa if nobody cares (cherry
- picked from commit
- 976c088a0242a1a91b8f00899a4c2ae0e621a185)
+Subject: [PATCH] logind: don't watch vcsa if nobody cares (cherry picked from
+ commit 976c088a0242a1a91b8f00899a4c2ae0e621a185)
 
 ---
  src/logind.c |   11 ++++++-----

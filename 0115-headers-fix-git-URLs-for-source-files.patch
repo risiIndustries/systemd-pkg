@@ -1,9 +1,8 @@
 From e304704addaa0ab824060b2c9612ffeee64cb5bf Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 5 Jan 2012 18:21:26 +0100
-Subject: [PATCH 115/126] headers: fix git URLs for source files (cherry
- picked from commit
- 8ab49c12dcab02d9d83e63a93676d4fc8f709516)
+Subject: [PATCH] headers: fix git URLs for source files (cherry picked from
+ commit 8ab49c12dcab02d9d83e63a93676d4fc8f709516)
 
 ---
  man/sd-daemon.xml     |    4 ++--

@@ -1,7 +1,7 @@
 From d18d8b40a2c65a551d2954cea701631a5db323e7 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 16 Dec 2011 17:38:01 +0100
-Subject: [PATCH 079/126] service: use 'syslog+console' for sysv_console
+Subject: [PATCH] service: use 'syslog+console' for sysv_console
 
 The default output to 'tty' for SysV service was making it hard to debug
 problems because error messages were missing from syslog.

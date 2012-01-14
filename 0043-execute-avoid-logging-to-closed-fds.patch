@@ -1,7 +1,7 @@
 From 838ad64f4f4502f370dcbf5faaed94b618bdac08 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 16 Nov 2011 23:45:01 +0100
-Subject: [PATCH 043/126] execute: avoid logging to closed fds
+Subject: [PATCH] execute: avoid logging to closed fds
 
 Several functions called from the "sd(EXEC)" process try to log messages
 when all the file descriptors are already closed, including the logging

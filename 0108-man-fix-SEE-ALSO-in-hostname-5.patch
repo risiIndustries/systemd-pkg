@@ -1,7 +1,7 @@
 From b07ccd2e4d5fd58f9ead2e597a69711d50f7d744 Mon Sep 17 00:00:00 2001
 From: Tom Gundersen <teg@jklm.no>
 Date: Sat, 31 Dec 2011 01:15:04 +0100
-Subject: [PATCH 108/126] man: fix SEE ALSO in hostname(5)
+Subject: [PATCH] man: fix SEE ALSO in hostname(5)
 
 Rather than referencing itself (hostname(5)), point to hostname(7).
 (cherry picked from commit 63c52e45de6b6071d64cc4d3bb0d47357a1f5ead)

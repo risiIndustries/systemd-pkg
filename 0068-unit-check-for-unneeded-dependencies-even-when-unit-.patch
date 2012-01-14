@@ -1,8 +1,8 @@
 From c075b337c3ebfd4665f3745a66984bf2d2793a97 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 9 Dec 2011 15:25:29 +0100
-Subject: [PATCH 068/126] unit: check for unneeded dependencies even when unit
- stop was expected
+Subject: [PATCH] unit: check for unneeded dependencies even when unit stop
+ was expected
 
 systemd did not stop units marked as "StopWhenUnneeded=yes" when the requiring
 unit was stopped on user's request.

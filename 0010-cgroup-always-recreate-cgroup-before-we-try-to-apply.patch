@@ -1,8 +1,8 @@
 From b160c4add112ec90a811726ee3ac536f98cfd6cf Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 1 Nov 2011 22:02:36 +0100
-Subject: [PATCH 010/126] cgroup: always recreate cgroup before we try to
- apply attributes
+Subject: [PATCH] cgroup: always recreate cgroup before we try to apply
+ attributes
 
 We might have trimmed the cgroup tree previously, hence don't trust our
 own "realized" flag, always recreate cgroup tree before applying our

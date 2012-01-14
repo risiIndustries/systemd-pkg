@@ -1,7 +1,7 @@
 From 6e1da63130bb563b5cce89c2a7d66e98e79c5ec4 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sun, 18 Dec 2011 14:58:10 +0100
-Subject: [PATCH 085/126] dbus: register to DBus asynchronously
+Subject: [PATCH] dbus: register to DBus asynchronously
 
 Chen Jie observed and analyzed a deadlock. Assuming systemd-kmsg-syslogd
 is already stopped, but rsyslogd is not started yet:

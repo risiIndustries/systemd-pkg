@@ -1,7 +1,7 @@
 From a8fda0ca8760ccad7630b9dd4b544577ce97d232 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 9 Nov 2011 08:58:36 +0100
-Subject: [PATCH 038/126] units/fedora: let rc-local.service log to syslog
+Subject: [PATCH] units/fedora: let rc-local.service log to syslog
 
 rc-local.service should not be excluded from the default stdout logging.
 

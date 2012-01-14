@@ -1,8 +1,8 @@
 From e5c58e069271013582b9de91859aaa5fef70f079 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 15 Dec 2011 23:04:37 +0100
-Subject: [PATCH 077/126] man: document 'Z' in tmpfiles (cherry picked from
- commit 462d63db0680c2b69d5426ded197342372ebe309)
+Subject: [PATCH] man: document 'Z' in tmpfiles (cherry picked from commit
+ 462d63db0680c2b69d5426ded197342372ebe309)
 
 ---
  man/systemd-tmpfiles.xml |    3 ++-

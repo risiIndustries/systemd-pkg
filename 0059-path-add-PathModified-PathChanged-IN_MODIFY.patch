@@ -1,8 +1,8 @@
 From 30fb4092d987ff81f39177461f6472e2fff225a1 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sat, 3 Dec 2011 10:22:26 +0100
-Subject: [PATCH 059/126] path: add PathModified (= PathChanged + IN_MODIFY)
- (cherry picked from commit
+Subject: [PATCH] path: add PathModified (= PathChanged + IN_MODIFY) (cherry
+ picked from commit
  e92238567b9fc83ef77e359588d7b005ecae3d70)
 
 ---

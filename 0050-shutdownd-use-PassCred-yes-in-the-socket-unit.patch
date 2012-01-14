@@ -1,7 +1,7 @@
 From 6811dc0646d92f0c668cbf3ce5a6426e273c4abf Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 29 Nov 2011 23:14:36 +0100
-Subject: [PATCH 050/126] shutdownd: use PassCred=yes in the socket unit
+Subject: [PATCH] shutdownd: use PassCred=yes in the socket unit
 
 Since Linux 3.2 in order to receive SCM_CREDENTIALS it is not sufficient
 to set SO_PASSCRED just before recvmsg(). The option has to be already

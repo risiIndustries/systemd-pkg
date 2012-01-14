@@ -1,7 +1,7 @@
 From d5956203ad4ed4f8183685c65cc323ae8f927820 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 13:19:01 +0100
-Subject: [PATCH 092/126] man: sd_readahead is not actually available in
+Subject: [PATCH] man: sd_readahead is not actually available in
  libsystemd-daemon (cherry picked from commit
  559de1289000f874e23ad01edfa1b37c102a793a)
 

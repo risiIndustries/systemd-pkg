@@ -1,8 +1,7 @@
 From 404b71bb18c983f62897ed40d9a4b310ddcca86a Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sun, 6 Nov 2011 23:55:06 +0100
-Subject: [PATCH 035/126] utmp: for DEAD_PROCESS write the current time to
- wtmp
+Subject: [PATCH] utmp: for DEAD_PROCESS write the current time to wtmp
 
 Zeroed .ut_tv values in wtmp confuse chkrootkit.
 

@@ -1,9 +1,9 @@
 From faa9db1ad2fe229ba90b7d75e104ead6614ea813 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 3 Jan 2012 20:33:28 +0100
-Subject: [PATCH 102/126] socket: only add dependency on kmsg socket to socket
- units which have any kind of exec program specified
- (cherry picked from commit
+Subject: [PATCH] socket: only add dependency on kmsg socket to socket units
+ which have any kind of exec program specified (cherry
+ picked from commit
  4cfc6dbe52e4ff867750ce0d64f09d42c0ea6c27)
 
 ---

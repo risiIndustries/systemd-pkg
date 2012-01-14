@@ -1,8 +1,7 @@
 From ef754c81da83d1a1d9b2a3eb41b545196800f59f Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 15 Dec 2011 23:45:26 +0100
-Subject: [PATCH 075/126] tmpfiles: separate a generic item glob processing
- function
+Subject: [PATCH] tmpfiles: separate a generic item glob processing function
 
 Item glob processing will be useful for more than just removing.
 (cherry picked from commit 99e68c0b2d6ca9d491036920fcbca4c8d54404a8)

@@ -1,8 +1,8 @@
 From 8538925add03eb761143d999baa12c11c4b6d286 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 10 Jan 2012 04:20:55 +0100
-Subject: [PATCH 124/126] shutdown: exclude processes with argv[0][0] from
- killing (cherry picked from commit
+Subject: [PATCH] shutdown: exclude processes with argv[0][0] from killing
+ (cherry picked from commit
  7e4ab3c5a6295193d0c58d353b6430265d842f34)
 
 Conflicts:

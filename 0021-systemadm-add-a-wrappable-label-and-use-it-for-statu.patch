@@ -1,8 +1,7 @@
 From fb6ffd0ed76b175b4eeb1c73b9fd7a3cbcf6ecbb Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 1 Mar 2011 11:18:13 +0100
-Subject: [PATCH 021/126] systemadm: add a wrappable label and use it for
- status lines
+Subject: [PATCH] systemadm: add a wrappable label and use it for status lines
 
 The new WrapLabel is there to work around a deficiency in GTK,
 namely the fact that it is hard to make labels which are both

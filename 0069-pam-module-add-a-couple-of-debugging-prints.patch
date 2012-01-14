@@ -1,9 +1,8 @@
 From 2f9743bff6e9bfe4365c24becea68b27d06d1c0d Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 14 Dec 2011 01:25:47 +0100
-Subject: [PATCH 069/126] pam-module: add a couple of debugging prints (cherry
- picked from commit
- ce9593140b127ce782e2fa2f47fc55558b331126)
+Subject: [PATCH] pam-module: add a couple of debugging prints (cherry picked
+ from commit ce9593140b127ce782e2fa2f47fc55558b331126)
 
 ---
  src/pam-module.c |   10 ++++++++++

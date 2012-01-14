@@ -1,9 +1,8 @@
 From 4640202a44277e573dda7125d87e43025436fc4a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 17 Sep 2011 14:57:19 +0100
-Subject: [PATCH 025/126] systemadm: use bold for "requires", etc. (cherry
- picked from commit
- 8b1451ade7794c21d29141dc363d0f626e2070ee)
+Subject: [PATCH] systemadm: use bold for "requires", etc. (cherry picked from
+ commit 8b1451ade7794c21d29141dc363d0f626e2070ee)
 
 ---
  src/systemadm.vala |    2 +-

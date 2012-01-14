@@ -1,8 +1,8 @@
 From 76c801950d0f596ba7804088a838ecc8d8dc9d5e Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 19 Dec 2011 13:11:42 +0100
-Subject: [PATCH 090/126] sd-daemon: fix #include lines since we now ship a
- shared library (cherry picked from commit
+Subject: [PATCH] sd-daemon: fix #include lines since we now ship a shared
+ library (cherry picked from commit
  a822cbfa2e42d60c3cafe724a8571329ab6c632e)
 
 ---

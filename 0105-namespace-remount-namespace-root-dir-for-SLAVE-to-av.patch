@@ -1,9 +1,8 @@
 From 4cecfa6c03410e72e42b520575613c4f30253bef Mon Sep 17 00:00:00 2001
 From: Daniel Walsh <dwalsh@redhat.com>
 Date: Tue, 3 Jan 2012 21:12:10 +0100
-Subject: [PATCH 105/126] namespace: remount namespace root dir for SLAVE to
- avoid propagation of mounts from the namespace to
- the host
+Subject: [PATCH] namespace: remount namespace root dir for SLAVE to avoid
+ propagation of mounts from the namespace to the host
 
 https://bugzilla.redhat.com/show_bug.cgi?id=752540
 (cherry picked from commit dc4b02006455a4dddeb6ccc1f6656c89d3ebd27c)

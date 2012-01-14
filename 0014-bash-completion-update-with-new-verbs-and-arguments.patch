@@ -1,7 +1,7 @@
 From f116811feefbde2af0138ab73a2bfab38639f315 Mon Sep 17 00:00:00 2001
 From: Ran Benita <ran234@gmail.com>
 Date: Wed, 2 Nov 2011 10:48:49 +0200
-Subject: [PATCH 014/126] bash-completion: update with new verbs and arguments
+Subject: [PATCH] bash-completion: update with new verbs and arguments
 
 Adds arguments --root= --runtime --no-legend.
 Adds verbs link mask unmask reenable list-unit-files.

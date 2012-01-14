@@ -1,7 +1,7 @@
 From bdd9b9807a89eb8e4789a3279253f6f845f90e9b Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 15 Dec 2011 21:32:50 +0100
-Subject: [PATCH 073/126] tmpfiles: rename a couple of functions
+Subject: [PATCH] tmpfiles: rename a couple of functions
 
 remove_item -> remove_item_instance
 remove_item_glob -> remove_item

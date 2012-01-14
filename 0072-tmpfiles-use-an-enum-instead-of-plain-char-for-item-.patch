@@ -1,8 +1,7 @@
 From c8be37cab131ec8a1aa54e5878483a18fc0bde6e Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 15 Dec 2011 21:31:14 +0100
-Subject: [PATCH 072/126] tmpfiles: use an enum instead of plain char for item
- type
+Subject: [PATCH] tmpfiles: use an enum instead of plain char for item type
 
 For better safety. gcc can warn about missing values in switch statements.
 (cherry picked from commit 66ccd0387e528567dff92239e85c962d2f140ef1)

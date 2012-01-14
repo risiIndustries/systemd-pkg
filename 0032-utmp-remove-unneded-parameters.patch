@@ -1,7 +1,7 @@
 From 9052b8afdf507b674b2e3abfb803d96c19c0a307 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Sun, 6 Nov 2011 23:06:38 +0100
-Subject: [PATCH 032/126] utmp: remove unneded parameters
+Subject: [PATCH] utmp: remove unneded parameters
 
 With these functions no caller ever passes anything else than 0
 for 't' (meaning the current time will be used).
