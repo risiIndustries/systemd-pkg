@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        13%{?dist}
+Release:        14%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -116,6 +116,13 @@ Patch73:        0001-service-don-t-try-to-guess-PID-for-SysV-services-any.patch
 Patch74:        0002-manager-fix-a-crash-in-isolating.patch
 Patch75:        0001-mount-order-remote-mounts-after-both-network.target-.patch
 Patch76:        0001-units-drop-Install-section-from-remote-fs-pre.target.patch
+Patch77:        0001-unit-fix-false-positive-in-check-for-unneeded-unit.patch
+Patch78:        0002-unit-check-for-unneeded-dependencies-even-when-unit-.patch
+Patch79:        0001-utmp-remove-unneded-parameters.patch
+Patch80:        0002-utmp-no-need-to-zero-a-struct-before-overwriting-it-.patch
+Patch81:        0003-utmp-initialize-store-with-the-found-entry-not-with-.patch
+Patch82:        0004-utmp-for-DEAD_PROCESS-write-the-current-time-to-wtmp.patch
+Patch83:        0001-unit-garbage-collect-units-with-load-error.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -378,6 +385,12 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Tue Jan 17 2012 Michal Schmidt <mschmidt@redhat.com> - 26-14
+- Slowing down in F15. Only a few fixes for bugs reported against F15:
+  - StopWhenUnneeded
+  - wtmp
+  - gc of units with load error
+
 * Wed Nov 02 2011 Michal Schmidt <mschmidt@redhat.com> - 26-13
 - Fix remote-fs-pre.target and its ordering.
 - Fixes: BZ#749940
