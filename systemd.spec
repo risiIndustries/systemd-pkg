@@ -193,6 +193,9 @@ Conflicts:      upstart-sysvinit
 Obsoletes:      readahead < 1:1.5.7-3
 Provides:       readahead = 1:1.5.7-3
 
+# since 37-6 we rely more strongly on PIDFile= being correct (BZ#783108)
+Conflicts:      spamassassin < 3.3.2-9
+
 %description
 systemd is a system and service manager for Linux, compatible with
 SysV and LSB init scripts. systemd provides aggressive parallelization
@@ -500,6 +503,7 @@ fi
 %changelog
 * Fri Jan 20 2012 Michal Schmidt <mschmidt@redhat.com> - 37-9
 - Fix a crash related to pid file watch and daemon-reload (#783118).
+- Added Conflicts with known broken spamassassin.
 
 * Tue Jan 17 2012 Michal Schmidt <mschmidt@redhat.com> - 37-8
 - Shut up another logind message (#727315).
