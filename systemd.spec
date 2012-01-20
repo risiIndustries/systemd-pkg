@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        9%{?dist}
+Release:        10%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -180,6 +180,7 @@ Patch0129:      0129-pam-fix-build.patch
 Patch0130:      0130-mount-fix-quota.patch
 Patch0131:      0131-logind-downgrade-login-message-to-debug.patch
 Patch0132:      0132-service-add-missing-pid-file-unwatch-in-the-destruct.patch
+Patch0133:      0133-socket-don-t-fail-the-socket-on-ENOTCONN.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -501,6 +502,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Sat Jan 21 2012 Michal Schmidt <mschmidt@redhat.com> - 37-10
+- Fix occasionally failing socket units with Accept=yes (#783344).
+
 * Fri Jan 20 2012 Michal Schmidt <mschmidt@redhat.com> - 37-9
 - Fix a crash related to pid file watch and daemon-reload (#783118).
 - Added Conflicts with known broken spamassassin.
