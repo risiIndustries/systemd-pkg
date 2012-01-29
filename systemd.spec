@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        11%{?dist}
+Release:        12%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -182,6 +182,9 @@ Patch0131:      0131-logind-downgrade-login-message-to-debug.patch
 Patch0132:      0132-service-add-missing-pid-file-unwatch-in-the-destruct.patch
 Patch0133:      0133-socket-don-t-fail-the-socket-on-ENOTCONN.patch
 Patch0134:      0134-mount-fix-automount-regression.patch
+Patch0135:      0135-logind-make-sure-we-create-var-lib-systemd-before-us.patch
+Patch0136:      0136-logind-add-sys_tty_config-capability-to-let-it-use-V.patch
+Patch0137:      0137-main-don-t-force-text-mode-in-console_setup.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -503,6 +506,10 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Sun Jan 29 2012 Michal Schmidt <mschmidt@redhat.com> - 37-12
+- Avoid a glitch with plymouth (#785548).
+- Fix logind capabilities.
+
 * Thu Jan 26 2012 Michal Schmidt <mschmidt@redhat.com> - 37-11
 - Fix automount regression.
 
