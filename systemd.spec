@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        14%{?dist}
+Release:        15%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -123,6 +123,8 @@ Patch80:        0002-utmp-no-need-to-zero-a-struct-before-overwriting-it-.patch
 Patch81:        0003-utmp-initialize-store-with-the-found-entry-not-with-.patch
 Patch82:        0004-utmp-for-DEAD_PROCESS-write-the-current-time-to-wtmp.patch
 Patch83:        0001-unit-garbage-collect-units-with-load-error.patch
+Patch84:        0001-mount-fix-quota.patch
+Patch85:        0001-mount-fix-automount-regression.patch
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -385,6 +387,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Tue Jan 31 2012 Michal Schmidt <mschmidt@redhat.com> - 26-15
+- Fix quota (#773431).
+
 * Tue Jan 17 2012 Michal Schmidt <mschmidt@redhat.com> - 26-14
 - Slowing down in F15. Only a few fixes for bugs reported against F15:
   - StopWhenUnneeded
