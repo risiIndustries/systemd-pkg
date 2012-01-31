@@ -1,0 +1,90 @@
+From d68af58657ce0e99594dff199fbb9b319cf6af96 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 29 Nov 2011 22:15:41 +0100
+Subject: [PATCH 1/4] socket: add option for SO_PASSCRED
+
+Add an option to enable SO_PASSCRED for unix sockets.
+---
+ src/dbus-socket.c                |    2 ++
+ src/load-fragment-gperf.gperf.m4 |    1 +
+ src/socket.c                     |    8 ++++++++
+ src/socket.h                     |    1 +
+ 4 files changed, 12 insertions(+), 0 deletions(-)
+
+Index: systemd-26/src/dbus-socket.c
+===================================================================
+--- systemd-26.orig/src/dbus-socket.c
++++ systemd-26/src/dbus-socket.c
+@@ -49,6 +49,7 @@
+         "  <property name=\"IPTTL\" type=\"i\" access=\"read\"/>\n"     \
+         "  <property name=\"PipeSize\" type=\"t\" access=\"read\"/>\n"  \
+         "  <property name=\"FreeBind\" type=\"b\" access=\"read\"/>\n"  \
++        "  <property name=\"PassCred\" type=\"b\" access=\"read\"/>\n" \
+         "  <property name=\"Mark\" type=\"i\" access=\"read\"/>\n"      \
+         "  <property name=\"MaxConnections\" type=\"u\" access=\"read\"/>\n" \
+         "  <property name=\"NAccepted\" type=\"u\" access=\"read\"/>\n" \
+@@ -107,6 +108,7 @@ DBusHandlerResult bus_socket_message_han
+                 { "org.freedesktop.systemd1.Socket", "IPTTL",          bus_property_append_int,          "i", &u->socket.ip_ttl          },
+                 { "org.freedesktop.systemd1.Socket", "PipeSize",       bus_property_append_size,         "t", &u->socket.pipe_size       },
+                 { "org.freedesktop.systemd1.Socket", "FreeBind",       bus_property_append_bool,         "b", &u->socket.free_bind       },
++                { "org.freedesktop.systemd1.Socket", "PassCred",       bus_property_append_bool,         "b", &u->socket.pass_cred       },
+                 { "org.freedesktop.systemd1.Socket", "Mark",           bus_property_append_int,          "i", &u->socket.mark            },
+                 { "org.freedesktop.systemd1.Socket", "MaxConnections", bus_property_append_unsigned,     "u", &u->socket.max_connections },
+                 { "org.freedesktop.systemd1.Socket", "NConnections",   bus_property_append_unsigned,     "u", &u->socket.n_connections   },
+Index: systemd-26/src/socket.c
+===================================================================
+--- systemd-26.orig/src/socket.c
++++ systemd-26/src/socket.c
+@@ -404,6 +404,7 @@ static void socket_dump(Unit *u, FILE *f
+                 "%sDirectoryMode: %04o\n"
+                 "%sKeepAlive: %s\n"
+                 "%sFreeBind: %s\n"
++                "%sPassCred: %s\n"
+                 "%sTCPCongestion: %s\n",
+                 prefix, socket_state_to_string(s->state),
+                 prefix, socket_address_bind_ipv6_only_to_string(s->bind_ipv6_only),
+@@ -412,6 +413,7 @@ static void socket_dump(Unit *u, FILE *f
+                 prefix, s->directory_mode,
+                 prefix, yes_no(s->keep_alive),
+                 prefix, yes_no(s->free_bind),
++                prefix, yes_no(s->pass_cred),
+                 prefix, strna(s->tcp_congestion));
+ 
+         if (s->control_pid > 0)
+@@ -635,6 +637,12 @@ static void socket_apply_socket_options(
+                         log_warning("SO_KEEPALIVE failed: %m");
+         }
+ 
++        if (s->pass_cred) {
++                int one = 1;
++                if (setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &one, sizeof(one)) < 0)
++                        log_warning("SO_PASSCRED failed: %m");
++        }
++
+         if (s->priority >= 0)
+                 if (setsockopt(fd, SOL_SOCKET, SO_PRIORITY, &s->priority, sizeof(s->priority)) < 0)
+                         log_warning("SO_PRIORITY failed: %m");
+Index: systemd-26/src/socket.h
+===================================================================
+--- systemd-26.orig/src/socket.h
++++ systemd-26/src/socket.h
+@@ -115,6 +115,7 @@ struct Socket {
+         /* Socket options */
+         bool keep_alive;
+         bool free_bind;
++        bool pass_cred;
+         int priority;
+         int mark;
+         size_t receive_buffer;
+Index: systemd-26/src/load-fragment.c
+===================================================================
+--- systemd-26.orig/src/load-fragment.c
++++ systemd-26/src/load-fragment.c
+@@ -1945,6 +1945,7 @@ static int load_from_path(Unit *u, const
+                 { "Mark",                   config_parse_int,             0, &u->socket.mark,                                 "Socket"  },
+                 { "PipeSize",               config_parse_size,            0, &u->socket.pipe_size,                            "Socket"  },
+                 { "FreeBind",               config_parse_bool,            0, &u->socket.free_bind,                            "Socket"  },
++                { "PassCred",               config_parse_bool,            0, &u->socket.pass_cred,                            "Socket"  },
+                 { "TCPCongestion",          config_parse_string,          0, &u->socket.tcp_congestion,                       "Socket"  },
+                 { "Service",                config_parse_socket_service,  0, &u->socket,                                      "Socket"  },
+                 EXEC_CONTEXT_CONFIG_ITEMS(u->socket.exec_context, "Socket"),

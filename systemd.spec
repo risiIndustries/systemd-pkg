@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        15%{?dist}
+Release:        16%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -125,6 +125,12 @@ Patch82:        0004-utmp-for-DEAD_PROCESS-write-the-current-time-to-wtmp.patch
 Patch83:        0001-unit-garbage-collect-units-with-load-error.patch
 Patch84:        0001-mount-fix-quota.patch
 Patch85:        0001-mount-fix-automount-regression.patch
+Patch86:        0001-socket-add-option-for-SO_PASSCRED.patch
+Patch87:        0002-shutdownd-use-PassCred-yes-in-the-socket-unit.patch
+Patch88:        0003-syslog-use-PassCred-yes-for-the-dev-log-socket.patch
+Patch89:        0004-man-document-the-PassCred-option.patch
+Patch90:        0001-socket-rename-the-PassCred-option-to-PassCredentials.patch
+
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
 # For sysvinit tools
@@ -387,6 +393,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Tue Jan 31 2012 Michal Schmidt <mschmidt@redhat.com> - 26-16
+- Backport PassCredentials to avoid #757628 when F15 kernel is rebased to 3.2.
+
 * Tue Jan 31 2012 Michal Schmidt <mschmidt@redhat.com> - 26-15
 - Fix quota (#773431).
 

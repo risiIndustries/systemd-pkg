@@ -1,0 +1,55 @@
+From 75d3fc60f88e08bf953063819a8a04b881d6db23 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 29 Nov 2011 23:14:36 +0100
+Subject: [PATCH 2/4] shutdownd: use PassCred=yes in the socket unit
+
+Since Linux 3.2 in order to receive SCM_CREDENTIALS it is not sufficient
+to set SO_PASSCRED just before recvmsg(). The option has to be already
+set when the sender sends the message.
+
+With socket activation it is too late to set the option in the service.
+It must be set on the socket right from the start.
+
+See the kernel commit:
+16e57262 af_unix: dont send SCM_CREDENTIALS by default
+
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=757628
+---
+ src/shutdownd.c                |    6 ------
+ units/systemd-shutdownd.socket |    1 +
+ 2 files changed, 1 insertions(+), 6 deletions(-)
+
+Index: systemd-26/src/shutdownd.c
+===================================================================
+--- systemd-26.orig/src/shutdownd.c
++++ systemd-26/src/shutdownd.c
+@@ -173,7 +173,6 @@ int main(int argc, char *argv[]) {
+         };
+ 
+         int r = EXIT_FAILURE, n_fds;
+-        int one = 1;
+         struct shutdownd_command c;
+         struct pollfd pollfd[_FD_MAX];
+         bool exec_shutdown = false, unlink_nologin = false, failed = false;
+@@ -203,11 +202,6 @@ int main(int argc, char *argv[]) {
+                 return EXIT_FAILURE;
+         }
+ 
+-        if (setsockopt(SD_LISTEN_FDS_START, SOL_SOCKET, SO_PASSCRED, &one, sizeof(one)) < 0) {
+-                log_error("SO_PASSCRED failed: %m");
+-                return EXIT_FAILURE;
+-        }
+-
+         zero(c);
+         zero(pollfd);
+ 
+Index: systemd-26/units/systemd-shutdownd.socket
+===================================================================
+--- systemd-26.orig/units/systemd-shutdownd.socket
++++ systemd-26/units/systemd-shutdownd.socket
+@@ -14,3 +14,5 @@ Before=sockets.target
+ 
+ [Socket]
+ ListenDatagram=/run/systemd/shutdownd
++SocketMode=0600
++PassCred=yes
