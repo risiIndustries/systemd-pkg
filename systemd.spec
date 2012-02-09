@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        12%{?dist}
+Release:        13%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -181,10 +181,24 @@ Patch0130:      0130-mount-fix-quota.patch
 Patch0131:      0131-logind-downgrade-login-message-to-debug.patch
 Patch0132:      0132-service-add-missing-pid-file-unwatch-in-the-destruct.patch
 Patch0133:      0133-socket-don-t-fail-the-socket-on-ENOTCONN.patch
+# from v40:
 Patch0134:      0134-mount-fix-automount-regression.patch
 Patch0135:      0135-logind-make-sure-we-create-var-lib-systemd-before-us.patch
 Patch0136:      0136-logind-add-sys_tty_config-capability-to-let-it-use-V.patch
 Patch0137:      0137-main-don-t-force-text-mode-in-console_setup.patch
+Patch0138:      0138-load-fragment-properly-parse-size-values-denoted-in-.patch
+Patch0139:      0139-socket-typo-in-dump-output.patch
+Patch0140:      0140-man-document-that-we-support-tcpwrappers-only-for-ac.patch
+Patch0141:      0141-manager-tell-correctly-if-the-manager-is-booting.patch
+Patch0142:      0142-hashmap-add-hashmap_first_key.patch
+Patch0143:      0143-util-prevent-daemon-reload-from-reaping-service-proc.patch
+# from v41:
+Patch0144:      0144-logind-fix-introspection-data.patch
+Patch0145:      0145-man-document-x-systemd-device-timeout.patch
+# from v42:
+Patch0146:      0146-systemctl-check-for-no-more-work-after-chkconfig.patch
+Patch0147:      0147-install-fix-incorrect-Access-denied-message-with-a-n.patch
+Patch0148:      0148-man-Clarify-man-page-with-respect-to-automatic-fstab.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -506,6 +520,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Thu Feb 09 2012 Michal Schmidt <mschmidt@redhat.com> - 37-13
+- Minor fixes and some manpage updates from upstream.
+
 * Sun Jan 29 2012 Michal Schmidt <mschmidt@redhat.com> - 37-12
 - Avoid a glitch with plymouth (#785548).
 - Fix logind capabilities.

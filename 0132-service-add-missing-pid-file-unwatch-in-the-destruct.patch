@@ -76,6 +76,3 @@ index 81a2954..f99ee60 100644
  static void service_set_state(Service *s, ServiceState state) {
          ServiceState old_state;
          assert(s);
--- 
-1.7.7.5
-

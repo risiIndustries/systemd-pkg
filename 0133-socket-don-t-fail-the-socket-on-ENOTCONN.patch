@@ -103,6 +103,3 @@ index 7034436..00f0ebd 100644
                          goto fail;
  
                  /* Notify clients about changed counters */
--- 
-1.7.7.5
-
