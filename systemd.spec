@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        13%{?dist}
+Release:        14%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -199,6 +199,12 @@ Patch0145:      0145-man-document-x-systemd-device-timeout.patch
 Patch0146:      0146-systemctl-check-for-no-more-work-after-chkconfig.patch
 Patch0147:      0147-install-fix-incorrect-Access-denied-message-with-a-n.patch
 Patch0148:      0148-man-Clarify-man-page-with-respect-to-automatic-fstab.patch
+Patch0149:      0149-logind-Allow-PowerOff-Reboot-in-default-context.patch
+Patch0150:      0150-util-fix-handling-of-empty-files-in-read_one_line_fi.patch
+# from v43:
+Patch0151:      0151-Fix-broken-Git-repository-URLs.patch
+Patch0152:      0152-timedate-don-t-fail-if-NTP-is-not-installed.patch
+Patch0153:      0153-namespace-temporaily-reset-umask-when-creating-priva.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -520,6 +526,14 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Mon Feb 27 2012 Michal Schmidt <mschmidt@redhat.com> - 37-14
+- A few fixes from upstream:
+  - PrivateTmp permissions (#790522)
+  - timedated without ntp installed (#790260)
+  - logind: allow PowerOff and Reboot via polkit
+  - loading empty files in read_one_line_file() (fdo#45362)
+  - fix cgit URLs in manpages
+
 * Thu Feb 09 2012 Michal Schmidt <mschmidt@redhat.com> - 37-13
 - Minor fixes and some manpage updates from upstream.
 
