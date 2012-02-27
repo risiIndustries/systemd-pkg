@@ -1,0 +1,164 @@
+From 7e4ab3c5a6295193d0c58d353b6430265d842f34 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 10 Jan 2012 04:20:55 +0100
+Subject: [PATCH] shutdown: exclude processes with argv[0][0] from killing
+
+---
+[ removed an unrelated hunk, fixed reject -- michich ]
+
+Index: systemd-26/src/shutdown.c
+===================================================================
+--- systemd-26.orig/src/shutdown.c
++++ systemd-26/src/shutdown.c
+@@ -40,29 +40,45 @@
+ #define FINALIZE_ATTEMPTS 50
+ 
+ static bool ignore_proc(pid_t pid) {
+-        if (pid == 1)
+-                return true;
+-
+-        /* TODO: add more ignore rules here: device-mapper, etc */
+-
+-        return false;
+-}
+-
+-static bool is_kernel_thread(pid_t pid)
+-{
+         char buf[PATH_MAX];
+         FILE *f;
+         char c;
+         size_t count;
++        uid_t uid;
++        int r;
++
++        /* We are PID 1, let's not commit suicide */
++        if (pid == 1)
++                return true;
++
++        r = get_process_uid(pid, &uid);
++        if (r < 0)
++                return true; /* not really, but better safe than sorry */
++
++        /* Non-root processes otherwise are always subject to be killed */
++        if (uid != 0)
++                return false;
++
++        snprintf(buf, sizeof(buf), "/proc/%lu/cmdline", (unsigned long) pid);
++        char_array_0(buf);
+ 
+-        snprintf(buf, sizeof(buf), "/proc/%lu/cmdline", (unsigned long)pid);
+         f = fopen(buf, "re");
+         if (!f)
+                 return true; /* not really, but has the desired effect */
+ 
+         count = fread(&c, 1, 1, f);
+         fclose(f);
+-        return count != 1;
++
++        /* Kernel threads have an empty cmdline */
++        if (count <= 0)
++                return true;
++
++        /* Processes with argv[0][0] = '@' we ignore from the killing
++         * spree. */
++        if (count == 1 && c == '@')
++                return true;
++
++        return false;
+ }
+ 
+ static int killall(int sign) {
+@@ -70,7 +86,8 @@ static int killall(int sign) {
+         struct dirent *d;
+         unsigned int n_processes = 0;
+ 
+-        if ((dir = opendir("/proc")) == NULL)
++        dir = opendir("/proc");
++        if (!dir)
+                 return -errno;
+ 
+         while ((d = readdir(dir))) {
+@@ -79,9 +96,6 @@ static int killall(int sign) {
+                 if (parse_pid(d->d_name, &pid) < 0)
+                         continue;
+ 
+-                if (is_kernel_thread(pid))
+-                        continue;
+-
+                 if (ignore_proc(pid))
+                         continue;
+ 
+Index: systemd-26/src/util.c
+===================================================================
+--- systemd-26.orig/src/util.c
++++ systemd-26/src/util.c
+@@ -961,6 +961,57 @@ int get_process_cmdline(pid_t pid, size_
+         return 0;
+ }
+ 
++int get_process_uid(pid_t pid, uid_t *uid) {
++        char *p;
++        FILE *f;
++        int r;
++
++        assert(uid);
++
++        if (pid == 0)
++                return getuid();
++
++        if (asprintf(&p, "/proc/%lu/status", (unsigned long) pid) < 0)
++                return -ENOMEM;
++
++        f = fopen(p, "re");
++        free(p);
++
++        if (!f)
++                return -errno;
++
++        while (!feof(f)) {
++                char line[LINE_MAX], *l;
++
++                if (!fgets(line, sizeof(line), f)) {
++                        if (feof(f))
++                                break;
++
++                        r = -errno;
++                        goto finish;
++                }
++
++                l = strstrip(line);
++
++                if (startswith(l, "Uid:")) {
++                        l += 4;
++                        l += strspn(l, WHITESPACE);
++
++                        l[strcspn(l, WHITESPACE)] = 0;
++
++                        r = parse_uid(l, uid);
++                        goto finish;
++                }
++        }
++
++        r = -EIO;
++
++finish:
++        fclose(f);
++
++        return r;
++}
++
+ char *strnappend(const char *s, const char *suffix, size_t b) {
+         size_t a;
+         char *r;
+Index: systemd-26/src/util.h
+===================================================================
+--- systemd-26.orig/src/util.h
++++ systemd-26/src/util.h
+@@ -243,6 +243,7 @@ int rmdir_parents(const char *path, cons
+ 
+ int get_process_name(pid_t pid, char **name);
+ int get_process_cmdline(pid_t pid, size_t max_length, char **line);
++int get_process_uid(pid_t pid, uid_t *uid);
+ 
+ char hexchar(int x);
+ int unhexchar(char c);

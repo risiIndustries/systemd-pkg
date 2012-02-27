@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        16%{?dist}
+Release:        17%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -130,6 +130,8 @@ Patch87:        0002-shutdownd-use-PassCred-yes-in-the-socket-unit.patch
 Patch88:        0003-syslog-use-PassCred-yes-for-the-dev-log-socket.patch
 Patch89:        0004-man-document-the-PassCred-option.patch
 Patch90:        0001-socket-rename-the-PassCred-option-to-PassCredentials.patch
+Patch91:        util-add-parse_uid.patch
+Patch92:        0001-shutdown-exclude-processes-with-argv-0-0-from-killin.patch
 
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
@@ -393,6 +395,10 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Mon Feb 27 2012 Michal Schmidt <mschmidt@redhat.com> - 26-17
+- Backport the detection of root storage daemons.
+  http://www.freedesktop.org/wiki/Software/systemd/RootStorageDaemons
+
 * Tue Jan 31 2012 Michal Schmidt <mschmidt@redhat.com> - 26-16
 - Backport PassCredentials to avoid #757628 when F15 kernel is rebased to 3.2.
 

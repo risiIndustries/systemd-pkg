@@ -1,0 +1,54 @@
+util: add parse_uid
+
+Hand-edited by michich from the following upstream patch:
+
+From 034a2a52ac0ec83e0229941d635d310b23eb04df Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 22 Jul 2011 21:01:15 +0200
+Subject: [PATCH] sd-login: beef up login api, to add monitoring and
+ enumerating
+
+---
+diff --git a/src/util.c b/src/util.c
+index 328a1ea..2d4f229 100644
+--- a/src/util.c
++++ b/src/util.c
+@@ -317,6 +317,26 @@ int parse_pid(const char *s, pid_t* ret_pid) {
+         return 0;
+ }
+ 
++int parse_uid(const char *s, uid_t* ret_uid) {
++        unsigned long ul = 0;
++        uid_t uid;
++        int r;
++
++        assert(s);
++        assert(ret_uid);
++
++        if ((r = safe_atolu(s, &ul)) < 0)
++                return r;
++
++        uid = (uid_t) ul;
++
++        if ((unsigned long) uid != ul)
++                return -ERANGE;
++
++        *ret_uid = uid;
++        return 0;
++}
++
+ int safe_atou(const char *s, unsigned *ret_u) {
+         char *x = NULL;
+         unsigned long l;
+diff --git a/src/util.h b/src/util.h
+index f39c01f..9537d13 100644
+--- a/src/util.h
++++ b/src/util.h
+@@ -136,6 +136,7 @@ void close_many(const int fds[], unsigned n_fd);
+ int parse_boolean(const char *v);
+ int parse_usec(const char *t, usec_t *usec);
+ int parse_pid(const char *s, pid_t* ret_pid);
++int parse_uid(const char *s, uid_t* ret_uid);
+ 
+ int safe_atou(const char *s, unsigned *ret_u);
+ int safe_atoi(const char *s, int *ret_i);
