@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        14%{?dist}
+Release:        15%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -205,6 +205,7 @@ Patch0150:      0150-util-fix-handling-of-empty-files-in-read_one_line_fi.patch
 Patch0151:      0151-Fix-broken-Git-repository-URLs.patch
 Patch0152:      0152-timedate-don-t-fail-if-NTP-is-not-installed.patch
 Patch0153:      0153-namespace-temporaily-reset-umask-when-creating-priva.patch
+Patch0154:      0154-logind-move-X11-socket.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -526,6 +527,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Thu Mar 01 2012 Michal Schmidt <mschmidt@redhat.com> - 37-15
+- logind: move X11 socket
+
 * Mon Feb 27 2012 Michal Schmidt <mschmidt@redhat.com> - 37-14
 - A few fixes from upstream:
   - PrivateTmp permissions (#790522)
