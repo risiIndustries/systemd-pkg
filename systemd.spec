@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        16%{?dist}
+Release:        17%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -213,6 +213,7 @@ Patch0157:      0157-socket-rename-broken-failure-result-to-failed-perman.patch
 Patch0158:      0158-nspawn-be-less-cryptic-when-clone-fails.patch
 Patch0159:      0159-bash-completion-get-rid-of-awk-sed-and-grep.patch
 Patch0160:      0160-mount-properly-check-return-for-mount_add_.patch
+Patch0161:      0161-util-never-follow-symlinks-in-rm_rf_children.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -534,6 +535,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Fri Mar 16 2012 Michal Schmidt <mschmidt@redhat.com> - 37-17
+- CVE-2012-1174 (#804118)
+
 * Tue Mar 06 2012 Michal Schmidt <mschmidt@redhat.com> - 37-16
 - From upstream:
   - avoid socket tarpits when the service keeps failing

@@ -1,4 +1,4 @@
-From a92d0708fa5755e2c66943c7827c538824473596 Mon Sep 17 00:00:00 2001
+From 68fd1b7fbb33996fd2849acf25bb364a834b5d74 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 6 Mar 2012 02:06:29 +0100
 Subject: [PATCH] nspawn: be less cryptic when clone() fails

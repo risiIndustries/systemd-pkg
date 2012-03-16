@@ -1,4 +1,4 @@
-From dda7fed7d225da9242c767f2e548a4bf4d5fe022 Mon Sep 17 00:00:00 2001
+From 1289495c06a1c8456f6c5bd1df5738bc5e311d9a Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 6 Mar 2012 01:29:29 +0100
 Subject: [PATCH] socket: rename 'broken' failure result to 'failed-permanent'

@@ -1,4 +1,4 @@
-From 79453cbee691a52b48a8cb166a62de5a7dc999b9 Mon Sep 17 00:00:00 2001
+From 8d3ee2c91ab839fe5296ae4f348e38dcc5223a8e Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Tue, 21 Feb 2012 15:48:24 +0100
 Subject: [PATCH] bash-completion: get rid of awk, sed and grep

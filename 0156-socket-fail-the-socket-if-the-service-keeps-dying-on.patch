@@ -1,4 +1,4 @@
-From 6af0f4d18a60f01d005410b541eb9a0655bc2a86 Mon Sep 17 00:00:00 2001
+From b57bafa73c2e035c216de8fb7933d751d456a93b Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Mon, 5 Mar 2012 22:47:54 +0100
 Subject: [PATCH] socket: fail the socket if the service keeps dying on start
