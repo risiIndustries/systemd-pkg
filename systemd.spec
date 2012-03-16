@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        26
-Release:        17%{?dist}
+Release:        18%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -132,6 +132,7 @@ Patch89:        0004-man-document-the-PassCred-option.patch
 Patch90:        0001-socket-rename-the-PassCred-option-to-PassCredentials.patch
 Patch91:        util-add-parse_uid.patch
 Patch92:        0001-shutdown-exclude-processes-with-argv-0-0-from-killin.patch
+Patch93:        0161-util-never-follow-symlinks-in-rm_rf_children.patch
 
 Patch100:       fedora-storage-detect-encrypted-PVs.patch
 
@@ -395,6 +396,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Fri Mar 16 2012 Michal Schmidt <mschmidt@redhat.com> - 26-18
+- CVE-2012-1174 (#803358)
+
 * Mon Feb 27 2012 Michal Schmidt <mschmidt@redhat.com> - 26-17
 - Backport the detection of root storage daemons.
   http://www.freedesktop.org/wiki/Software/systemd/RootStorageDaemons
