@@ -1,0 +1,33 @@
+From a3e4e804ea93df6011a367a88190e2cb6174de9a Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 13 Mar 2012 03:34:42 +0100
+Subject: [PATCH] mount: fix assertion
+
+https://bugzilla.redhat.com/show_bug.cgi?id=768523
+(cherry picked from commit 9631c090fd61070797f3a6139f873a3cabc5d28a)
+---
+ src/mount.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/mount.c b/src/mount.c
+index ccf1e9c..bac3ad3 100644
+--- a/src/mount.c
++++ b/src/mount.c
+@@ -189,7 +189,7 @@ static int mount_add_mount_links(Mount *m) {
+                                 if ((r = unit_add_dependency(UNIT(n), UNIT_REQUIRES, UNIT(m), true)) < 0)
+                                         return r;
+ 
+-                } else if (pm && path_startswith(pm->what, n->where)) {
++                } else if (pm && pm->what && path_startswith(pm->what, n->where)) {
+ 
+                         if ((r = unit_add_dependency(UNIT(m), UNIT_AFTER, UNIT(n), true)) < 0)
+                                 return r;
+@@ -197,7 +197,7 @@ static int mount_add_mount_links(Mount *m) {
+                         if ((r = unit_add_dependency(UNIT(m), UNIT_REQUIRES, UNIT(n), true)) < 0)
+                                 return r;
+ 
+-                } else if (pn && path_startswith(pn->what, m->where)) {
++                } else if (pn && pn->what && path_startswith(pn->what, m->where)) {
+ 
+                         if ((r = unit_add_dependency(UNIT(n), UNIT_AFTER, UNIT(m), true)) < 0)
+                                 return r;

@@ -1,0 +1,31 @@
+From 0bf243e9c639dba0a80ce2ce50c8a7a97b7a8874 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 13 Mar 2012 02:41:29 +0100
+Subject: [PATCH] conf-parser: warn if an assignment is place outside of a
+ section
+
+https://bugzilla.redhat.com/show_bug.cgi?id=783134
+(cherry picked from commit 62f168a05b5a0b81a75a50791b80ae700dd00afb)
+---
+ src/conf-parser.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
+diff --git a/src/conf-parser.c b/src/conf-parser.c
+index 9edf637..5561ae2 100644
+--- a/src/conf-parser.c
++++ b/src/conf-parser.c
+@@ -219,8 +219,13 @@ static int parse_line(
+                 return 0;
+         }
+ 
+-        if (sections && !*section)
++        if (sections && !*section) {
++
++                if (!relaxed)
++                        log_info("[%s:%u] Assignment outside of section. Ignoring.", filename, line);
++
+                 return 0;
++        }
+ 
+         e = strchr(l, '=');
+         if (!e) {

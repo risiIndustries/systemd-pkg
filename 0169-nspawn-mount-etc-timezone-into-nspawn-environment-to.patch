@@ -1,0 +1,39 @@
+From 5b283222a8834b3bfec59cac21c743d97e4a4a6d Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 15 Mar 2012 00:45:02 +0100
+Subject: [PATCH] nspawn: mount /etc/timezone into nspawn environment too
+ (cherry picked from commit
+ 4d1c38b8072dca18807371170d5e14fa8dc0baa5)
+
+---
+ src/nspawn.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
+
+diff --git a/src/nspawn.c b/src/nspawn.c
+index 52b4aa8..97efcd1 100644
+--- a/src/nspawn.c
++++ b/src/nspawn.c
+@@ -196,7 +196,7 @@ static int mount_all(const char *dest) {
+         }
+ 
+         /* Fix the timezone, if possible */
+-        if (asprintf(&where, "%s/%s", dest, "/etc/localtime") >= 0) {
++        if (asprintf(&where, "%s/etc/localtime", dest) >= 0) {
+ 
+                 if (mount("/etc/localtime", where, "bind", MS_BIND, NULL) >= 0)
+                         mount("/etc/localtime", where, "bind", MS_BIND|MS_REMOUNT|MS_RDONLY, NULL);
+@@ -204,6 +204,14 @@ static int mount_all(const char *dest) {
+                 free(where);
+         }
+ 
++        if (asprintf(&where, "%s/etc/timezone", dest) >= 0) {
++
++                if (mount("/etc/timezone", where, "bind", MS_BIND, NULL) >= 0)
++                        mount("/etc/timezone", where, "bind", MS_BIND|MS_REMOUNT|MS_RDONLY, NULL);
++
++                free(where);
++        }
++
+         return r;
+ }
+ 

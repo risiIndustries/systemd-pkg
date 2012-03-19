@@ -1,0 +1,91 @@
+From 9697feabd63b19b4cbcebb8e6a369eb99e684a65 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 13 Mar 2012 02:29:27 +0100
+Subject: [PATCH] util: add brute-force fallback for close_all_fds()
+
+If /proc is not available (i.e. in chroot envs) let's fall back to brute
+forcing our way through the fd table.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=784921
+(cherry picked from commit b19be9eb9e231ccf350e0e051b687fc425c61904)
+---
+ src/util.c |   54 ++++++++++++++++++++++++++++++++++++++----------------
+ 1 files changed, 38 insertions(+), 16 deletions(-)
+
+diff --git a/src/util.c b/src/util.c
+index 0c9537e..3a66c3b 100644
+--- a/src/util.c
++++ b/src/util.c
+@@ -2147,13 +2147,47 @@ int fd_cloexec(int fd, bool cloexec) {
+         return 0;
+ }
+ 
++static bool fd_in_set(int fd, const int fdset[], unsigned n_fdset) {
++        unsigned i;
++
++        assert(n_fdset == 0 || fdset);
++
++        for (i = 0; i < n_fdset; i++)
++                if (fdset[i] == fd)
++                        return true;
++
++        return false;
++}
++
+ int close_all_fds(const int except[], unsigned n_except) {
+         DIR *d;
+         struct dirent *de;
+         int r = 0;
+ 
+-        if (!(d = opendir("/proc/self/fd")))
+-                return -errno;
++        assert(n_except == 0 || except);
++
++        d = opendir("/proc/self/fd");
++        if (!d) {
++                int fd;
++                struct rlimit rl;
++
++                /* When /proc isn't available (for example in chroots)
++                 * the fallback is brute forcing through the fd
++                 * table */
++
++                assert_se(getrlimit(RLIMIT_NOFILE, &rl) >= 0);
++                for (fd = 3; fd < (int) rl.rlim_max; fd ++) {
++
++                        if (fd_in_set(fd, except, n_except))
++                                continue;
++
++                        if (close_nointr(fd) < 0)
++                                if (errno != EBADF && r == 0)
++                                        r = -errno;
++                }
++
++                return r;
++        }
+ 
+         while ((de = readdir(d))) {
+                 int fd = -1;
+@@ -2171,20 +2205,8 @@ int close_all_fds(const int except[], unsigned n_except) {
+                 if (fd == dirfd(d))
+                         continue;
+ 
+-                if (except) {
+-                        bool found;
+-                        unsigned i;
+-
+-                        found = false;
+-                        for (i = 0; i < n_except; i++)
+-                                if (except[i] == fd) {
+-                                        found = true;
+-                                        break;
+-                                }
+-
+-                        if (found)
+-                                continue;
+-                }
++                if (fd_in_set(fd, except, n_except))
++                        continue;
+ 
+                 if (close_nointr(fd) < 0) {
+                         /* Valgrind has its own FD and doesn't want to have it closed */

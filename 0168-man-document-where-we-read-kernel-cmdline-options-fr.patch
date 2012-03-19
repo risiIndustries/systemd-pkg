@@ -1,0 +1,33 @@
+From c0aa995c459ff01a2299bc5dc9a303b923f978c8 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 14 Mar 2012 14:13:12 +0100
+Subject: [PATCH] man: document where we read kernel cmdline options from
+ (cherry picked from commit
+ 45dc3a0478c61e83dedf26dc247fd3ddd2b20978)
+
+---
+ man/systemd.xml |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
+
+diff --git a/man/systemd.xml b/man/systemd.xml
+index c1766e2..b1f57e3 100644
+--- a/man/systemd.xml
++++ b/man/systemd.xml
+@@ -948,7 +948,16 @@
+         <refsect1>
+                 <title>Kernel Command Line</title>
+ 
+-                <para>When run as system instance systemd parses a few kernel command line arguments:</para>
++                <para>When run as system instance systemd parses a
++                number of kernel command line
++                arguments<footnote><para>If run inside a Linux
++                container these arguments may be passed as command
++                line arguments to systemd itself, next to any of the
++                command line options listed in the Options section
++                above. If run outside of Linux containers, these
++                arguments are parsed from
++                <filename>/proc/cmdline</filename>
++                instead.</para></footnote>:</para>
+ 
+                 <variablelist>
+                         <varlistentry>

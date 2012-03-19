@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        17%{?dist}
+Release:        18%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -214,6 +214,14 @@ Patch0158:      0158-nspawn-be-less-cryptic-when-clone-fails.patch
 Patch0159:      0159-bash-completion-get-rid-of-awk-sed-and-grep.patch
 Patch0160:      0160-mount-properly-check-return-for-mount_add_.patch
 Patch0161:      0161-util-never-follow-symlinks-in-rm_rf_children.patch
+Patch0162:      0162-man-reword-tmpfiles-selinux-bits.patch
+Patch0163:      0163-conf-enforce-UTF8-validty-everywhere.patch
+Patch0164:      0164-util-add-brute-force-fallback-for-close_all_fds.patch
+Patch0165:      0165-conf-parser-warn-if-an-assignment-is-place-outside-o.patch
+Patch0166:      0166-mount-fix-assertion.patch
+Patch0167:      0167-socket-make-sure-that-the-name-for-per-connection-se.patch
+Patch0168:      0168-man-document-where-we-read-kernel-cmdline-options-fr.patch
+Patch0169:      0169-nspawn-mount-etc-timezone-into-nspawn-environment-to.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -535,6 +543,15 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Tue Mar 20 2012 Michal Schmidt <mschmidt@redhat.com> - 37-18
+- enforce UTF8 validity of configuration data to avoid crashing in dbus
+- util: add brute-force fallback for close_all_fds() (#784921)
+- conf-parser: warn if an assignment is place outside of a section (#783134)
+- mount: fix assertion (#768523)
+- make sure that the name for per-connection services are unique (fdo#45297)
+- nspawn: mount /etc/timezone into nspawn environment too
+- minor documentation fixes
+
 * Fri Mar 16 2012 Michal Schmidt <mschmidt@redhat.com> - 37-17
 - CVE-2012-1174 (#804118)
 

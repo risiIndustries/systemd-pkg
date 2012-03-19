@@ -1,0 +1,51 @@
+From 2216ee3d049dda5d1a12fec5b862b101de355d43 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 14 Mar 2012 03:07:26 +0100
+Subject: [PATCH] socket: make sure that the name for per-connection services
+ are unique
+
+If a client connects to us repeatedly always using the same source port
+and we instantiate a service for the incoming connection this might
+clash with an old instance. Hence, include the connection number, the
+same way we do it for AF_UNIX to make connections unique.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=45297
+(cherry picked from commit 77b088c211a0939cb94969b487e5746bb05d12ae)
+---
+ src/socket.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/src/socket.c b/src/socket.c
+index b40b7a1..22e88b6 100644
+--- a/src/socket.c
++++ b/src/socket.c
+@@ -560,7 +560,8 @@ static int instance_from_socket(int fd, unsigned nr, char **instance) {
+                         b = ntohl(remote.in.sin_addr.s_addr);
+ 
+                 if (asprintf(&r,
+-                             "%u.%u.%u.%u:%u-%u.%u.%u.%u:%u",
++                             "%u-%u.%u.%u.%u:%u-%u.%u.%u.%u:%u",
++                             nr,
+                              a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF,
+                              ntohs(local.in.sin_port),
+                              b >> 24, (b >> 16) & 0xFF, (b >> 8) & 0xFF, b & 0xFF,
+@@ -582,7 +583,8 @@ static int instance_from_socket(int fd, unsigned nr, char **instance) {
+                                 *b = remote.in6.sin6_addr.s6_addr+12;
+ 
+                         if (asprintf(&r,
+-                                     "%u.%u.%u.%u:%u-%u.%u.%u.%u:%u",
++                                     "%u-%u.%u.%u.%u:%u-%u.%u.%u.%u:%u",
++                                     nr,
+                                      a[0], a[1], a[2], a[3],
+                                      ntohs(local.in6.sin6_port),
+                                      b[0], b[1], b[2], b[3],
+@@ -592,7 +594,8 @@ static int instance_from_socket(int fd, unsigned nr, char **instance) {
+                         char a[INET6_ADDRSTRLEN], b[INET6_ADDRSTRLEN];
+ 
+                         if (asprintf(&r,
+-                                     "%s:%u-%s:%u",
++                                     "%u-%s:%u-%s:%u",
++                                     nr,
+                                      inet_ntop(AF_INET6, &local.in6.sin6_addr, a, sizeof(a)),
+                                      ntohs(local.in6.sin6_port),
+                                      inet_ntop(AF_INET6, &remote.in6.sin6_addr, b, sizeof(b)),
