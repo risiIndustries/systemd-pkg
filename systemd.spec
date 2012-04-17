@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        18%{?dist}
+Release:        19%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -222,6 +222,8 @@ Patch0166:      0166-mount-fix-assertion.patch
 Patch0167:      0167-socket-make-sure-that-the-name-for-per-connection-se.patch
 Patch0168:      0168-man-document-where-we-read-kernel-cmdline-options-fr.patch
 Patch0169:      0169-nspawn-mount-etc-timezone-into-nspawn-environment-to.patch
+# this one is F16 only:
+Patch0170:      0170-F16-cryptsetup-workaround-missing-watch-rules-for-dm.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -543,6 +545,10 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Tue Apr 17 2012 Michal Schmidt <mschmidt@redhat.com> - 37-19
+- cryptsetup: emit a change uevent after mkswap to workaround the lack of udev
+  watches on dm devices in F16. (#711394)
+
 * Tue Mar 20 2012 Michal Schmidt <mschmidt@redhat.com> - 37-18
 - enforce UTF8 validity of configuration data to avoid crashing in dbus
 - util: add brute-force fallback for close_all_fds() (#784921)
