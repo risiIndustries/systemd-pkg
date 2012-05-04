@@ -1,0 +1,26 @@
+From dda16d7975eb97f619ac901e50c289210bb1681e Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sun, 22 Apr 2012 10:54:58 +0200
+Subject: [PATCH] transaction: abort does not need to use recursive deletion
+
+Recursion is unnecessary, because we're deleting all transaction jobs
+anyway. And the recursive deletion produces debug messages that are
+pointless in transaction abort.
+(cherry picked from commit 1b9cea0caa85dce6d9f117638a296b141c49a8fd)
+---
+ src/transaction.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/transaction.c b/src/transaction.c
+index e32ff23..71e0a98 100644
+--- a/src/transaction.c
++++ b/src/transaction.c
+@@ -30,7 +30,7 @@ void transaction_abort(Transaction *tr) {
+         assert(tr);
+ 
+         while ((j = hashmap_first(tr->jobs)))
+-                transaction_delete_job(tr, j, true);
++                transaction_delete_job(tr, j, false);
+ 
+         assert(hashmap_isempty(tr->jobs));
+ }

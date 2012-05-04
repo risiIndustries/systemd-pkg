@@ -1,0 +1,95 @@
+From 3a66f2345faef5d3551af2d20d05375912a9f3cb Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Thu, 19 Apr 2012 23:20:34 +0200
+Subject: [PATCH] job: allow job_free() only on already unlinked jobs
+
+job_free() is IMO too helpful when it unlinks the job from the transaction.
+The callers should ensure the job is already unlinked before freeing.
+The added assertions check if anyone gets it wrong.
+(cherry picked from commit 02a3bcc6b4372ca50c0a62b193f9a75b988ffa69)
+---
+ src/job.c     |    6 ++++--
+ src/manager.c |   11 ++++++++---
+ src/manager.h |    2 --
+ 3 files changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/src/job.c b/src/job.c
+index bfd879c..f68270c 100644
+--- a/src/job.c
++++ b/src/job.c
+@@ -71,8 +71,10 @@ void job_free(Job *j) {
+                 j->installed = false;
+         }
+ 
+-        /* Detach from next 'smaller' objects */
+-        manager_transaction_unlink_job(j->manager, j, true);
++        assert(!j->transaction_prev);
++        assert(!j->transaction_next);
++        assert(!j->subject_list);
++        assert(!j->object_list);
+ 
+         if (j->in_run_queue)
+                 LIST_REMOVE(Job, run_queue, j->manager->run_queue, j);
+diff --git a/src/manager.c b/src/manager.c
+index f333929..933415d 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -632,13 +632,15 @@ int manager_startup(Manager *m, FILE *serialization, FDSet *fds) {
+         return r;
+ }
+ 
++static void transaction_unlink_job(Manager *m, Job *j, bool delete_dependencies);
++
+ static void transaction_delete_job(Manager *m, Job *j, bool delete_dependencies) {
+         assert(m);
+         assert(j);
+ 
+         /* Deletes one job from the transaction */
+ 
+-        manager_transaction_unlink_job(m, j, delete_dependencies);
++        transaction_unlink_job(m, j, delete_dependencies);
+ 
+         if (!j->installed)
+                 job_free(j);
+@@ -680,8 +682,10 @@ static void transaction_abort(Manager *m) {
+         while ((j = hashmap_first(m->transaction_jobs)))
+                 if (j->installed)
+                         transaction_delete_job(m, j, true);
+-                else
++                else {
++                        transaction_unlink_job(m, j, true);
+                         job_free(j);
++                }
+ 
+         assert(hashmap_isempty(m->transaction_jobs));
+ 
+@@ -1411,6 +1415,7 @@ static Job* transaction_add_one_job(Manager *m, JobType type, Unit *unit, bool o
+         LIST_PREPEND(Job, transaction, f, j);
+ 
+         if (hashmap_replace(m->transaction_jobs, unit, f) < 0) {
++                LIST_REMOVE(Job, transaction, f, j);
+                 job_free(j);
+                 return NULL;
+         }
+@@ -1423,7 +1428,7 @@ static Job* transaction_add_one_job(Manager *m, JobType type, Unit *unit, bool o
+         return j;
+ }
+ 
+-void manager_transaction_unlink_job(Manager *m, Job *j, bool delete_dependencies) {
++static void transaction_unlink_job(Manager *m, Job *j, bool delete_dependencies) {
+         assert(m);
+         assert(j);
+ 
+diff --git a/src/manager.h b/src/manager.h
+index 13c62da..a594b33 100644
+--- a/src/manager.h
++++ b/src/manager.h
+@@ -254,8 +254,6 @@ int manager_add_job_by_name(Manager *m, JobType type, const char *name, JobMode
+ void manager_dump_units(Manager *s, FILE *f, const char *prefix);
+ void manager_dump_jobs(Manager *s, FILE *f, const char *prefix);
+ 
+-void manager_transaction_unlink_job(Manager *m, Job *j, bool delete_dependencies);
+-
+ void manager_clear_jobs(Manager *m);
+ 
+ unsigned manager_dispatch_load_queue(Manager *m);

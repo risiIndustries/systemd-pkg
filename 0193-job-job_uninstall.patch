@@ -1,0 +1,120 @@
+From 1135de133d7659116edbe3451ede13c333153ced Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Fri, 20 Apr 2012 10:21:37 +0200
+Subject: [PATCH] job: job_uninstall()
+
+Split the uninstallation of the job from job_free() into a separate function.
+Adjust the callers.
+
+job_free() now only works on unlinked and uninstalled jobs. This enforces clear
+thinking about job lifetimes.
+(cherry picked from commit 97e7d748d1bf26790fc3b2607885f4ac8c4ecf3a)
+---
+ src/job.c     |   25 ++++++++++++++-----------
+ src/job.h     |    1 +
+ src/manager.c |    8 ++++++--
+ src/unit.c    |    7 +++++--
+ 4 files changed, 26 insertions(+), 15 deletions(-)
+
+diff --git a/src/job.c b/src/job.c
+index f68270c..4b4a111 100644
+--- a/src/job.c
++++ b/src/job.c
+@@ -55,22 +55,24 @@ Job* job_new(Manager *m, JobType type, Unit *unit) {
+         return j;
+ }
+ 
+-void job_free(Job *j) {
+-        assert(j);
+-
++void job_uninstall(Job *j) {
++        assert(j->installed);
+         /* Detach from next 'bigger' objects */
+-        if (j->installed) {
+-                bus_job_send_removed_signal(j);
+ 
+-                if (j->unit->job == j) {
+-                        j->unit->job = NULL;
+-                        unit_add_to_gc_queue(j->unit);
+-                }
++        bus_job_send_removed_signal(j);
+ 
+-                hashmap_remove(j->manager->jobs, UINT32_TO_PTR(j->id));
+-                j->installed = false;
++        if (j->unit->job == j) {
++                j->unit->job = NULL;
++                unit_add_to_gc_queue(j->unit);
+         }
+ 
++        hashmap_remove(j->manager->jobs, UINT32_TO_PTR(j->id));
++        j->installed = false;
++}
++
++void job_free(Job *j) {
++        assert(j);
++        assert(!j->installed);
+         assert(!j->transaction_prev);
+         assert(!j->transaction_next);
+         assert(!j->subject_list);
+@@ -491,6 +493,7 @@ int job_finish_and_invalidate(Job *j, JobResult result) {
+ 
+         u = j->unit;
+         t = j->type;
++        job_uninstall(j);
+         job_free(j);
+ 
+         job_print_status_message(u, t, result);
+diff --git a/src/job.h b/src/job.h
+index 60a43e0..ed375fa 100644
+--- a/src/job.h
++++ b/src/job.h
+@@ -137,6 +137,7 @@ struct Job {
+ };
+ 
+ Job* job_new(Manager *m, JobType type, Unit *unit);
++void job_uninstall(Job *j);
+ void job_free(Job *job);
+ void job_dump(Job *j, FILE*f, const char *prefix);
+ 
+diff --git a/src/manager.c b/src/manager.c
+index bddf646..43e798d 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -1245,13 +1245,17 @@ static int transaction_apply(Manager *m, JobMode mode) {
+         }
+ 
+         while ((j = hashmap_steal_first(m->transaction_jobs))) {
++                Job *uj;
+                 if (j->installed) {
+                         /* log_debug("Skipping already installed job %s/%s as %u", j->unit->id, job_type_to_string(j->type), (unsigned) j->id); */
+                         continue;
+                 }
+ 
+-                if (j->unit->job)
+-                        job_free(j->unit->job);
++                uj = j->unit->job;
++                if (uj) {
++                        job_uninstall(uj);
++                        job_free(uj);
++                }
+ 
+                 j->unit->job = j;
+                 j->installed = true;
+diff --git a/src/unit.c b/src/unit.c
+index cc193ed..3de2acd 100644
+--- a/src/unit.c
++++ b/src/unit.c
+@@ -352,8 +352,11 @@ void unit_free(Unit *u) {
+         SET_FOREACH(t, u->names, i)
+                 hashmap_remove_value(u->manager->units, t, u);
+ 
+-        if (u->job)
+-                job_free(u->job);
++        if (u->job) {
++                Job *j = u->job;
++                job_uninstall(j);
++                job_free(j);
++        }
+ 
+         for (d = 0; d < _UNIT_DEPENDENCY_MAX; d++)
+                 bidi_set_free(u, u->dependencies[d]);

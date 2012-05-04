@@ -1,0 +1,339 @@
+From 28c60fe5bf83e5a19f237e826f69cad25d1621d5 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sun, 15 Jan 2012 10:53:49 +0100
+Subject: [PATCH] unit: reduce heap usage for unit objects
+
+The storage of the unit objects on the heap is currently not very
+efficient. For every unit object we allocate a chunk of memory as large
+as the biggest unit type, although there are significant differences in
+the units' real requirements.
+pahole shows the following sizes of structs:
+488  Target
+496  Snapshot
+512  Device
+528  Path
+560  Timer
+576  Automount
+1080 Socket
+1160 Swap
+1168 Service
+1280 Mount
+
+Usually there aren't many targets or snapshots in the system, but Device
+is one of the most common unit types and for every one we waste
+1280 - 512 = 768 bytes.
+
+Fix it by allocating only the right amount for the given unit type.
+On my machine (x86_64, with 39 LVM volumes) this decreases systemd's
+USS (unique set size) by more than 300 KB.
+(cherry picked from commit 7d17cfbc46306a106dbda0f3e92fbc0792d1e9e9)
+---
+ src/automount.c |    1 +
+ src/device.c    |    7 +++++--
+ src/manager.c   |   17 ++++++++++++-----
+ src/mount.c     |   13 +++++++++----
+ src/path.c      |    1 +
+ src/service.c   |    1 +
+ src/snapshot.c  |    1 +
+ src/socket.c    |    1 +
+ src/swap.c      |   13 +++++++++----
+ src/target.c    |    1 +
+ src/timer.c     |    1 +
+ src/unit.c      |    9 ++++++---
+ src/unit.h      |    5 ++++-
+ 13 files changed, 52 insertions(+), 19 deletions(-)
+
+diff --git a/src/automount.c b/src/automount.c
+index 85558e5..d09c379 100644
+--- a/src/automount.c
++++ b/src/automount.c
+@@ -836,6 +836,7 @@ DEFINE_STRING_TABLE_LOOKUP(automount_state, AutomountState);
+ 
+ const UnitVTable automount_vtable = {
+         .suffix = ".automount",
++        .object_size = sizeof(Automount),
+         .sections =
+                 "Unit\0"
+                 "Automount\0"
+diff --git a/src/device.c b/src/device.c
+index bffeca0..64665a8 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -198,10 +198,12 @@ static int device_update_unit(Manager *m, struct udev_device *dev, const char *p
+         if (!u) {
+                 delete = true;
+ 
+-                if (!(u = unit_new(m)))
++                u = unit_new(m, sizeof(Device));
++                if (!u)
+                         return -ENOMEM;
+ 
+-                if ((r = device_add_escaped_name(u, path)) < 0)
++                r = device_add_escaped_name(u, path);
++                if (r < 0)
+                         goto fail;
+ 
+                 unit_add_to_load_queue(u);
+@@ -583,6 +585,7 @@ DEFINE_STRING_TABLE_LOOKUP(device_state, DeviceState);
+ 
+ const UnitVTable device_vtable = {
+         .suffix = ".device",
++        .object_size = sizeof(Device),
+         .sections =
+                 "Unit\0"
+                 "Device\0"
+diff --git a/src/manager.c b/src/manager.c
+index 003764e..e1c372b 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -1793,6 +1793,7 @@ unsigned manager_dispatch_load_queue(Manager *m) {
+ 
+ int manager_load_unit_prepare(Manager *m, const char *name, const char *path, DBusError *e, Unit **_ret) {
+         Unit *ret;
++        UnitType t;
+         int r;
+ 
+         assert(m);
+@@ -1809,24 +1810,30 @@ int manager_load_unit_prepare(Manager *m, const char *name, const char *path, DB
+         if (!name)
+                 name = file_name_from_path(path);
+ 
+-        if (!unit_name_is_valid(name, false)) {
++        t = unit_name_to_type(name);
++
++        if (t == _UNIT_TYPE_INVALID || !unit_name_is_valid_no_type(name, false)) {
+                 dbus_set_error(e, BUS_ERROR_INVALID_NAME, "Unit name %s is not valid.", name);
+                 return -EINVAL;
+         }
+ 
+-        if ((ret = manager_get_unit(m, name))) {
++        ret = manager_get_unit(m, name);
++        if (ret) {
+                 *_ret = ret;
+                 return 1;
+         }
+ 
+-        if (!(ret = unit_new(m)))
++        ret = unit_new(m, unit_vtable[t]->object_size);
++        if (!ret)
+                 return -ENOMEM;
+ 
+-        if (path)
+-                if (!(ret->meta.fragment_path = strdup(path))) {
++        if (path) {
++                ret->meta.fragment_path = strdup(path);
++                if (!ret->meta.fragment_path) {
+                         unit_free(ret);
+                         return -ENOMEM;
+                 }
++        }
+ 
+         if ((r = unit_add_name(ret, name)) < 0) {
+                 unit_free(ret);
+diff --git a/src/mount.c b/src/mount.c
+index bac3ad3..122f6d8 100644
+--- a/src/mount.c
++++ b/src/mount.c
+@@ -1400,13 +1400,16 @@ static int mount_add_one(
+         if (!is_path(where))
+                 return 0;
+ 
+-        if (!(e = unit_name_from_path(where, ".mount")))
++        e = unit_name_from_path(where, ".mount");
++        if (!e)
+                 return -ENOMEM;
+ 
+-        if (!(u = manager_get_unit(m, e))) {
++        u = manager_get_unit(m, e);
++        if (!u) {
+                 delete = true;
+ 
+-                if (!(u = unit_new(m))) {
++                u = unit_new(m, sizeof(Mount));
++                if (!u) {
+                         free(e);
+                         return -ENOMEM;
+                 }
+@@ -1417,7 +1420,8 @@ static int mount_add_one(
+                 if (r < 0)
+                         goto fail;
+ 
+-                if (!(MOUNT(u)->where = strdup(where))) {
++                MOUNT(u)->where = strdup(where);
++                if (!MOUNT(u)->where) {
+                         r = -ENOMEM;
+                         goto fail;
+                 }
+@@ -1842,6 +1846,7 @@ DEFINE_STRING_TABLE_LOOKUP(mount_exec_command, MountExecCommand);
+ 
+ const UnitVTable mount_vtable = {
+         .suffix = ".mount",
++        .object_size = sizeof(Mount),
+         .sections =
+                 "Unit\0"
+                 "Mount\0"
+diff --git a/src/path.c b/src/path.c
+index 957af05..ae5052a 100644
+--- a/src/path.c
++++ b/src/path.c
+@@ -717,6 +717,7 @@ DEFINE_STRING_TABLE_LOOKUP(path_type, PathType);
+ 
+ const UnitVTable path_vtable = {
+         .suffix = ".path",
++        .object_size = sizeof(Path),
+         .sections =
+                 "Unit\0"
+                 "Path\0"
+diff --git a/src/service.c b/src/service.c
+index 9005b02..be99951 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -3546,6 +3546,7 @@ DEFINE_STRING_TABLE_LOOKUP(notify_access, NotifyAccess);
+ 
+ const UnitVTable service_vtable = {
+         .suffix = ".service",
++        .object_size = sizeof(Service),
+         .sections =
+                 "Unit\0"
+                 "Service\0"
+diff --git a/src/snapshot.c b/src/snapshot.c
+index 270dc4f..161629d 100644
+--- a/src/snapshot.c
++++ b/src/snapshot.c
+@@ -282,6 +282,7 @@ DEFINE_STRING_TABLE_LOOKUP(snapshot_state, SnapshotState);
+ 
+ const UnitVTable snapshot_vtable = {
+         .suffix = ".snapshot",
++        .object_size = sizeof(Snapshot),
+ 
+         .no_alias = true,
+         .no_instances = true,
+diff --git a/src/socket.c b/src/socket.c
+index 22e88b6..a57548d 100644
+--- a/src/socket.c
++++ b/src/socket.c
+@@ -2136,6 +2136,7 @@ DEFINE_STRING_TABLE_LOOKUP(socket_exec_command, SocketExecCommand);
+ 
+ const UnitVTable socket_vtable = {
+         .suffix = ".socket",
++        .object_size = sizeof(Socket),
+         .sections =
+                 "Unit\0"
+                 "Socket\0"
+diff --git a/src/swap.c b/src/swap.c
+index 4fa30a3..202c4e6 100644
+--- a/src/swap.c
++++ b/src/swap.c
+@@ -334,7 +334,8 @@ int swap_add_one(
+         assert(m);
+         assert(what);
+ 
+-        if (!(e = unit_name_from_path(what, ".swap")))
++        e = unit_name_from_path(what, ".swap");
++        if (!e)
+                 return -ENOMEM;
+ 
+         u = manager_get_unit(m, e);
+@@ -348,15 +349,18 @@ int swap_add_one(
+         if (!u) {
+                 delete = true;
+ 
+-                if (!(u = unit_new(m))) {
++                u = unit_new(m, sizeof(Swap));
++                if (!u) {
+                         free(e);
+                         return -ENOMEM;
+                 }
+ 
+-                if ((r = unit_add_name(u, e)) < 0)
++                r = unit_add_name(u, e);
++                if (r < 0)
+                         goto fail;
+ 
+-                if (!(SWAP(u)->what = strdup(what))) {
++                SWAP(u)->what = strdup(what);
++                if (!SWAP(u)->what) {
+                         r = -ENOMEM;
+                         goto fail;
+                 }
+@@ -1341,6 +1345,7 @@ DEFINE_STRING_TABLE_LOOKUP(swap_exec_command, SwapExecCommand);
+ 
+ const UnitVTable swap_vtable = {
+         .suffix = ".swap",
++        .object_size = sizeof(Swap),
+         .sections =
+                 "Unit\0"
+                 "Swap\0"
+diff --git a/src/target.c b/src/target.c
+index 340e990..b774cfb 100644
+--- a/src/target.c
++++ b/src/target.c
+@@ -199,6 +199,7 @@ DEFINE_STRING_TABLE_LOOKUP(target_state, TargetState);
+ 
+ const UnitVTable target_vtable = {
+         .suffix = ".target",
++        .object_size = sizeof(Target),
+         .sections =
+                 "Unit\0"
+                 "Target\0"
+diff --git a/src/timer.c b/src/timer.c
+index d127a11..87adb29 100644
+--- a/src/timer.c
++++ b/src/timer.c
+@@ -468,6 +468,7 @@ DEFINE_STRING_TABLE_LOOKUP(timer_base, TimerBase);
+ 
+ const UnitVTable timer_vtable = {
+         .suffix = ".timer",
++        .object_size = sizeof(Timer),
+         .sections =
+                 "Unit\0"
+                 "Timer\0"
+diff --git a/src/unit.c b/src/unit.c
+index 143b0e3..c629e14 100644
+--- a/src/unit.c
++++ b/src/unit.c
+@@ -57,15 +57,18 @@ const UnitVTable * const unit_vtable[_UNIT_TYPE_MAX] = {
+         [UNIT_PATH] = &path_vtable
+ };
+ 
+-Unit *unit_new(Manager *m) {
++Unit *unit_new(Manager *m, size_t size) {
+         Unit *u;
+ 
+         assert(m);
++        assert(size >= sizeof(Meta));
+ 
+-        if (!(u = new0(Unit, 1)))
++        u = malloc0(size);
++        if (!u)
+                 return NULL;
+ 
+-        if (!(u->meta.names = set_new(string_hash_func, string_compare_func))) {
++        u->meta.names = set_new(string_hash_func, string_compare_func);
++        if (!u->meta.names) {
+                 free(u);
+                 return NULL;
+         }
+diff --git a/src/unit.h b/src/unit.h
+index 19314d6..626bdc4 100644
+--- a/src/unit.h
++++ b/src/unit.h
+@@ -286,6 +286,9 @@ union Unit {
+ struct UnitVTable {
+         const char *suffix;
+ 
++        /* How much memory does an object of this unit type need */
++        size_t object_size;
++
+         /* Config file sections this unit type understands, separated
+          * by NUL chars */
+         const char *sections;
+@@ -435,7 +438,7 @@ DEFINE_CAST(SNAPSHOT, Snapshot);
+ DEFINE_CAST(SWAP, Swap);
+ DEFINE_CAST(PATH, Path);
+ 
+-Unit *unit_new(Manager *m);
++Unit *unit_new(Manager *m, size_t size);
+ void unit_free(Unit *u);
+ 
+ int unit_add_name(Unit *u, const char *name);

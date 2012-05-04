@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        19%{?dist}
+Release:        20%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -224,6 +224,59 @@ Patch0168:      0168-man-document-where-we-read-kernel-cmdline-options-fr.patch
 Patch0169:      0169-nspawn-mount-etc-timezone-into-nspawn-environment-to.patch
 # this one is F16 only:
 Patch0170:      0170-F16-cryptsetup-workaround-missing-watch-rules-for-dm.patch
+# some patches from older releases to make other patches easier to apply:
+Patch0171:      0171-unit-reduce-heap-usage-for-unit-objects.patch
+Patch0172:      0172-unit-remove-union-Unit.patch
+Patch0173:      0173-unit-use-the-UNIT-macro-consistently.patch
+Patch0174:      0174-unit-use-safe-downcasts-remove-pointless-casts.patch
+# from v183:
+Patch0175:      0175-logind-close-FIFO-before-ending-sessions-cleanly.patch
+Patch0176:      0176-job-fix-loss-of-ordering-with-restart-jobs.patch
+Patch0177:      0177-job-add-debug-prints-where-job-type-gets-changed.patch
+Patch0178:      0178-install-check-for-proper-return-from-dirent_ensure_t.patch
+Patch0179:      0179-analyze-Cosmetic-exit-when-the-bootup-is-not-yet-com.patch
+Patch0180:      0180-fix-a-couple-of-AF_UNIX-connect-calls.patch
+Patch0181:      0181-logind-log-with-AUTH-facility.patch
+Patch0182:      0182-job-use-a-lookup-table-for-merging-of-job-types.patch
+Patch0183:      0183-tmpfiles-open-directories-with-O_NOATIME-to-preserve.patch
+Patch0184:      0184-enable-proper-access-timestamps-on-all-tmpfs-mounts.patch
+Patch0185:      0185-cgroup-if-a-controller-is-not-available-don-t-try-to.patch
+Patch0186:      0186-remove-MS_-which-can-not-be-combined-with-current-ke.patch
+Patch0187:      0187-fix-typo-in-src-shared-install.c.patch
+Patch0188:      0188-mount-setup-don-t-log-with-LOG_ERROR-if-a-mount-that.patch
+Patch0189:      0189-tmpfiles-fix-error-message.patch
+Patch0190:      0190-manager-fix-comment.patch
+Patch0191:      0191-job-allow-job_free-only-on-already-unlinked-jobs.patch
+Patch0192:      0192-manager-simplify-transaction_abort.patch
+Patch0193:      0193-job-job_uninstall.patch
+Patch0194:      0194-manager-Transaction-as-an-object.patch
+Patch0195:      0195-manager-split-transaction.-ch.patch
+Patch0196:      0196-job-job_new-can-find-the-manager-from-the-unit.patch
+Patch0197:      0197-job-jobs-shouldn-t-need-to-know-about-transaction-an.patch
+Patch0198:      0198-transaction-do-not-add-installed-jobs-to-the-transac.patch
+Patch0199:      0199-transaction-maintain-anchor_job.patch
+Patch0200:      0200-transaction-change-the-linking-of-isolate-jobs-to-th.patch
+Patch0201:      0201-transaction-simplify-transaction_find_jobs_that_matt.patch
+Patch0202:      0202-transaction-avoid-garbage-collecting-the-anchor-job.patch
+Patch0203:      0203-transaction-remove-the-anchor-link.patch
+Patch0204:      0204-transaction-remove-a-couple-of-asserts.patch
+Patch0205:      0205-job-separate-job_install.patch
+Patch0206:      0206-transaction-rework-merging-with-installed-jobs.patch
+Patch0207:      0207-transaction-remove-checks-for-installed.patch
+Patch0208:      0208-dbus-job-allow-multiple-bus-clients.patch
+Patch0209:      0209-transaction-add-starting-requirements-for-JOB_RESTAR.patch
+Patch0210:      0210-loginctl-avoid-segfault-for-kill-session-and-kill-us.patch
+Patch0211:      0211-transaction-improve-readability.patch
+Patch0212:      0212-transaction-fix-detection-of-cycles-involving-instal.patch
+Patch0213:      0213-transaction-abort-does-not-need-to-use-recursive-del.patch
+Patch0214:      0214-job-serialize-jobs-properly.patch
+Patch0215:      0215-transaction-cancel-jobs-non-recursively-on-isolate.patch
+Patch0216:      0216-core-add-NOP-jobs-job-type-collapsing.patch
+Patch0217:      0217-transaction-add-missing-emacs-and-license-headers.patch
+Patch0218:      0218-transaction-downgrade-warnings-about-masked-units.patch
+Patch0219:      0219-vconsole-fix-error-messages.patch
+Patch0220:      0220-service-warn-if-a-dbus-name-is-specified-but-the-ser.patch
+Patch0221:      0221-vconsole-fix-some-error-messages.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -545,6 +598,17 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Sat May 05 2012 Michal Schmidt <mschmidt@redhat.com> - 37-20
+- Added many patches from current upstream to fix mainly:
+  - Loss of ordering with restart jobs and the behavior of try-restart while
+    the service is inactive with a pending job (#753586).
+  - Assertion in systemd-analyze while boot is still in progress (#701669).
+  - systemd-tmpfiles preservation of atime on subdirectories (#810257).
+  - Requires= dependencies were not started by systemctl restart (#802770).
+- As a dependency for #753586, a refactoring of the transaction code is
+  included. It also fixes several bugs.
+- A few low-risk or cosmetic fixes are included too.
+
 * Tue Apr 17 2012 Michal Schmidt <mschmidt@redhat.com> - 37-19
 - cryptsetup: emit a change uevent after mkswap to workaround the lack of udev
   watches on dm devices in F16. (#711394)

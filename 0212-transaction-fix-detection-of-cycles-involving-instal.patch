@@ -1,0 +1,51 @@
+From 1bceebb916b871142fb42b3c71eb1b0914f28558 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sun, 22 Apr 2012 02:09:04 +0200
+Subject: [PATCH] transaction: fix detection of cycles involving installed
+ jobs
+
+A transaction can be acyclic, but when it's added to installed jobs,
+a cycle may result.
+
+transaction_verify_order_one() attempts to detect these cases, but it
+fails because the installed jobs often have the exact generation number
+that makes them look as if they were walked already.
+
+Fix it by resetting the generation numbers of all installed jobs before
+detecting cycles.
+
+An alternative fix could be to add the generation counter to the
+Manager and use it instead of starting always from 1 in
+transaction_activate(). But I prefer not having to worry about it
+wrapping around.
+(cherry picked from commit 4e7bd268ae1f39675988b9ac61b9378a67e3ae3e)
+---
+ src/transaction.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/src/transaction.c b/src/transaction.c
+index 2d633ee..e32ff23 100644
+--- a/src/transaction.c
++++ b/src/transaction.c
+@@ -582,6 +582,8 @@ rollback:
+ }
+ 
+ int transaction_activate(Transaction *tr, Manager *m, JobMode mode, DBusError *e) {
++        Iterator i;
++        Job *j;
+         int r;
+         unsigned generation = 1;
+ 
+@@ -590,6 +592,12 @@ int transaction_activate(Transaction *tr, Manager *m, JobMode mode, DBusError *e
+         /* This applies the changes recorded in tr->jobs to
+          * the actual list of jobs, if possible. */
+ 
++        /* Reset the generation counter of all installed jobs. The detection of cycles
++         * looks at installed jobs. If they had a non-zero generation from some previous
++         * walk of the graph, the algorithm would break. */
++        HASHMAP_FOREACH(j, m->jobs, i)
++                j->generation = 0;
++
+         /* First step: figure out which jobs matter */
+         transaction_find_jobs_that_matter_to_anchor(tr->anchor_job, generation++);
+ 

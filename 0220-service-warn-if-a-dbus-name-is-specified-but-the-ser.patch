@@ -1,0 +1,28 @@
+From c0dd23a12d0a50aa071fbe9a4f8378225e6c51a7 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 3 May 2012 14:42:49 +0200
+Subject: [PATCH] service: warn if a dbus name is specified but the service
+ type is not dbus (cherry picked from commit
+ 7e2668c6fd5720ae4d2d55eb8a062739687516af)
+
+Conflicts:
+
+	TODO
+---
+ src/service.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/src/service.c b/src/service.c
+index 9912535..97a4a45 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -1081,6 +1081,9 @@ static int service_verify(Service *s) {
+                 return -EINVAL;
+         }
+ 
++        if (s->bus_name && s->type != SERVICE_DBUS)
++                log_warning("%s has a D-Bus service name specified, but is not of type dbus. Ignoring.", UNIT(s)->id);
++
+         if (s->exec_context.pam_name && s->exec_context.kill_mode != KILL_CONTROL_GROUP) {
+                 log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", UNIT(s)->id);
+                 return -EINVAL;

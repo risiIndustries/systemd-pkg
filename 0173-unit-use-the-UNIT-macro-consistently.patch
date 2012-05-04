@@ -1,0 +1,1875 @@
+From 84ae6d273396bfa3423c420bbac0f56bb90be8d5 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sun, 15 Jan 2012 12:25:20 +0100
+Subject: [PATCH] unit: use the UNIT() macro consistently
+
+The UNIT() macro upcasts from specific unit types to the base Unit.
+Use it everywhere, rather than accessing the 'meta' member directly.
+(cherry picked from commit 1124fe6f01b1d59d016c238026f20380f38d98dc)
+
+Conflicts:
+
+	src/mount.c
+	src/service.c
+	src/socket.c
+---
+ src/automount.c     |   38 +++++++-------
+ src/device.c        |   20 ++++----
+ src/load-fragment.c |    6 +-
+ src/mount.c         |   66 +++++++++++++-------------
+ src/path.c          |   30 ++++++------
+ src/service.c       |  132 +++++++++++++++++++++++++-------------------------
+ src/snapshot.c      |   10 ++--
+ src/socket.c        |   82 ++++++++++++++++----------------
+ src/swap.c          |   58 +++++++++++-----------
+ src/target.c        |    4 +-
+ src/timer.c         |   24 +++++-----
+ 11 files changed, 235 insertions(+), 235 deletions(-)
+
+diff --git a/src/automount.c b/src/automount.c
+index e921123..8b7030e 100644
+--- a/src/automount.c
++++ b/src/automount.c
+@@ -59,7 +59,7 @@ static void automount_init(Unit *u) {
+ 
+         a->directory_mode = 0755;
+ 
+-        a->meta.ignore_on_isolate = true;
++        UNIT(a)->ignore_on_isolate = true;
+ }
+ 
+ static void repeat_unmout(const char *path) {
+@@ -94,8 +94,8 @@ static void unmount_autofs(Automount *a) {
+         /* If we reload/reexecute things we keep the mount point
+          * around */
+         if (a->where &&
+-            (a->meta.manager->exit_code != MANAGER_RELOAD &&
+-             a->meta.manager->exit_code != MANAGER_REEXECUTE))
++            (UNIT(a)->manager->exit_code != MANAGER_RELOAD &&
++             UNIT(a)->manager->exit_code != MANAGER_REEXECUTE))
+                 repeat_unmout(a->where);
+ }
+ 
+@@ -120,8 +120,8 @@ int automount_add_one_mount_link(Automount *a, Mount *m) {
+         assert(a);
+         assert(m);
+ 
+-        if (a->meta.load_state != UNIT_LOADED ||
+-            m->meta.load_state != UNIT_LOADED)
++        if (UNIT(a)->load_state != UNIT_LOADED ||
++            UNIT(m)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (!path_startswith(a->where, m->where))
+@@ -142,7 +142,7 @@ static int automount_add_mount_links(Automount *a) {
+ 
+         assert(a);
+ 
+-        LIST_FOREACH(units_by_type, other, a->meta.manager->units_by_type[UNIT_MOUNT])
++        LIST_FOREACH(units_by_type, other, UNIT(a)->manager->units_by_type[UNIT_MOUNT])
+                 if ((r = automount_add_one_mount_link(a, (Mount*) other)) < 0)
+                         return r;
+ 
+@@ -154,7 +154,7 @@ static int automount_add_default_dependencies(Automount *a) {
+ 
+         assert(a);
+ 
+-        if (a->meta.manager->running_as == MANAGER_SYSTEM) {
++        if (UNIT(a)->manager->running_as == MANAGER_SYSTEM) {
+ 
+                 if ((r = unit_add_dependency_by_name(UNIT(a), UNIT_BEFORE, SPECIAL_BASIC_TARGET, NULL, true)) < 0)
+                         return r;
+@@ -171,7 +171,7 @@ static int automount_verify(Automount *a) {
+         char *e;
+         assert(a);
+ 
+-        if (a->meta.load_state != UNIT_LOADED)
++        if (UNIT(a)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (path_equal(a->where, "/")) {
+@@ -186,7 +186,7 @@ static int automount_verify(Automount *a) {
+         free(e);
+ 
+         if (!b) {
+-                log_error("%s's Where setting doesn't match unit name. Refusing.", a->meta.id);
++                log_error("%s's Where setting doesn't match unit name. Refusing.", UNIT(a)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -226,7 +226,7 @@ static int automount_load(Unit *u) {
+                 if (r < 0)
+                         return r;
+ 
+-                if (a->meta.default_dependencies)
++                if (UNIT(a)->default_dependencies)
+                         if ((r = automount_add_default_dependencies(a)) < 0)
+                                 return r;
+         }
+@@ -247,7 +247,7 @@ static void automount_set_state(Automount *a, AutomountState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          a->meta.id,
++                          UNIT(a)->id,
+                           automount_state_to_string(old_state),
+                           automount_state_to_string(state));
+ 
+@@ -442,7 +442,7 @@ int automount_send_ready(Automount *a, int status) {
+         if (set_isempty(a->tokens))
+                 return 0;
+ 
+-        if ((ioctl_fd = open_ioctl_fd(a->meta.manager->dev_autofs_fd, a->where, a->dev_id)) < 0) {
++        if ((ioctl_fd = open_ioctl_fd(UNIT(a)->manager->dev_autofs_fd, a->where, a->dev_id)) < 0) {
+                 r = ioctl_fd;
+                 goto fail;
+         }
+@@ -463,7 +463,7 @@ int automount_send_ready(Automount *a, int status) {
+                  * if you pass a positive status code here, the kernel will
+                  * freeze! Yay! */
+ 
+-                if ((k = autofs_send_ready(a->meta.manager->dev_autofs_fd,
++                if ((k = autofs_send_ready(UNIT(a)->manager->dev_autofs_fd,
+                                            ioctl_fd,
+                                            token,
+                                            status)) < 0)
+@@ -491,7 +491,7 @@ static void automount_enter_waiting(Automount *a) {
+         if (a->tokens)
+                 set_clear(a->tokens);
+ 
+-        if ((dev_autofs_fd = open_dev_autofs(a->meta.manager)) < 0) {
++        if ((dev_autofs_fd = open_dev_autofs(UNIT(a)->manager)) < 0) {
+                 r = dev_autofs_fd;
+                 goto fail;
+         }
+@@ -581,7 +581,7 @@ static void automount_enter_runnning(Automount *a) {
+         /* We don't take mount requests anymore if we are supposed to
+          * shut down anyway */
+         if (unit_pending_inactive(UNIT(a))) {
+-                log_debug("Suppressing automount request on %s since unit stop is scheduled.", a->meta.id);
++                log_debug("Suppressing automount request on %s since unit stop is scheduled.", UNIT(a)->id);
+                 automount_send_ready(a, -EHOSTDOWN);
+                 return;
+         }
+@@ -590,14 +590,14 @@ static void automount_enter_runnning(Automount *a) {
+ 
+         /* Before we do anything, let's see if somebody is playing games with us? */
+         if (lstat(a->where, &st) < 0) {
+-                log_warning("%s failed to stat automount point: %m", a->meta.id);
++                log_warning("%s failed to stat automount point: %m", UNIT(a)->id);
+                 goto fail;
+         }
+ 
+         if (!S_ISDIR(st.st_mode) || st.st_dev != a->dev_id)
+-                log_info("%s's automount point already active?", a->meta.id);
+-        else if ((r = manager_add_job(a->meta.manager, JOB_START, UNIT_DEREF(a->mount), JOB_REPLACE, true, &error, NULL)) < 0) {
+-                log_warning("%s failed to queue mount startup job: %s", a->meta.id, bus_error(&error, r));
++                log_info("%s's automount point already active?", UNIT(a)->id);
++        else if ((r = manager_add_job(UNIT(a)->manager, JOB_START, UNIT_DEREF(a->mount), JOB_REPLACE, true, &error, NULL)) < 0) {
++                log_warning("%s failed to queue mount startup job: %s", UNIT(a)->id, bus_error(&error, r));
+                 goto fail;
+         }
+ 
+diff --git a/src/device.c b/src/device.c
+index 9e5bd30..0575379 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -46,13 +46,13 @@ static void device_unset_sysfs(Device *d) {
+ 
+         /* Remove this unit from the chain of devices which share the
+          * same sysfs path. */
+-        first = hashmap_get(d->meta.manager->devices_by_sysfs, d->sysfs);
++        first = hashmap_get(UNIT(d)->manager->devices_by_sysfs, d->sysfs);
+         LIST_REMOVE(Device, same_sysfs, first, d);
+ 
+         if (first)
+-                hashmap_remove_and_replace(d->meta.manager->devices_by_sysfs, d->sysfs, first->sysfs, first);
++                hashmap_remove_and_replace(UNIT(d)->manager->devices_by_sysfs, d->sysfs, first->sysfs, first);
+         else
+-                hashmap_remove(d->meta.manager->devices_by_sysfs, d->sysfs);
++                hashmap_remove(UNIT(d)->manager->devices_by_sysfs, d->sysfs);
+ 
+         free(d->sysfs);
+         d->sysfs = NULL;
+@@ -62,17 +62,17 @@ static void device_init(Unit *u) {
+         Device *d = DEVICE(u);
+ 
+         assert(d);
+-        assert(d->meta.load_state == UNIT_STUB);
++        assert(UNIT(d)->load_state == UNIT_STUB);
+ 
+         /* In contrast to all other unit types we timeout jobs waiting
+          * for devices by default. This is because they otherwise wait
+          * indefinitely for plugged in devices, something which cannot
+          * happen for the other units since their operations time out
+          * anyway. */
+-        d->meta.job_timeout = DEFAULT_TIMEOUT_USEC;
++        UNIT(d)->job_timeout = DEFAULT_TIMEOUT_USEC;
+ 
+-        d->meta.ignore_on_isolate = true;
+-        d->meta.ignore_on_snapshot = true;
++        UNIT(d)->ignore_on_isolate = true;
++        UNIT(d)->ignore_on_snapshot = true;
+ }
+ 
+ static void device_done(Unit *u) {
+@@ -92,7 +92,7 @@ static void device_set_state(Device *d, DeviceState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          d->meta.id,
++                          UNIT(d)->id,
+                           device_state_to_string(old_state),
+                           device_state_to_string(state));
+ 
+@@ -394,11 +394,11 @@ static Unit *device_following(Unit *u) {
+ 
+         /* Make everybody follow the unit that's named after the sysfs path */
+         for (other = d->same_sysfs_next; other; other = other->same_sysfs_next)
+-                if (startswith(other->meta.id, "sys-"))
++                if (startswith(UNIT(other)->id, "sys-"))
+                         return UNIT(other);
+ 
+         for (other = d->same_sysfs_prev; other; other = other->same_sysfs_prev) {
+-                if (startswith(other->meta.id, "sys-"))
++                if (startswith(UNIT(other)->id, "sys-"))
+                         return UNIT(other);
+ 
+                 first = other;
+diff --git a/src/load-fragment.c b/src/load-fragment.c
+index 88392d2..869f129 100644
+--- a/src/load-fragment.c
++++ b/src/load-fragment.c
+@@ -1290,7 +1290,7 @@ int config_parse_timer_unit(
+                 return 0;
+         }
+ 
+-        r = manager_load_unit(t->meta.manager, rvalue, NULL, NULL, &u);
++        r = manager_load_unit(UNIT(t)->manager, rvalue, NULL, NULL, &u);
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to load unit %s, ignoring: %s", filename, line, rvalue, bus_error(&error, r));
+                 dbus_error_free(&error);
+@@ -1376,7 +1376,7 @@ int config_parse_path_unit(
+                 return 0;
+         }
+ 
+-        if ((r = manager_load_unit(t->meta.manager, rvalue, NULL, &error, &u)) < 0) {
++        if ((r = manager_load_unit(UNIT(t)->manager, rvalue, NULL, &error, &u)) < 0) {
+                 log_error("[%s:%u] Failed to load unit %s, ignoring: %s", filename, line, rvalue, bus_error(&error, r));
+                 dbus_error_free(&error);
+                 return 0;
+@@ -1414,7 +1414,7 @@ int config_parse_socket_service(
+                 return 0;
+         }
+ 
+-        r = manager_load_unit(s->meta.manager, rvalue, NULL, &error, &x);
++        r = manager_load_unit(UNIT(s)->manager, rvalue, NULL, &error, &x);
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to load unit %s, ignoring: %s", filename, line, rvalue, bus_error(&error, r));
+                 dbus_error_free(&error);
+diff --git a/src/mount.c b/src/mount.c
+index 9e97309..1f0d3c2 100644
+--- a/src/mount.c
++++ b/src/mount.c
+@@ -83,7 +83,7 @@ static void mount_init(Unit *u) {
+ 
+         m->control_command_id = _MOUNT_EXEC_COMMAND_INVALID;
+ 
+-        m->meta.ignore_on_isolate = true;
++        UNIT(m)->ignore_on_isolate = true;
+ }
+ 
+ static void mount_unwatch_control_pid(Mount *m) {
+@@ -159,14 +159,14 @@ static int mount_add_mount_links(Mount *m) {
+         /* Adds in links to other mount points that might lie below or
+          * above us in the hierarchy */
+ 
+-        LIST_FOREACH(units_by_type, other, m->meta.manager->units_by_type[UNIT_MOUNT]) {
++        LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_MOUNT]) {
+                 Mount *n = (Mount*) other;
+                 MountParameters *pn;
+ 
+                 if (n == m)
+                         continue;
+ 
+-                if (n->meta.load_state != UNIT_LOADED)
++                if (UNIT(n)->load_state != UNIT_LOADED)
+                         continue;
+ 
+                 pn = get_mount_parameters_configured(n);
+@@ -216,7 +216,7 @@ static int mount_add_swap_links(Mount *m) {
+ 
+         assert(m);
+ 
+-        LIST_FOREACH(units_by_type, other, m->meta.manager->units_by_type[UNIT_SWAP])
++        LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_SWAP])
+                 if ((r = swap_add_one_mount_link((Swap*) other, m)) < 0)
+                         return r;
+ 
+@@ -229,7 +229,7 @@ static int mount_add_path_links(Mount *m) {
+ 
+         assert(m);
+ 
+-        LIST_FOREACH(units_by_type, other, m->meta.manager->units_by_type[UNIT_PATH])
++        LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_PATH])
+                 if ((r = path_add_one_mount_link((Path*) other, m)) < 0)
+                         return r;
+ 
+@@ -242,7 +242,7 @@ static int mount_add_automount_links(Mount *m) {
+ 
+         assert(m);
+ 
+-        LIST_FOREACH(units_by_type, other, m->meta.manager->units_by_type[UNIT_AUTOMOUNT])
++        LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_AUTOMOUNT])
+                 if ((r = automount_add_one_mount_link((Automount*) other, m)) < 0)
+                         return r;
+ 
+@@ -255,7 +255,7 @@ static int mount_add_socket_links(Mount *m) {
+ 
+         assert(m);
+ 
+-        LIST_FOREACH(units_by_type, other, m->meta.manager->units_by_type[UNIT_SOCKET])
++        LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_SOCKET])
+                 if ((r = socket_add_one_mount_link((Socket*) other, m)) < 0)
+                         return r;
+ 
+@@ -328,7 +328,7 @@ static int mount_add_fstab_links(Mount *m) {
+ 
+         assert(m);
+ 
+-        if (m->meta.manager->running_as != MANAGER_SYSTEM)
++        if (UNIT(m)->manager->running_as != MANAGER_SYSTEM)
+                 return 0;
+ 
+         if (!(p = get_mount_parameters_configured(m)))
+@@ -346,7 +346,7 @@ static int mount_add_fstab_links(Mount *m) {
+                 automount ||
+                 mount_test_option(p->options, "comment=systemd.mount") ||
+                 mount_test_option(p->options, "x-systemd-mount") ||
+-                m->meta.manager->mount_auto;
++                UNIT(m)->manager->mount_auto;
+ 
+         if (mount_is_network(p)) {
+                 target = SPECIAL_REMOTE_FS_TARGET;
+@@ -357,7 +357,7 @@ static int mount_add_fstab_links(Mount *m) {
+                 after = SPECIAL_LOCAL_FS_PRE_TARGET;
+         }
+ 
+-        if ((r = manager_load_unit(m->meta.manager, target, NULL, NULL, &tu)) < 0)
++        if ((r = manager_load_unit(UNIT(m)->manager, target, NULL, NULL, &tu)) < 0)
+                 return r;
+ 
+         if (after)
+@@ -438,7 +438,7 @@ static int mount_add_device_links(Mount *m) {
+                 if (!(name = unit_name_from_path_instance("fsck", p->what, ".service")))
+                         return -ENOMEM;
+ 
+-                if ((r = manager_load_unit_prepare(m->meta.manager, name, NULL, NULL, &fsck)) < 0) {
++                if ((r = manager_load_unit_prepare(UNIT(m)->manager, name, NULL, NULL, &fsck)) < 0) {
+                         log_warning("Failed to prepare unit %s: %s", name, strerror(-r));
+                         free(name);
+                         return r;
+@@ -461,7 +461,7 @@ static int mount_add_default_dependencies(Mount *m) {
+ 
+         assert(m);
+ 
+-        if (m->meta.manager->running_as != MANAGER_SYSTEM)
++        if (UNIT(m)->manager->running_as != MANAGER_SYSTEM)
+                 return 0;
+ 
+         p = get_mount_parameters_configured(m);
+@@ -516,7 +516,7 @@ static int mount_fix_timeouts(Mount *m) {
+                 return r;
+         }
+ 
+-        SET_FOREACH(other, m->meta.dependencies[UNIT_AFTER], i) {
++        SET_FOREACH(other, UNIT(m)->dependencies[UNIT_AFTER], i) {
+                 if (other->type != UNIT_DEVICE)
+                         continue;
+ 
+@@ -531,7 +531,7 @@ static int mount_verify(Mount *m) {
+         char *e;
+         assert(m);
+ 
+-        if (m->meta.load_state != UNIT_LOADED)
++        if (UNIT(m)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (!m->from_etc_fstab && !m->from_fragment && !m->from_proc_self_mountinfo)
+@@ -544,7 +544,7 @@ static int mount_verify(Mount *m) {
+         free(e);
+ 
+         if (!b) {
+-                log_error("%s's Where setting doesn't match unit name. Refusing.", m->meta.id);
++                log_error("%s's Where setting doesn't match unit name. Refusing.", UNIT(m)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -553,13 +553,13 @@ static int mount_verify(Mount *m) {
+                 return -EINVAL;
+         }
+ 
+-        if (m->meta.fragment_path && !m->parameters_fragment.what) {
+-                log_error("%s's What setting is missing. Refusing.", m->meta.id);
++        if (UNIT(m)->fragment_path && !m->parameters_fragment.what) {
++                log_error("%s's What setting is missing. Refusing.", UNIT(m)->id);
+                 return -EBADMSG;
+         }
+ 
+         if (m->exec_context.pam_name && m->exec_context.kill_mode != KILL_CONTROL_GROUP) {
+-                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", m->meta.id);
++                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", UNIT(m)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -581,7 +581,7 @@ static int mount_load(Unit *u) {
+                 if ((r = unit_add_exec_dependencies(u, &m->exec_context)) < 0)
+                         return r;
+ 
+-                if (m->meta.fragment_path)
++                if (UNIT(m)->fragment_path)
+                         m->from_fragment = true;
+                 else if (m->from_etc_fstab)
+                         /* We always add several default dependencies to fstab mounts,
+@@ -595,7 +595,7 @@ static int mount_load(Unit *u) {
+ 
+                 path_kill_slashes(m->where);
+ 
+-                if (!m->meta.description)
++                if (!UNIT(m)->description)
+                         if ((r = unit_set_description(u, m->where)) < 0)
+                                 return r;
+ 
+@@ -620,7 +620,7 @@ static int mount_load(Unit *u) {
+                 if ((r = mount_add_fstab_links(m)) < 0)
+                         return r;
+ 
+-                if (m->meta.default_dependencies || m->from_etc_fstab)
++                if (UNIT(m)->default_dependencies || m->from_etc_fstab)
+                         if ((r = mount_add_default_dependencies(m)) < 0)
+                                 return r;
+ 
+@@ -640,7 +640,7 @@ static int mount_notify_automount(Mount *m, int status) {
+ 
+         assert(m);
+ 
+-        SET_FOREACH(p, m->meta.dependencies[UNIT_TRIGGERED_BY], i)
++        SET_FOREACH(p, UNIT(m)->dependencies[UNIT_TRIGGERED_BY], i)
+                 if (p->type == UNIT_AUTOMOUNT) {
+                          r = automount_send_ready(AUTOMOUNT(p), status);
+                          if (r < 0)
+@@ -689,7 +689,7 @@ static void mount_set_state(Mount *m, MountState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          m->meta.id,
++                          UNIT(m)->id,
+                           mount_state_to_string(old_state),
+                           mount_state_to_string(state));
+ 
+@@ -791,13 +791,13 @@ static int mount_spawn(Mount *m, ExecCommand *c, pid_t *_pid) {
+                             NULL,
+                             &m->exec_context,
+                             NULL, 0,
+-                            m->meta.manager->environment,
++                            UNIT(m)->manager->environment,
+                             true,
+                             true,
+                             true,
+-                            m->meta.manager->confirm_spawn,
+-                            m->meta.cgroup_bondings,
+-                            m->meta.cgroup_attributes,
++                            UNIT(m)->manager->confirm_spawn,
++                            UNIT(m)->cgroup_bondings,
++                            UNIT(m)->cgroup_attributes,
+                             &pid)) < 0)
+                 goto fail;
+ 
+@@ -868,7 +868,7 @@ static void mount_enter_signal(Mount *m, MountState state, bool success) {
+                                 if ((r = set_put(pid_set, LONG_TO_PTR(m->control_pid))) < 0)
+                                         goto fail;
+ 
+-                        if ((r = cgroup_bonding_kill_list(m->meta.cgroup_bondings, sig, true, pid_set)) < 0) {
++                        if ((r = cgroup_bonding_kill_list(UNIT(m)->cgroup_bondings, sig, true, pid_set)) < 0) {
+                                 if (r != -EAGAIN && r != -ESRCH && r != -ENOENT)
+                                         log_warning("Failed to kill control group: %s", strerror(-r));
+                         } else if (r > 0)
+@@ -892,7 +892,7 @@ static void mount_enter_signal(Mount *m, MountState state, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to kill processes: %s", m->meta.id, strerror(-r));
++        log_warning("%s failed to kill processes: %s", UNIT(m)->id, strerror(-r));
+ 
+         if (state == MOUNT_REMOUNTING_SIGTERM || state == MOUNT_REMOUNTING_SIGKILL)
+                 mount_enter_mounted(m, false);
+@@ -931,7 +931,7 @@ static void mount_enter_unmounting(Mount *m, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'umount' task: %s", m->meta.id, strerror(-r));
++        log_warning("%s failed to run 'umount' task: %s", UNIT(m)->id, strerror(-r));
+         mount_enter_mounted(m, false);
+ }
+ 
+@@ -982,7 +982,7 @@ static void mount_enter_mounting(Mount *m) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'mount' task: %s", m->meta.id, strerror(-r));
++        log_warning("%s failed to run 'mount' task: %s", UNIT(m)->id, strerror(-r));
+         mount_enter_dead(m, false);
+ }
+ 
+@@ -1050,7 +1050,7 @@ static void mount_enter_remounting(Mount *m, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'remount' task: %s", m->meta.id, strerror(-r));
++        log_warning("%s failed to run 'remount' task: %s", UNIT(m)->id, strerror(-r));
+         m->reload_failure = true;
+         mount_enter_mounted(m, true);
+ }
+@@ -1806,7 +1806,7 @@ static int mount_kill(Unit *u, KillWho who, KillMode mode, int signo, DBusError
+                                 goto finish;
+                         }
+ 
+-                if ((q = cgroup_bonding_kill_list(m->meta.cgroup_bondings, signo, false, pid_set)) < 0)
++                if ((q = cgroup_bonding_kill_list(UNIT(m)->cgroup_bondings, signo, false, pid_set)) < 0)
+                         if (q != -EAGAIN && q != -ESRCH && q != -ENOENT)
+                                 r = q;
+         }
+diff --git a/src/path.c b/src/path.c
+index bfb5cdf..c8086a8 100644
+--- a/src/path.c
++++ b/src/path.c
+@@ -264,8 +264,8 @@ int path_add_one_mount_link(Path *p, Mount *m) {
+         assert(p);
+         assert(m);
+ 
+-        if (p->meta.load_state != UNIT_LOADED ||
+-            m->meta.load_state != UNIT_LOADED)
++        if (UNIT(p)->load_state != UNIT_LOADED ||
++            UNIT(m)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         LIST_FOREACH(spec, s, p->specs) {
+@@ -286,7 +286,7 @@ static int path_add_mount_links(Path *p) {
+ 
+         assert(p);
+ 
+-        LIST_FOREACH(units_by_type, other, p->meta.manager->units_by_type[UNIT_MOUNT])
++        LIST_FOREACH(units_by_type, other, UNIT(p)->manager->units_by_type[UNIT_MOUNT])
+                 if ((r = path_add_one_mount_link(p, (Mount*) other)) < 0)
+                         return r;
+ 
+@@ -296,11 +296,11 @@ static int path_add_mount_links(Path *p) {
+ static int path_verify(Path *p) {
+         assert(p);
+ 
+-        if (p->meta.load_state != UNIT_LOADED)
++        if (UNIT(p)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (!p->specs) {
+-                log_error("%s lacks path setting. Refusing.", p->meta.id);
++                log_error("%s lacks path setting. Refusing.", UNIT(p)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -312,7 +312,7 @@ static int path_add_default_dependencies(Path *p) {
+ 
+         assert(p);
+ 
+-        if (p->meta.manager->running_as == MANAGER_SYSTEM) {
++        if (UNIT(p)->manager->running_as == MANAGER_SYSTEM) {
+                 if ((r = unit_add_dependency_by_name(UNIT(p), UNIT_BEFORE, SPECIAL_BASIC_TARGET, NULL, true)) < 0)
+                         return r;
+ 
+@@ -352,7 +352,7 @@ static int path_load(Unit *u) {
+                 if ((r = path_add_mount_links(p)) < 0)
+                         return r;
+ 
+-                if (p->meta.default_dependencies)
++                if (UNIT(p)->default_dependencies)
+                         if ((r = path_add_default_dependencies(p)) < 0)
+                                 return r;
+         }
+@@ -416,7 +416,7 @@ static void path_set_state(Path *p, PathState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          p->meta.id,
++                          UNIT(p)->id,
+                           path_state_to_string(old_state),
+                           path_state_to_string(state));
+ 
+@@ -460,10 +460,10 @@ static void path_enter_running(Path *p) {
+         dbus_error_init(&error);
+ 
+         /* Don't start job if we are supposed to go down */
+-        if (p->meta.job && p->meta.job->type == JOB_STOP)
++        if (UNIT(p)->job && UNIT(p)->job->type == JOB_STOP)
+                 return;
+ 
+-        if ((r = manager_add_job(p->meta.manager, JOB_START, UNIT_DEREF(p->unit), JOB_REPLACE, true, &error, NULL)) < 0)
++        if ((r = manager_add_job(UNIT(p)->manager, JOB_START, UNIT_DEREF(p->unit), JOB_REPLACE, true, &error, NULL)) < 0)
+                 goto fail;
+ 
+         p->inotify_triggered = false;
+@@ -475,7 +475,7 @@ static void path_enter_running(Path *p) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to queue unit startup job: %s", p->meta.id, bus_error(&error, r));
++        log_warning("%s failed to queue unit startup job: %s", UNIT(p)->id, bus_error(&error, r));
+         path_enter_dead(p, false);
+ 
+         dbus_error_free(&error);
+@@ -502,7 +502,7 @@ static void path_enter_waiting(Path *p, bool initial, bool recheck) {
+ 
+         if (recheck)
+                 if (path_check_good(p, initial)) {
+-                        log_debug("%s got triggered.", p->meta.id);
++                        log_debug("%s got triggered.", UNIT(p)->id);
+                         path_enter_running(p);
+                         return;
+                 }
+@@ -516,7 +516,7 @@ static void path_enter_waiting(Path *p, bool initial, bool recheck) {
+ 
+         if (recheck)
+                 if (path_check_good(p, false)) {
+-                        log_debug("%s got triggered.", p->meta.id);
++                        log_debug("%s got triggered.", UNIT(p)->id);
+                         path_enter_running(p);
+                         return;
+                 }
+@@ -525,7 +525,7 @@ static void path_enter_waiting(Path *p, bool initial, bool recheck) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to enter waiting state: %s", p->meta.id, strerror(-r));
++        log_warning("%s failed to enter waiting state: %s", UNIT(p)->id, strerror(-r));
+         path_enter_dead(p, false);
+ }
+ 
+@@ -675,7 +675,7 @@ void path_unit_notify(Unit *u, UnitActiveState new_state) {
+                 p = PATH(k);
+ 
+                 if (p->state == PATH_RUNNING && new_state == UNIT_INACTIVE) {
+-                        log_debug("%s got notified about unit deactivation.", p->meta.id);
++                        log_debug("%s got notified about unit deactivation.", UNIT(p)->id);
+ 
+                         /* Hmm, so inotify was triggered since the
+                          * last activation, so I guess we need to
+diff --git a/src/service.c b/src/service.c
+index ab6e1ea..a1da8db 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -152,7 +152,7 @@ static void service_unwatch_pid_file(Service *s) {
+         if (!s->pid_file_pathspec)
+                 return;
+ 
+-        log_debug("Stopping watch for %s's PID file %s", s->meta.id, s->pid_file_pathspec->path);
++        log_debug("Stopping watch for %s's PID file %s", UNIT(s)->id, s->pid_file_pathspec->path);
+         path_spec_unwatch(s->pid_file_pathspec, UNIT(s));
+         path_spec_done(s->pid_file_pathspec);
+         free(s->pid_file_pathspec);
+@@ -175,7 +175,7 @@ static int service_set_main_pid(Service *s, pid_t pid) {
+ 
+         if (get_parent_of_pid(pid, &ppid) >= 0 && ppid != getpid()) {
+                 log_warning("%s: Supervising process %lu which is not our child. We'll most likely not notice when it exits.",
+-                            s->meta.id, (unsigned long) pid);
++                            UNIT(s)->id, (unsigned long) pid);
+ 
+                 s->main_pid_alien = true;
+         } else
+@@ -383,7 +383,7 @@ static int sysv_fix_order(Service *s) {
+         /* For each pair of services where at least one lacks a LSB
+          * header, we use the start priority value to order things. */
+ 
+-        LIST_FOREACH(units_by_type, other, s->meta.manager->units_by_type[UNIT_SERVICE]) {
++        LIST_FOREACH(units_by_type, other, UNIT(s)->manager->units_by_type[UNIT_SERVICE]) {
+                 Service *t;
+                 UnitDependency d;
+                 bool special_s, special_t;
+@@ -393,7 +393,7 @@ static int sysv_fix_order(Service *s) {
+                 if (s == t)
+                         continue;
+ 
+-                if (t->meta.load_state != UNIT_LOADED)
++                if (UNIT(t)->load_state != UNIT_LOADED)
+                         continue;
+ 
+                 if (t->sysv_start_priority < 0)
+@@ -401,8 +401,8 @@ static int sysv_fix_order(Service *s) {
+ 
+                 /* If both units have modern headers we don't care
+                  * about the priorities */
+-                if ((s->meta.fragment_path || s->sysv_has_lsb) &&
+-                    (t->meta.fragment_path || t->sysv_has_lsb))
++                if ((UNIT(s)->fragment_path || s->sysv_has_lsb) &&
++                    (UNIT(t)->fragment_path || t->sysv_has_lsb))
+                         continue;
+ 
+                 special_s = s->sysv_runlevels && !chars_intersect(RUNLEVELS_UP, s->sysv_runlevels);
+@@ -832,7 +832,7 @@ static int service_load_sysv_path(Service *s, const char *path) {
+                  * needed for early boot) and don't create any links
+                  * to it. */
+ 
+-                s->meta.default_dependencies = false;
++                UNIT(s)->default_dependencies = false;
+ 
+                 /* Don't timeout special services during boot (like fsck) */
+                 s->timeout_usec = 0;
+@@ -845,7 +845,7 @@ static int service_load_sysv_path(Service *s, const char *path) {
+         s->guess_main_pid = false;
+         s->restart = SERVICE_RESTART_NO;
+ 
+-        if (s->meta.manager->sysv_console)
++        if (UNIT(s)->manager->sysv_console)
+                 s->exec_context.std_output = EXEC_OUTPUT_SYSLOG_AND_CONSOLE;
+ 
+         s->exec_context.kill_mode = KILL_PROCESS;
+@@ -917,7 +917,7 @@ static int service_load_sysv_name(Service *s, const char *name) {
+                 return -ENOENT;
+ #endif
+ 
+-        STRV_FOREACH(p, s->meta.manager->lookup_paths.sysvinit_path) {
++        STRV_FOREACH(p, UNIT(s)->manager->lookup_paths.sysvinit_path) {
+                 char *path;
+                 int r;
+ 
+@@ -931,7 +931,7 @@ static int service_load_sysv_name(Service *s, const char *name) {
+                 r = service_load_sysv_path(s, path);
+ 
+ #if defined(TARGET_DEBIAN) || defined(TARGET_UBUNTU) || defined(TARGET_ANGSTROM)
+-                if (r >= 0 && s->meta.load_state == UNIT_STUB) {
++                if (r >= 0 && UNIT(s)->load_state == UNIT_STUB) {
+                         /* Try Debian style *.sh source'able init scripts */
+                         strcat(path, ".sh");
+                         r = service_load_sysv_path(s, path);
+@@ -940,7 +940,7 @@ static int service_load_sysv_name(Service *s, const char *name) {
+                 free(path);
+ 
+ #ifdef TARGET_SUSE
+-                if (r >= 0 && s->meta.load_state == UNIT_STUB) {
++                if (r >= 0 && UNIT(s)->load_state == UNIT_STUB) {
+                         /* Try SUSE style boot.* init scripts */
+ 
+                         path = join(*p, "/boot.", name, NULL);
+@@ -955,7 +955,7 @@ static int service_load_sysv_name(Service *s, const char *name) {
+ #endif
+ 
+ #ifdef TARGET_FRUGALWARE
+-                if (r >= 0 && s->meta.load_state == UNIT_STUB) {
++                if (r >= 0 && UNIT(s)->load_state == UNIT_STUB) {
+                         /* Try Frugalware style rc.* init scripts */
+ 
+                         path = join(*p, "/rc.", name, NULL);
+@@ -972,7 +972,7 @@ static int service_load_sysv_name(Service *s, const char *name) {
+                 if (r < 0)
+                         return r;
+ 
+-                if ((s->meta.load_state != UNIT_STUB))
++                if ((UNIT(s)->load_state != UNIT_STUB))
+                         break;
+         }
+ 
+@@ -989,22 +989,22 @@ static int service_load_sysv(Service *s) {
+         /* Load service data from SysV init scripts, preferably with
+          * LSB headers ... */
+ 
+-        if (strv_isempty(s->meta.manager->lookup_paths.sysvinit_path))
++        if (strv_isempty(UNIT(s)->manager->lookup_paths.sysvinit_path))
+                 return 0;
+ 
+-        if ((t = s->meta.id))
++        if ((t = UNIT(s)->id))
+                 if ((r = service_load_sysv_name(s, t)) < 0)
+                         return r;
+ 
+-        if (s->meta.load_state == UNIT_STUB)
+-                SET_FOREACH(t, s->meta.names, i) {
+-                        if (t == s->meta.id)
++        if (UNIT(s)->load_state == UNIT_STUB)
++                SET_FOREACH(t, UNIT(s)->names, i) {
++                        if (t == UNIT(s)->id)
+                                 continue;
+ 
+                         if ((r = service_load_sysv_name(s, t)) < 0)
+                                 return r;
+ 
+-                        if (s->meta.load_state != UNIT_STUB)
++                        if (UNIT(s)->load_state != UNIT_STUB)
+                                 break;
+                 }
+ 
+@@ -1024,7 +1024,7 @@ static int fsck_fix_order(Service *s) {
+         /* For each pair of services where both have an fsck priority
+          * we order things based on it. */
+ 
+-        LIST_FOREACH(units_by_type, other, s->meta.manager->units_by_type[UNIT_SERVICE]) {
++        LIST_FOREACH(units_by_type, other, UNIT(s)->manager->units_by_type[UNIT_SERVICE]) {
+                 Service *t;
+                 UnitDependency d;
+ 
+@@ -1033,7 +1033,7 @@ static int fsck_fix_order(Service *s) {
+                 if (s == t)
+                         continue;
+ 
+-                if (t->meta.load_state != UNIT_LOADED)
++                if (UNIT(t)->load_state != UNIT_LOADED)
+                         continue;
+ 
+                 if (t->fsck_passno <= 0)
+@@ -1056,33 +1056,33 @@ static int fsck_fix_order(Service *s) {
+ static int service_verify(Service *s) {
+         assert(s);
+ 
+-        if (s->meta.load_state != UNIT_LOADED)
++        if (UNIT(s)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (!s->exec_command[SERVICE_EXEC_START]) {
+-                log_error("%s lacks ExecStart setting. Refusing.", s->meta.id);
++                log_error("%s lacks ExecStart setting. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->type != SERVICE_ONESHOT &&
+             s->exec_command[SERVICE_EXEC_START]->command_next) {
+-                log_error("%s has more than one ExecStart setting, which is only allowed for Type=oneshot services. Refusing.", s->meta.id);
++                log_error("%s has more than one ExecStart setting, which is only allowed for Type=oneshot services. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->type == SERVICE_ONESHOT &&
+             s->exec_command[SERVICE_EXEC_RELOAD]) {
+-                log_error("%s has an ExecReload setting, which is not allowed for Type=oneshot services. Refusing.", s->meta.id);
++                log_error("%s has an ExecReload setting, which is not allowed for Type=oneshot services. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->type == SERVICE_DBUS && !s->bus_name) {
+-                log_error("%s is of type D-Bus but no D-Bus service name has been specified. Refusing.", s->meta.id);
++                log_error("%s is of type D-Bus but no D-Bus service name has been specified. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->exec_context.pam_name && s->exec_context.kill_mode != KILL_CONTROL_GROUP) {
+-                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", s->meta.id);
++                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -1098,12 +1098,12 @@ static int service_add_default_dependencies(Service *s) {
+          * majority of services. */
+ 
+         /* First, pull in base system */
+-        if (s->meta.manager->running_as == MANAGER_SYSTEM) {
++        if (UNIT(s)->manager->running_as == MANAGER_SYSTEM) {
+ 
+                 if ((r = unit_add_two_dependencies_by_name(UNIT(s), UNIT_AFTER, UNIT_REQUIRES, SPECIAL_BASIC_TARGET, NULL, true)) < 0)
+                         return r;
+ 
+-        } else if (s->meta.manager->running_as == MANAGER_USER) {
++        } else if (UNIT(s)->manager->running_as == MANAGER_USER) {
+ 
+                 if ((r = unit_add_two_dependencies_by_name(UNIT(s), UNIT_AFTER, UNIT_REQUIRES, SPECIAL_SOCKETS_TARGET, NULL, true)) < 0)
+                         return r;
+@@ -1124,11 +1124,11 @@ static void service_fix_output(Service *s) {
+         if (s->exec_context.std_error == EXEC_OUTPUT_INHERIT &&
+             s->exec_context.std_output == EXEC_OUTPUT_INHERIT &&
+             s->exec_context.std_input == EXEC_INPUT_NULL)
+-                s->exec_context.std_error = s->meta.manager->default_std_error;
++                s->exec_context.std_error = UNIT(s)->manager->default_std_error;
+ 
+         if (s->exec_context.std_output == EXEC_OUTPUT_INHERIT &&
+             s->exec_context.std_input == EXEC_INPUT_NULL)
+-                s->exec_context.std_output = s->meta.manager->default_std_output;
++                s->exec_context.std_output = UNIT(s)->manager->default_std_output;
+ }
+ 
+ static int service_load(Unit *u) {
+@@ -1186,7 +1186,7 @@ static int service_load(Unit *u) {
+                         if ((r = unit_add_two_dependencies_by_name(u, UNIT_AFTER, UNIT_REQUIRES, SPECIAL_DBUS_SOCKET, NULL, true)) < 0)
+                                 return r;
+ 
+-                if (s->meta.default_dependencies)
++                if (UNIT(s)->default_dependencies)
+                         if ((r = service_add_default_dependencies(s)) < 0)
+                                 return r;
+         }
+@@ -1362,7 +1362,7 @@ static int service_search_main_pid(Service *s) {
+ 
+         assert(s->main_pid <= 0);
+ 
+-        if ((pid = cgroup_bonding_search_main_pid_list(s->meta.cgroup_bondings)) <= 0)
++        if ((pid = cgroup_bonding_search_main_pid_list(UNIT(s)->cgroup_bondings)) <= 0)
+                 return -ENOENT;
+ 
+         log_debug("Main PID guessed: %lu", (unsigned long) pid);
+@@ -1387,7 +1387,7 @@ static void service_notify_sockets_dead(Service *s, bool failed_permanent) {
+         if (s->socket_fd >= 0)
+                 return;
+ 
+-        SET_FOREACH(u, s->meta.dependencies[UNIT_TRIGGERED_BY], i)
++        SET_FOREACH(u, UNIT(s)->dependencies[UNIT_TRIGGERED_BY], i)
+                 if (u->type == UNIT_SOCKET)
+                         socket_notify_service_dead(SOCKET(u), failed_permanent);
+ 
+@@ -1464,18 +1464,18 @@ static void service_set_state(Service *s, ServiceState state) {
+             state != SERVICE_STOP_POST &&
+             state != SERVICE_FINAL_SIGTERM &&
+             state != SERVICE_FINAL_SIGKILL &&
+-            !(state == SERVICE_DEAD && s->meta.job)) {
++            !(state == SERVICE_DEAD && UNIT(s)->job)) {
+                 service_close_socket_fd(s);
+                 service_connection_unref(s);
+         }
+ 
+         /* For the inactive states unit_notify() will trim the cgroup,
+          * but for exit we have to do that ourselves... */
+-        if (state == SERVICE_EXITED && s->meta.manager->n_reloading <= 0)
+-                cgroup_bonding_trim_list(s->meta.cgroup_bondings, true);
++        if (state == SERVICE_EXITED && UNIT(s)->manager->n_reloading <= 0)
++                cgroup_bonding_trim_list(UNIT(s)->cgroup_bondings, true);
+ 
+         if (old_state != state)
+-                log_debug("%s changed %s -> %s", s->meta.id, service_state_to_string(old_state), service_state_to_string(state));
++                log_debug("%s changed %s -> %s", UNIT(s)->id, service_state_to_string(old_state), service_state_to_string(state));
+ 
+         unit_notify(UNIT(s), state_translation_table[old_state], state_translation_table[state], !s->reload_failure);
+         s->reload_failure = false;
+@@ -1561,7 +1561,7 @@ static int service_collect_fds(Service *s, int **fds, unsigned *n_fds) {
+         if (s->socket_fd >= 0)
+                 return 0;
+ 
+-        SET_FOREACH(u, s->meta.dependencies[UNIT_TRIGGERED_BY], i) {
++        SET_FOREACH(u, UNIT(s)->dependencies[UNIT_TRIGGERED_BY], i) {
+                 int *cfds;
+                 unsigned cn_fds;
+                 Socket *sock;
+@@ -1664,7 +1664,7 @@ static int service_spawn(
+         }
+ 
+         if (set_notify_socket)
+-                if (asprintf(our_env + n_env++, "NOTIFY_SOCKET=%s", s->meta.manager->notify_socket) < 0) {
++                if (asprintf(our_env + n_env++, "NOTIFY_SOCKET=%s", UNIT(s)->manager->notify_socket) < 0) {
+                         r = -ENOMEM;
+                         goto fail;
+                 }
+@@ -1676,7 +1676,7 @@ static int service_spawn(
+                 }
+ 
+         if (!(final_env = strv_env_merge(2,
+-                                         s->meta.manager->environment,
++                                         UNIT(s)->manager->environment,
+                                          our_env,
+                                          NULL))) {
+                 r = -ENOMEM;
+@@ -1691,9 +1691,9 @@ static int service_spawn(
+                        apply_permissions,
+                        apply_chroot,
+                        apply_tty_stdin,
+-                       s->meta.manager->confirm_spawn,
+-                       s->meta.cgroup_bondings,
+-                       s->meta.cgroup_attributes,
++                       UNIT(s)->manager->confirm_spawn,
++                       UNIT(s)->cgroup_bondings,
++                       UNIT(s)->cgroup_attributes,
+                        &pid);
+ 
+         if (r < 0)
+@@ -1761,7 +1761,7 @@ static int cgroup_good(Service *s) {
+ 
+         assert(s);
+ 
+-        if ((r = cgroup_bonding_is_empty_list(s->meta.cgroup_bondings)) < 0)
++        if ((r = cgroup_bonding_is_empty_list(UNIT(s)->cgroup_bondings)) < 0)
+                 return r;
+ 
+         return !r;
+@@ -1795,7 +1795,7 @@ static void service_enter_dead(Service *s, bool success, bool allow_restart) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run install restart timer: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run install restart timer: %s", UNIT(s)->id, strerror(-r));
+         service_enter_dead(s, false, false);
+ }
+ 
+@@ -1832,7 +1832,7 @@ static void service_enter_stop_post(Service *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'stop-post' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'stop-post' task: %s", UNIT(s)->id, strerror(-r));
+         service_enter_signal(s, SERVICE_FINAL_SIGTERM, false);
+ }
+ 
+@@ -1879,7 +1879,7 @@ static void service_enter_signal(Service *s, ServiceState state, bool success) {
+                                 if ((r = set_put(pid_set, LONG_TO_PTR(s->control_pid))) < 0)
+                                         goto fail;
+ 
+-                        if ((r = cgroup_bonding_kill_list(s->meta.cgroup_bondings, sig, true, pid_set)) < 0) {
++                        if ((r = cgroup_bonding_kill_list(UNIT(s)->cgroup_bondings, sig, true, pid_set)) < 0) {
+                                 if (r != -EAGAIN && r != -ESRCH && r != -ENOENT)
+                                         log_warning("Failed to kill control group: %s", strerror(-r));
+                         } else if (r > 0)
+@@ -1904,7 +1904,7 @@ static void service_enter_signal(Service *s, ServiceState state, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to kill processes: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to kill processes: %s", UNIT(s)->id, strerror(-r));
+ 
+         if (state == SERVICE_STOP_SIGTERM || state == SERVICE_STOP_SIGKILL)
+                 service_enter_stop_post(s, false);
+@@ -1946,7 +1946,7 @@ static void service_enter_stop(Service *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'stop' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'stop' task: %s", UNIT(s)->id, strerror(-r));
+         service_enter_signal(s, SERVICE_STOP_SIGTERM, false);
+ }
+ 
+@@ -1996,7 +1996,7 @@ static void service_enter_start_post(Service *s) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'start-post' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'start-post' task: %s", UNIT(s)->id, strerror(-r));
+         service_enter_stop(s, false);
+ }
+ 
+@@ -2072,7 +2072,7 @@ static void service_enter_start(Service *s) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'start' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'start' task: %s", UNIT(s)->id, strerror(-r));
+         service_enter_signal(s, SERVICE_FINAL_SIGTERM, false);
+ }
+ 
+@@ -2104,7 +2104,7 @@ static void service_enter_start_pre(Service *s) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'start-pre' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'start-pre' task: %s", UNIT(s)->id, strerror(-r));
+         service_enter_dead(s, false, true);
+ }
+ 
+@@ -2115,7 +2115,7 @@ static void service_enter_restart(Service *s) {
+         assert(s);
+         dbus_error_init(&error);
+ 
+-        if (s->meta.job) {
++        if (UNIT(s)->job) {
+                 log_info("Job pending for unit, delaying automatic restart.");
+ 
+                 if ((r = unit_watch_timer(UNIT(s), s->restart_usec, &s->timer_watch)) < 0)
+@@ -2124,14 +2124,14 @@ static void service_enter_restart(Service *s) {
+ 
+         service_enter_dead(s, true, false);
+ 
+-        if ((r = manager_add_job(s->meta.manager, JOB_START, UNIT(s), JOB_FAIL, false, &error, NULL)) < 0)
++        if ((r = manager_add_job(UNIT(s)->manager, JOB_START, UNIT(s), JOB_FAIL, false, &error, NULL)) < 0)
+                 goto fail;
+ 
+-        log_debug("%s scheduled restart job.", s->meta.id);
++        log_debug("%s scheduled restart job.", UNIT(s)->id);
+         return;
+ 
+ fail:
+-        log_warning("%s failed to schedule restart job: %s", s->meta.id, bus_error(&error, -r));
++        log_warning("%s failed to schedule restart job: %s", UNIT(s)->id, bus_error(&error, -r));
+         service_enter_dead(s, false, false);
+ 
+         dbus_error_free(&error);
+@@ -2165,7 +2165,7 @@ static void service_enter_reload(Service *s) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'reload' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'reload' task: %s", UNIT(s)->id, strerror(-r));
+         s->reload_failure = true;
+         service_enter_running(s, true);
+ }
+@@ -2200,7 +2200,7 @@ static void service_run_next_control(Service *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run next control task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run next control task: %s", UNIT(s)->id, strerror(-r));
+ 
+         if (s->state == SERVICE_START_PRE)
+                 service_enter_signal(s, SERVICE_FINAL_SIGTERM, false);
+@@ -2246,7 +2246,7 @@ static void service_run_next_main(Service *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run next main task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run next main task: %s", UNIT(s)->id, strerror(-r));
+         service_enter_stop(s, false);
+ }
+ 
+@@ -2560,7 +2560,7 @@ static int service_retry_pid_file(Service *s) {
+ static int service_watch_pid_file(Service *s) {
+         int r;
+ 
+-        log_debug("Setting watch for %s's PID file %s", s->meta.id, s->pid_file_pathspec->path);
++        log_debug("Setting watch for %s's PID file %s", UNIT(s)->id, s->pid_file_pathspec->path);
+         r = path_spec_watch(s->pid_file_pathspec, UNIT(s));
+         if (r < 0)
+                 goto fail;
+@@ -2571,7 +2571,7 @@ static int service_watch_pid_file(Service *s) {
+         return 0;
+ fail:
+         log_error("Failed to set a watch for %s's PID file %s: %s",
+-                  s->meta.id, s->pid_file_pathspec->path, strerror(-r));
++                  UNIT(s)->id, s->pid_file_pathspec->path, strerror(-r));
+         service_unwatch_pid_file(s);
+         return r;
+ }
+@@ -2637,7 +2637,7 @@ static void service_sigchld_event(Unit *u, pid_t pid, int code, int status) {
+         assert(s);
+         assert(pid >= 0);
+ 
+-        if (!s->meta.fragment_path)
++        if (!UNIT(s)->fragment_path)
+                 success = is_clean_exit_lsb(code, status);
+         else
+                 success = is_clean_exit(code, status);
+@@ -2956,7 +2956,7 @@ static void service_cgroup_notify_event(Unit *u) {
+                 /* If we were hoping for the daemon to write its PID file,
+                  * we can give up now. */
+                 if (s->pid_file_pathspec) {
+-                        log_warning("%s never wrote its PID file. Failing.", s->meta.id);
++                        log_warning("%s never wrote its PID file. Failing.", UNIT(s)->id);
+                         service_unwatch_pid_file(s);
+                         if (s->state == SERVICE_START)
+                                 service_enter_signal(s, SERVICE_FINAL_SIGTERM, false);
+@@ -3376,7 +3376,7 @@ int service_set_socket_fd(Service *s, int fd, Socket *sock) {
+          * service for a stream socket and the socket needs to be
+          * configured. */
+ 
+-        if (s->meta.load_state != UNIT_LOADED)
++        if (UNIT(s)->load_state != UNIT_LOADED)
+                 return -EINVAL;
+ 
+         if (s->socket_fd >= 0)
+@@ -3473,7 +3473,7 @@ static int service_kill(Unit *u, KillWho who, KillMode mode, int signo, DBusErro
+                                 goto finish;
+                         }
+ 
+-                if ((q = cgroup_bonding_kill_list(s->meta.cgroup_bondings, signo, false, pid_set)) < 0)
++                if ((q = cgroup_bonding_kill_list(UNIT(s)->cgroup_bondings, signo, false, pid_set)) < 0)
+                         if (q != -EAGAIN && q != -ESRCH && q != -ENOENT)
+                                 r = q;
+         }
+diff --git a/src/snapshot.c b/src/snapshot.c
+index bc1388c..82ec510 100644
+--- a/src/snapshot.c
++++ b/src/snapshot.c
+@@ -36,10 +36,10 @@ static void snapshot_init(Unit *u) {
+         Snapshot *s = SNAPSHOT(u);
+ 
+         assert(s);
+-        assert(s->meta.load_state == UNIT_STUB);
++        assert(UNIT(s)->load_state == UNIT_STUB);
+ 
+-        s->meta.ignore_on_isolate = true;
+-        s->meta.ignore_on_snapshot = true;
++        UNIT(s)->ignore_on_isolate = true;
++        UNIT(s)->ignore_on_snapshot = true;
+ }
+ 
+ static void snapshot_set_state(Snapshot *s, SnapshotState state) {
+@@ -51,7 +51,7 @@ static void snapshot_set_state(Snapshot *s, SnapshotState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          s->meta.id,
++                          UNIT(s)->id,
+                           snapshot_state_to_string(old_state),
+                           snapshot_state_to_string(state));
+ 
+@@ -66,7 +66,7 @@ static int snapshot_load(Unit *u) {
+ 
+         /* Make sure that only snapshots created via snapshot_create()
+          * can be loaded */
+-        if (!s->by_snapshot_create && s->meta.manager->n_reloading <= 0)
++        if (!s->by_snapshot_create && UNIT(s)->manager->n_reloading <= 0)
+                 return -ENOENT;
+ 
+         u->load_state = UNIT_LOADED;
+diff --git a/src/socket.c b/src/socket.c
+index 0cb142b..03b696e 100644
+--- a/src/socket.c
++++ b/src/socket.c
+@@ -147,7 +147,7 @@ static int socket_instantiate_service(Socket *s) {
+ 
+         assert(s->accept);
+ 
+-        if (!(prefix = unit_name_to_prefix(s->meta.id)))
++        if (!(prefix = unit_name_to_prefix(UNIT(s)->id)))
+                 return -ENOMEM;
+ 
+         r = asprintf(&name, "%s@%u.service", prefix, s->n_accepted);
+@@ -156,7 +156,7 @@ static int socket_instantiate_service(Socket *s) {
+         if (r < 0)
+                 return -ENOMEM;
+ 
+-        r = manager_load_unit(s->meta.manager, name, NULL, NULL, &u);
++        r = manager_load_unit(UNIT(s)->manager, name, NULL, NULL, &u);
+         free(name);
+ 
+         if (r < 0)
+@@ -198,31 +198,31 @@ static bool have_non_accept_socket(Socket *s) {
+ static int socket_verify(Socket *s) {
+         assert(s);
+ 
+-        if (s->meta.load_state != UNIT_LOADED)
++        if (UNIT(s)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (!s->ports) {
+-                log_error("%s lacks Listen setting. Refusing.", s->meta.id);
++                log_error("%s lacks Listen setting. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->accept && have_non_accept_socket(s)) {
+-                log_error("%s configured for accepting sockets, but sockets are non-accepting. Refusing.", s->meta.id);
++                log_error("%s configured for accepting sockets, but sockets are non-accepting. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->accept && s->max_connections <= 0) {
+-                log_error("%s's MaxConnection setting too small. Refusing.", s->meta.id);
++                log_error("%s's MaxConnection setting too small. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->accept && UNIT_DEREF(s->service)) {
+-                log_error("Explicit service configuration for accepting sockets not supported on %s. Refusing.", s->meta.id);
++                log_error("Explicit service configuration for accepting sockets not supported on %s. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->exec_context.pam_name && s->exec_context.kill_mode != KILL_CONTROL_GROUP) {
+-                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", s->meta.id);
++                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -254,8 +254,8 @@ int socket_add_one_mount_link(Socket *s, Mount *m) {
+         assert(s);
+         assert(m);
+ 
+-        if (s->meta.load_state != UNIT_LOADED ||
+-            m->meta.load_state != UNIT_LOADED)
++        if (UNIT(s)->load_state != UNIT_LOADED ||
++            UNIT(m)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (!socket_needs_mount(s, m->where))
+@@ -273,7 +273,7 @@ static int socket_add_mount_links(Socket *s) {
+ 
+         assert(s);
+ 
+-        LIST_FOREACH(units_by_type, other, s->meta.manager->units_by_type[UNIT_MOUNT])
++        LIST_FOREACH(units_by_type, other, UNIT(s)->manager->units_by_type[UNIT_MOUNT])
+                 if ((r = socket_add_one_mount_link(s, (Mount*) other)) < 0)
+                         return r;
+ 
+@@ -302,7 +302,7 @@ static int socket_add_default_dependencies(Socket *s) {
+         int r;
+         assert(s);
+ 
+-        if (s->meta.manager->running_as == MANAGER_SYSTEM) {
++        if (UNIT(s)->manager->running_as == MANAGER_SYSTEM) {
+                 if ((r = unit_add_dependency_by_name(UNIT(s), UNIT_BEFORE, SPECIAL_SOCKETS_TARGET, NULL, true)) < 0)
+                         return r;
+ 
+@@ -367,7 +367,7 @@ static int socket_load(Unit *u) {
+                 if ((r = unit_add_default_cgroups(u)) < 0)
+                         return r;
+ 
+-                if (s->meta.default_dependencies)
++                if (UNIT(s)->default_dependencies)
+                         if ((r = socket_add_default_dependencies(s)) < 0)
+                                 return r;
+         }
+@@ -1052,7 +1052,7 @@ static void socket_set_state(Socket *s, SocketState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          s->meta.id,
++                          UNIT(s)->id,
+                           socket_state_to_string(old_state),
+                           socket_state_to_string(state));
+ 
+@@ -1127,13 +1127,13 @@ static int socket_spawn(Socket *s, ExecCommand *c, pid_t *_pid) {
+                        argv,
+                        &s->exec_context,
+                        NULL, 0,
+-                       s->meta.manager->environment,
++                       UNIT(s)->manager->environment,
+                        true,
+                        true,
+                        true,
+-                       s->meta.manager->confirm_spawn,
+-                       s->meta.cgroup_bondings,
+-                       s->meta.cgroup_attributes,
++                       UNIT(s)->manager->confirm_spawn,
++                       UNIT(s)->cgroup_bondings,
++                       UNIT(s)->cgroup_attributes,
+                        &pid);
+ 
+         strv_free(argv);
+@@ -1187,7 +1187,7 @@ static void socket_enter_stop_post(Socket *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'stop-post' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'stop-post' task: %s", UNIT(s)->id, strerror(-r));
+         socket_enter_signal(s, SOCKET_FINAL_SIGTERM, false);
+ }
+ 
+@@ -1224,7 +1224,7 @@ static void socket_enter_signal(Socket *s, SocketState state, bool success) {
+                                 if ((r = set_put(pid_set, LONG_TO_PTR(s->control_pid))) < 0)
+                                         goto fail;
+ 
+-                        if ((r = cgroup_bonding_kill_list(s->meta.cgroup_bondings, sig, true, pid_set)) < 0) {
++                        if ((r = cgroup_bonding_kill_list(UNIT(s)->cgroup_bondings, sig, true, pid_set)) < 0) {
+                                 if (r != -EAGAIN && r != -ESRCH && r != -ENOENT)
+                                         log_warning("Failed to kill control group: %s", strerror(-r));
+                         } else if (r > 0)
+@@ -1248,7 +1248,7 @@ static void socket_enter_signal(Socket *s, SocketState state, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to kill processes: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to kill processes: %s", UNIT(s)->id, strerror(-r));
+ 
+         if (state == SOCKET_STOP_PRE_SIGTERM || state == SOCKET_STOP_PRE_SIGKILL)
+                 socket_enter_stop_post(s, false);
+@@ -1281,7 +1281,7 @@ static void socket_enter_stop_pre(Socket *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'stop-pre' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'stop-pre' task: %s", UNIT(s)->id, strerror(-r));
+         socket_enter_stop_post(s, false);
+ }
+ 
+@@ -1290,7 +1290,7 @@ static void socket_enter_listening(Socket *s) {
+         assert(s);
+ 
+         if ((r = socket_watch_fds(s)) < 0) {
+-                log_warning("%s failed to watch sockets: %s", s->meta.id, strerror(-r));
++                log_warning("%s failed to watch sockets: %s", UNIT(s)->id, strerror(-r));
+                 goto fail;
+         }
+ 
+@@ -1306,7 +1306,7 @@ static void socket_enter_start_post(Socket *s) {
+         assert(s);
+ 
+         if ((r = socket_open_fds(s)) < 0) {
+-                log_warning("%s failed to listen on sockets: %s", s->meta.id, strerror(-r));
++                log_warning("%s failed to listen on sockets: %s", UNIT(s)->id, strerror(-r));
+                 goto fail;
+         }
+ 
+@@ -1316,7 +1316,7 @@ static void socket_enter_start_post(Socket *s) {
+ 
+         if ((s->control_command = s->exec_command[SOCKET_EXEC_START_POST])) {
+                 if ((r = socket_spawn(s, s->control_command, &s->control_pid)) < 0) {
+-                        log_warning("%s failed to run 'start-post' task: %s", s->meta.id, strerror(-r));
++                        log_warning("%s failed to run 'start-post' task: %s", UNIT(s)->id, strerror(-r));
+                         goto fail;
+                 }
+ 
+@@ -1349,7 +1349,7 @@ static void socket_enter_start_pre(Socket *s) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'start-pre' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'start-pre' task: %s", UNIT(s)->id, strerror(-r));
+         socket_enter_dead(s, false);
+ }
+ 
+@@ -1363,7 +1363,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+         /* We don't take connections anymore if we are supposed to
+          * shut down anyway */
+         if (unit_pending_inactive(UNIT(s))) {
+-                log_debug("Suppressing connection request on %s since unit stop is scheduled.", s->meta.id);
++                log_debug("Suppressing connection request on %s since unit stop is scheduled.", UNIT(s)->id);
+ 
+                 if (cfd >= 0)
+                         close_nointr_nofail(cfd);
+@@ -1373,7 +1373,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+ 
+                         r = socket_watch_fds(s);
+                         if (r < 0) {
+-                                log_warning("%s failed to watch sockets: %s", s->meta.id, strerror(-r));
++                                log_warning("%s failed to watch sockets: %s", UNIT(s)->id, strerror(-r));
+                                 socket_enter_stop_pre(s, false);
+                         }
+                 }
+@@ -1388,14 +1388,14 @@ static void socket_enter_running(Socket *s, int cfd) {
+ 
+                 /* If there's already a start pending don't bother to
+                  * do anything */
+-                SET_FOREACH(u, s->meta.dependencies[UNIT_TRIGGERS], i)
++                SET_FOREACH(u, UNIT(s)->dependencies[UNIT_TRIGGERS], i)
+                         if (unit_pending_active(u)) {
+                                 pending = true;
+                                 break;
+                         }
+ 
+                 if (!pending) {
+-                        r = manager_add_job(s->meta.manager, JOB_START, UNIT_DEREF(s->service), JOB_REPLACE, true, &error, NULL);
++                        r = manager_add_job(UNIT(s)->manager, JOB_START, UNIT_DEREF(s->service), JOB_REPLACE, true, &error, NULL);
+                         if (r < 0)
+                                 goto fail;
+                 }
+@@ -1426,7 +1426,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+                         return;
+                 }
+ 
+-                prefix = unit_name_to_prefix(s->meta.id);
++                prefix = unit_name_to_prefix(UNIT(s)->id);
+                 if (!prefix) {
+                         free(instance);
+                         r = -ENOMEM;
+@@ -1452,7 +1452,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+                 unit_ref_unset(&s->service);
+                 s->n_accepted ++;
+ 
+-                service->meta.no_gc = false;
++                UNIT(service)->no_gc = false;
+ 
+                 unit_choose_id(UNIT(service), name);
+                 free(name);
+@@ -1464,7 +1464,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+                 cfd = -1;
+                 s->n_connections ++;
+ 
+-                r = manager_add_job(s->meta.manager, JOB_START, UNIT(service), JOB_REPLACE, true, &error, NULL);
++                r = manager_add_job(UNIT(s)->manager, JOB_START, UNIT(service), JOB_REPLACE, true, &error, NULL);
+                 if (r < 0)
+                         goto fail;
+ 
+@@ -1475,7 +1475,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to queue socket startup job: %s", s->meta.id, bus_error(&error, r));
++        log_warning("%s failed to queue socket startup job: %s", UNIT(s)->id, bus_error(&error, r));
+         socket_enter_stop_pre(s, false);
+ 
+         if (cfd >= 0)
+@@ -1504,7 +1504,7 @@ static void socket_run_next(Socket *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run next task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run next task: %s", UNIT(s)->id, strerror(-r));
+ 
+         if (s->state == SOCKET_START_POST)
+                 socket_enter_stop_pre(s, false);
+@@ -1539,8 +1539,8 @@ static int socket_start(Unit *u) {
+ 
+                 service = SERVICE(UNIT_DEREF(s->service));
+ 
+-                if (service->meta.load_state != UNIT_LOADED) {
+-                        log_error("Socket service %s not loaded, refusing.", service->meta.id);
++                if (UNIT(service)->load_state != UNIT_LOADED) {
++                        log_error("Socket service %s not loaded, refusing.", UNIT(service)->id);
+                         return -ENOENT;
+                 }
+ 
+@@ -1549,7 +1549,7 @@ static int socket_start(Unit *u) {
+                 if (service->state != SERVICE_DEAD &&
+                     service->state != SERVICE_FAILED &&
+                     service->state != SERVICE_AUTO_RESTART) {
+-                        log_error("Socket service %s already active, refusing.", service->meta.id);
++                        log_error("Socket service %s already active, refusing.", UNIT(service)->id);
+                         return -EBUSY;
+                 }
+ 
+@@ -2028,7 +2028,7 @@ void socket_notify_service_dead(Socket *s, bool failed_permanent) {
+          * services. */
+ 
+         if (s->state == SOCKET_RUNNING) {
+-                log_debug("%s got notified about service death (failed permanently: %s)", s->meta.id, yes_no(failed_permanent));
++                log_debug("%s got notified about service death (failed permanently: %s)", UNIT(s)->id, yes_no(failed_permanent));
+                 if (failed_permanent)
+                         socket_enter_stop_pre(s, false);
+                 else
+@@ -2047,7 +2047,7 @@ void socket_connection_unref(Socket *s) {
+         assert(s->n_connections > 0);
+         s->n_connections--;
+ 
+-        log_debug("%s: One connection closed, %u left.", s->meta.id, s->n_connections);
++        log_debug("%s: One connection closed, %u left.", UNIT(s)->id, s->n_connections);
+ }
+ 
+ static void socket_reset_failed(Unit *u) {
+@@ -2096,7 +2096,7 @@ static int socket_kill(Unit *u, KillWho who, KillMode mode, int signo, DBusError
+                                 goto finish;
+                         }
+ 
+-                if ((q = cgroup_bonding_kill_list(s->meta.cgroup_bondings, signo, false, pid_set)) < 0)
++                if ((q = cgroup_bonding_kill_list(UNIT(s)->cgroup_bondings, signo, false, pid_set)) < 0)
+                         if (q != -EAGAIN && q != -ESRCH && q != -ENOENT)
+                                 r = q;
+         }
+diff --git a/src/swap.c b/src/swap.c
+index 87be552..ff62b1d 100644
+--- a/src/swap.c
++++ b/src/swap.c
+@@ -62,13 +62,13 @@ static void swap_unset_proc_swaps(Swap *s) {
+         /* Remove this unit from the chain of swaps which share the
+          * same kernel swap device. */
+ 
+-        first = hashmap_get(s->meta.manager->swaps_by_proc_swaps, s->parameters_proc_swaps.what);
++        first = hashmap_get(UNIT(s)->manager->swaps_by_proc_swaps, s->parameters_proc_swaps.what);
+         LIST_REMOVE(Swap, same_proc_swaps, first, s);
+ 
+         if (first)
+-                hashmap_remove_and_replace(s->meta.manager->swaps_by_proc_swaps, s->parameters_proc_swaps.what, first->parameters_proc_swaps.what, first);
++                hashmap_remove_and_replace(UNIT(s)->manager->swaps_by_proc_swaps, s->parameters_proc_swaps.what, first->parameters_proc_swaps.what, first);
+         else
+-                hashmap_remove(s->meta.manager->swaps_by_proc_swaps, s->parameters_proc_swaps.what);
++                hashmap_remove(UNIT(s)->manager->swaps_by_proc_swaps, s->parameters_proc_swaps.what);
+ 
+         free(s->parameters_proc_swaps.what);
+         s->parameters_proc_swaps.what = NULL;
+@@ -78,7 +78,7 @@ static void swap_init(Unit *u) {
+         Swap *s = SWAP(u);
+ 
+         assert(s);
+-        assert(s->meta.load_state == UNIT_STUB);
++        assert(UNIT(s)->load_state == UNIT_STUB);
+ 
+         s->timeout_usec = DEFAULT_TIMEOUT_USEC;
+ 
+@@ -92,7 +92,7 @@ static void swap_init(Unit *u) {
+ 
+         s->control_command_id = _MOUNT_EXEC_COMMAND_INVALID;
+ 
+-        s->meta.ignore_on_isolate = true;
++        UNIT(s)->ignore_on_isolate = true;
+ }
+ 
+ static void swap_unwatch_control_pid(Swap *s) {
+@@ -134,8 +134,8 @@ int swap_add_one_mount_link(Swap *s, Mount *m) {
+         assert(s);
+         assert(m);
+ 
+-        if (s->meta.load_state != UNIT_LOADED ||
+-            m->meta.load_state != UNIT_LOADED)
++        if (UNIT(s)->load_state != UNIT_LOADED ||
++            UNIT(m)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (is_device_path(s->what))
+@@ -156,7 +156,7 @@ static int swap_add_mount_links(Swap *s) {
+ 
+         assert(s);
+ 
+-        LIST_FOREACH(units_by_type, other, s->meta.manager->units_by_type[UNIT_MOUNT])
++        LIST_FOREACH(units_by_type, other, UNIT(s)->manager->units_by_type[UNIT_MOUNT])
+                 if ((r = swap_add_one_mount_link(s, (Mount*) other)) < 0)
+                         return r;
+ 
+@@ -177,14 +177,14 @@ static int swap_add_target_links(Swap *s) {
+         else
+                 return 0;
+ 
+-        if ((r = manager_load_unit(s->meta.manager, SPECIAL_SWAP_TARGET, NULL, NULL, &tu)) < 0)
++        if ((r = manager_load_unit(UNIT(s)->manager, SPECIAL_SWAP_TARGET, NULL, NULL, &tu)) < 0)
+                 return r;
+ 
+         if (!p->noauto &&
+             !p->nofail &&
+-            (p->handle || s->meta.manager->swap_auto) &&
++            (p->handle || UNIT(s)->manager->swap_auto) &&
+             s->from_etc_fstab &&
+-            s->meta.manager->running_as == MANAGER_SYSTEM)
++            UNIT(s)->manager->running_as == MANAGER_SYSTEM)
+                 if ((r = unit_add_dependency(tu, UNIT_WANTS, UNIT(s), true)) < 0)
+                         return r;
+ 
+@@ -209,7 +209,7 @@ static int swap_add_device_links(Swap *s) {
+         if (is_device_path(s->what))
+                 return unit_add_node_link(UNIT(s), s->what,
+                                           !p->noauto && p->nofail &&
+-                                          s->meta.manager->running_as == MANAGER_SYSTEM);
++                                          UNIT(s)->manager->running_as == MANAGER_SYSTEM);
+         else
+                 /* File based swap devices need to be ordered after
+                  * remount-rootfs.service, since they might need a
+@@ -222,7 +222,7 @@ static int swap_add_default_dependencies(Swap *s) {
+ 
+         assert(s);
+ 
+-        if (s->meta.manager->running_as == MANAGER_SYSTEM) {
++        if (UNIT(s)->manager->running_as == MANAGER_SYSTEM) {
+ 
+                 if ((r = unit_add_two_dependencies_by_name(UNIT(s), UNIT_BEFORE, UNIT_CONFLICTS, SPECIAL_UMOUNT_TARGET, NULL, true)) < 0)
+                         return r;
+@@ -235,7 +235,7 @@ static int swap_verify(Swap *s) {
+         bool b;
+         char *e;
+ 
+-        if (s->meta.load_state != UNIT_LOADED)
++        if (UNIT(s)->load_state != UNIT_LOADED)
+                   return 0;
+ 
+         if (!(e = unit_name_from_path(s->what, ".swap")))
+@@ -245,12 +245,12 @@ static int swap_verify(Swap *s) {
+         free(e);
+ 
+         if (!b) {
+-                log_error("%s: Value of \"What\" and unit name do not match, not loading.\n", s->meta.id);
++                log_error("%s: Value of \"What\" and unit name do not match, not loading.\n", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+         if (s->exec_context.pam_name && s->exec_context.kill_mode != KILL_CONTROL_GROUP) {
+-                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", s->meta.id);
++                log_error("%s has PAM enabled. Kill mode must be set to 'control-group'. Refusing.", UNIT(s)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -272,7 +272,7 @@ static int swap_load(Unit *u) {
+                 if ((r = unit_add_exec_dependencies(u, &s->exec_context)) < 0)
+                         return r;
+ 
+-                if (s->meta.fragment_path)
++                if (UNIT(s)->fragment_path)
+                         s->from_fragment = true;
+ 
+                 if (!s->what) {
+@@ -291,7 +291,7 @@ static int swap_load(Unit *u) {
+ 
+                 path_kill_slashes(s->what);
+ 
+-                if (!s->meta.description)
++                if (!UNIT(s)->description)
+                         if ((r = unit_set_description(u, s->what)) < 0)
+                                 return r;
+ 
+@@ -307,7 +307,7 @@ static int swap_load(Unit *u) {
+                 if ((r = unit_add_default_cgroups(u)) < 0)
+                         return r;
+ 
+-                if (s->meta.default_dependencies)
++                if (UNIT(s)->default_dependencies)
+                         if ((r = swap_add_default_dependencies(s)) < 0)
+                                 return r;
+         }
+@@ -510,7 +510,7 @@ static void swap_set_state(Swap *s, SwapState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          s->meta.id,
++                          UNIT(s)->id,
+                           swap_state_to_string(old_state),
+                           swap_state_to_string(state));
+ 
+@@ -612,13 +612,13 @@ static int swap_spawn(Swap *s, ExecCommand *c, pid_t *_pid) {
+                             NULL,
+                             &s->exec_context,
+                             NULL, 0,
+-                            s->meta.manager->environment,
++                            UNIT(s)->manager->environment,
+                             true,
+                             true,
+                             true,
+-                            s->meta.manager->confirm_spawn,
+-                            s->meta.cgroup_bondings,
+-                            s->meta.cgroup_attributes,
++                            UNIT(s)->manager->confirm_spawn,
++                            UNIT(s)->cgroup_bondings,
++                            UNIT(s)->cgroup_attributes,
+                             &pid)) < 0)
+                 goto fail;
+ 
+@@ -688,7 +688,7 @@ static void swap_enter_signal(Swap *s, SwapState state, bool success) {
+                                 if ((r = set_put(pid_set, LONG_TO_PTR(s->control_pid))) < 0)
+                                         goto fail;
+ 
+-                        if ((r = cgroup_bonding_kill_list(s->meta.cgroup_bondings, sig, true, pid_set)) < 0) {
++                        if ((r = cgroup_bonding_kill_list(UNIT(s)->cgroup_bondings, sig, true, pid_set)) < 0) {
+                                 if (r != -EAGAIN && r != -ESRCH && r != -ENOENT)
+                                         log_warning("Failed to kill control group: %s", strerror(-r));
+                         } else if (r > 0)
+@@ -710,7 +710,7 @@ static void swap_enter_signal(Swap *s, SwapState state, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to kill processes: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to kill processes: %s", UNIT(s)->id, strerror(-r));
+ 
+         swap_enter_dead(s, false);
+ 
+@@ -766,7 +766,7 @@ static void swap_enter_activating(Swap *s) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'swapon' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'swapon' task: %s", UNIT(s)->id, strerror(-r));
+         swap_enter_dead(s, false);
+ }
+ 
+@@ -798,7 +798,7 @@ static void swap_enter_deactivating(Swap *s, bool success) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to run 'swapoff' task: %s", s->meta.id, strerror(-r));
++        log_warning("%s failed to run 'swapoff' task: %s", UNIT(s)->id, strerror(-r));
+         swap_enter_active(s, false);
+ }
+ 
+@@ -1310,7 +1310,7 @@ static int swap_kill(Unit *u, KillWho who, KillMode mode, int signo, DBusError *
+                                 goto finish;
+                         }
+ 
+-                if ((q = cgroup_bonding_kill_list(s->meta.cgroup_bondings, signo, false, pid_set)) < 0)
++                if ((q = cgroup_bonding_kill_list(UNIT(s)->cgroup_bondings, signo, false, pid_set)) < 0)
+                         if (q != -EAGAIN && q != -ESRCH && q != -ENOENT)
+                                 r = q;
+         }
+diff --git a/src/target.c b/src/target.c
+index fb67ff3..6c1e0c3 100644
+--- a/src/target.c
++++ b/src/target.c
+@@ -45,7 +45,7 @@ static void target_set_state(Target *t, TargetState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          t->meta.id,
++                          UNIT(t)->id,
+                           target_state_to_string(old_state),
+                           target_state_to_string(state));
+ 
+@@ -75,7 +75,7 @@ static int target_add_default_dependencies(Target *t) {
+          * sure we don't create a loop. */
+ 
+         for (k = 0; k < ELEMENTSOF(deps); k++)
+-                SET_FOREACH(other, t->meta.dependencies[deps[k]], i)
++                SET_FOREACH(other, UNIT(t)->dependencies[deps[k]], i)
+                         if ((r = unit_add_default_target_dependency(other, UNIT(t))) < 0)
+                                 return r;
+ 
+diff --git a/src/timer.c b/src/timer.c
+index 6056d31..ce7fd6b 100644
+--- a/src/timer.c
++++ b/src/timer.c
+@@ -64,11 +64,11 @@ static void timer_done(Unit *u) {
+ static int timer_verify(Timer *t) {
+         assert(t);
+ 
+-        if (t->meta.load_state != UNIT_LOADED)
++        if (UNIT(t)->load_state != UNIT_LOADED)
+                 return 0;
+ 
+         if (!t->values) {
+-                log_error("%s lacks value setting. Refusing.", t->meta.id);
++                log_error("%s lacks value setting. Refusing.", UNIT(t)->id);
+                 return -EINVAL;
+         }
+ 
+@@ -80,7 +80,7 @@ static int timer_add_default_dependencies(Timer *t) {
+ 
+         assert(t);
+ 
+-        if (t->meta.manager->running_as == MANAGER_SYSTEM) {
++        if (UNIT(t)->manager->running_as == MANAGER_SYSTEM) {
+                 if ((r = unit_add_dependency_by_name(UNIT(t), UNIT_BEFORE, SPECIAL_BASIC_TARGET, NULL, true)) < 0)
+                         return r;
+ 
+@@ -117,7 +117,7 @@ static int timer_load(Unit *u) {
+                 if (r < 0)
+                         return r;
+ 
+-                if (t->meta.default_dependencies)
++                if (UNIT(t)->default_dependencies)
+                         if ((r = timer_add_default_dependencies(t)) < 0)
+                                 return r;
+         }
+@@ -157,7 +157,7 @@ static void timer_set_state(Timer *t, TimerState state) {
+ 
+         if (state != old_state)
+                 log_debug("%s changed %s -> %s",
+-                          t->meta.id,
++                          UNIT(t)->id,
+                           timer_state_to_string(old_state),
+                           timer_state_to_string(state));
+ 
+@@ -209,7 +209,7 @@ static void timer_enter_waiting(Timer *t, bool initial) {
+ 
+                 case TIMER_ACTIVE:
+                         if (state_translation_table[t->state] == UNIT_ACTIVE)
+-                                base = t->meta.inactive_exit_timestamp.monotonic;
++                                base = UNIT(t)->inactive_exit_timestamp.monotonic;
+                         else
+                                 base = n;
+                         break;
+@@ -220,7 +220,7 @@ static void timer_enter_waiting(Timer *t, bool initial) {
+                         break;
+ 
+                 case TIMER_STARTUP:
+-                        base = t->meta.manager->startup_timestamp.monotonic;
++                        base = UNIT(t)->manager->startup_timestamp.monotonic;
+                         break;
+ 
+                 case TIMER_UNIT_ACTIVE:
+@@ -272,7 +272,7 @@ static void timer_enter_waiting(Timer *t, bool initial) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to enter waiting state: %s", t->meta.id, strerror(-r));
++        log_warning("%s failed to enter waiting state: %s", UNIT(t)->id, strerror(-r));
+         timer_enter_dead(t, false);
+ }
+ 
+@@ -284,17 +284,17 @@ static void timer_enter_running(Timer *t) {
+         dbus_error_init(&error);
+ 
+         /* Don't start job if we are supposed to go down */
+-        if (t->meta.job && t->meta.job->type == JOB_STOP)
++        if (UNIT(t)->job && UNIT(t)->job->type == JOB_STOP)
+                 return;
+ 
+-        if ((r = manager_add_job(t->meta.manager, JOB_START, UNIT_DEREF(t->unit), JOB_REPLACE, true, &error, NULL)) < 0)
++        if ((r = manager_add_job(UNIT(t)->manager, JOB_START, UNIT_DEREF(t->unit), JOB_REPLACE, true, &error, NULL)) < 0)
+                 goto fail;
+ 
+         timer_set_state(t, TIMER_RUNNING);
+         return;
+ 
+ fail:
+-        log_warning("%s failed to queue unit startup job: %s", t->meta.id, bus_error(&error, r));
++        log_warning("%s failed to queue unit startup job: %s", UNIT(t)->id, bus_error(&error, r));
+         timer_enter_dead(t, false);
+ 
+         dbus_error_free(&error);
+@@ -419,7 +419,7 @@ void timer_unit_notify(Unit *u, UnitActiveState new_state) {
+                 case TIMER_RUNNING:
+ 
+                         if (UNIT_IS_INACTIVE_OR_FAILED(new_state)) {
+-                                log_debug("%s got notified about unit deactivation.", t->meta.id);
++                                log_debug("%s got notified about unit deactivation.", UNIT(t)->id);
+                                 timer_enter_waiting(t, false);
+                         }
+ 

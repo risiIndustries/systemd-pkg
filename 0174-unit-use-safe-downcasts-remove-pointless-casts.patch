@@ -1,0 +1,337 @@
+From b4f67d9afc1bdd4e85bb87a4fb70924fa686b38e Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Sun, 15 Jan 2012 12:37:16 +0100
+Subject: [PATCH] unit: use safe downcasts, remove pointless casts
+
+Always use the macros for downcasting.
+Remove a few obviously pointless casts.
+(cherry picked from commit 595ed347a87e69893c5e72168fc2e94a7cb09e73)
+---
+ src/automount.c     |    2 +-
+ src/load-fragment.c |    4 ++--
+ src/manager.c       |   46 +++++++++++++++++++++++-----------------------
+ src/mount.c         |   20 ++++++++++----------
+ src/path.c          |    2 +-
+ src/service.c       |    4 ++--
+ src/socket.c        |    2 +-
+ src/swap.c          |   12 ++++++------
+ 8 files changed, 46 insertions(+), 46 deletions(-)
+
+diff --git a/src/automount.c b/src/automount.c
+index 8b7030e..2194095 100644
+--- a/src/automount.c
++++ b/src/automount.c
+@@ -143,7 +143,7 @@ static int automount_add_mount_links(Automount *a) {
+         assert(a);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(a)->manager->units_by_type[UNIT_MOUNT])
+-                if ((r = automount_add_one_mount_link(a, (Mount*) other)) < 0)
++                if ((r = automount_add_one_mount_link(a, MOUNT(other))) < 0)
+                         return r;
+ 
+         return 0;
+diff --git a/src/load-fragment.c b/src/load-fragment.c
+index 869f129..818e766 100644
+--- a/src/load-fragment.c
++++ b/src/load-fragment.c
+@@ -252,7 +252,7 @@ int config_parse_socket_listen(
+         assert(rvalue);
+         assert(data);
+ 
+-        s = (Socket*) data;
++        s = SOCKET(data);
+ 
+         p = new0(SocketPort, 1);
+         if (!p)
+@@ -364,7 +364,7 @@ int config_parse_socket_bind(
+         assert(rvalue);
+         assert(data);
+ 
+-        s = (Socket*) data;
++        s = SOCKET(data);
+ 
+         if ((b = socket_address_bind_ipv6_only_from_string(rvalue)) < 0) {
+                 int r;
+diff --git a/src/manager.c b/src/manager.c
+index 78fafdf..263b9a9 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -304,15 +304,15 @@ fail:
+ }
+ 
+ static unsigned manager_dispatch_cleanup_queue(Manager *m) {
+-        Unit *meta;
++        Unit *u;
+         unsigned n = 0;
+ 
+         assert(m);
+ 
+-        while ((meta = m->cleanup_queue)) {
+-                assert(meta->in_cleanup_queue);
++        while ((u = m->cleanup_queue)) {
++                assert(u->in_cleanup_queue);
+ 
+-                unit_free((Unit*) meta);
++                unit_free(u);
+                 n++;
+         }
+ 
+@@ -380,7 +380,7 @@ good:
+ }
+ 
+ static unsigned manager_dispatch_gc_queue(Manager *m) {
+-        Unit *meta;
++        Unit *u;
+         unsigned n = 0;
+         unsigned gc_marker;
+ 
+@@ -399,21 +399,21 @@ static unsigned manager_dispatch_gc_queue(Manager *m) {
+ 
+         gc_marker = m->gc_marker;
+ 
+-        while ((meta = m->gc_queue)) {
+-                assert(meta->in_gc_queue);
++        while ((u = m->gc_queue)) {
++                assert(u->in_gc_queue);
+ 
+-                unit_gc_sweep((Unit*) meta, gc_marker);
++                unit_gc_sweep(u, gc_marker);
+ 
+-                LIST_REMOVE(Unit, gc_queue, m->gc_queue, meta);
+-                meta->in_gc_queue = false;
++                LIST_REMOVE(Unit, gc_queue, m->gc_queue, u);
++                u->in_gc_queue = false;
+ 
+                 n++;
+ 
+-                if (meta->gc_marker == gc_marker + GC_OFFSET_BAD ||
+-                    meta->gc_marker == gc_marker + GC_OFFSET_UNSURE) {
+-                        log_debug("Collecting %s", meta->id);
+-                        meta->gc_marker = gc_marker + GC_OFFSET_BAD;
+-                        unit_add_to_cleanup_queue((Unit*) meta);
++                if (u->gc_marker == gc_marker + GC_OFFSET_BAD ||
++                    u->gc_marker == gc_marker + GC_OFFSET_UNSURE) {
++                        log_debug("Collecting %s", u->id);
++                        u->gc_marker = gc_marker + GC_OFFSET_BAD;
++                        unit_add_to_cleanup_queue(u);
+                 }
+         }
+ 
+@@ -1766,7 +1766,7 @@ Unit *manager_get_unit(Manager *m, const char *name) {
+ }
+ 
+ unsigned manager_dispatch_load_queue(Manager *m) {
+-        Unit *meta;
++        Unit *u;
+         unsigned n = 0;
+ 
+         assert(m);
+@@ -1780,10 +1780,10 @@ unsigned manager_dispatch_load_queue(Manager *m) {
+         /* Dispatches the load queue. Takes a unit from the queue and
+          * tries to load its data until the queue is empty */
+ 
+-        while ((meta = m->load_queue)) {
+-                assert(meta->in_load_queue);
++        while ((u = m->load_queue)) {
++                assert(u->in_load_queue);
+ 
+-                unit_load((Unit*) meta);
++                unit_load(u);
+                 n++;
+         }
+ 
+@@ -1927,7 +1927,7 @@ unsigned manager_dispatch_run_queue(Manager *m) {
+ 
+ unsigned manager_dispatch_dbus_queue(Manager *m) {
+         Job *j;
+-        Unit *meta;
++        Unit *u;
+         unsigned n = 0;
+ 
+         assert(m);
+@@ -1937,10 +1937,10 @@ unsigned manager_dispatch_dbus_queue(Manager *m) {
+ 
+         m->dispatching_dbus_queue = true;
+ 
+-        while ((meta = m->dbus_unit_queue)) {
+-                assert(meta->in_dbus_queue);
++        while ((u = m->dbus_unit_queue)) {
++                assert(u->in_dbus_queue);
+ 
+-                bus_unit_send_change_signal((Unit*) meta);
++                bus_unit_send_change_signal(u);
+                 n++;
+         }
+ 
+diff --git a/src/mount.c b/src/mount.c
+index 1f0d3c2..73b1bbd 100644
+--- a/src/mount.c
++++ b/src/mount.c
+@@ -160,7 +160,7 @@ static int mount_add_mount_links(Mount *m) {
+          * above us in the hierarchy */
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_MOUNT]) {
+-                Mount *n = (Mount*) other;
++                Mount *n = MOUNT(other);
+                 MountParameters *pn;
+ 
+                 if (n == m)
+@@ -217,7 +217,7 @@ static int mount_add_swap_links(Mount *m) {
+         assert(m);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_SWAP])
+-                if ((r = swap_add_one_mount_link((Swap*) other, m)) < 0)
++                if ((r = swap_add_one_mount_link(SWAP(other), m)) < 0)
+                         return r;
+ 
+         return 0;
+@@ -230,7 +230,7 @@ static int mount_add_path_links(Mount *m) {
+         assert(m);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_PATH])
+-                if ((r = path_add_one_mount_link((Path*) other, m)) < 0)
++                if ((r = path_add_one_mount_link(PATH(other), m)) < 0)
+                         return r;
+ 
+         return 0;
+@@ -243,7 +243,7 @@ static int mount_add_automount_links(Mount *m) {
+         assert(m);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_AUTOMOUNT])
+-                if ((r = automount_add_one_mount_link((Automount*) other, m)) < 0)
++                if ((r = automount_add_one_mount_link(AUTOMOUNT(other), m)) < 0)
+                         return r;
+ 
+         return 0;
+@@ -256,7 +256,7 @@ static int mount_add_socket_links(Mount *m) {
+         assert(m);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(m)->manager->units_by_type[UNIT_SOCKET])
+-                if ((r = socket_add_one_mount_link((Socket*) other, m)) < 0)
++                if ((r = socket_add_one_mount_link(SOCKET(other), m)) < 0)
+                         return r;
+ 
+         return 0;
+@@ -1684,7 +1684,7 @@ fail:
+ }
+ 
+ void mount_fd_event(Manager *m, int events) {
+-        Unit *meta;
++        Unit *u;
+         int r;
+ 
+         assert(m);
+@@ -1698,8 +1698,8 @@ void mount_fd_event(Manager *m, int events) {
+                 log_error("Failed to reread /proc/self/mountinfo: %s", strerror(-r));
+ 
+                 /* Reset flags, just in case, for later calls */
+-                LIST_FOREACH(units_by_type, meta, m->units_by_type[UNIT_MOUNT]) {
+-                        Mount *mount = (Mount*) meta;
++                LIST_FOREACH(units_by_type, u, m->units_by_type[UNIT_MOUNT]) {
++                        Mount *mount = MOUNT(u);
+ 
+                         mount->is_mounted = mount->just_mounted = mount->just_changed = false;
+                 }
+@@ -1709,8 +1709,8 @@ void mount_fd_event(Manager *m, int events) {
+ 
+         manager_dispatch_load_queue(m);
+ 
+-        LIST_FOREACH(units_by_type, meta, m->units_by_type[UNIT_MOUNT]) {
+-                Mount *mount = (Mount*) meta;
++        LIST_FOREACH(units_by_type, u, m->units_by_type[UNIT_MOUNT]) {
++                Mount *mount = MOUNT(u);
+ 
+                 if (!mount->is_mounted) {
+                         /* This has just been unmounted. */
+diff --git a/src/path.c b/src/path.c
+index c8086a8..a16d3fa 100644
+--- a/src/path.c
++++ b/src/path.c
+@@ -287,7 +287,7 @@ static int path_add_mount_links(Path *p) {
+         assert(p);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(p)->manager->units_by_type[UNIT_MOUNT])
+-                if ((r = path_add_one_mount_link(p, (Mount*) other)) < 0)
++                if ((r = path_add_one_mount_link(p, MOUNT(other))) < 0)
+                         return r;
+ 
+         return 0;
+diff --git a/src/service.c b/src/service.c
+index a1da8db..9912535 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -388,7 +388,7 @@ static int sysv_fix_order(Service *s) {
+                 UnitDependency d;
+                 bool special_s, special_t;
+ 
+-                t = (Service*) other;
++                t = SERVICE(other);
+ 
+                 if (s == t)
+                         continue;
+@@ -1028,7 +1028,7 @@ static int fsck_fix_order(Service *s) {
+                 Service *t;
+                 UnitDependency d;
+ 
+-                t = (Service*) other;
++                t = SERVICE(other);
+ 
+                 if (s == t)
+                         continue;
+diff --git a/src/socket.c b/src/socket.c
+index 03b696e..cab435a 100644
+--- a/src/socket.c
++++ b/src/socket.c
+@@ -274,7 +274,7 @@ static int socket_add_mount_links(Socket *s) {
+         assert(s);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(s)->manager->units_by_type[UNIT_MOUNT])
+-                if ((r = socket_add_one_mount_link(s, (Mount*) other)) < 0)
++                if ((r = socket_add_one_mount_link(s, MOUNT(other))) < 0)
+                         return r;
+ 
+         return 0;
+diff --git a/src/swap.c b/src/swap.c
+index ff62b1d..b4a5b3c 100644
+--- a/src/swap.c
++++ b/src/swap.c
+@@ -157,7 +157,7 @@ static int swap_add_mount_links(Swap *s) {
+         assert(s);
+ 
+         LIST_FOREACH(units_by_type, other, UNIT(s)->manager->units_by_type[UNIT_MOUNT])
+-                if ((r = swap_add_one_mount_link(s, (Mount*) other)) < 0)
++                if ((r = swap_add_one_mount_link(s, MOUNT(other))) < 0)
+                         return r;
+ 
+         return 0;
+@@ -1096,7 +1096,7 @@ int swap_dispatch_reload(Manager *m) {
+ }
+ 
+ int swap_fd_event(Manager *m, int events) {
+-        Unit *meta;
++        Unit *u;
+         int r;
+ 
+         assert(m);
+@@ -1106,8 +1106,8 @@ int swap_fd_event(Manager *m, int events) {
+                 log_error("Failed to reread /proc/swaps: %s", strerror(-r));
+ 
+                 /* Reset flags, just in case, for late calls */
+-                LIST_FOREACH(units_by_type, meta, m->units_by_type[UNIT_SWAP]) {
+-                        Swap *swap = (Swap*) meta;
++                LIST_FOREACH(units_by_type, u, m->units_by_type[UNIT_SWAP]) {
++                        Swap *swap = SWAP(u);
+ 
+                         swap->is_active = swap->just_activated = false;
+                 }
+@@ -1117,8 +1117,8 @@ int swap_fd_event(Manager *m, int events) {
+ 
+         manager_dispatch_load_queue(m);
+ 
+-        LIST_FOREACH(units_by_type, meta, m->units_by_type[UNIT_SWAP]) {
+-                Swap *swap = (Swap*) meta;
++        LIST_FOREACH(units_by_type, u, m->units_by_type[UNIT_SWAP]) {
++                Swap *swap = SWAP(u);
+ 
+                 if (!swap->is_active) {
+                         /* This has just been deactivated */
