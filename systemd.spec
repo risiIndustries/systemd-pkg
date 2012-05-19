@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        20%{?dist}
+Release:        21%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -277,6 +277,8 @@ Patch0218:      0218-transaction-downgrade-warnings-about-masked-units.patch
 Patch0219:      0219-vconsole-fix-error-messages.patch
 Patch0220:      0220-service-warn-if-a-dbus-name-is-specified-but-the-ser.patch
 Patch0221:      0221-vconsole-fix-some-error-messages.patch
+Patch0222:      0222-bash-completion-avoid-losing-backslashes-in-unit-nam.patch
+Patch0223:      0223-bash-completion-use-printf-instead-of-echo.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -598,6 +600,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Sat May 19 2012 Michal Schmidt <mschmidt@redhat.com> - 37-21
+- bash-completion: Failed to issue method call (#814966)
+
 * Sat May 05 2012 Michal Schmidt <mschmidt@redhat.com> - 37-20
 - Added many patches from current upstream to fix mainly:
   - Loss of ordering with restart jobs and the behavior of try-restart while
