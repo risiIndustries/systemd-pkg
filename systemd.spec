@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        23%{?dist}
+Release:        24%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -282,6 +282,10 @@ Patch0223:      0223-bash-completion-use-printf-instead-of-echo.patch
 Patch0224:      0224-dbus-unit-always-load-the-unit-before-handling-a-mes.patch
 Patch0225:      0225-systemctl-drop-useless-DBus-calls-from-systemctl-sho.patch
 Patch0226:      0226-F16-Revert-logind-close-FIFO-before-ending-sessions-.patch
+Patch0227:      0227-service-schedule-JOB_RESTART-from-SERVICE_AUTO_RESTA.patch
+Patch0228:      0228-service-actually-delay-auto-restart-if-another-job-i.patch
+Patch0229:      0229-service-fix-auto-restart-handling-in-service_stop.patch
+Patch0230:      0230-service-fix-auto-restart-handling-in-service_start.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -603,6 +607,9 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Tue May 22 2012 Michal Schmidt <mschmidt@redhat.com> - 37-24
+- Fix auto-restart handling (#817968, fdo#45511)
+
 * Tue May 22 2012 Michal Schmidt <mschmidt@redhat.com> - 37-23
 - Revert the ReleaseSession patch (#823485)
 
