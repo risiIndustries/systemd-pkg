@@ -2,7 +2,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Version:        37
-Release:        24%{?dist}
+Release:        25%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -286,6 +286,8 @@ Patch0227:      0227-service-schedule-JOB_RESTART-from-SERVICE_AUTO_RESTA.patch
 Patch0228:      0228-service-actually-delay-auto-restart-if-another-job-i.patch
 Patch0229:      0229-service-fix-auto-restart-handling-in-service_stop.patch
 Patch0230:      0230-service-fix-auto-restart-handling-in-service_start.patch
+Patch0231:      0231-unit-introduce-RequiredBy-setting-in-Install-to-comp.patch
+Patch0232:      0232-F16-silently-ignore-Documentation-fields.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -607,6 +609,10 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %changelog
+* Wed May 23 2012 Michal Schmidt <mschmidt@redhat.com> - 37-25
+- Backported support for RequireBy= in [Install]
+- Silently ignore Documentation= tags in F16.
+
 * Tue May 22 2012 Michal Schmidt <mschmidt@redhat.com> - 37-24
 - Fix auto-restart handling (#817968, fdo#45511)
 
