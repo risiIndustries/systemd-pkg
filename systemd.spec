@@ -22,7 +22,7 @@ Url:            http://www.freedesktop.org/wiki/Software/systemd
 # THIS PACKAGE FOR A NON-RAWHIDE DEVELOPMENT DISTRIBUTION!
 
 Version:        195
-Release:        8%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        9%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -718,6 +718,10 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Wed Nov 21 2012 Lennart Poettering <lpoetter@redhat.com> - 195-9
+- Added vdagent to preset list
+- https://bugzilla.redhat.com/show_bug.cgi?id=876237
+
 * Tue Nov 20 2012 Lennart Poettering <lpoetter@redhat.com> - 195-8
 - https://bugzilla.redhat.com/show_bug.cgi?id=873459
 - https://bugzilla.redhat.com/show_bug.cgi?id=878093
