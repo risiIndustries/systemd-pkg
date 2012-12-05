@@ -20,7 +20,7 @@ BuildRequires:  tcp_wrappers-devel
 BuildRequires:  pam-devel
 BuildRequires:  libselinux-devel
 BuildRequires:  audit-libs-devel
-BuildRequires:  cryptsetup-luks-devel
+BuildRequires:  cryptsetup-devel
 BuildRequires:  dbus-devel
 BuildRequires:  libacl-devel
 BuildRequires:  pciutils-devel
@@ -219,7 +219,7 @@ autoreconf -i
         --libexecdir=%{_prefix}/lib \
         --enable-gtk-doc \
         --disable-static
-/usr/bin/make %{?_smp_mflags}
+/usr/bin/make %{?_smp_mflags} V=1
 
 %install
 %make_install
@@ -730,6 +730,8 @@ fi
 - https://bugzilla.redhat.com/show_bug.cgi?id=858799
 - https://bugzilla.redhat.com/show_bug.cgi?id=875653
 - https://bugzilla.redhat.com/show_bug.cgi?id=872193
+- BR cryptsetup-devel instead of the legacy cryptsetup-luks-devel provide
+- verbose make
 
 * Wed Nov 21 2012 Lennart Poettering <lpoetter@redhat.com> - 195-9
 - Added vdagent to preset list
