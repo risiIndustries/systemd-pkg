@@ -14,7 +14,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 
 Version:        195
-Release:        10%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        11%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -725,6 +725,10 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Mon Dec 10 2012 Michal Schmidt <mschmidt@redhat.com> - 195-11
+- Disable hardening on s390(x) because PIE is broken there and produces
+  text relocations with __thread (#868839).
+
 * Wed Dec 05 2012 Michal Schmidt <mschmidt@redhat.com> - 195-10
 - Selected fixes from v196.
 - https://bugzilla.redhat.com/show_bug.cgi?id=869779
