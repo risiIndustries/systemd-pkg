@@ -14,7 +14,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 
 Version:        195
-Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -474,6 +474,13 @@ if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
 fi
 /usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
 
+# Migrate the old systemd-setup-keyboard X11 configuration fragment
+if [ ! -e /etc/X11/xorg.conf.d/00-keyboard.conf ] ; then
+        /usr/bin/mv /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf /etc/X11/xorg.conf.d/00-keyboard.conf >/dev/null 2>&1 || :
+else
+        /usr/bin/rm -f /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf >/dev/null 2>&1 || :
+fi
+
 %posttrans
 # Convert old /etc/sysconfig/desktop settings
 preferred=
@@ -588,6 +595,7 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/machine-id
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+%ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-system-setup-keyboard.conf
 %{_bindir}/systemd
 %{_bindir}/systemctl
 %{_bindir}/systemd-notify
@@ -726,6 +734,10 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Thu Jan  3 2013 Lennart Poettering <lpoetter@redhat.com> - 195-14
+- Migrate old s-s-k X11 keyboard configuration file
+- https://bugzilla.redhat.com/show_bug.cgi?id=889699
+
 * Thu Dec 20 2012 Michal Schmidt <mschmidt@redhat.com> - 195-13
 - localectl: fix dbus call arguments in set_x11_keymap (#882212)
 
