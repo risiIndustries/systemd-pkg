@@ -14,7 +14,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 
 Version:        197
-Release:        1%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        1%{?gitcommit:.git%{gitcommit}}%{?dist}.1
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -81,6 +81,15 @@ Patch0001:      0001-F18-units-don-t-always-use-sulogin-in-rescue.service.patch
 Patch0002:      0002-F18-do-not-enable-persistent-network-device-naming.patch
 Patch0003:      0003-F18-re-add-http-daemon.target.patch
 Patch0004:      0004-F18-bring-back-single.service.patch
+# post-v197 fixes:
+Patch0005:      0005-udev-net_id-skip-stacked-network-devices.patch
+Patch0006:      0006-dbus-fix-serialization-of-calendar-timers.patch
+Patch0007:      0007-udev-don-t-call-fclose-on-NULL-in-is_pci_multifuncti.patch
+Patch0008:      0008-bootchart-check-return-of-fopen-before-setvbuf-in-lo.patch
+Patch0009:      0009-man-systemd-bootchart.xml-fix-typo.patch
+Patch0010:      0010-man-systemd.unit.xml-fix-typos.patch
+Patch0011:      0011-dbus-properly-serialize-calendar-timer-data.patch
+Patch0012:      0012-udev-Fix-device-matching-in-the-accelerometer.patch
 
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
 Provides:       SysVinit = 2.86-24, sysvinit = 2.86-24
@@ -721,6 +730,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Sat Jan 12 2013 Michal Schmidt <mschmidt@redhat.com> - 197-1.fc18.1
+- Pick post-v197 fixes.
+
 * Fri Jan 11 2013 Michal Schmidt <mschmidt@redhat.com> - 197-1
 - Rebase to new upstream release.
 
