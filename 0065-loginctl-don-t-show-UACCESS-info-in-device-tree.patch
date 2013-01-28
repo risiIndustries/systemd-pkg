@@ -1,0 +1,46 @@
+From 2fc3a85f081e2861b6ee3b599332c39046b8e56e Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 25 Jan 2013 04:48:34 +0100
+Subject: [PATCH] loginctl: don't show [UACCESS] info in device tree
+
+As the tree doesn't really necessarily show all device node devices and
+only those are marked for uaccess it's kinda pointless showing this at
+all, since it would give a pretty incomplete impression of the uaccess
+information.
+(cherry picked from commit 5d1fb81b2c602abd2605f6e50810ac7fcb06c024)
+---
+ src/login/sysfs-show.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/src/login/sysfs-show.c b/src/login/sysfs-show.c
+index da34c3a..fc3af75 100644
+--- a/src/login/sysfs-show.c
++++ b/src/login/sysfs-show.c
+@@ -45,7 +45,7 @@ static int show_sysfs_one(
+                 struct udev_device *d;
+                 const char *sn, *name, *sysfs, *subsystem, *sysname;
+                 char *l, *k;
+-                bool is_master, uaccess;
++                bool is_master;
+ 
+                 sysfs = udev_list_entry_get_name(*item);
+                 if (!path_startswith(sysfs, sub))
+@@ -69,7 +69,6 @@ static int show_sysfs_one(
+                 }
+ 
+                 is_master = udev_device_has_tag(d, "seat-master");
+-                uaccess = udev_device_has_tag(d, "uaccess");
+ 
+                 name = udev_device_get_sysattr_value(d, "name");
+                 if (!name)
+@@ -114,8 +113,8 @@ static int show_sysfs_one(
+                 free(k);
+ 
+                 if (asprintf(&l,
+-                             "%s%s%s:%s%s%s%s",
+-                             is_master ? "[MASTER] " : "", uaccess ? "[ACL] " : "",
++                             "%s%s:%s%s%s%s",
++                             is_master ? "[MASTER] " : "",
+                              subsystem, sysname,
+                              name ? " \"" : "", name ? name : "", name ? "\"" : "") < 0) {
+                         udev_device_unref(d);

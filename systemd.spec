@@ -14,7 +14,7 @@ Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 
 Version:        197
-Release:        1%{?gitcommit:.git%{gitcommit}}%{?dist}.1
+Release:        1%{?gitcommit:.git%{gitcommit}}%{?dist}.2
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -90,6 +90,69 @@ Patch0009:      0009-man-systemd-bootchart.xml-fix-typo.patch
 Patch0010:      0010-man-systemd.unit.xml-fix-typos.patch
 Patch0011:      0011-dbus-properly-serialize-calendar-timer-data.patch
 Patch0012:      0012-udev-Fix-device-matching-in-the-accelerometer.patch
+# Revert more incompatibilities
+Patch0013:      0013-F18-Revert-udev-network-device-renaming-immediately-.patch
+Patch0014:      0014-F18-Revert-udev-set-device-node-permissions-only-at-.patch
+
+Patch0015:      0015-systemctl-honour-inhibitors-when-shutting-down-or-en.patch
+Patch0016:      0016-man-localectl-s-set-keyboard-set-keymap.patch
+Patch0017:      0017-locale-make-sense-of-dvorak-alt-intel-X-variant-in-m.patch
+Patch0018:      0018-core-document-that-JoinControllers-might-be-ineffect.patch
+Patch0019:      0019-service-for-Type-forking-services-ignore-exit-status.patch
+Patch0020:      0020-systemctl-don-t-hit-an-assert-if-we-try-to-reboot-an.patch
+Patch0021:      0021-systemctl-honour-inhibitors-only-when-running-unpriv.patch
+Patch0022:      0022-logind-ignore-non-tty-non-x11-session-when-checking-.patch
+Patch0023:      0023-vconsole-upload-font-to-dev-tty1-and-copy-it-to-all-.patch
+Patch0024:      0024-man-link-in-wiki-documentation-about-network.target.patch
+Patch0025:      0025-man-link-in-API-FS-documentation-from-the-wiki.patch
+Patch0026:      0026-vconsole-copy-font-to-tty1-15.patch
+Patch0027:      0027-localectl-fix-typo-in-man-page.patch
+Patch0028:      0028-man-correct-order-of-precedence-for-fstab-units.patch
+Patch0029:      0029-units-add-reference-to-new-wiki-page-to-all-api-moun.patch
+Patch0030:      0030-man-add-reference-to-wiki-doc-from-DefaultController.patch
+Patch0031:      0031-vconsole-use-dev-vcsa1-15-to-check-for-allocated-VTs.patch
+Patch0032:      0032-core-use-correct-argument-of-type-JobResult.patch
+Patch0033:      0033-journalctl-quit-on-I-O-error.patch
+Patch0034:      0034-core-do-not-make-sockets-dependent-on-lo.patch
+Patch0035:      0035-load-fragment-replace-specifiers-in-path-unit-s-Unit.patch
+Patch0036:      0036-load-fragment-fix-bad-memory-access.patch
+Patch0037:      0037-shutdown-in-the-final-umount-loop-don-t-use-MNT_FORC.patch
+Patch0038:      0038-shutdown-ignore-loop-devices-without-a-backing-file.patch
+Patch0039:      0039-systemctl-loginctl-cgls-do-not-ellipsize-cgroup-memb.patch
+Patch0040:      0040-man-typo-fixes.patch
+Patch0041:      0041-dbus-add-Unit-s-PartOf-and-ConsistsOf-deps-to-intros.patch
+Patch0042:      0042-units-for-all-unit-settings-that-take-lists-allow-th.patch
+Patch0043:      0043-service-properly-signal-permanent-failure-of-a-servi.patch
+Patch0044:      0044-util-fix-bad-memory-access.patch
+Patch0045:      0045-hwdb-update.patch
+Patch0046:      0046-nspawn-add-audit-caps-to-default-set-to-keep.patch
+Patch0047:      0047-man-update-suggested-yum-command-line-in-nspawn-1.patch
+Patch0048:      0048-tmpfiles-do-not-make-run-nologin-executable.patch
+Patch0049:      0049-shutdown-loop-convert-to-enumerate-match.patch
+Patch0050:      0050-Fix-some-typos.patch
+Patch0051:      0051-man-clearify-the-meaning-of-timeout-0-for-password-a.patch
+Patch0052:      0052-configure.ac-combine-Wformat-options-into-one-argume.patch
+Patch0053:      0053-logind-only-allow-one-shutdown-sleep-action-to-be-qu.patch
+Patch0054:      0054-hwdb-update.patch
+Patch0055:      0055-service-really-stop-watchdog-timer-when-stopping.patch
+Patch0056:      0056-service-make-sure-the-watchdog-timer-is-not-restarte.patch
+Patch0057:      0057-core-Set-source-for-mountinfo-.mount-units.patch
+Patch0058:      0058-man-systemd.exec-explicit-Environment-assignment.patch
+Patch0059:      0059-man-mention-proc-self-mountinfo-in-systemd.mount-5.patch
+Patch0060:      0060-selinux-access-Delete-debugging-message-logged-as-an.patch
+Patch0061:      0061-selinux-we-don-t-need-that-many-debug-messages-by-de.patch
+Patch0062:      0062-logind-send-Resumed-signal-after-we-come-back-from-s.patch
+Patch0063:      0063-logind-add-UnlockSessions-clal-to-complement-LockSes.patch
+Patch0064:      0064-loginctl-show-seat-master-and-uaccess-devices-in-sea.patch
+Patch0065:      0065-loginctl-don-t-show-UACCESS-info-in-device-tree.patch
+Patch0066:      0066-logind-rework-delay-inhibition-logic.patch
+Patch0067:      0067-tmpfiles-introduce-type-X.patch
+Patch0068:      0068-job-fix-merging-with-ignore-dependencies.patch
+Patch0069:      0069-nspawn-assume-stdout-is-always-writable-if-it-does-n.patch
+Patch0070:      0070-man-mention-that-PrivateTmp-means-var-tmp-too.patch
+Patch0071:      0071-keymap-Add-support-for-the-brower-hotkey-on-the-HP-P.patch
+Patch0072:      0072-keymap-Add-HP-HDX-9494NR.patch
+Patch0073:      0073-keymap-Add-HP-HDX-9494NR-Fix-touchpad-keys.patch
 
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
 Provides:       SysVinit = 2.86-24, sysvinit = 2.86-24
@@ -730,6 +793,12 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Mon Jan 28 2013 Michal Schmidt <mschmidt@redhat.com> - 197-1.fc18.2
+- Revert a couple of patches causing surprising breakage.
+- Resolves: #896135, #903716
+- Pick more post-v197 fixes and minor enhancements from upstream.
+- Resolves: #873634, #875531, #860464, #889624, #890827, #756787, #757928
+
 * Sat Jan 12 2013 Michal Schmidt <mschmidt@redhat.com> - 197-1.fc18.1
 - Pick post-v197 fixes.
 

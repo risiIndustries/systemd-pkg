@@ -1,0 +1,24 @@
+From b7e1e4ed4159647268a2773d3a5827e1a07ebf17 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 14 Jan 2013 18:23:18 +0100
+Subject: [PATCH] locale: make sense of "dvorak-alt-intel" X variant in mapping
+ database
+
+https://bugzilla.redhat.com/show_bug.cgi?id=873634
+(cherry picked from commit 65426b76324ea8ecf9d42812151b12e314bd2742)
+---
+ src/locale/kbd-model-map | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/locale/kbd-model-map b/src/locale/kbd-model-map
+index b0860ab..1fe9bca 100644
+--- a/src/locale/kbd-model-map
++++ b/src/locale/kbd-model-map
+@@ -53,6 +53,7 @@ de-latin1-nodeadkeys	de	pc105		nodeadkeys	terminate:ctrl_alt_bksp
+ no			no	pc105		-		terminate:ctrl_alt_bksp
+ bg_bds-utf8		bg,us	pc105		-		terminate:ctrl_alt_bksp,grp:shifts_toggle,grp_led:scroll
+ dvorak			us	pc105		dvorak		terminate:ctrl_alt_bksp
++dvorak			us	pc105		dvorak-alt-intl	terminate:ctrl_alt_bksp
+ ru			ru,us	pc105		-		terminate:ctrl_alt_bksp,grp:shifts_toggle,grp_led:scroll
+ cz-lat2			cz	pc105		qwerty		terminate:ctrl_alt_bksp
+ pl2			pl	pc105		-		terminate:ctrl_alt_bksp

@@ -1,0 +1,33 @@
+From a4f80b965230e39a47d239e7cc72f40ddd837b71 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 15 Jan 2013 18:10:11 +0100
+Subject: [PATCH] man: correct order of precedence for fstab units (cherry
+ picked from commit c32247e9d7c4231d4f731c9103d90b4e2e1682a2)
+
+---
+ man/systemd.mount.xml | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/man/systemd.mount.xml b/man/systemd.mount.xml
+index d194083..749d426 100644
+--- a/man/systemd.mount.xml
++++ b/man/systemd.mount.xml
+@@ -153,8 +153,16 @@
+                 <literal>h</literal>, <literal>ms</literal>.</para>
+ 
+                 <para>If a mount point is configured in both
+-                <filename>/etc/fstab</filename> and a unit file, the
+-                configuration in the latter takes precedence.</para>
++                <filename>/etc/fstab</filename> and a unit file that
++                is stored below <filename>/usr</filename> the former
++                will take precedence. If the unit file is stored below
++                <filename>/etc</filename> it will take
++                precedence. This means: native unit files take
++                precedence over traditional configuration files, but
++                this is superseded by the rule that configuration in
++                <filename>/etc</filename> will always take precedence
++                over configuration in
++                <filename>/usr</filename>.</para>
+         </refsect1>
+ 
+         <refsect1>

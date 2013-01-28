@@ -1,0 +1,777 @@
+From cc85665351f6f68b6190e37dbb3704ce28d1a55b Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Mon, 14 Jan 2013 18:16:50 +0100
+Subject: [PATCH] systemctl,loginctl,cgls: do not ellipsize cgroup members when
+ --full is specified
+
+New file output.h with output flags and modes.
+
+--full parameter also for cgls and loginctl.
+
+Include 'all' parameter in flags (show_cgroup_by_path, show_cgroup,
+show_cgroup_and_extra, show_cgroup_and_extra_by_spec).
+
+get_process_cmdline with max_length == 0 will not ellipsize output.
+
+Replace LINE_MAX with 0 in some calls of get_process_cmdline.
+
+[zj: Default to --full when under pager for clgs.
+     Drop '-f' since it wasn't documented and didn't actually work.
+     Reindent a bit.
+]
+(cherry picked from commit 9bdbc2e2ec523dbefe1c1c7e164b5544aff0b185)
+---
+ Makefile.am                   |  3 +-
+ man/loginctl.xml              |  7 ++++
+ man/systemctl.xml             |  2 +-
+ man/systemd-cgls.xml          |  8 +++++
+ src/cgls/cgls.c               | 34 +++++++++++++++----
+ src/core/selinux-access.c     |  4 +--
+ src/journal/coredump.c        |  2 +-
+ src/journal/journald-server.c |  2 +-
+ src/login/loginctl.c          | 24 +++++++++++--
+ src/shared/cgroup-show.c      | 49 ++++++++++++++-------------
+ src/shared/cgroup-show.h      | 10 +++---
+ src/shared/logs-show.h        | 23 +------------
+ src/shared/output-mode.h      | 44 ++++++++++++++++++++++++
+ src/shared/util.c             | 78 +++++++++++++++++++++++++------------------
+ src/systemctl/systemctl.c     | 14 ++++----
+ 15 files changed, 201 insertions(+), 103 deletions(-)
+ create mode 100644 src/shared/output-mode.h
+
+diff --git a/Makefile.am b/Makefile.am
+index 28d8d44..1413073 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -810,7 +810,8 @@ libsystemd_shared_la_SOURCES = \
+ 	src/shared/time-dst.c \
+ 	src/shared/time-dst.h \
+ 	src/shared/calendarspec.c \
+-	src/shared/calendarspec.h
++	src/shared/calendarspec.h \
++	src/shared/output-mode.h
+ 
+ libsystemd_shared_la_LIBADD = libsystemd-daemon.la
+ 
+diff --git a/man/loginctl.xml b/man/loginctl.xml
+index 5dbc1f6..8a20d18 100644
+--- a/man/loginctl.xml
++++ b/man/loginctl.xml
+@@ -110,6 +110,13 @@
+                                 set or not.</para></listitem>
+                         </varlistentry>
+ 
++                        <varlistentry>
++                                <term><option>--full</option></term>
++
++                                <listitem><para>Do not ellipsize cgroup
++                                members.</para>
++                                </listitem>
++                        </varlistentry>
+ 
+                         <varlistentry>
+                                 <term><option>--no-pager</option></term>
+diff --git a/man/systemctl.xml b/man/systemctl.xml
+index 2f33e0c..48c5a1c 100644
+--- a/man/systemctl.xml
++++ b/man/systemctl.xml
+@@ -156,7 +156,7 @@
+                                 <term><option>--full</option></term>
+ 
+                                 <listitem><para>Do not ellipsize unit
+-                                names and truncate unit descriptions
++                                names, cgroup members, and truncate unit descriptions
+                                 in the output of
+                                 <command>list-units</command> and
+                                 <command>list-jobs</command>.</para></listitem>
+diff --git a/man/systemd-cgls.xml b/man/systemd-cgls.xml
+index 4b6ee93..b280b87 100644
+--- a/man/systemd-cgls.xml
++++ b/man/systemd-cgls.xml
+@@ -111,6 +111,14 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
++                                <term><option>--full</option></term>
++
++                                <listitem><para>Do not ellipsize cgroup
++                                members.</para>
++                                </listitem>
++                        </varlistentry>
++
++                        <varlistentry>
+                                 <term><option>-k</option></term>
+ 
+                                 <listitem><para>Include kernel
+diff --git a/src/cgls/cgls.c b/src/cgls/cgls.c
+index cfb728b..a05f979 100644
+--- a/src/cgls/cgls.c
++++ b/src/cgls/cgls.c
+@@ -33,10 +33,12 @@
+ #include "util.h"
+ #include "pager.h"
+ #include "build.h"
++#include "output-mode.h"
+ 
+ static bool arg_no_pager = false;
+ static bool arg_kernel_threads = false;
+ static bool arg_all = false;
++static int arg_full = -1;
+ 
+ static void help(void) {
+ 
+@@ -46,6 +48,7 @@ static void help(void) {
+                "     --version        Show package version\n"
+                "     --no-pager       Do not pipe output into a pager\n"
+                "  -a --all            Show all groups, including empty\n"
++               "  --full              Do not ellipsize output\n"
+                "  -k                  Include kernel threads in output\n",
+                program_invocation_short_name);
+ }
+@@ -54,7 +57,8 @@ static int parse_argv(int argc, char *argv[]) {
+ 
+         enum {
+                 ARG_NO_PAGER = 0x100,
+-                ARG_VERSION
++                ARG_VERSION,
++                ARG_FULL,
+         };
+ 
+         static const struct option options[] = {
+@@ -62,6 +66,7 @@ static int parse_argv(int argc, char *argv[]) {
+                 { "version",   no_argument,       NULL, ARG_VERSION  },
+                 { "no-pager",  no_argument,       NULL, ARG_NO_PAGER },
+                 { "all",       no_argument,       NULL, 'a'          },
++                { "full",      no_argument,       NULL, ARG_FULL     },
+                 { NULL,        0,                 NULL, 0            }
+         };
+ 
+@@ -91,6 +96,10 @@ static int parse_argv(int argc, char *argv[]) {
+                         arg_all = true;
+                         break;
+ 
++                case ARG_FULL:
++                        arg_full = true;
++                        break;
++
+                 case 'k':
+                         arg_kernel_threads = true;
+                         break;
+@@ -109,6 +118,7 @@ static int parse_argv(int argc, char *argv[]) {
+ 
+ int main(int argc, char *argv[]) {
+         int r = 0, retval = EXIT_FAILURE;
++        int output_flags;
+ 
+         log_parse_environment();
+         log_open();
+@@ -121,8 +131,17 @@ int main(int argc, char *argv[]) {
+                 goto finish;
+         }
+ 
+-        if (!arg_no_pager)
+-                pager_open();
++        if (!arg_no_pager) {
++                r = pager_open();
++                if (r > 0) {
++                        if (arg_full == -1)
++                                arg_full = true;
++                }
++        }
++
++        output_flags =
++                arg_all * OUTPUT_SHOW_ALL |
++                (arg_full > 0) * OUTPUT_FULL_WIDTH;
+ 
+         if (optind < argc) {
+                 unsigned i;
+@@ -131,7 +150,8 @@ int main(int argc, char *argv[]) {
+                         int q;
+                         printf("%s:\n", argv[i]);
+ 
+-                        q = show_cgroup_by_path(argv[i], NULL, 0, arg_kernel_threads, arg_all);
++                        q = show_cgroup_by_path(argv[i], NULL, 0,
++                                                arg_kernel_threads, output_flags);
+                         if (q < 0)
+                                 r = q;
+                 }
+@@ -147,7 +167,8 @@ int main(int argc, char *argv[]) {
+ 
+                 if (path_startswith(p, "/sys/fs/cgroup")) {
+                         printf("Working Directory %s:\n", p);
+-                        r = show_cgroup_by_path(p, NULL, 0, arg_kernel_threads, arg_all);
++                        r = show_cgroup_by_path(p, NULL, 0,
++                                                arg_kernel_threads, output_flags);
+                 } else {
+                         char _cleanup_free_ *root = NULL;
+                         const char *t = NULL;
+@@ -162,7 +183,8 @@ int main(int argc, char *argv[]) {
+                                 t = root[0] ? root : "/";
+                         }
+ 
+-                        r = show_cgroup(SYSTEMD_CGROUP_CONTROLLER, t, NULL, 0, arg_kernel_threads, arg_all);
++                        r = show_cgroup(SYSTEMD_CGROUP_CONTROLLER, t, NULL, 0,
++                                        arg_kernel_threads, output_flags);
+                 }
+         }
+ 
+diff --git a/src/core/selinux-access.c b/src/core/selinux-access.c
+index 6dfe8b4..b933698 100644
+--- a/src/core/selinux-access.c
++++ b/src/core/selinux-access.c
+@@ -134,7 +134,7 @@ static int bus_get_audit_data(
+         if (r < 0)
+                 return r;
+ 
+-        r = get_process_cmdline(pid, LINE_MAX, true, &audit->cmdline);
++        r = get_process_cmdline(pid, 0, true, &audit->cmdline);
+         if (r < 0)
+                 return r;
+ 
+@@ -280,7 +280,7 @@ static int get_audit_data(
+         if (r < 0)
+                 return r;
+ 
+-        r = get_process_cmdline(ucred.pid, LINE_MAX, true, &audit->cmdline);
++        r = get_process_cmdline(ucred.pid, 0, true, &audit->cmdline);
+         if (r < 0)
+                 return r;
+ 
+diff --git a/src/journal/coredump.c b/src/journal/coredump.c
+index a507fc6..c989be9 100644
+--- a/src/journal/coredump.c
++++ b/src/journal/coredump.c
+@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
+                         IOVEC_SET_STRING(iovec[j++], core_exe);
+         }
+ 
+-        if (get_process_cmdline(pid, LINE_MAX, false, &t) >= 0) {
++        if (get_process_cmdline(pid, 0, false, &t) >= 0) {
+                 core_cmdline = strappend("COREDUMP_CMDLINE=", t);
+                 free(t);
+ 
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index 43ffe75..d3dec54 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -572,7 +572,7 @@ static void dispatch_message_real(
+                                 IOVEC_SET_STRING(iovec[n++], exe);
+                 }
+ 
+-                r = get_process_cmdline(ucred->pid, LINE_MAX, false, &t);
++                r = get_process_cmdline(ucred->pid, 0, false, &t);
+                 if (r >= 0) {
+                         cmdline = strappend("_CMDLINE=", t);
+                         free(t);
+diff --git a/src/login/loginctl.c b/src/login/loginctl.c
+index e2b33a6..0e57e08 100644
+--- a/src/login/loginctl.c
++++ b/src/login/loginctl.c
+@@ -40,6 +40,7 @@
+ 
+ static char **arg_property = NULL;
+ static bool arg_all = false;
++static bool arg_full = false;
+ static bool arg_no_pager = false;
+ static const char *arg_kill_who = NULL;
+ static int arg_signal = SIGTERM;
+@@ -402,6 +403,9 @@ static void print_session_status_info(SessionStatusInfo *i) {
+ 
+         if (i->default_control_group) {
+                 unsigned c;
++                int output_flags =
++                        arg_all * OUTPUT_SHOW_ALL |
++                        arg_full * OUTPUT_FULL_WIDTH;
+ 
+                 printf("\t  CGroup: %s\n", i->default_control_group);
+ 
+@@ -412,7 +416,10 @@ static void print_session_status_info(SessionStatusInfo *i) {
+                         else
+                                 c = 0;
+ 
+-                        show_cgroup_and_extra_by_spec(i->default_control_group, "\t\t  ", c, false, arg_all, &i->leader, i->leader > 0 ? 1 : 0);
++                        show_cgroup_and_extra_by_spec(i->default_control_group,
++                                                      "\t\t  ", c, false, &i->leader,
++                                                      i->leader > 0 ? 1 : 0,
++                                                      output_flags);
+                 }
+         }
+ }
+@@ -454,6 +461,9 @@ static void print_user_status_info(UserStatusInfo *i) {
+ 
+         if (i->default_control_group) {
+                 unsigned c;
++                int output_flags =
++                        arg_all * OUTPUT_SHOW_ALL |
++                        arg_full * OUTPUT_FULL_WIDTH;
+ 
+                 printf("\t  CGroup: %s\n", i->default_control_group);
+ 
+@@ -464,7 +474,8 @@ static void print_user_status_info(UserStatusInfo *i) {
+                         else
+                                 c = 0;
+ 
+-                        show_cgroup_by_path(i->default_control_group, "\t\t  ", c, false, arg_all);
++                        show_cgroup_by_path(i->default_control_group, "\t\t  ",
++                                            c, false, output_flags);
+                 }
+         }
+ }
+@@ -1323,6 +1334,7 @@ static int help(void) {
+                "  -p --property=NAME     Show only properties by this name\n"
+                "  -a --all               Show all properties, including empty ones\n"
+                "     --kill-who=WHO      Who to send signal to\n"
++               "  --full                 Do not ellipsize output\n"
+                "  -s --signal=SIGNAL     Which signal to send\n"
+                "     --no-ask-password   Don't prompt for password\n"
+                "  -H --host=[USER@]HOST  Show information for remote host\n"
+@@ -1362,7 +1374,8 @@ static int parse_argv(int argc, char *argv[]) {
+                 ARG_VERSION = 0x100,
+                 ARG_NO_PAGER,
+                 ARG_KILL_WHO,
+-                ARG_NO_ASK_PASSWORD
++                ARG_NO_ASK_PASSWORD,
++                ARG_FULL,
+         };
+ 
+         static const struct option options[] = {
+@@ -1376,6 +1389,7 @@ static int parse_argv(int argc, char *argv[]) {
+                 { "host",            required_argument, NULL, 'H'                 },
+                 { "privileged",      no_argument,       NULL, 'P'                 },
+                 { "no-ask-password", no_argument,       NULL, ARG_NO_ASK_PASSWORD },
++                { "full",            no_argument,       NULL, ARG_FULL            },
+                 { NULL,              0,                 NULL, 0                   }
+         };
+ 
+@@ -1447,6 +1461,10 @@ static int parse_argv(int argc, char *argv[]) {
+                         arg_host = optarg;
+                         break;
+ 
++                case ARG_FULL:
++                        arg_full = true;
++                        break;
++
+                 case '?':
+                         return -EINVAL;
+ 
+diff --git a/src/shared/cgroup-show.c b/src/shared/cgroup-show.c
+index 2b79f37..2f2669f 100644
+--- a/src/shared/cgroup-show.c
++++ b/src/shared/cgroup-show.c
+@@ -51,7 +51,7 @@ static unsigned ilog10(unsigned long ul) {
+         return n;
+ }
+ 
+-static void show_pid_array(int pids[], unsigned n_pids, const char *prefix, unsigned n_columns, bool extra, bool more, bool kernel_threads) {
++static void show_pid_array(int pids[], unsigned n_pids, const char *prefix, unsigned n_columns, bool extra, bool more, bool kernel_threads, OutputFlags flags) {
+         unsigned i, m, pid_width;
+         pid_t biggest = 0;
+ 
+@@ -76,11 +76,14 @@ static void show_pid_array(int pids[], unsigned n_pids, const char *prefix, unsi
+         /* And sort */
+         qsort(pids, n_pids, sizeof(pid_t), compare);
+ 
+-        if (n_columns > pid_width+2)
+-                n_columns -= pid_width+2;
+-        else
+-                n_columns = 20;
+-
++        if(flags & OUTPUT_FULL_WIDTH)
++                n_columns = 0;
++        else {
++                if (n_columns > pid_width+2)
++                        n_columns -= pid_width+2;
++                else
++                        n_columns = 20;
++        }
+         for (i = 0; i < n_pids; i++) {
+                 char *t = NULL;
+ 
+@@ -99,7 +102,7 @@ static void show_pid_array(int pids[], unsigned n_pids, const char *prefix, unsi
+ }
+ 
+ 
+-static int show_cgroup_one_by_path(const char *path, const char *prefix, unsigned n_columns, bool more, bool kernel_threads) {
++static int show_cgroup_one_by_path(const char *path, const char *prefix, unsigned n_columns, bool more, bool kernel_threads, OutputFlags flags) {
+         char *fn;
+         FILE *f;
+         size_t n = 0, n_allocated = 0;
+@@ -149,7 +152,7 @@ static int show_cgroup_one_by_path(const char *path, const char *prefix, unsigne
+                 goto finish;
+ 
+         if (n > 0)
+-                show_pid_array(pids, n, prefix, n_columns, false, more, kernel_threads);
++                show_pid_array(pids, n, prefix, n_columns, false, more, kernel_threads, flags);
+ 
+         r = 0;
+ 
+@@ -162,7 +165,7 @@ finish:
+         return r;
+ }
+ 
+-int show_cgroup_by_path(const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, bool all) {
++int show_cgroup_by_path(const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, OutputFlags flags) {
+         DIR *d;
+         char *last = NULL;
+         char *p1 = NULL, *p2 = NULL, *fn = NULL, *gn = NULL;
+@@ -197,13 +200,13 @@ int show_cgroup_by_path(const char *path, const char *prefix, unsigned n_columns
+                         goto finish;
+                 }
+ 
+-                if (!all && cg_is_empty_recursive(NULL, k, false) > 0) {
++                if (!(flags & OUTPUT_SHOW_ALL) && cg_is_empty_recursive(NULL, k, false) > 0) {
+                         free(k);
+                         continue;
+                 }
+ 
+                 if (!shown_pids) {
+-                        show_cgroup_one_by_path(path, prefix, n_columns, true, kernel_threads);
++                        show_cgroup_one_by_path(path, prefix, n_columns, true, kernel_threads, flags);
+                         shown_pids = true;
+                 }
+ 
+@@ -220,7 +223,7 @@ int show_cgroup_by_path(const char *path, const char *prefix, unsigned n_columns
+                                 }
+                         }
+ 
+-                        show_cgroup_by_path(last, p1, n_columns-2, kernel_threads, all);
++                        show_cgroup_by_path(last, p1, n_columns-2, kernel_threads, flags);
+                         free(last);
+                 }
+ 
+@@ -231,7 +234,7 @@ int show_cgroup_by_path(const char *path, const char *prefix, unsigned n_columns
+                 goto finish;
+ 
+         if (!shown_pids)
+-                show_cgroup_one_by_path(path, prefix, n_columns, !!last, kernel_threads);
++                show_cgroup_one_by_path(path, prefix, n_columns, !!last, kernel_threads, flags);
+ 
+         if (last) {
+                 printf("%s%s%s\n", prefix, draw_special_char(DRAW_TREE_RIGHT),
+@@ -245,7 +248,7 @@ int show_cgroup_by_path(const char *path, const char *prefix, unsigned n_columns
+                         }
+                 }
+ 
+-                show_cgroup_by_path(last, p2, n_columns-2, kernel_threads, all);
++                show_cgroup_by_path(last, p2, n_columns-2, kernel_threads, flags);
+         }
+ 
+         r = 0;
+@@ -261,7 +264,7 @@ finish:
+         return r;
+ }
+ 
+-int show_cgroup(const char *controller, const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, bool all) {
++int show_cgroup(const char *controller, const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, OutputFlags flags) {
+         char *p;
+         int r;
+ 
+@@ -272,13 +275,13 @@ int show_cgroup(const char *controller, const char *path, const char *prefix, un
+         if (r < 0)
+                 return r;
+ 
+-        r = show_cgroup_by_path(p, prefix, n_columns, kernel_threads, all);
++        r = show_cgroup_by_path(p, prefix, n_columns, kernel_threads, flags);
+         free(p);
+ 
+         return r;
+ }
+ 
+-static int show_extra_pids(const char *controller, const char *path, const char *prefix, unsigned n_columns, const pid_t pids[], unsigned n_pids) {
++static int show_extra_pids(const char *controller, const char *path, const char *prefix, unsigned n_columns, const pid_t pids[], unsigned n_pids, OutputFlags flags) {
+         pid_t *copy;
+         unsigned i, j;
+         int r;
+@@ -314,26 +317,26 @@ static int show_extra_pids(const char *controller, const char *path, const char
+                 copy[j++] = pids[i];
+         }
+ 
+-        show_pid_array(copy, j, prefix, n_columns, true, false, false);
++        show_pid_array(copy, j, prefix, n_columns, true, false, false, flags);
+ 
+         free(copy);
+         return 0;
+ }
+ 
+-int show_cgroup_and_extra(const char *controller, const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, bool all, const pid_t extra_pids[], unsigned n_extra_pids) {
++int show_cgroup_and_extra(const char *controller, const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, const pid_t extra_pids[], unsigned n_extra_pids, OutputFlags flags) {
+         int r;
+ 
+         assert(controller);
+         assert(path);
+ 
+-        r = show_cgroup(controller, path, prefix, n_columns, kernel_threads, all);
++        r = show_cgroup(controller, path, prefix, n_columns, kernel_threads, flags);
+         if (r < 0)
+                 return r;
+ 
+-        return show_extra_pids(controller, path, prefix, n_columns, extra_pids, n_extra_pids);
++        return show_extra_pids(controller, path, prefix, n_columns, extra_pids, n_extra_pids, flags);
+ }
+ 
+-int show_cgroup_and_extra_by_spec(const char *spec, const char *prefix, unsigned n_columns, bool kernel_threads, bool all, const pid_t extra_pids[], unsigned n_extra_pids) {
++int show_cgroup_and_extra_by_spec(const char *spec, const char *prefix, unsigned n_columns, bool kernel_threads, const pid_t extra_pids[], unsigned n_extra_pids, OutputFlags flags) {
+         int r;
+         _cleanup_free_ char *controller = NULL, *path = NULL;
+ 
+@@ -343,5 +346,5 @@ int show_cgroup_and_extra_by_spec(const char *spec, const char *prefix, unsigned
+         if (r < 0)
+                 return r;
+ 
+-        return show_cgroup_and_extra(controller, path, prefix, n_columns, kernel_threads, all, extra_pids, n_extra_pids);
++        return show_cgroup_and_extra(controller, path, prefix, n_columns, kernel_threads, extra_pids, n_extra_pids, flags);
+ }
+diff --git a/src/shared/cgroup-show.h b/src/shared/cgroup-show.h
+index dba900a..72bc8a6 100644
+--- a/src/shared/cgroup-show.h
++++ b/src/shared/cgroup-show.h
+@@ -24,11 +24,13 @@
+ 
+ #include <stdbool.h>
+ #include <sys/types.h>
++#include "util.h"
++#include "logs-show.h"
+ 
+-int show_cgroup_by_path(const char *path, const char *prefix, unsigned columns, bool kernel_threads, bool all);
+-int show_cgroup(const char *controller, const char *path, const char *prefix, unsigned columns, bool kernel_threads, bool all);
++int show_cgroup_by_path(const char *path, const char *prefix, unsigned columns, bool kernel_threads, OutputFlags flags);
++int show_cgroup(const char *controller, const char *path, const char *prefix, unsigned columns, bool kernel_threads, OutputFlags flags);
+ 
+-int show_cgroup_and_extra_by_spec(const char *spec, const char *prefix, unsigned n_columns, bool kernel_threads, bool all, const pid_t extra_pids[], unsigned n_extra_pids);
+-int show_cgroup_and_extra(const char *controller, const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, bool all, const pid_t extra_pids[], unsigned n_extra_pids);
++int show_cgroup_and_extra_by_spec(const char *spec, const char *prefix, unsigned n_columns, bool kernel_threads, const pid_t extra_pids[], unsigned n_extra_pids, OutputFlags flags);
++int show_cgroup_and_extra(const char *controller, const char *path, const char *prefix, unsigned n_columns, bool kernel_threads, const pid_t extra_pids[], unsigned n_extra_pids, OutputFlags flags);
+ 
+ #endif
+diff --git a/src/shared/logs-show.h b/src/shared/logs-show.h
+index 11cb41a..6c32aa7 100644
+--- a/src/shared/logs-show.h
++++ b/src/shared/logs-show.h
+@@ -26,28 +26,7 @@
+ #include <systemd/sd-journal.h>
+ 
+ #include "util.h"
+-
+-typedef enum OutputMode {
+-        OUTPUT_SHORT,
+-        OUTPUT_SHORT_MONOTONIC,
+-        OUTPUT_VERBOSE,
+-        OUTPUT_EXPORT,
+-        OUTPUT_JSON,
+-        OUTPUT_JSON_PRETTY,
+-        OUTPUT_JSON_SSE,
+-        OUTPUT_CAT,
+-        _OUTPUT_MODE_MAX,
+-        _OUTPUT_MODE_INVALID = -1
+-} OutputMode;
+-
+-typedef enum OutputFlags {
+-        OUTPUT_SHOW_ALL       = 1 << 0,
+-        OUTPUT_FOLLOW         = 1 << 1,
+-        OUTPUT_WARN_CUTOFF    = 1 << 2,
+-        OUTPUT_FULL_WIDTH     = 1 << 3,
+-        OUTPUT_COLOR          = 1 << 4,
+-        OUTPUT_CATALOG        = 1 << 5
+-} OutputFlags;
++#include "output-mode.h"
+ 
+ int output_journal(
+                 FILE *f,
+diff --git a/src/shared/output-mode.h b/src/shared/output-mode.h
+new file mode 100644
+index 0000000..0efd430
+--- /dev/null
++++ b/src/shared/output-mode.h
+@@ -0,0 +1,44 @@
++/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
++
++#pragma once
++
++/***
++  This file is part of systemd.
++
++  Copyright 2013 Lennart Poettering
++
++  systemd is free software; you can redistribute it and/or modify it
++  under the terms of the GNU Lesser General Public License as published by
++  the Free Software Foundation; either version 2.1 of the License, or
++  (at your option) any later version.
++
++  systemd is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with systemd; If not, see <http://www.gnu.org/licenses/>.
++***/
++
++typedef enum OutputMode {
++        OUTPUT_SHORT,
++        OUTPUT_SHORT_MONOTONIC,
++        OUTPUT_VERBOSE,
++        OUTPUT_EXPORT,
++        OUTPUT_JSON,
++        OUTPUT_JSON_PRETTY,
++        OUTPUT_JSON_SSE,
++        OUTPUT_CAT,
++        _OUTPUT_MODE_MAX,
++        _OUTPUT_MODE_INVALID = -1
++} OutputMode;
++
++typedef enum OutputFlags {
++        OUTPUT_SHOW_ALL       = 1 << 0,
++        OUTPUT_FOLLOW         = 1 << 1,
++        OUTPUT_WARN_CUTOFF    = 1 << 2,
++        OUTPUT_FULL_WIDTH     = 1 << 3,
++        OUTPUT_COLOR          = 1 << 4,
++        OUTPUT_CATALOG        = 1 << 5
++} OutputFlags;
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 49b5844..13f1a1c 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -905,13 +905,10 @@ int get_process_comm(pid_t pid, char **name) {
+ }
+ 
+ int get_process_cmdline(pid_t pid, size_t max_length, bool comm_fallback, char **line) {
+-        char *r, *k;
++        char *r = NULL, *k;
+         int c;
+-        bool space = false;
+-        size_t left;
+         FILE *f;
+ 
+-        assert(max_length > 0);
+         assert(line);
+ 
+         if (pid == 0)
+@@ -927,47 +924,64 @@ int get_process_cmdline(pid_t pid, size_t max_length, bool comm_fallback, char *
+ 
+         if (!f)
+                 return -errno;
++        if (max_length == 0) {
++                size_t len = 1;
++                while ((c = getc(f)) != EOF) {
++                        k = realloc(r, len+1);
++                        if (k == NULL) {
++                                free(r);
++                                fclose(f);
++                                return -ENOMEM;
++                        }
++                        r = k;
++                        r[len-1] = isprint(c) ? c : ' ';
++                        r[len] = 0;
++                        len++;
++                }
++        } else {
++                bool space = false;
++                size_t left;
++                r = new(char, max_length);
++                if (!r) {
++                        fclose(f);
++                        return -ENOMEM;
++                }
+ 
+-        r = new(char, max_length);
+-        if (!r) {
+-                fclose(f);
+-                return -ENOMEM;
+-        }
++                k = r;
++                left = max_length;
++                while ((c = getc(f)) != EOF) {
++
++                        if (isprint(c)) {
++                                if (space) {
++                                        if (left <= 4)
++                                                break;
+ 
+-        k = r;
+-        left = max_length;
+-        while ((c = getc(f)) != EOF) {
++                                        *(k++) = ' ';
++                                        left--;
++                                        space = false;
++                                }
+ 
+-                if (isprint(c)) {
+-                        if (space) {
+                                 if (left <= 4)
+                                         break;
+ 
+-                                *(k++) = ' ';
++                                *(k++) = (char) c;
+                                 left--;
+-                                space = false;
+-                        }
+-
+-                        if (left <= 4)
+-                                break;
++                        }  else
++                                space = true;
++                }
+ 
+-                        *(k++) = (char) c;
+-                        left--;
+-                }  else
+-                        space = true;
++                if (left <= 4) {
++                        size_t n = MIN(left-1, 3U);
++                        memcpy(k, "...", n);
++                        k[n] = 0;
++                } else
++                        *k = 0;
+         }
+ 
+-        if (left <= 4) {
+-                size_t n = MIN(left-1, 3U);
+-                memcpy(k, "...", n);
+-                k[n] = 0;
+-        } else
+-                *k = 0;
+-
+         fclose(f);
+ 
+         /* Kernel threads have no argv[] */
+-        if (r[0] == 0) {
++        if (r == NULL || r[0] == 0) {
+                 char *t;
+                 int h;
+ 
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 012fd56..45f3438 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -2199,6 +2199,12 @@ static void print_status_info(UnitStatusInfo *i) {
+         char since1[FORMAT_TIMESTAMP_RELATIVE_MAX], *s1;
+         char since2[FORMAT_TIMESTAMP_MAX], *s2;
+         const char *path;
++        int flags =
++                arg_all * OUTPUT_SHOW_ALL |
++                (!on_tty() || pager_have()) * OUTPUT_FULL_WIDTH |
++                on_tty() * OUTPUT_COLOR |
++                !arg_quiet * OUTPUT_WARN_CUTOFF |
++                arg_full * OUTPUT_FULL_WIDTH;
+ 
+         assert(i);
+ 
+@@ -2427,17 +2433,11 @@ static void print_status_info(UnitStatusInfo *i) {
+                         if (i->control_pid > 0)
+                                 extra[k++] = i->control_pid;
+ 
+-                        show_cgroup_and_extra_by_spec(i->default_control_group, "\t\t  ", c, false, arg_all, extra, k);
++                        show_cgroup_and_extra_by_spec(i->default_control_group, "\t\t  ", c, false, extra, k, flags);
+                 }
+         }
+ 
+         if (i->id && arg_transport != TRANSPORT_SSH) {
+-                int flags =
+-                        arg_all * OUTPUT_SHOW_ALL |
+-                        (!on_tty() || pager_have()) * OUTPUT_FULL_WIDTH |
+-                        on_tty() * OUTPUT_COLOR |
+-                        !arg_quiet * OUTPUT_WARN_CUTOFF;
+-
+                 printf("\n");
+                 show_journal_by_unit(stdout,
+                                      i->id,

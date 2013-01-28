@@ -1,0 +1,1934 @@
+From 1ce7da3d31e2ac2d294b8da0798eeb628b133099 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 17 Jan 2013 02:27:06 +0100
+Subject: [PATCH] units: for all unit settings that take lists, allow the empty
+ string for resetting the lists
+
+https://bugzilla.redhat.com/show_bug.cgi?id=756787
+(cherry picked from commit 74051b9b5865586bf4d30b9075649af838fb92bd)
+
+Conflicts:
+	src/core/load-fragment.c
+---
+ man/systemd.exec.xml                  | 190 +++++++++++------
+ man/systemd.path.xml                  |  23 ++-
+ man/systemd.service.xml               |  92 ++++++---
+ man/systemd.socket.xml                |  25 ++-
+ man/systemd.timer.xml                 |  16 +-
+ man/systemd.unit.xml                  |  17 +-
+ src/core/load-fragment-gperf.gperf.m4 |  14 +-
+ src/core/load-fragment.c              | 372 +++++++++++++++++++---------------
+ src/core/path.c                       |  16 +-
+ src/core/path.h                       |   2 +
+ src/core/socket.c                     |  11 +-
+ src/core/socket.h                     |   2 +
+ src/core/timer.c                      |  11 +-
+ src/core/timer.h                      |   2 +
+ src/shared/conf-parser.c              |  46 ++++-
+ 15 files changed, 538 insertions(+), 301 deletions(-)
+
+diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
+index 302ac43..37d2dd7 100644
+--- a/man/systemd.exec.xml
++++ b/man/systemd.exec.xml
+@@ -133,10 +133,15 @@
+                                 of group names or IDs. This option may
+                                 be specified more than once in which
+                                 case all listed groups are set as
+-                                supplementary groups. This option does
+-                                not override but extends the list of
+-                                supplementary groups configured in the
+-                                system group database for the
++                                supplementary groups. When the empty
++                                string is assigned the list of
++                                supplementary groups is reset, and all
++                                assignments prior to this one will
++                                have no effect. In any way, this
++                                option does not override, but extends
++                                the list of supplementary groups
++                                configured in the system group
++                                database for the
+                                 user.</para></listitem>
+                         </varlistentry>
+ 
+@@ -244,7 +249,13 @@
+                                 <listitem><para>Controls the CPU
+                                 affinity of the executed
+                                 processes. Takes a space-separated
+-                                list of CPU indexes. See
++                                list of CPU indexes. This option may
++                                be specified more than once in which
++                                case the specificed CPU affinity masks
++                                are merged. If the empty string is
++                                assigned the mask is reset, all
++                                assignments prior to this will have no
++                                effect. See
+                                 <citerefentry><refentrytitle>sched_setaffinity</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+                                 for details.</para></listitem>
+                         </varlistentry>
+@@ -271,7 +282,11 @@
+                                 in which case all listed variables
+                                 will be set. If the same variable is
+                                 set twice the later setting will
+-                                override the earlier setting. See
++                                override the earlier setting. If the
++                                empty string is assigned to this
++                                option the list of environment
++                                variables is reset, all prior
++                                assignments have no effect. See
+                                 <citerefentry><refentrytitle>environ</refentrytitle><manvolnum>7</manvolnum></citerefentry>
+                                 for details.</para></listitem>
+                         </varlistentry>
+@@ -288,14 +303,22 @@
+                                 parser strips leading and
+                                 trailing whitespace from the values
+                                 of assignments, unless you use
+-                                double quotes (").
+-                                The
+-                                argument passed should be an absolute
+-                                file name or wildcard expression, optionally prefixed with
++                                double quotes (").</para>
++
++                                <para>The argument passed should be an
++                                absolute file name or wildcard
++                                expression, optionally prefixed with
+                                 "-", which indicates that if the file
+                                 does not exist it won't be read and no
+-                                error or warning message is
+-                                logged. The files listed with this
++                                error or warning message is logged.
++                                This option may be specified more than
++                                once in which case all specified files
++                                are read. If the empty string is
++                                assigned to this option the list of
++                                file to read is reset, all prior
++                                assignments have no effect.</para>
++
++                                <para>The files listed with this
+                                 directive will be read shortly before
+                                 the process is executed. Settings from
+                                 these files override settings made
+@@ -305,7 +328,7 @@
+                                 these files the files will be read in
+                                 the order they are specified and the
+                                 later setting will override the
+-                                earlier setting. </para></listitem>
++                                earlier setting.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -695,8 +718,13 @@
+                                 capability bounding set is not
+                                 modified on process execution, hence
+                                 no limits on the capabilities of the
+-                                process are
+-                                enforced.</para></listitem>
++                                process are enforced. This option may
++                                appear more than once in which case
++                                the bounding sets are merged. If the empty
++                                string is assigned to this option the
++                                bounding set is reset, and all prior
++                                settings have no
++                                effect.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -710,8 +738,12 @@
+                                 <option>no-setuid-fixup</option>,
+                                 <option>no-setuid-fixup-locked</option>,
+                                 <option>noroot</option> and/or
+-                                <option>noroot-locked</option>.
+-                                </para></listitem>
++                                <option>noroot-locked</option>. This
++                                option may appear more than once in
++                                which case the secure bits are
++                                ORed. If the empty string is assigned
++                                to this option the bits are reset to
++                                0.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -739,10 +771,10 @@
+                                 groups the executed processes shall be
+                                 made members of. Takes a
+                                 space-separated list of cgroup
+-                                identifiers. A cgroup identifier has a
+-                                format like
++                                identifiers. A cgroup identifier is
++                                formatted like
+                                 <filename>cpu:/foo/bar</filename>,
+-                                where "cpu" identifies the kernel
++                                where "cpu" indicates the kernel
+                                 control group controller used, and
+                                 <filename>/foo/bar</filename> is the
+                                 control group path. The controller
+@@ -751,30 +783,50 @@
+                                 hierarchy is implied. Alternatively,
+                                 the path and ":" may be omitted, in
+                                 which case the default control group
+-                                path for this unit is implied. This
+-                                option may be used to place executed
+-                                processes in arbitrary groups in
+-                                arbitrary hierarchies -- which can be
+-                                configured externally with additional
+-                                execution limits. By default systemd
+-                                will place all executed processes in
+-                                separate per-unit control groups
+-                                (named after the unit) in the systemd
+-                                named hierarchy. Since every process
+-                                can be in one group per hierarchy only
+-                                overriding the control group path in
+-                                the named systemd hierarchy will
+-                                disable automatic placement in the
+-                                default group. This option is
+-                                primarily intended to place executed
+-                                processes in specific paths in
+-                                specific kernel controller
+-                                hierarchies. It is however not
++                                path for this unit is implied.</para>
++
++                                <para>This option may be used to place
++                                executed processes in arbitrary groups
++                                in arbitrary hierarchies -- which may
++                                then be externally configured with
++                                additional execution limits. By
++                                default systemd will place all
++                                executed processes in separate
++                                per-unit control groups (named after
++                                the unit) in the systemd named
++                                hierarchy. This option is primarily
++                                intended to place executed processes
++                                in specific paths in specific kernel
++                                controller hierarchies. It is not
+                                 recommended to manipulate the service
+                                 control group path in the systemd
+                                 named hierarchy. For details about
+                                 control groups see <ulink
+-                                url="http://www.kernel.org/doc/Documentation/cgroups/cgroups.txt">cgroups.txt</ulink>.</para></listitem>
++                                url="http://www.kernel.org/doc/Documentation/cgroups/cgroups.txt">cgroups.txt</ulink>.</para>
++
++                                <para>This option may appear more than
++                                once, in which case the list of
++                                control group assignments is
++                                merged. If the same hierarchy gets two
++                                different paths assigned only the
++                                later setting will take effect. If the
++                                empty string is assigned to this
++                                option the list of control group
++                                assignments is reset, all previous
++                                assignments will have no
++                                effect.</para>
++
++                                <para>Note that the list of control
++                                group assignments of a unit is
++                                extended implicitly based on the
++                                settings of
++                                <varname>DefaultControllers=</varname>
++                                of
++                                <citerefentry><refentrytitle>systemd.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
++                                but a unit's
++                                <varname>ControlGroup=</varname>
++                                setting for a specific controller
++                                takes precedence.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -832,8 +884,8 @@
+                                 the controller and the default unit
+                                 cgroup path is implied. Thus, using
+                                 <varname>ControlGroupAttribute=</varname>
+-                                is in most case sufficient to make use
+-                                of control group enforcements,
++                                is in most cases sufficient to make
++                                use of control group enforcements,
+                                 explicit
+                                 <varname>ControlGroup=</varname> are
+                                 only necessary in case the implied
+@@ -844,7 +896,23 @@
+                                 url="http://www.kernel.org/doc/Documentation/cgroups/cgroups.txt">cgroups.txt</ulink>. This
+                                 option may appear more than once, in
+                                 order to set multiple control group
+-                                attributes.</para></listitem>
++                                attributes. If this option is used
++                                multiple times for the same cgroup
++                                attribute only the later setting takes
++                                effect. If the empty string is
++                                assigned to this option the list of
++                                attributes is reset, all previous
++                                cgroup attribute settings have no
++                                effect, including those done with
++                                <varname>CPUShares=</varname>,
++                                <varname>MemoryLimit=</varname>,
++                                <varname>MemorySoftLimit</varname>,
++                                <varname>DeviceAllow=</varname>,
++                                <varname>DeviceDeny=</varname>,
++                                <varname>BlockIOWeight=</varname>,
++                                <varname>BlockIOReadBandwidth=</varname>,
++                                <varname>BlockIOWriteBandwidth=</varname>.
++                                </para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -988,18 +1056,21 @@
+                                 usual file access controls would
+                                 permit this. Directories listed in
+                                 <varname>InaccessibleDirectories=</varname>
+-                                will be made inaccessible for processes
+-                                inside the namespace. Note that
+-                                restricting access with these options
+-                                does not extend to submounts of a
+-                                directory. You must list submounts
+-                                separately in these settings to
+-                                ensure the same limited access. These
+-                                options may be specified more than
+-                                once in which case all directories
+-                                listed will have limited access from
+-                                within the
+-                                namespace.</para></listitem>
++                                will be made inaccessible for
++                                processes inside the namespace. Note
++                                that restricting access with these
++                                options does not extend to submounts
++                                of a directory. You must list
++                                submounts separately in these settings
++                                to ensure the same limited
++                                access. These options may be specified
++                                more than once in which case all
++                                directories listed will have limited
++                                access from within the namespace. If
++                                the empty string is assigned to this
++                                option the specific list is reset, and
++                                all prior assignments have no
++                                effect.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -1131,8 +1202,13 @@
+                                 <function>exit_group</function>,
+                                 <function>exit</function> system calls
+                                 are implicitly whitelisted and don't
+-                                need to be listed
+-                                explicitly.</para></listitem>
++                                need to be listed explicitly. This
++                                option may be specified more than once
++                                in which case the filter masks are
++                                merged. If the empty string is
++                                assigned the filter is reset, all
++                                prior assignments will have no
++                                effect.</para></listitem>
+                         </varlistentry>
+ 
+                 </variablelist>
+diff --git a/man/systemd.path.xml b/man/systemd.path.xml
+index a27a97b..0c2d1a5 100644
+--- a/man/systemd.path.xml
++++ b/man/systemd.path.xml
+@@ -130,13 +130,15 @@
+                                 specified. <varname>PathChanged=</varname>
+                                 may be used to watch a file or
+                                 directory and activate the configured
+-                                unit whenever it changes. It is not activated
+-                                on every write to the watched file but it is
+-                                activated if the file which was open for writing
+-                                gets closed. <varname>PathModified=</varname>
+-                                is similar, but additionally it is activated
+-                                also on simple writes to the watched file.
+-
++                                unit whenever it changes. It is not
++                                activated on every write to the
++                                watched file but it is activated if
++                                the file which was open for writing
++                                gets
++                                closed. <varname>PathModified=</varname>
++                                is similar, but additionally it is
++                                activated also on simple writes to the
++                                watched file.
+                                 <varname>DirectoryNotEmpty=</varname>
+                                 may be used to watch a directory and
+                                 activate the configured unit whenever
+@@ -148,7 +150,12 @@
+ 
+                                 <para>Multiple directives may be
+                                 combined, of the same and of different
+-                                types, to watch multiple paths.</para>
++                                types, to watch multiple paths. If the
++                                empty string is assigned to any of
++                                these options the list of paths to
++                                watch is reset, and any prior
++                                assignments of these options will not
++                                have any effect.</para>
+ 
+                                 <para>If a path is already existing
+                                 (in case of
+diff --git a/man/systemd.service.xml b/man/systemd.service.xml
+index 598e863..8dbef49 100644
+--- a/man/systemd.service.xml
++++ b/man/systemd.service.xml
+@@ -315,14 +315,18 @@
+                                 for compatibility with parsers
+                                 suitable for XDG
+                                 <filename>.desktop</filename> files.
+-                                The commands are invoked one by
+-                                one sequentially in the order they
+-                                appear in the unit file.
+-                                When <varname>Type</varname> is
+-                                not <option>oneshot</option>, only one
++                                The commands are invoked one by one
++                                sequentially in the order they appear
++                                in the unit file.  When
++                                <varname>Type</varname> is not
++                                <option>oneshot</option>, only one
+                                 command may be given. Lone semicolons
+                                 may be escaped as
+-                                '<literal>\;</literal>'.</para>
++                                '<literal>\;</literal>'. If the empty
++                                string is assigned to this option the
++                                list of commands to start is reset,
++                                prior assignments of this option will
++                                have no effect.</para>
+ 
+                                 <para>Unless
+                                 <varname>Type=forking</varname> is
+@@ -338,23 +342,6 @@
+                                 line (i.e. the program to execute) may
+                                 not include specifiers.</para>
+ 
+-                                <para>Optionally, if the absolute file
+-                                name is prefixed with
+-                                '<literal>@</literal>', the second token
+-                                will be passed as
+-                                <literal>argv[0]</literal> to the
+-                                executed process, followed by the
+-                                further arguments specified. If the
+-                                absolute file name is prefixed with
+-                                '<literal>-</literal>' an exit code of
+-                                the command normally considered a
+-                                failure (i.e. non-zero exit status or
+-                                abnormal exit due to signal) is ignored
+-                                and considered success. If both
+-                                '<literal>-</literal>' and
+-                                '<literal>@</literal>' are used they
+-                                can appear in either order.</para>
+-
+                                 <para>On top of that basic environment
+                                 variable substitution is
+                                 supported. Use
+@@ -376,6 +363,23 @@
+                                 literal and absolute path
+                                 name.</para>
+ 
++                                <para>Optionally, if the absolute file
++                                name is prefixed with
++                                '<literal>@</literal>', the second token
++                                will be passed as
++                                <literal>argv[0]</literal> to the
++                                executed process, followed by the
++                                further arguments specified. If the
++                                absolute file name is prefixed with
++                                '<literal>-</literal>' an exit code of
++                                the command normally considered a
++                                failure (i.e. non-zero exit status or
++                                abnormal exit due to signal) is ignored
++                                and considered success. If both
++                                '<literal>-</literal>' and
++                                '<literal>@</literal>' are used they
++                                can appear in either order.</para>
++
+                                 <para>Note that this setting does not
+                                 directly support shell command
+                                 lines. If shell command lines are to
+@@ -616,8 +620,14 @@
+                                 SIGKILL</literal>", ensures that exit
+                                 codes 1, 2, 8 and the termination
+                                 signal SIGKILL are considered clean
+-                                service
+-                                terminations.</para></listitem>
++                                service terminations. This option may
++                                appear more than once in which case
++                                the list of successful exit statuses
++                                is merged. If the empty string is
++                                assigned to this option the list is
++                                reset, all prior assignments of this
++                                option will have no
++                                effect.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -638,9 +648,16 @@
+                                 logic. Example:
+                                 "<literal>RestartPreventExitStatus=1 6
+                                 SIGABRT</literal>", ensures that exit
+-                                codes 1 and 6 and the termination signal
+-                                SIGABRT will not result in automatic
+-                                service restarting.</para></listitem>
++                                codes 1 and 6 and the termination
++                                signal SIGABRT will not result in
++                                automatic service restarting. This
++                                option may appear more than once in
++                                which case the list of restart preventing
++                                statuses is merged. If the empty
++                                string is assigned to this option the
++                                list is reset, all prior assignments
++                                of this option will have no
++                                effect.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -754,13 +771,22 @@
+                                 same time. Also note that a different
+                                 service may be activated on incoming
+                                 traffic than inherits the sockets. Or
+-                                in other words: The
++                                in other words: the
+                                 <varname>Service=</varname> setting of
+                                 <filename>.socket</filename> units
+-                                doesn't have to match the inverse of the
+-                                <varname>Sockets=</varname> setting of
+-                                the <filename>.service</filename> it
+-                                refers to.</para></listitem>
++                                doesn't have to match the inverse of
++                                the <varname>Sockets=</varname>
++                                setting of the
++                                <filename>.service</filename> it
++                                refers to.</para>
++
++                                <para>This option may appear more than
++                                once, in which case the list of socket
++                                units is merged. If the empty string
++                                is assigned to this option the list of
++                                sockets is reset, all prior uses of
++                                this setting will have no
++                                effect.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+diff --git a/man/systemd.socket.xml b/man/systemd.socket.xml
+index 4b1fcc8..df54274 100644
+--- a/man/systemd.socket.xml
++++ b/man/systemd.socket.xml
+@@ -205,19 +205,24 @@
+ 
+                                 <para>These options may be specified
+                                 more than once in which case incoming
+-                                traffic on any of the sockets will trigger
+-                                service activation, and all listed
+-                                sockets will be passed to the service,
+-                                regardless whether there is incoming
+-                                traffic on them or not.</para>
+-
+-                                <para>If an IP address is used here, it
+-                                is often desirable to listen on it
++                                traffic on any of the sockets will
++                                trigger service activation, and all
++                                listed sockets will be passed to the
++                                service, regardless whether there is
++                                incoming traffic on them or not. If
++                                the empty string is assigned to any of
++                                these options, the list of addresses
++                                to listen on is reset, all prior uses
++                                of any of these options will have no
++                                effect.</para>
++
++                                <para>If an IP address is used here,
++                                it is often desirable to listen on it
+                                 before the interface it is configured
+                                 on is up and running, and even
+                                 regardless whether it will be up and
+-                                running ever at all. To deal with this it is
+-                                recommended to set the
++                                running ever at all. To deal with this
++                                it is recommended to set the
+                                 <varname>FreeBind=</varname> option
+                                 described below.</para></listitem>
+                         </varlistentry>
+diff --git a/man/systemd.timer.xml b/man/systemd.timer.xml
+index 5cc543e..80c8061 100644
+--- a/man/systemd.timer.xml
++++ b/man/systemd.timer.xml
+@@ -115,7 +115,7 @@
+                                 machine was booted
+                                 up. <varname>OnStartupSec=</varname>
+                                 defines a timer relative to when
+-                                systemd was
++                                systemd was first
+                                 started. <varname>OnUnitActiveSec=</varname>
+                                 defines a timer relative to when the
+                                 unit the timer is activating was last
+@@ -157,7 +157,13 @@
+                                 <para>These are monotonic timers,
+                                 independent of wall-clock time and timezones. If the
+                                 computer is temporarily suspended, the
+-                                monotonic clock stops too.</para></listitem>
++                                monotonic clock stops too.</para>
++
++                                <para>If the empty string is assigned
++                                to any of these options the list of
++                                timers is reset, and all prior
++                                assignments will have no
++                                effect.</para></listitem>
+ 
+                         </varlistentry>
+ 
+@@ -169,8 +175,10 @@
+                                 event expressions. See
+                                 <citerefentry><refentrytitle>systemd.time</refentrytitle><manvolnum>7</manvolnum></citerefentry>
+                                 for more information on the syntax of
+-                                calendar event
+-                                expressions.</para></listitem>
++                                calendar event expressions. Otherwise
++                                the semantics are similar to
++                                <varname>OnActiveSec=</varname> and
++                                related settings.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+diff --git a/man/systemd.unit.xml b/man/systemd.unit.xml
+index 54671e7..af25310 100644
+--- a/man/systemd.unit.xml
++++ b/man/systemd.unit.xml
+@@ -350,8 +350,13 @@
+                                 reference documentation that explains
+                                 what the unit's purpose is, followed
+                                 by how it is configured, followed by
+-                                any other related
+-                                documentation.</para></listitem>
++                                any other related documentation. This
++                                option may be specified more than once
++                                in which case the specified list of
++                                URIs is merged. If the empty string is
++                                assigned to this option the list is
++                                reset and all prior assignments will
++                                have no effect.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+@@ -1003,8 +1008,12 @@
+                                 pipe symbol must be passed first, the
+                                 exclamation second. Except for
+                                 <varname>ConditionPathIsSymbolicLink=</varname>,
+-                                all path checks follow
+-                                symlinks.</para></listitem>
++                                all path checks follow symlinks. If
++                                any of these options is assigned the
++                                empty string the list of conditions is
++                                reset completely, all previous
++                                condition settings (of any kind) will
++                                have no effect.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+diff --git a/src/core/load-fragment-gperf.gperf.m4 b/src/core/load-fragment-gperf.gperf.m4
+index 7fba0cf..1783ad0 100644
+--- a/src/core/load-fragment-gperf.gperf.m4
++++ b/src/core/load-fragment-gperf.gperf.m4
+@@ -174,13 +174,13 @@ Service.FsckPassNo,              config_parse_fsck_passno,           0,
+ EXEC_CONTEXT_CONFIG_ITEMS(Service)m4_dnl
+ KILL_CONTEXT_CONFIG_ITEMS(Service)m4_dnl
+ m4_dnl
+-Socket.ListenStream,             config_parse_socket_listen,         0,                             0
+-Socket.ListenDatagram,           config_parse_socket_listen,         0,                             0
+-Socket.ListenSequentialPacket,   config_parse_socket_listen,         0,                             0
+-Socket.ListenFIFO,               config_parse_socket_listen,         0,                             0
+-Socket.ListenNetlink,            config_parse_socket_listen,         0,                             0
+-Socket.ListenSpecial,            config_parse_socket_listen,         0,                             0
+-Socket.ListenMessageQueue,       config_parse_socket_listen,         0,                             0
++Socket.ListenStream,             config_parse_socket_listen,         SOCKET_SOCKET,                 0
++Socket.ListenDatagram,           config_parse_socket_listen,         SOCKET_SOCKET,                 0
++Socket.ListenSequentialPacket,   config_parse_socket_listen,         SOCKET_SOCKET,                 0
++Socket.ListenFIFO,               config_parse_socket_listen,         SOCKET_FIFO,                   0
++Socket.ListenNetlink,            config_parse_socket_listen,         SOCKET_SOCKET,                 0
++Socket.ListenSpecial,            config_parse_socket_listen,         SOCKET_SPECIAL,                0
++Socket.ListenMessageQueue,       config_parse_socket_listen,         SOCKET_MQUEUE,                 0
+ Socket.BindIPv6Only,             config_parse_socket_bind,           0,                             0,
+ Socket.Backlog,                  config_parse_unsigned,              0,                             offsetof(Socket, backlog)
+ Socket.BindToDevice,             config_parse_socket_bindtodevice,   0,                             0
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index e2ea003..40f4bfd 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -91,11 +91,11 @@ int config_parse_unit_deps(
+ 
+                 t = strndup(w, l);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 k = unit_name_printf(u, t);
+                 if (!k)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 r = unit_add_dependency_by_name(u, d, k, NULL, true);
+                 if (r < 0)
+@@ -117,8 +117,7 @@ int config_parse_unit_string_printf(
+                 void *userdata) {
+ 
+         Unit *u = userdata;
+-        char *k;
+-        int r;
++        _cleanup_free_ char *k = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -127,12 +126,9 @@ int config_parse_unit_string_printf(
+ 
+         k = unit_full_printf(u, rvalue);
+         if (!k)
+-                return -ENOMEM;
+-
+-        r = config_parse_string(filename, line, section, lvalue, ltype, k, data, userdata);
+-        free (k);
++                return log_oom();
+ 
+-        return r;
++        return config_parse_string(filename, line, section, lvalue, ltype, k, data, userdata);
+ }
+ 
+ int config_parse_unit_strv_printf(
+@@ -146,8 +142,7 @@ int config_parse_unit_strv_printf(
+                 void *userdata) {
+ 
+         Unit *u = userdata;
+-        char *k;
+-        int r;
++        _cleanup_free_ char *k = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -156,12 +151,9 @@ int config_parse_unit_strv_printf(
+ 
+         k = unit_full_printf(u, rvalue);
+         if (!k)
+-                return -ENOMEM;
+-
+-        r = config_parse_strv(filename, line, section, lvalue, ltype, k, data, userdata);
+-        free(k);
++                return log_oom();
+ 
+-        return r;
++        return config_parse_strv(filename, line, section, lvalue, ltype, k, data, userdata);
+ }
+ 
+ int config_parse_unit_path_printf(
+@@ -175,8 +167,7 @@ int config_parse_unit_path_printf(
+                 void *userdata) {
+ 
+         Unit *u = userdata;
+-        char *k;
+-        int r;
++        _cleanup_free_ char *k = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -187,10 +178,7 @@ int config_parse_unit_path_printf(
+         if (!k)
+                 return log_oom();
+ 
+-        r = config_parse_path(filename, line, section, lvalue, ltype, k, data, userdata);
+-        free(k);
+-
+-        return r;
++        return config_parse_path(filename, line, section, lvalue, ltype, k, data, userdata);
+ }
+ 
+ int config_parse_socket_listen(
+@@ -213,50 +201,39 @@ int config_parse_socket_listen(
+ 
+         s = SOCKET(data);
+ 
++        if (isempty(rvalue)) {
++                /* An empty assignment removes all ports */
++                socket_free_ports(s);
++                return 0;
++        }
++
+         p = new0(SocketPort, 1);
+         if (!p)
+-                return -ENOMEM;
+-
+-        if (streq(lvalue, "ListenFIFO")) {
+-                p->type = SOCKET_FIFO;
+-
+-                if (!(p->path = unit_full_printf(UNIT(s), rvalue))) {
+-                        free(p);
+-                        return -ENOMEM;
+-                }
+-
+-                path_kill_slashes(p->path);
+-
+-        } else if (streq(lvalue, "ListenSpecial")) {
+-                p->type = SOCKET_SPECIAL;
+-
+-                if (!(p->path = unit_full_printf(UNIT(s), rvalue))) {
+-                        free(p);
+-                        return -ENOMEM;
+-                }
+-
+-                path_kill_slashes(p->path);
+-
+-        } else if (streq(lvalue, "ListenMessageQueue")) {
++                return log_oom();
+ 
+-                p->type = SOCKET_MQUEUE;
++        if (ltype != SOCKET_SOCKET) {
+ 
+-                if (!(p->path = unit_full_printf(UNIT(s), rvalue))) {
++                p->type = ltype;
++                p->path = unit_full_printf(UNIT(s), rvalue);
++                if (!p->path) {
+                         free(p);
+-                        return -ENOMEM;
++                        return log_oom();
+                 }
+ 
+                 path_kill_slashes(p->path);
+ 
+         } else if (streq(lvalue, "ListenNetlink")) {
+-                char  *k;
++                _cleanup_free_ char  *k = NULL;
+                 int r;
+ 
+                 p->type = SOCKET_SOCKET;
+                 k = unit_full_printf(UNIT(s), rvalue);
+-                r = socket_address_parse_netlink(&p->address, k);
+-                free(k);
++                if (!k) {
++                        free(p);
++                        return log_oom();
++                }
+ 
++                r = socket_address_parse_netlink(&p->address, k);
+                 if (r < 0) {
+                         log_error("[%s:%u] Failed to parse address value, ignoring: %s", filename, line, rvalue);
+                         free(p);
+@@ -264,14 +241,17 @@ int config_parse_socket_listen(
+                 }
+ 
+         } else {
+-                char *k;
++                _cleanup_free_ char *k = NULL;
+                 int r;
+ 
+                 p->type = SOCKET_SOCKET;
+                 k = unit_full_printf(UNIT(s), rvalue);
+-                r = socket_address_parse(&p->address, k);
+-                free(k);
++                if (!k) {
++                        free(p);
++                        return log_oom();
++                }
+ 
++                r = socket_address_parse(&p->address, k);
+                 if (r < 0) {
+                         log_error("[%s:%u] Failed to parse address value, ignoring: %s", filename, line, rvalue);
+                         free(p);
+@@ -430,12 +410,18 @@ int config_parse_exec(
+         assert(rvalue);
+         assert(e);
+ 
++        e += ltype;
++
++        if (isempty(rvalue)) {
++                /* An empty assignment resets the list */
++                exec_command_free_list(*e);
++                *e = NULL;
++                return 0;
++        }
++
+         /* We accept an absolute path as first argument, or
+          * alternatively an absolute prefixed with @ to allow
+          * overriding of argv[0]. */
+-
+-        e += ltype;
+-
+         for (;;) {
+                 int i;
+                 char *w;
+@@ -480,7 +466,7 @@ int config_parse_exec(
+ 
+                 n = new(char*, k + !honour_argv0);
+                 if (!n)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 k = 0;
+                 FOREACH_WORD_QUOTED(w, l, rvalue, state) {
+@@ -494,7 +480,7 @@ int config_parse_exec(
+ 
+                                 path = strndup(w, l);
+                                 if (!path) {
+-                                        r = -ENOMEM;
++                                        r = log_oom();
+                                         goto fail;
+                                 }
+ 
+@@ -509,7 +495,7 @@ int config_parse_exec(
+ 
+                                 c = n[k++] = cunescape_length(w, l);
+                                 if (!c) {
+-                                        r = -ENOMEM;
++                                        r = log_oom();
+                                         goto fail;
+                                 }
+ 
+@@ -532,7 +518,7 @@ int config_parse_exec(
+                 if (!path) {
+                         path = strdup(n[0]);
+                         if (!path) {
+-                                r = -ENOMEM;
++                                r = log_oom();
+                                 goto fail;
+                         }
+                 }
+@@ -541,7 +527,7 @@ int config_parse_exec(
+ 
+                 nce = new0(ExecCommand, 1);
+                 if (!nce) {
+-                        r = -ENOMEM;
++                        r = log_oom();
+                         goto fail;
+                 }
+ 
+@@ -589,8 +575,9 @@ int config_parse_socket_bindtodevice(
+         assert(data);
+ 
+         if (rvalue[0] && !streq(rvalue, "*")) {
+-                if (!(n = strdup(rvalue)))
+-                        return -ENOMEM;
++                n = strdup(rvalue);
++                if (!n)
++                        return log_oom();
+         } else
+                 n = NULL;
+ 
+@@ -718,7 +705,6 @@ int config_parse_exec_cpu_sched_prio(
+                 return 0;
+         }
+ 
+-
+         /* On Linux RR/FIFO range from 1 to 99 and OTHER/BATCH may only be 0 */
+         min = sched_get_priority_min(c->cpu_sched_policy);
+         max = sched_get_priority_max(c->cpu_sched_policy);
+@@ -754,6 +740,14 @@ int config_parse_exec_cpu_affinity(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* An empty assignment resets the CPU list */
++                if (c->cpuset)
++                        CPU_FREE(c->cpuset);
++                c->cpuset = NULL;
++                return 0;
++        }
++
+         FOREACH_WORD_QUOTED(w, l, rvalue, state) {
+                 char _cleanup_free_ *t = NULL;
+                 int r;
+@@ -761,14 +755,14 @@ int config_parse_exec_cpu_affinity(
+ 
+                 t = strndup(w, l);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 r = safe_atou(t, &cpu);
+ 
+                 if (!c->cpuset) {
+                         c->cpuset = cpu_set_malloc(&c->cpuset_ncpus);
+                         if (!c->cpuset)
+-                                return -ENOMEM;
++                                return log_oom();
+                 }
+ 
+                 if (r < 0 || cpu >= c->cpuset_ncpus) {
+@@ -801,9 +795,10 @@ int config_parse_exec_capabilities(
+         assert(rvalue);
+         assert(data);
+ 
+-        if (!(cap = cap_from_text(rvalue))) {
++        cap = cap_from_text(rvalue);
++        if (!cap) {
+                 if (errno == ENOMEM)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 log_error("[%s:%u] Failed to parse capabilities, ignoring: %s", filename, line, rvalue);
+                 return 0;
+@@ -836,6 +831,12 @@ int config_parse_exec_secure_bits(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* An empty assignment resets the field */
++                c->secure_bits = 0;
++                return 0;
++        }
++
+         FOREACH_WORD_QUOTED(w, l, rvalue, state) {
+                 if (first_word(w, "keep-caps"))
+                         c->secure_bits |= SECURE_KEEP_CAPS;
+@@ -881,6 +882,12 @@ int config_parse_bounding_set(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* An empty assignment resets */
++                *capability_bounding_set_drop = 0;
++                return 0;
++        }
++
+         if (rvalue[0] == '~') {
+                 invert = true;
+                 rvalue++;
+@@ -898,7 +905,7 @@ int config_parse_bounding_set(
+ 
+                 t = strndup(w, l);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 r = cap_from_name(t, &cap);
+                 if (r < 0) {
+@@ -945,9 +952,11 @@ int config_parse_limit(
+                 return 0;
+         }
+ 
+-        if (!*rl)
+-                if (!(*rl = new(struct rlimit, 1)))
+-                        return -ENOMEM;
++        if (!*rl) {
++                *rl = new(struct rlimit, 1);
++                if (!*rl)
++                        return log_oom();
++        }
+ 
+         (*rl)->rlim_cur = (*rl)->rlim_max = (rlim_t) u;
+         return 0;
+@@ -968,21 +977,28 @@ int config_parse_unit_cgroup(
+         size_t l;
+         char *state;
+ 
++        if (isempty(rvalue)) {
++                /* An empty assignment resets the list */
++                cgroup_bonding_free_list(u->cgroup_bondings, false);
++                u->cgroup_bondings = NULL;
++                return 0;
++        }
++
+         FOREACH_WORD_QUOTED(w, l, rvalue, state) {
+                 char _cleanup_free_ *t = NULL, *k = NULL, *ku = NULL;
+                 int r;
+ 
+                 t = strndup(w, l);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 k = unit_full_printf(u, t);
+                 if (!k)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 ku = cunescape(k);
+                 if (!ku)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 r = unit_add_cgroup_from_text(u, ku);
+                 if (r < 0) {
+@@ -1071,7 +1087,8 @@ int config_parse_kill_signal(
+         assert(rvalue);
+         assert(sig);
+ 
+-        if ((r = signal_from_string_try_harder(rvalue)) <= 0) {
++        r = signal_from_string_try_harder(rvalue);
++        if (r <= 0) {
+                 log_error("[%s:%u] Failed to parse kill signal, ignoring: %s", filename, line, rvalue);
+                 return 0;
+         }
+@@ -1106,7 +1123,7 @@ int config_parse_exec_mount_flags(
+ 
+                 t = strndup(w, l);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 if (streq(t, "shared"))
+                         flags |= MS_SHARED;
+@@ -1147,6 +1164,12 @@ int config_parse_timer(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets list */
++                timer_free_values(t);
++                return 0;
++        }
++
+         b = timer_base_from_string(lvalue);
+         if (b < 0) {
+                 log_error("[%s:%u] Failed to parse timer base, ignoring: %s", filename, line, lvalue);
+@@ -1171,7 +1194,7 @@ int config_parse_timer(
+ 
+         v = new0(TimerValue, 1);
+         if (!v)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         v->base = b;
+         v->clock_id = id;
+@@ -1197,6 +1220,7 @@ int config_parse_timer_unit(
+         int r;
+         DBusError error;
+         Unit *u;
++        _cleanup_free_ char *p = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1205,12 +1229,16 @@ int config_parse_timer_unit(
+ 
+         dbus_error_init(&error);
+ 
+-        if (endswith(rvalue, ".timer")) {
++        p = unit_name_printf(UNIT(t), rvalue);
++        if (!p)
++                return log_oom();
++
++        if (endswith(p, ".timer")) {
+                 log_error("[%s:%u] Unit cannot be of type timer, ignoring: %s", filename, line, rvalue);
+                 return 0;
+         }
+ 
+-        r = manager_load_unit(UNIT(t)->manager, rvalue, NULL, NULL, &u);
++        r = manager_load_unit(UNIT(t)->manager, p, NULL, NULL, &u);
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to load unit %s, ignoring: %s", filename, line, rvalue, bus_error(&error, r));
+                 dbus_error_free(&error);
+@@ -1242,6 +1270,12 @@ int config_parse_path_spec(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment clears list */
++                path_free_specs(p);
++                return 0;
++        }
++
+         b = path_type_from_string(lvalue);
+         if (b < 0) {
+                 log_error("[%s:%u] Failed to parse path type, ignoring: %s", filename, line, lvalue);
+@@ -1331,6 +1365,7 @@ int config_parse_socket_service(
+         int r;
+         DBusError error;
+         Unit *x;
++        _cleanup_free_ char *p = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1339,12 +1374,16 @@ int config_parse_socket_service(
+ 
+         dbus_error_init(&error);
+ 
+-        if (!endswith(rvalue, ".service")) {
++        p = unit_name_printf(UNIT(s), rvalue);
++        if (!p)
++                return log_oom();
++
++        if (!endswith(p, ".service")) {
+                 log_error("[%s:%u] Unit must be of type service, ignoring: %s", filename, line, rvalue);
+                 return 0;
+         }
+ 
+-        r = manager_load_unit(UNIT(s)->manager, rvalue, NULL, &error, &x);
++        r = manager_load_unit(UNIT(s)->manager, p, NULL, &error, &x);
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to load unit %s, ignoring: %s", filename, line, rvalue, bus_error(&error, r));
+                 dbus_error_free(&error);
+@@ -1381,11 +1420,11 @@ int config_parse_service_sockets(
+ 
+                 t = strndup(w, l);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 k = unit_name_printf(UNIT(s), t);
+                 if (!k)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 if (!endswith(k, ".socket")) {
+                         log_error("[%s:%u] Unit must be of type socket, ignoring: %s",
+@@ -1425,8 +1464,7 @@ int config_parse_service_timeout(
+         assert(s);
+ 
+         r = config_parse_usec(filename, line, section, lvalue, ltype, rvalue, data, userdata);
+-
+-        if (r)
++        if (r < 0)
+                 return r;
+ 
+         if (streq(lvalue, "TimeoutSec")) {
+@@ -1457,9 +1495,17 @@ int config_parse_unit_env_file(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment frees the list */
++
++                strv_free(*env);
++                *env = NULL;
++                return 0;
++        }
++
+         s = unit_full_printf(u, rvalue);
+         if (!s)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         if (!path_is_absolute(s[0] == '-' ? s + 1 : s)) {
+                 log_error("[%s:%u] Path '%s' is not absolute, ignoring.", filename, line, s);
+@@ -1470,7 +1516,7 @@ int config_parse_unit_env_file(
+         k = strv_append(*env, s);
+         free(s);
+         if (!k)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         strv_free(*env);
+         *env = k;
+@@ -1526,6 +1572,13 @@ int config_parse_unit_condition_path(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++                condition_free_list(u->conditions);
++                u->conditions = NULL;
++                return 0;
++        }
++
+         trigger = rvalue[0] == '|';
+         if (trigger)
+                 rvalue++;
+@@ -1536,7 +1589,7 @@ int config_parse_unit_condition_path(
+ 
+         p = unit_full_printf(u, rvalue);
+         if (!p)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         if (!path_is_absolute(p)) {
+                 log_error("[%s:%u] Path in condition not absolute, ignoring: %s", filename, line, p);
+@@ -1545,7 +1598,7 @@ int config_parse_unit_condition_path(
+ 
+         c = condition_new(cond, p, trigger, negate);
+         if (!c)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         LIST_PREPEND(Condition, conditions, u->conditions, c);
+         return 0;
+@@ -1572,6 +1625,13 @@ int config_parse_unit_condition_string(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++                condition_free_list(u->conditions);
++                u->conditions = NULL;
++                return 0;
++        }
++
+         trigger = rvalue[0] == '|';
+         if (trigger)
+                 rvalue++;
+@@ -1582,7 +1642,7 @@ int config_parse_unit_condition_string(
+ 
+         s = unit_full_printf(u, rvalue);
+         if (!s)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         c = condition_new(cond, s, trigger, negate);
+         if (!c)
+@@ -1612,13 +1672,23 @@ int config_parse_unit_condition_null(
+         assert(rvalue);
+         assert(data);
+ 
+-        if ((trigger = rvalue[0] == '|'))
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++                condition_free_list(u->conditions);
++                u->conditions = NULL;
++                return 0;
++        }
++
++        trigger = rvalue[0] == '|';
++        if (trigger)
+                 rvalue++;
+ 
+-        if ((negate = rvalue[0] == '!'))
++        negate = rvalue[0] == '!';
++        if (negate)
+                 rvalue++;
+ 
+-        if ((b = parse_boolean(rvalue)) < 0) {
++        b = parse_boolean(rvalue);
++        if (b < 0) {
+                 log_error("[%s:%u] Failed to parse boolean value in condition, ignoring: %s", filename, line, rvalue);
+                 return 0;
+         }
+@@ -1626,8 +1696,9 @@ int config_parse_unit_condition_null(
+         if (!b)
+                 negate = !negate;
+ 
+-        if (!(c = condition_new(CONDITION_NULL, NULL, trigger, negate)))
+-                return -ENOMEM;
++        c = condition_new(CONDITION_NULL, NULL, trigger, negate);
++        if (!c)
++                return log_oom();
+ 
+         LIST_PREPEND(Condition, conditions, u->conditions, c);
+         return 0;
+@@ -1647,7 +1718,7 @@ int config_parse_unit_cgroup_attr(
+                 void *userdata) {
+ 
+         Unit *u = data;
+-        char **l;
++        _cleanup_strv_free_ char **l = NULL;
+         int r;
+ 
+         assert(filename);
+@@ -1655,19 +1726,23 @@ int config_parse_unit_cgroup_attr(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment clears the list */
++                cgroup_attribute_free_list(u->cgroup_attributes);
++                u->cgroup_attributes = NULL;
++                return 0;
++        }
++
+         l = strv_split_quoted(rvalue);
+         if (!l)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         if (strv_length(l) != 2) {
+                 log_error("[%s:%u] Failed to parse cgroup attribute value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+         r = unit_add_cgroup_attribute(u, NULL, l[0], l[1], NULL);
+-        strv_free(l);
+-
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to add cgroup attribute value, ignoring: %s", filename, line, rvalue);
+                 return 0;
+@@ -1680,7 +1755,7 @@ int config_parse_unit_cpu_shares(const char *filename, unsigned line, const char
+         Unit *u = data;
+         int r;
+         unsigned long ul;
+-        char *t;
++        _cleanup_free_ char *t = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1693,11 +1768,9 @@ int config_parse_unit_cpu_shares(const char *filename, unsigned line, const char
+         }
+ 
+         if (asprintf(&t, "%lu", ul) < 0)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         r = unit_add_cgroup_attribute(u, "cpu", "cpu.shares", t, NULL);
+-        free(t);
+-
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to add cgroup attribute value, ignoring: %s", filename, line, rvalue);
+                 return 0;
+@@ -1710,7 +1783,7 @@ int config_parse_unit_memory_limit(const char *filename, unsigned line, const ch
+         Unit *u = data;
+         int r;
+         off_t sz;
+-        char *t;
++        _cleanup_free_ char *t = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1723,14 +1796,12 @@ int config_parse_unit_memory_limit(const char *filename, unsigned line, const ch
+         }
+ 
+         if (asprintf(&t, "%llu", (unsigned long long) sz) < 0)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         r = unit_add_cgroup_attribute(u,
+                                       "memory",
+                                       streq(lvalue, "MemorySoftLimit") ? "memory.soft_limit_in_bytes" : "memory.limit_in_bytes",
+                                       t, NULL);
+-        free(t);
+-
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to add cgroup attribute value, ignoring: %s", filename, line, rvalue);
+                 return 0;
+@@ -1740,7 +1811,7 @@ int config_parse_unit_memory_limit(const char *filename, unsigned line, const ch
+ }
+ 
+ static int device_map(const char *controller, const char *name, const char *value, char **ret) {
+-        char **l;
++        _cleanup_strv_free_ char **l = NULL;
+ 
+         assert(controller);
+         assert(name);
+@@ -1756,43 +1827,34 @@ static int device_map(const char *controller, const char *name, const char *valu
+         if (streq(l[0], "*")) {
+ 
+                 if (asprintf(ret, "a *:*%s%s",
+-                             isempty(l[1]) ? "" : " ", strempty(l[1])) < 0) {
+-                        strv_free(l);
++                             isempty(l[1]) ? "" : " ", strempty(l[1])) < 0)
+                         return -ENOMEM;
+-                }
+-
+         } else {
+                 struct stat st;
+ 
+                 if (stat(l[0], &st) < 0) {
+                         log_warning("Couldn't stat device %s", l[0]);
+-                        strv_free(l);
+                         return -errno;
+                 }
+ 
+                 if (!S_ISCHR(st.st_mode) && !S_ISBLK(st.st_mode)) {
+                         log_warning("%s is not a device.", l[0]);
+-                        strv_free(l);
+                         return -ENODEV;
+                 }
+ 
+                 if (asprintf(ret, "%c %u:%u%s%s",
+                              S_ISCHR(st.st_mode) ? 'c' : 'b',
+                              major(st.st_rdev), minor(st.st_rdev),
+-                             isempty(l[1]) ? "" : " ", strempty(l[1])) < 0) {
+-
+-                        strv_free(l);
++                             isempty(l[1]) ? "" : " ", strempty(l[1])) < 0)
+                         return -ENOMEM;
+-                }
+         }
+ 
+-        strv_free(l);
+         return 0;
+ }
+ 
+ int config_parse_unit_device_allow(const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata) {
+         Unit *u = data;
+-        char **l;
++        _cleanup_strv_free_ char **l = NULL;
+         int r;
+         unsigned k;
+ 
+@@ -1803,27 +1865,23 @@ int config_parse_unit_device_allow(const char *filename, unsigned line, const ch
+ 
+         l = strv_split_quoted(rvalue);
+         if (!l)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         k = strv_length(l);
+         if (k < 1 || k > 2) {
+                 log_error("[%s:%u] Failed to parse device value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+         if (!streq(l[0], "*") && !path_startswith(l[0], "/dev")) {
+                 log_error("[%s:%u] Device node path not absolute, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+         if (!isempty(l[1]) && !in_charset(l[1], "rwm")) {
+                 log_error("[%s:%u] Device access string invalid, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+-        strv_free(l);
+ 
+         r = unit_add_cgroup_attribute(u, "devices",
+                                       streq(lvalue, "DeviceAllow") ? "devices.allow" : "devices.deny",
+@@ -1839,7 +1897,7 @@ int config_parse_unit_device_allow(const char *filename, unsigned line, const ch
+ 
+ static int blkio_map(const char *controller, const char *name, const char *value, char **ret) {
+         struct stat st;
+-        char **l;
++        _cleanup_strv_free_ char **l = NULL;
+         dev_t d;
+ 
+         assert(controller);
+@@ -1849,13 +1907,12 @@ static int blkio_map(const char *controller, const char *name, const char *value
+ 
+         l = strv_split_quoted(value);
+         if (!l)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         assert(strv_length(l) == 2);
+ 
+         if (stat(l[0], &st) < 0) {
+                 log_warning("Couldn't stat device %s", l[0]);
+-                strv_free(l);
+                 return -errno;
+         }
+ 
+@@ -1871,16 +1928,12 @@ static int blkio_map(const char *controller, const char *name, const char *value
+                 block_get_whole_disk(d, &d);
+         } else {
+                 log_warning("%s is not a block device and file system block device cannot be determined or is not local.", l[0]);
+-                strv_free(l);
+                 return -ENODEV;
+         }
+ 
+-        if (asprintf(ret, "%u:%u %s", major(d), minor(d), l[1]) < 0) {
+-                strv_free(l);
++        if (asprintf(ret, "%u:%u %s", major(d), minor(d), l[1]) < 0)
+                 return -ENOMEM;
+-        }
+ 
+-        strv_free(l);
+         return 0;
+ }
+ 
+@@ -1890,7 +1943,8 @@ int config_parse_unit_blkio_weight(const char *filename, unsigned line, const ch
+         unsigned long ul;
+         const char *device = NULL, *weight;
+         unsigned k;
+-        char *t, **l;
++        _cleanup_free_ char *t = NULL;
++        _cleanup_strv_free_ char **l = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1899,12 +1953,11 @@ int config_parse_unit_blkio_weight(const char *filename, unsigned line, const ch
+ 
+         l = strv_split_quoted(rvalue);
+         if (!l)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         k = strv_length(l);
+         if (k < 1 || k > 2) {
+                 log_error("[%s:%u] Failed to parse weight value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+@@ -1917,13 +1970,11 @@ int config_parse_unit_blkio_weight(const char *filename, unsigned line, const ch
+ 
+         if (device && !path_is_absolute(device)) {
+                 log_error("[%s:%u] Failed to parse block device node value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+         if (safe_atolu(weight, &ul) < 0 || ul < 10 || ul > 1000) {
+                 log_error("[%s:%u] Failed to parse block IO weight value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+@@ -1931,17 +1982,13 @@ int config_parse_unit_blkio_weight(const char *filename, unsigned line, const ch
+                 r = asprintf(&t, "%s %lu", device, ul);
+         else
+                 r = asprintf(&t, "%lu", ul);
+-        strv_free(l);
+-
+         if (r < 0)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         if (device)
+                 r = unit_add_cgroup_attribute(u, "blkio", "blkio.weight_device", t, blkio_map);
+         else
+                 r = unit_add_cgroup_attribute(u, "blkio", "blkio.weight", t, NULL);
+-        free(t);
+-
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to add cgroup attribute value, ignoring: %s", filename, line, rvalue);
+                 return 0;
+@@ -1955,7 +2002,8 @@ int config_parse_unit_blkio_bandwidth(const char *filename, unsigned line, const
+         int r;
+         off_t bytes;
+         unsigned k;
+-        char *t, **l;
++        _cleanup_free_ char *t = NULL;
++        _cleanup_strv_free_ char **l = NULL;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1964,38 +2012,31 @@ int config_parse_unit_blkio_bandwidth(const char *filename, unsigned line, const
+ 
+         l = strv_split_quoted(rvalue);
+         if (!l)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         k = strv_length(l);
+         if (k != 2) {
+                 log_error("[%s:%u] Failed to parse bandwidth value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+         if (!path_is_absolute(l[0])) {
+                 log_error("[%s:%u] Failed to parse block device node value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+         if (parse_bytes(l[1], &bytes) < 0 || bytes <= 0) {
+                 log_error("[%s:%u] Failed to parse block IO bandwidth value, ignoring: %s", filename, line, rvalue);
+-                strv_free(l);
+                 return 0;
+         }
+ 
+         r = asprintf(&t, "%s %llu", l[0], (unsigned long long) bytes);
+-        strv_free(l);
+-
+         if (r < 0)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         r = unit_add_cgroup_attribute(u, "blkio",
+                                       streq(lvalue, "BlockIOReadBandwidth") ? "blkio.read_bps_device" : "blkio.write_bps_device",
+                                       t, blkio_map);
+-        free(t);
+-
+         if (r < 0) {
+                 log_error("[%s:%u] Failed to add cgroup attribute value, ignoring: %s", filename, line, rvalue);
+                 return 0;
+@@ -2053,6 +2094,13 @@ int config_parse_documentation(
+         assert(rvalue);
+         assert(u);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++                strv_free(u->documentation);
++                u->documentation = NULL;
++                return 0;
++        }
++
+         r = config_parse_unit_strv_printf(filename, line, section, lvalue, ltype, rvalue, data, userdata);
+         if (r < 0)
+                 return r;
+@@ -2101,6 +2149,13 @@ int config_parse_syscall_filter(
+         assert(rvalue);
+         assert(u);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++                free(c->syscall_filter);
++                c->syscall_filter = NULL;
++                return 0;
++        }
++
+         if (rvalue[0] == '~') {
+                 invert = true;
+                 rvalue++;
+@@ -2112,7 +2167,7 @@ int config_parse_syscall_filter(
+                 n = (syscall_max() + 31) >> 4;
+                 c->syscall_filter = new(uint32_t, n);
+                 if (!c->syscall_filter)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 memset(c->syscall_filter, invert ? 0xFF : 0, n * sizeof(uint32_t));
+ 
+@@ -2132,10 +2187,9 @@ int config_parse_syscall_filter(
+ 
+                 t = strndup(w, l);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 id = syscall_from_name(t);
+-
+                 if (id < 0)  {
+                         log_error("[%s:%u] Failed to parse syscall, ignoring: %s",
+                                   filename, line, t);
+diff --git a/src/core/path.c b/src/core/path.c
+index 767620b..3775577 100644
+--- a/src/core/path.c
++++ b/src/core/path.c
+@@ -248,22 +248,28 @@ static void path_init(Unit *u) {
+         p->directory_mode = 0755;
+ }
+ 
+-static void path_done(Unit *u) {
+-        Path *p = PATH(u);
++void path_free_specs(Path *p) {
+         PathSpec *s;
+ 
+         assert(p);
+ 
+-        unit_ref_unset(&p->unit);
+-
+         while ((s = p->specs)) {
+-                path_spec_unwatch(s, u);
++                path_spec_unwatch(s, UNIT(p));
+                 LIST_REMOVE(PathSpec, spec, p->specs, s);
+                 path_spec_done(s);
+                 free(s);
+         }
+ }
+ 
++static void path_done(Unit *u) {
++        Path *p = PATH(u);
++
++        assert(p);
++
++        unit_ref_unset(&p->unit);
++        path_free_specs(p);
++}
++
+ int path_add_one_mount_link(Path *p, Mount *m) {
+         PathSpec *s;
+         int r;
+diff --git a/src/core/path.h b/src/core/path.h
+index 7792688..645feef 100644
+--- a/src/core/path.h
++++ b/src/core/path.h
+@@ -98,6 +98,8 @@ void path_unit_notify(Unit *u, UnitActiveState new_state);
+  * any of the paths of this path object */
+ int path_add_one_mount_link(Path *p, Mount *m);
+ 
++void path_free_specs(Path *p);
++
+ extern const UnitVTable path_vtable;
+ 
+ const char* path_state_to_string(PathState i);
+diff --git a/src/core/socket.c b/src/core/socket.c
+index d755040..f2d8548 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -102,8 +102,7 @@ static void socket_unwatch_control_pid(Socket *s) {
+         s->control_pid = 0;
+ }
+ 
+-static void socket_done(Unit *u) {
+-        Socket *s = SOCKET(u);
++void socket_free_ports(Socket *s) {
+         SocketPort *p;
+ 
+         assert(s);
+@@ -119,6 +118,14 @@ static void socket_done(Unit *u) {
+                 free(p->path);
+                 free(p);
+         }
++}
++
++static void socket_done(Unit *u) {
++        Socket *s = SOCKET(u);
++
++        assert(s);
++
++        socket_free_ports(s);
+ 
+         exec_context_done(&s->exec_context);
+         exec_command_free_array(s->exec_command, _SOCKET_EXEC_COMMAND_MAX);
+diff --git a/src/core/socket.h b/src/core/socket.h
+index f099520..e0bae29 100644
+--- a/src/core/socket.h
++++ b/src/core/socket.h
+@@ -163,6 +163,8 @@ int socket_add_one_mount_link(Socket *s, Mount *m);
+ /* Called from the service code when a per-connection service ended */
+ void socket_connection_unref(Socket *s);
+ 
++void socket_free_ports(Socket *s);
++
+ extern const UnitVTable socket_vtable;
+ 
+ const char* socket_state_to_string(SocketState i);
+diff --git a/src/core/timer.c b/src/core/timer.c
+index 4453aa0..8061f79 100644
+--- a/src/core/timer.c
++++ b/src/core/timer.c
+@@ -48,8 +48,7 @@ static void timer_init(Unit *u) {
+         watch_init(&t->realtime_watch);
+ }
+ 
+-static void timer_done(Unit *u) {
+-        Timer *t = TIMER(u);
++void timer_free_values(Timer *t) {
+         TimerValue *v;
+ 
+         assert(t);
+@@ -62,6 +61,14 @@ static void timer_done(Unit *u) {
+ 
+                 free(v);
+         }
++}
++
++static void timer_done(Unit *u) {
++        Timer *t = TIMER(u);
++
++        assert(t);
++
++        timer_free_values(t);
+ 
+         unit_unwatch_timer(u, &t->monotonic_watch);
+         unit_unwatch_timer(u, &t->realtime_watch);
+diff --git a/src/core/timer.h b/src/core/timer.h
+index 10d3ce1..c145348 100644
+--- a/src/core/timer.h
++++ b/src/core/timer.h
+@@ -84,6 +84,8 @@ struct Timer {
+ 
+ void timer_unit_notify(Unit *u, UnitActiveState new_state);
+ 
++void timer_free_values(Timer *t);
++
+ extern const UnitVTable timer_vtable;
+ 
+ const char *timer_state_to_string(TimerState i);
+diff --git a/src/shared/conf-parser.c b/src/shared/conf-parser.c
+index 9f5c07c..7f28609 100644
+--- a/src/shared/conf-parser.c
++++ b/src/shared/conf-parser.c
+@@ -377,7 +377,8 @@ int config_parse_int(
+         assert(rvalue);
+         assert(data);
+ 
+-        if ((r = safe_atoi(rvalue, i)) < 0) {
++        r = safe_atoi(rvalue, i);
++        if (r < 0) {
+                 log_error("[%s:%u] Failed to parse numeric value, ingoring: %s", filename, line, rvalue);
+                 return 0;
+         }
+@@ -403,7 +404,8 @@ int config_parse_long(
+         assert(rvalue);
+         assert(data);
+ 
+-        if ((r = safe_atoli(rvalue, i)) < 0) {
++        r = safe_atoli(rvalue, i);
++        if (r < 0) {
+                 log_error("[%s:%u] Failed to parse numeric value, ignoring: %s", filename, line, rvalue);
+                 return 0;
+         }
+@@ -429,7 +431,8 @@ int config_parse_uint64(
+         assert(rvalue);
+         assert(data);
+ 
+-        if ((r = safe_atou64(rvalue, u)) < 0) {
++        r = safe_atou64(rvalue, u);
++        if (r < 0) {
+                 log_error("[%s:%u] Failed to parse numeric value, ignoring: %s", filename, line, rvalue);
+                 return 0;
+         }
+@@ -455,7 +458,8 @@ int config_parse_unsigned(
+         assert(rvalue);
+         assert(data);
+ 
+-        if ((r = safe_atou(rvalue, u)) < 0) {
++        r = safe_atou(rvalue, u);
++        if (r < 0) {
+                 log_error("[%s:%u] Failed to parse numeric value: %s", filename, line, rvalue);
+                 return r;
+         }
+@@ -595,7 +599,7 @@ int config_parse_string(
+ 
+         n = strdup(rvalue);
+         if (!n)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         if (!utf8_is_valid(n)) {
+                 log_error("[%s:%u] String is not UTF-8 clean, ignoring assignment: %s", filename, line, rvalue);
+@@ -644,7 +648,7 @@ int config_parse_path(
+ 
+         n = strdup(rvalue);
+         if (!n)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         path_kill_slashes(n);
+ 
+@@ -677,13 +681,19 @@ int config_parse_strv(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++                strv_free(*sv);
++                *sv = NULL;
++        }
++
+         k = strv_length(*sv);
+         FOREACH_WORD_QUOTED(w, l, rvalue, state)
+                 k++;
+ 
+         n = new(char*, k+1);
+         if (!n)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         if (*sv)
+                 for (k = 0; (*sv)[k]; k++)
+@@ -694,7 +704,7 @@ int config_parse_strv(
+         FOREACH_WORD_QUOTED(w, l, rvalue, state) {
+                 n[k] = cunescape_length(w, l);
+                 if (!n[k]) {
+-                        r = -ENOMEM;
++                        r = log_oom();
+                         goto fail;
+                 }
+ 
+@@ -744,13 +754,19 @@ int config_parse_path_strv(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++                strv_free(*sv);
++                *sv = NULL;
++        }
++
+         k = strv_length(*sv);
+         FOREACH_WORD_QUOTED(w, l, rvalue, state)
+                 k++;
+ 
+         n = new(char*, k+1);
+         if (!n)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         k = 0;
+         if (*sv)
+@@ -760,7 +776,7 @@ int config_parse_path_strv(
+         FOREACH_WORD_QUOTED(w, l, rvalue, state) {
+                 n[k] = strndup(w, l);
+                 if (!n[k]) {
+-                        r = -ENOMEM;
++                        r = log_oom();
+                         goto fail;
+                 }
+ 
+@@ -957,6 +973,16 @@ int config_parse_set_status(
+         assert(rvalue);
+         assert(data);
+ 
++        if (isempty(rvalue)) {
++                /* Empty assignment resets the list */
++
++                set_free(status_set->signal);
++                set_free(status_set->code);
++
++                status_set->signal = status_set->code = NULL;
++                return 0;
++        }
++
+         FOREACH_WORD(w, l, rvalue, state) {
+                 int val;
+                 char *temp;

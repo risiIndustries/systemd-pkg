@@ -1,0 +1,98 @@
+From 6cebb9b39ec04ba11c81dca9b0c10faa51929d72 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Mon, 28 Jan 2013 14:15:56 +0100
+Subject: [PATCH] (F18) Revert "udev: network device renaming - immediately
+ give up if the target name isn't available"
+
+This reverts commit 97595710b77aa162ca5e20da57d0a1ed7355eaad (and fixes
+it up for printk_kmsg-related changes that came later).
+
+Many users upgraded from earlier Fedora releases and kept their
+/etc/udev/rules.d/70-persistent-net.rules with rules renaming interfaces
+into the ethX namespace. The udev change that made this entirely
+unsupported was not announced loud enough. For F18 let's re-add the
+renaming hack.
+
+Add an annoying message about the need to fix udev rules.
+
+BZ: https://bugzilla.redhat.com/show_bug.cgi?id=896135
+---
+ src/udev/udev-event.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 51 insertions(+), 3 deletions(-)
+
+diff --git a/src/udev/udev-event.c b/src/udev/udev-event.c
+index 5eedf4f..8aedc5f 100644
+--- a/src/udev/udev-event.c
++++ b/src/udev/udev-event.c
+@@ -750,7 +750,14 @@ static int rename_netif(struct udev_event *event)
+         struct udev_device *dev = event->dev;
+         int sk;
+         struct ifreq ifr;
++        int loop;
+         int err;
++        static const char rename_hack_msg_fmt[] =
++                "Tried to rename network interface %s, but the target name %s already exists! "
++                "The names that udev rules assign to network interfaces must be changed. "
++                "Avoid names that collide with kernel created ones. "
++                "A workaround will be attempted now, but this WILL BREAK in a future release! "
++                "See https://bugs.freedesktop.org/show_bug.cgi?id=56929#c3\n";
+ 
+         log_debug("changing net interface name from '%s' to '%s'\n",
+                   udev_device_get_sysname(dev), event->name);
+@@ -766,12 +773,53 @@ static int rename_netif(struct udev_event *event)
+         util_strscpy(ifr.ifr_name, IFNAMSIZ, udev_device_get_sysname(dev));
+         util_strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
+         err = ioctl(sk, SIOCSIFNAME, &ifr);
+-        if (err >= 0) {
++        if (err == 0) {
+                 print_kmsg("renamed network interface %s to %s\n", ifr.ifr_name, ifr.ifr_newname);
+-        } else {
++                goto out;
++        }
++
++        /* keep trying if the destination interface name already exists */
++        err = -errno;
++        if (err != -EEXIST)
++                goto out;
++
++        /* F18: scream both into dmesg and journal */
++        print_kmsg(rename_hack_msg_fmt, ifr.ifr_name, ifr.ifr_newname);
++        log_error (rename_hack_msg_fmt, ifr.ifr_name, ifr.ifr_newname);
++
++        /* free our own name, another process may wait for us */
++        snprintf(ifr.ifr_newname, IFNAMSIZ, "rename%u", udev_device_get_ifindex(dev));
++        err = ioctl(sk, SIOCSIFNAME, &ifr);
++        if (err < 0) {
+                 err = -errno;
+-                log_error("error changing net interface name %s to %s: %m\n", ifr.ifr_name, ifr.ifr_newname);
++                goto out;
++        }
++
++        /* log temporary name */
++        print_kmsg("renamed network interface %s to %s\n", ifr.ifr_name, ifr.ifr_newname);
++
++        /* wait a maximum of 90 seconds for our target to become available */
++        util_strscpy(ifr.ifr_name, IFNAMSIZ, ifr.ifr_newname);
++        util_strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
++        loop = 90 * 20;
++        while (loop--) {
++                const struct timespec duration = { 0, 1000 * 1000 * 1000 / 20 };
++
++                nanosleep(&duration, NULL);
++
++                err = ioctl(sk, SIOCSIFNAME, &ifr);
++                if (err == 0) {
++                        print_kmsg("renamed network interface %s to %s\n", ifr.ifr_name, ifr.ifr_newname);
++                        break;
++                }
++                err = -errno;
++                if (err != -EEXIST)
++                        break;
+         }
++
++out:
++        if (err < 0)
++                log_error("error changing net interface name %s to %s: %m\n", ifr.ifr_name, ifr.ifr_newname);
+         close(sk);
+         return err;
+ }

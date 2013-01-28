@@ -1,0 +1,89 @@
+From 144b31e8b0f383abab1b1010370ad658cb8c11d3 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 15 Jan 2013 05:10:50 +0100
+Subject: [PATCH] man: link in API FS documentation from the wiki (cherry
+ picked from commit 236bc7573a400b77e515c441a34419b133d11b18)
+
+---
+ man/systemd-remount-fs.service.xml  | 24 +++++++++++++++---------
+ man/systemd.mount.xml               | 12 ++++++++++--
+ units/systemd-remount-fs.service.in |  1 +
+ 3 files changed, 26 insertions(+), 11 deletions(-)
+
+diff --git a/man/systemd-remount-fs.service.xml b/man/systemd-remount-fs.service.xml
+index d920c0c..9fe953e 100644
+--- a/man/systemd-remount-fs.service.xml
++++ b/man/systemd-remount-fs.service.xml
+@@ -59,20 +59,26 @@
+                 listed in
+                 <citerefentry><refentrytitle>fstab</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+                 to the root file system, the <filename>/usr</filename>
+-                file system and the kernel API virtual file
+-                systems. This is required so that the mount options of
+-                these file systems -- which are pre-mounted by the
+-                kernel, the initial RAM disk, container environments
+-                or system manager code -- are updated to those listed
+-                in <filename>/etc/fstab</filename>. This service
+-                ignores normal file systems and only changes the root
+-                file system (i.e. <filename>/</filename>),
++                file system and the kernel API file systems. This is
++                required so that the mount options of these file
++                systems -- which are pre-mounted by the kernel, the
++                initial RAM disk, container environments or system
++                manager code -- are updated to those listed in
++                <filename>/etc/fstab</filename>. This service ignores
++                normal file systems and only changes the root file
++                system (i.e. <filename>/</filename>),
+                 <filename>/usr</filename> and the virtual kernel API
+                 file systems such as <filename>/proc</filename>,
+                 <filename>/sys</filename> or
+                 <filename>/dev/</filename>. This service executes no
+                 operation if <filename>/etc/fstab</filename> does not
+-                exist or lists no entries for the mentioned file systems.</para>
++                exist or lists no entries for the mentioned file
++                systems.</para>
++
++                <para>For a longer discussion of kernel API file
++                systems see <ulink
++                url="http://www.freedesktop.org/wiki/Software/systemd/APIFileSystems">API
++                File Systems</ulink>.</para>
+         </refsect1>
+ 
+         <refsect1>
+diff --git a/man/systemd.mount.xml b/man/systemd.mount.xml
+index 78b5f52..d194083 100644
+--- a/man/systemd.mount.xml
++++ b/man/systemd.mount.xml
+@@ -102,10 +102,18 @@
+                 in the file system hierarchy, a dependency between both
+                 units is created automatically.</para>
+ 
+-                <para>Mount points created at runtime independent on
+-                unit files or <filename>/etc/fstab</filename> will be
++                <para>Mount points created at runtime (independently of
++                unit files or <filename>/etc/fstab</filename>) will be
+                 monitored by systemd and appear like any other mount
+                 unit in systemd.</para>
++
++                <para>Some file systems have special semantics as API
++                file systems for kernel-to-userspace and
++                userspace-to-userpace interfaces. Some of them may not
++                be changed via mount units, and cannot be disabled.
++                For a longer discussion see <ulink
++                url="http://www.freedesktop.org/wiki/Software/systemd/APIFileSystems">API
++                File Systems</ulink>.</para>
+         </refsect1>
+ 
+         <refsect1>
+diff --git a/units/systemd-remount-fs.service.in b/units/systemd-remount-fs.service.in
+index cddb0a1..70e1a86 100644
+--- a/units/systemd-remount-fs.service.in
++++ b/units/systemd-remount-fs.service.in
+@@ -8,6 +8,7 @@
+ [Unit]
+ Description=Remount Root and Kernel File Systems
+ Documentation=man:systemd-remount-fs.service(8)
++Documentation=http://www.freedesktop.org/wiki/Software/systemd/APIFileSystems
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+ After=systemd-readahead-collect.service systemd-readahead-replay.service systemd-fsck-root.service

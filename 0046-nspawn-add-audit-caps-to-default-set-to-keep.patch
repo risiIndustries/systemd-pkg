@@ -1,0 +1,62 @@
+From bedaffda101f906b73891e4045da2b962c3325c8 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 18 Jan 2013 18:13:01 +0100
+Subject: [PATCH] nspawn: add audit caps to default set to keep
+
+Due to the brokeness of much of the userspace audit code we cannot
+really start too many systems without the audit caps set. To make nspawn
+easier to use just add the audit caps by default.
+
+To boot up containers successfully the kernel's auditing needs to be
+turned off still (use "audit=0" on the kernel command line), but at
+least no manual caps have to be passed anymore.
+
+In the long run auditing will be fixed for containers and ve virtualized
+properly at which time it should be safe to enable these caps anyway.
+(cherry picked from commit 88d04e31ce0837ebf937ab46c3c39a0d93ab4c7c)
+---
+ man/systemd-nspawn.xml | 8 +++++---
+ src/nspawn/nspawn.c    | 4 +++-
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/man/systemd-nspawn.xml b/man/systemd-nspawn.xml
+index fef5c2c..e9a290f 100644
+--- a/man/systemd-nspawn.xml
++++ b/man/systemd-nspawn.xml
+@@ -220,8 +220,8 @@
+                                 list of capability names, see
+                                 <citerefentry><refentrytitle>capabilities</refentrytitle><manvolnum>7</manvolnum></citerefentry>
+                                 for more information. Note that the
+-                                following capabilities will be
+-                                granted in any way: CAP_CHOWN,
++                                following capabilities will be granted
++                                in any way: CAP_CHOWN,
+                                 CAP_DAC_OVERRIDE, CAP_DAC_READ_SEARCH,
+                                 CAP_FOWNER, CAP_FSETID, CAP_IPC_OWNER,
+                                 CAP_KILL, CAP_LEASE,
+@@ -232,7 +232,9 @@
+                                 CAP_SETUID, CAP_SYS_ADMIN,
+                                 CAP_SYS_CHROOT, CAP_SYS_NICE,
+                                 CAP_SYS_PTRACE, CAP_SYS_TTY_CONFIG,
+-                                CAP_SYS_RESOURCE, CAP_SYS_BOOT.</para></listitem>
++                                CAP_SYS_RESOURCE, CAP_SYS_BOOT,
++                                CAP_AUDIT_WRITE,
++                                CAP_AUDIT_CONTROL.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index 1f3bda5..44557f6 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -95,7 +95,9 @@ static uint64_t arg_retain =
+         (1ULL << CAP_SYS_PTRACE) |
+         (1ULL << CAP_SYS_TTY_CONFIG) |
+         (1ULL << CAP_SYS_RESOURCE) |
+-        (1ULL << CAP_SYS_BOOT);
++        (1ULL << CAP_SYS_BOOT) |
++        (1ULL << CAP_AUDIT_WRITE) |
++        (1ULL << CAP_AUDIT_CONTROL);
+ 
+ static int help(void) {
+ 

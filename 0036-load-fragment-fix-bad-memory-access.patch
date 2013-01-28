@@ -1,0 +1,23 @@
+From 856dc37041d98901943ba8a6e6bc9c26cc278b53 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 15 Jan 2013 21:45:37 +0100
+Subject: [PATCH] load-fragment: fix bad memory access (cherry picked from
+ commit cd7409576d36baeb4ccc93471d3bd9d72a436d59)
+
+---
+ src/core/load-fragment.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index 0869d4f..e2ea003 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -1296,7 +1296,7 @@ int config_parse_path_unit(
+ 
+         dbus_error_init(&error);
+ 
+-        p = unit_name_printf(u, rvalue);
++        p = unit_name_printf(UNIT(t), rvalue);
+         if (!p)
+                 return log_oom();
+ 

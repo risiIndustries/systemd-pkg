@@ -1,0 +1,36 @@
+From 0e53b4b6e13268747f21f378aeddd9165405a272 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 25 Jan 2013 14:25:43 -0500
+Subject: [PATCH] man: mention that PrivateTmp means /var/tmp too (cherry
+ picked from commit 652d0dd7097984801fca0378b762bf96e8fda029)
+
+---
+ man/systemd.exec.xml | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
+index d196c04..7747df7 100644
+--- a/man/systemd.exec.xml
++++ b/man/systemd.exec.xml
+@@ -1094,15 +1094,17 @@
+                                 <listitem><para>Takes a boolean
+                                 argument. If true sets up a new file
+                                 system namespace for the executed
+-                                processes and mounts a private
+-                                <filename>/tmp</filename> directory
+-                                inside it, that is not shared by
++                                processes and mounts private
++                                <filename>/tmp</filename> and
++                                <filename>/var/tmp</filename> directories
++                                inside it, that are not shared by
+                                 processes outside of the
+                                 namespace. This is useful to secure
+                                 access to temporary files of the
+                                 process, but makes sharing between
+                                 processes via
+-                                <filename>/tmp</filename>
++                                <filename>/tmp</filename> or
++                                <filename>/var/tmp</filename>
+                                 impossible. Defaults to
+                                 false.</para></listitem>
+                         </varlistentry>

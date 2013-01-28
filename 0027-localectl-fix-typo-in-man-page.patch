@@ -1,0 +1,24 @@
+From be50fc0741345eceb235d866660aaf5e36d71592 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 15 Jan 2013 16:27:11 +0100
+Subject: [PATCH] localectl: fix typo in man page
+
+https://bugs.freedesktop.org/show_bug.cgi?id=59247
+(cherry picked from commit 8bae5e6abeca9ec2beb6d6e6b14a558283e895c9)
+---
+ man/localectl.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/localectl.xml b/man/localectl.xml
+index f375bfa..73bff98 100644
+--- a/man/localectl.xml
++++ b/man/localectl.xml
+@@ -183,7 +183,7 @@
+                                 mapping of X11, after converting it to
+                                 the closest matching X11 keyboard
+                                 mapping. Use
+-                                <command>list-locales</command> for a
++                                <command>list-keymaps</command> for a
+                                 list of available keyboard mappings
+                                 (see below).</para></listitem>
+                         </varlistentry>

@@ -1,0 +1,39 @@
+From e9f0da617941d787e7b887241087052b41d190d5 Mon Sep 17 00:00:00 2001
+From: Thomas Hindoe Paaboel Andersen <phomes@gmail.com>
+Date: Wed, 16 Jan 2013 21:01:30 +0100
+Subject: [PATCH] man: typo fixes (cherry picked from commit
+ a485210ce73fe1186fdc5fae481dc31773e14b3c)
+
+Conflicts:
+	man/sd_session_is_active.xml
+---
+ man/sd_session_is_active.xml | 2 +-
+ man/systemd.special.xml      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/man/sd_session_is_active.xml b/man/sd_session_is_active.xml
+index a9107cb..73b3741 100644
+--- a/man/sd_session_is_active.xml
++++ b/man/sd_session_is_active.xml
+@@ -181,7 +181,7 @@
+                 <para><function>sd_session_get_display()</function>
+                 may be used to determine the X11 display of the
+                 session identified by the specified session
+-                identifier. The returned string is one of needs to be
++                identifier. The returned string needs to be
+                 freed with the libc
+                 <citerefentry><refentrytitle>free</refentrytitle><manvolnum>3</manvolnum></citerefentry>
+                 call after use.</para>
+diff --git a/man/systemd.special.xml b/man/systemd.special.xml
+index 20f1c1f..4909cfb 100644
+--- a/man/systemd.special.xml
++++ b/man/systemd.special.xml
+@@ -418,7 +418,7 @@
+                                         <para>This unit is supposed to
+                                         indicate when the network is
+                                         "up", but it is only very
+-                                        losely defined what that is
++                                        loosely defined what that is
+                                         supposed to mean. Also see <ulink
+                                         url="http://www.freedesktop.org/wiki/Software/systemd/NetworkTarget">Running
+                                         Services After the Network is

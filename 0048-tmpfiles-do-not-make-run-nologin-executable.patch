@@ -1,0 +1,20 @@
+From 2be42c50b89f70820f683ff7d36e53de62a1dea5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Bartoszkiewicz?= <mbartoszkiewicz@gmail.com>
+Date: Fri, 18 Jan 2013 21:33:59 +0100
+Subject: [PATCH] tmpfiles: do not make /run/nologin executable (cherry picked
+ from commit 610d99284feb9e942bce601c6aac1a5074545e6b)
+
+---
+ tmpfiles.d/systemd.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tmpfiles.d/systemd.conf b/tmpfiles.d/systemd.conf
+index f3928d6..ee86f2e 100644
+--- a/tmpfiles.d/systemd.conf
++++ b/tmpfiles.d/systemd.conf
+@@ -21,4 +21,4 @@ d /run/systemd/sessions 0755 root root -
+ d /run/systemd/users 0755 root root -
+ d /run/systemd/shutdown 0755 root root -
+ 
+-F /run/nologin 0755 - - - "System is booting up."
++F /run/nologin 0644 - - - "System is booting up."

@@ -1,0 +1,27 @@
+From d774e05381334b64bf2d95f8cdf4f3d9cd7b7949 Mon Sep 17 00:00:00 2001
+From: Michael Olbrich <m.olbrich@pengutronix.de>
+Date: Wed, 23 Jan 2013 14:12:15 +0100
+Subject: [PATCH] service: really stop watchdog timer when stopping
+
+For services without ExecStop= the state SERVICE_STOP is never entered. as
+a result the watchdog timer is not stopped and the service is restarted (if
+it is configuered to restart).
+Stopping the watchdog timer for SERVICE_STOP_SIGTERM as well fixes this.
+(cherry picked from commit 6d594baa3fa3a361efc2a4c1da3557fc4eba960d)
+---
+ src/core/service.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/service.c b/src/core/service.c
+index d6a0ffe..8eefd2d 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -1565,7 +1565,7 @@ static void service_set_state(Service *s, ServiceState state) {
+                 service_connection_unref(s);
+         }
+ 
+-        if (state == SERVICE_STOP)
++        if (state == SERVICE_STOP || state == SERVICE_STOP_SIGTERM)
+                 service_stop_watchdog(s);
+ 
+         /* For the inactive states unit_notify() will trim the cgroup,

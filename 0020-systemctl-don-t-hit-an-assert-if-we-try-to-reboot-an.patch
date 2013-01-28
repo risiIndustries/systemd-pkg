@@ -1,0 +1,26 @@
+From 7c426f3f278ae51d39348648d399926d5f3aa8e4 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 12 Jan 2013 00:00:22 +0100
+Subject: [PATCH] systemctl: don't hit an assert if we try to reboot and dbus
+ is dead
+
+https://bugzilla.redhat.com/show_bug.cgi?id=889624
+(cherry picked from commit d255133d8edc84662d2370a77414505a800d1922)
+---
+ src/systemctl/systemctl.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 1ebe49d..b876720 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -1762,6 +1762,9 @@ static int reboot_with_logind(DBusConnection *bus, enum action a) {
+         const char *method;
+         dbus_bool_t interactive = true;
+ 
++        if (!bus)
++                return -EIO;
++
+         polkit_agent_open_if_enabled();
+ 
+         switch (a) {
