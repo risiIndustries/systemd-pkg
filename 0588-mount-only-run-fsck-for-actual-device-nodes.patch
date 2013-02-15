@@ -1,0 +1,36 @@
+From 9c3fe9a304a7da69cc3150f0fbfcb3fc9a749159 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 24 Sep 2012 12:39:13 +0200
+Subject: [PATCH] mount: only run fsck for actual device nodes (cherry picked
+ from commit 63a8b2f947ad77c464acac475be84682065a6522)
+
+Conflicts:
+	src/core/mount.c
+---
+ src/core/mount.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 5eba12c..05cbaba 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -436,7 +436,8 @@ static int mount_add_device_links(Mount *m) {
+ 
+         if (!mount_is_bind(p) &&
+             !path_equal(m->where, "/") &&
+-            p == &m->parameters_etc_fstab) {
++            p == &m->parameters_etc_fstab &&
++            is_device_path(p->what)) {
+                 bool nofail, noauto;
+ 
+                 noauto = !!mount_test_option(p->options, "noauto");
+@@ -451,7 +452,8 @@ static int mount_add_device_links(Mount *m) {
+         if (p->passno > 0 &&
+             !mount_is_bind(p) &&
+             UNIT(m)->manager->running_as == MANAGER_SYSTEM &&
+-            !path_equal(m->where, "/")) {
++            !path_equal(m->where, "/") &&
++            is_device_path(p->what)) {
+                 char *name;
+                 Unit *fsck;
+                 /* Let's add in the fsck service */

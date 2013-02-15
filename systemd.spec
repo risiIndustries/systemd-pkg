@@ -3,7 +3,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        44
-Release:        23%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        24%{?gitcommit:.git%{gitcommit}}%{?dist}
 License:        GPLv2+
 Group:          System Environment/Base
 Summary:        A System and Service Manager
@@ -645,6 +645,15 @@ Patch0582:      0582-switch-root-remount-to-MS_PRIVATE.patch
 Patch0583:      0583-namespace-rework-namespace-support.patch
 Patch0584:      0584-nspawn-namespaces-make-sure-we-recursively-bind-moun.patch
 Patch0585:      0585-umount-MS_MGC_VAL-is-so-90s.patch
+Patch0586:      0586-add-log_oom.patch
+Patch0587:      0587-add-_cleanup_free_-_cleanup_close_.patch
+Patch0588:      0588-mount-only-run-fsck-for-actual-device-nodes.patch
+Patch0589:      0589-main-bump-up-RLIMIT_NOFILE-for-systemd-itself.patch
+Patch0590:      0590-shared-libsystemd-daemon-check-for-empty-strings-in-.patch
+Patch0591:      0591-shared-core-do-not-always-accept-numbers-in-string-l.patch
+Patch0592:      0592-shared-max-in-the-string-number-conversion-is-meant-.patch
+Patch0593:      0593-sd-journal-properly-parse-cursor-strings.patch
+Patch0594:      0594-journald-fix-bad-memory-access.patch
 
 # For sysvinit tools
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
@@ -1033,6 +1042,10 @@ mv /etc/systemd/system/default.target.save /etc/systemd/system/default.target >/
 %{_bindir}/systemd-analyze
 
 %changelog
+* Fri Feb 15 2013 Michal Schmidt <mschmidt@redhat.com> - 44-24
+- Selected fixes.
+- Resolves: #891667, #876654, #902483, #875653
+
 * Wed Dec 19 2012 Michal Schmidt <mschmidt@redhat.com> - 44-23
 - Change mount propagation to shared by default. Should fix umounting of
   filesystems when PrivateTmp services are running.

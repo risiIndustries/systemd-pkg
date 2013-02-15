@@ -1,0 +1,52 @@
+From ed460fda887c1704c7969c8d5dc50fad1518de56 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Fri, 15 Feb 2013 09:43:12 +0100
+Subject: [PATCH] add log_oom()
+
+taken from current upstream
+---
+ src/shared/log.c | 5 +++++
+ src/shared/log.h | 7 +++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/src/shared/log.c b/src/shared/log.c
+index 4ec7b8f..fb15ad0 100644
+--- a/src/shared/log.c
++++ b/src/shared/log.c
+@@ -643,6 +643,11 @@ _noreturn_ void log_assert_failed_unreachable(const char *text, const char *file
+         log_assert(text, file, line, func, "Code should not be reached '%s' at %s:%u, function %s(). Aborting.");
+ }
+ 
++int log_oom_internal(const char *file, int line, const char *func) {
++        log_meta(LOG_ERR, file, line, func, "Out of memory.");
++        return -ENOMEM;
++}
++
+ int log_set_target_from_string(const char *e) {
+         LogTarget t;
+ 
+diff --git a/src/shared/log.h b/src/shared/log.h
+index daea8b4..b59e763 100644
+--- a/src/shared/log.h
++++ b/src/shared/log.h
+@@ -87,6 +87,11 @@ int log_metav(
+ _noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func);
+ _noreturn_ void log_assert_failed_unreachable(const char *text, const char *file, int line, const char *func);
+ 
++int log_oom_internal(
++                const char *file,
++                int line,
++                const char *func);
++
+ /* This modifies the buffer passed! */
+ int log_dump_internal(
+         int level,
+@@ -103,6 +108,8 @@ int log_dump_internal(
+ #define log_warning(...) log_meta(LOG_WARNING, __FILE__, __LINE__, __func__, __VA_ARGS__)
+ #define log_error(...)   log_meta(LOG_ERR,     __FILE__, __LINE__, __func__, __VA_ARGS__)
+ 
++#define log_oom() log_oom_internal(__FILE__, __LINE__, __func__)
++
+ /* This modifies the buffer passed! */
+ #define log_dump(level, buffer) log_dump_internal(level, __FILE__, __LINE__, __func__, buffer)
+ 

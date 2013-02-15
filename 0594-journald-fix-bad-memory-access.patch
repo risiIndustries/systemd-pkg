@@ -1,0 +1,25 @@
+From 234485c77fef18179cf88bd53a9d89eb514c477f Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Fri, 15 Feb 2013 10:09:08 +0100
+Subject: [PATCH] journald: fix bad memory access
+
+https://bugzilla.redhat.com/show_bug.cgi?id=875653
+
+based on upstream commit 7d73c1343be02a59b17de0cd34375deeb815d89c
+---
+ src/journal/journald.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/journal/journald.c b/src/journal/journald.c
+index 78e3278..1b4a98d 100644
+--- a/src/journal/journald.c
++++ b/src/journal/journald.c
+@@ -357,7 +357,7 @@ static void server_rotate(Server *s) {
+         HASHMAP_FOREACH_KEY(f, k, s->user_journals, i) {
+                 r = journal_file_rotate(&f);
+                 if (r < 0)
+-                        if (f->path)
++                        if (f)
+                                 log_error("Failed to rotate %s: %s", f->path, strerror(-r));
+                         else
+                                 log_error("Failed to create user journal: %s", strerror(-r));
