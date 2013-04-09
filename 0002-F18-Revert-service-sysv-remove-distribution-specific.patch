@@ -1,0 +1,139 @@
+From c6ee0089d433ce746625ac05a84de731272db39b Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 9 Apr 2013 11:06:56 +0200
+Subject: [PATCH] (F18) Revert "service: sysv - remove distribution specific
+ targets"
+
+This reverts commit 3f141375cb4ff4f850b267258e776c90df594990.
+---
+ Makefile.am                      |  1 +
+ man/systemd.special.xml          | 28 ++++++++++++++++++++++++++++
+ src/core/service.c               |  8 ++++++++
+ src/core/special.h               |  2 ++
+ units/mail-transfer-agent.target | 13 +++++++++++++
+ 5 files changed, 52 insertions(+)
+ create mode 100644 units/mail-transfer-agent.target
+
+diff --git a/Makefile.am b/Makefile.am
+index 21a0e4b..57be908 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -361,6 +361,7 @@ dist_systemunit_DATA = \
+ 	units/network-online.target \
+ 	units/nss-lookup.target \
+ 	units/nss-user-lookup.target \
++	units/mail-transfer-agent.target \
+ 	units/hibernate.target \
+ 	units/hybrid-sleep.target \
+ 	units/poweroff.target \
+diff --git a/man/systemd.special.xml b/man/systemd.special.xml
+index cd0f5aa..b055c6b 100644
+--- a/man/systemd.special.xml
++++ b/man/systemd.special.xml
+@@ -69,6 +69,7 @@
+                 <filename>kexec.target</filename>,
+                 <filename>local-fs.target</filename>,
+                 <filename>local-fs-pre.target</filename>,
++                <filename>mail-transfer-agent.target</filename>,
+                 <filename>multi-user.target</filename>,
+                 <filename>network.target</filename>,
+                 <filename>network-online.target</filename>,
+@@ -209,6 +210,14 @@
+                                         <filename>gdm.service</filename>
+                                         or a similar display manager
+                                         service.</para>
++                                        <para>systemd automatically
++                                        adds dependencies of type
++                                        After for this target unit to
++                                        all SysV init script service
++                                        units with a LSB header
++                                        referring to the
++                                        <literal>$x-display-manager</literal>
++                                        facility.</para>
+                                 </listitem>
+                         </varlistentry>
+                         <varlistentry>
+@@ -366,6 +375,25 @@
+                                 </listitem>
+                         </varlistentry>
+                         <varlistentry>
++                                <term><filename>mail-transfer-agent.target</filename></term>
++                                <listitem>
++                                        <para>The mail transfer agent
++                                        (MTA) service. Usually this
++                                        should pull-in all units
++                                        necessary for
++                                        sending/receiving mails on the
++                                        local host.</para>
++
++                                        <para>systemd automatically
++                                        adds dependencies of type
++                                        After for this target unit to
++                                        all SysV init script service
++                                        units with an LSB header
++                                        referring to the
++                                        <literal>$mail-transfer-agent</literal>.</para>
++                                </listitem>
++                        </varlistentry>
++                        <varlistentry>
+                                 <term><filename>multi-user.target</filename></term>
+                                 <listitem>
+                                         <para>A special target unit
+diff --git a/src/core/service.c b/src/core/service.c
+index a104b30..29e3504 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -355,6 +355,13 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+                 "remote_fs",            SPECIAL_REMOTE_FS_TARGET,
+                 "syslog",               NULL,
+                 "time",                 SPECIAL_TIME_SYNC_TARGET,
++
++                /* common extensions */
++                "mail-transfer-agent",  SPECIAL_MAIL_TRANSFER_AGENT_TARGET,
++                "x-display-manager",    SPECIAL_DISPLAY_MANAGER_SERVICE,
++                "null",                 NULL,
++                "mail-transport-agent", SPECIAL_MAIL_TRANSFER_AGENT_TARGET,
++                "smtp",                 SPECIAL_MAIL_TRANSFER_AGENT_TARGET,
+         };
+ 
+         unsigned i;
+@@ -805,6 +812,7 @@ static int service_load_sysv_path(Service *s, const char *path) {
+                                         }
+ 
+                                         r = sysv_translate_facility(n, path_get_file_name(path), &m);
++
+                                         if (r < 0) {
+                                                 log_error_unit(u->id,
+                                                                "[%s:%u] Failed to translate LSB dependency %s, ignoring: %s",
+diff --git a/src/core/special.h b/src/core/special.h
+index a9b50bc..d5a0fe8 100644
+--- a/src/core/special.h
++++ b/src/core/special.h
+@@ -63,6 +63,8 @@
+ #define SPECIAL_NSS_LOOKUP_TARGET "nss-lookup.target"     /* LSB's $named */
+ #define SPECIAL_RPCBIND_TARGET "rpcbind.target"           /* LSB's $portmap */
+ #define SPECIAL_TIME_SYNC_TARGET "time-sync.target"       /* LSB's $time */
++#define SPECIAL_DISPLAY_MANAGER_SERVICE "display-manager.service" /* Common extension of LSB */
++#define SPECIAL_MAIL_TRANSFER_AGENT_TARGET "mail-transfer-agent.target" /* Common extension of LSB */
+ 
+ /*
+  * Rules regarding adding further high level targets like the above:
+diff --git a/units/mail-transfer-agent.target b/units/mail-transfer-agent.target
+new file mode 100644
+index 0000000..d2f24d1
+--- /dev/null
++++ b/units/mail-transfer-agent.target
+@@ -0,0 +1,13 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU Lesser General Public License as published by
++#  the Free Software Foundation; either version 2.1 of the License, or
++#  (at your option) any later version.
++
++# This exists mostly for compatibility with SysV/LSB units, and
++# implementations lacking socket/bus activation.
++
++[Unit]
++Description=Mail Transfer Agent
++Documentation=man:systemd.special(7)

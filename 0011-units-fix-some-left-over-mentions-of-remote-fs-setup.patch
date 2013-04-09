@@ -1,0 +1,37 @@
+From 49244c428ebc6d584fb0a2795b4b9db306a165d3 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 9 Apr 2013 19:05:49 +0200
+Subject: [PATCH] units: fix some left-over mentions of remote-fs-setup.target
+ (cherry picked from commit 8df31a9c980009d8a4e0ca51cc31174efb7e25c9)
+
+---
+ man/systemd.special.xml | 2 +-
+ units/remote-fs.target  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/man/systemd.special.xml b/man/systemd.special.xml
+index 2a1c320..08adbf4 100644
+--- a/man/systemd.special.xml
++++ b/man/systemd.special.xml
+@@ -966,7 +966,7 @@
+                                         to be pulled in by the first
+                                         remote mount showing up it
+                                         should use
+-                                        <filename>remote-fs-setup.target</filename>
++                                        <filename>network-online.target</filename>
+                                         (see above).</para>
+ 
+                                         <para>Again, this target unit
+diff --git a/units/remote-fs.target b/units/remote-fs.target
+index e867b8d..09213e8 100644
+--- a/units/remote-fs.target
++++ b/units/remote-fs.target
+@@ -8,7 +8,7 @@
+ [Unit]
+ Description=Remote File Systems
+ Documentation=man:systemd.special(7)
+-After=remote-fs-pre.target remote-fs-setup.target
++After=remote-fs-pre.target
+ 
+ [Install]
+ WantedBy=multi-user.target

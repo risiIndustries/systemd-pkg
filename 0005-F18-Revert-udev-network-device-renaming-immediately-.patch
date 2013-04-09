@@ -1,4 +1,4 @@
-From 6cebb9b39ec04ba11c81dca9b0c10faa51929d72 Mon Sep 17 00:00:00 2001
+From 19e22f2480911d134cc0e02413591a9e8d187092 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Mon, 28 Jan 2013 14:15:56 +0100
 Subject: [PATCH] (F18) Revert "udev: network device renaming - immediately
@@ -21,7 +21,7 @@ BZ: https://bugzilla.redhat.com/show_bug.cgi?id=896135
  1 file changed, 51 insertions(+), 3 deletions(-)
 
 diff --git a/src/udev/udev-event.c b/src/udev/udev-event.c
-index 5eedf4f..8aedc5f 100644
+index 3db2cb7..4253bbd 100644
 --- a/src/udev/udev-event.c
 +++ b/src/udev/udev-event.c
 @@ -750,7 +750,14 @@ static int rename_netif(struct udev_event *event)
@@ -40,8 +40,8 @@ index 5eedf4f..8aedc5f 100644
          log_debug("changing net interface name from '%s' to '%s'\n",
                    udev_device_get_sysname(dev), event->name);
 @@ -766,12 +773,53 @@ static int rename_netif(struct udev_event *event)
-         util_strscpy(ifr.ifr_name, IFNAMSIZ, udev_device_get_sysname(dev));
-         util_strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
+         strscpy(ifr.ifr_name, IFNAMSIZ, udev_device_get_sysname(dev));
+         strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
          err = ioctl(sk, SIOCSIFNAME, &ifr);
 -        if (err >= 0) {
 +        if (err == 0) {
@@ -72,8 +72,8 @@ index 5eedf4f..8aedc5f 100644
 +        print_kmsg("renamed network interface %s to %s\n", ifr.ifr_name, ifr.ifr_newname);
 +
 +        /* wait a maximum of 90 seconds for our target to become available */
-+        util_strscpy(ifr.ifr_name, IFNAMSIZ, ifr.ifr_newname);
-+        util_strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
++        strscpy(ifr.ifr_name, IFNAMSIZ, ifr.ifr_newname);
++        strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
 +        loop = 90 * 20;
 +        while (loop--) {
 +                const struct timespec duration = { 0, 1000 * 1000 * 1000 / 20 };

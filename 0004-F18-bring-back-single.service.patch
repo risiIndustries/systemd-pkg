@@ -1,24 +1,23 @@
-From 644f61739799fa3c4b9a0e7d56b48bc386705138 Mon Sep 17 00:00:00 2001
+From 86a488ac3416b63b2146e2833ef692c76ae1decf Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 11 Jan 2013 23:47:11 +0100
 Subject: [PATCH] (F18) bring back single.service
 
 ---
- Makefile.am | 4 ++++
- 1 file changed, 4 insertions(+)
+ Makefile.am | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 26d4672..28d8d44 100644
+index ce56d05..18b9c4c 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -4080,6 +4080,10 @@ if HAVE_KMOD
- 		$(LN_S) ../systemd-modules-load.service systemd-modules-load.service )
- endif
+@@ -4011,7 +4011,8 @@ endif
+ SYSTEM_UNIT_ALIASES += \
+ 	graphical.target default.target \
+ 	reboot.target ctrl-alt-del.target \
+-	getty@.service autovt@.service
++	getty@.service autovt@.service \
++	rescue.service single.service
  
-+	( cd $(DESTDIR)$(systemunitdir) && \
-+		rm -f single.service && \
-+		$(LN_S) rescue.service single.service )
-+
- install-exec-hook: $(INSTALL_EXEC_HOOKS)
- 
- uninstall-hook: $(UNINSTALL_DATA_HOOKS) $(UNINSTALL_EXEC_HOOKS)
+ USER_UNIT_ALIASES += \
+ 	$(systemunitdir)/shutdown.target shutdown.target \

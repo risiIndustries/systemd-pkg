@@ -1,0 +1,33 @@
+Fedora 18 was released with systemd-195. In subsequent F18 updates systemd has
+been rebased to a newer upstream version. Several of the upstream changes could
+introduce incompatible behavior within a Fedora release. Care has been taken
+to avoid adding such changes in the stable Fedora updates. This leads to the
+following areas where systemd in Fedora 18 differs from the upstream version:
+
+- rescue.service can start sushell if configured so by /etc/sysconfig/init.
+  Upstream supports only sulogin.
+
+- http-daemon.target, mail-transfer-agent.target, the LSB facilities "httpd",
+  "MTA", "smtpdaemon", "mail-transfer-agent", "mail-transport-agent", "smtp",
+  "x-display-manager" were removed upstream, but they are preserved in
+  Fedora 18.
+
+- The alias "single.service" for "rescue.service" is provided.
+
+- A hacky workaround that allows udev to rename network interfaces into
+  kernel's ethX namespace has been re-added. This is to support users who still
+  rely on udev rules such as 70-persistent-net.rules generated in previous
+  Fedora releases to name their network interfaces. Note that the workaround is
+  only temporary and will go away in a future Fedora release. Also note that
+  due to unavoidable race conditions, the workaround can still fail
+  occasionally (causing network interfaces to be named renameX).
+  To be on the safe side it is recommended to change any present network
+  interface naming udev rules to use network interface names that cannot
+  collide with kernel generated names as soon as possible.
+
+- Though "systemctl dot" does not work anymore, at least it prints an advice
+  to use "systemd-analyze dot" instead.
+
+- The udev support for predictable network interface names is present, but it
+  is not enabled by default. Users interested in the feature have to opt-in by
+  passing the parameter "net.ifnames=1" on the kernel command line.

@@ -1,4 +1,4 @@
-From fdc3644c14c5c3ace8fac22c87a2a3dcc0da5a64 Mon Sep 17 00:00:00 2001
+From b8a8c9fed5e35c773df624bc51165d91a73396b3 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 11 Jan 2013 23:22:49 +0100
 Subject: [PATCH] (F18) re-add http-daemon.target
@@ -15,10 +15,10 @@ In case someone uses the odd facility names in F18. Who knows.
  create mode 100644 units/http-daemon.target
 
 diff --git a/Makefile.am b/Makefile.am
-index 004945f..26d4672 100644
+index 57be908..ce56d05 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -262,6 +262,7 @@ dist_systemunit_DATA = \
+@@ -364,6 +364,7 @@ dist_systemunit_DATA = \
  	units/mail-transfer-agent.target \
  	units/hibernate.target \
  	units/hybrid-sleep.target \
@@ -27,7 +27,7 @@ index 004945f..26d4672 100644
  	units/reboot.target \
  	units/rescue.target \
 diff --git a/man/systemd.special.xml b/man/systemd.special.xml
-index 9ea288e..d3b6181 100644
+index b055c6b..2a1c320 100644
 --- a/man/systemd.special.xml
 +++ b/man/systemd.special.xml
 @@ -63,6 +63,7 @@
@@ -36,13 +36,13 @@ index 9ea288e..d3b6181 100644
                  <filename>hibernate.target</filename>,
 +                <filename>http-daemon.target</filename>,
                  <filename>hybrid-sleep.target</filename>,
+                 <filename>initrd-fs.target</filename>,
                  <filename>kbrequest.target</filename>,
-                 <filename>kexec.target</filename>,
 diff --git a/src/core/service.c b/src/core/service.c
-index 2a4e691..5db72b8 100644
+index 29e3504..e9e42b4 100644
 --- a/src/core/service.c
 +++ b/src/core/service.c
-@@ -366,6 +366,11 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+@@ -362,6 +362,11 @@ static int sysv_translate_facility(const char *name, const char *filename, char
                  "null",                 NULL,
                  "mail-transport-agent", SPECIAL_MAIL_TRANSFER_AGENT_TARGET,
                  "smtp",                 SPECIAL_MAIL_TRANSFER_AGENT_TARGET,
@@ -55,10 +55,10 @@ index 2a4e691..5db72b8 100644
  
          unsigned i;
 diff --git a/src/core/special.h b/src/core/special.h
-index ef72260..15aa6ca 100644
+index d5a0fe8..570cecc 100644
 --- a/src/core/special.h
 +++ b/src/core/special.h
-@@ -87,6 +87,7 @@
+@@ -91,6 +91,7 @@
   * of a kind. .target units can be used to support multiple
   * implementations that can run side-by-side.
   */

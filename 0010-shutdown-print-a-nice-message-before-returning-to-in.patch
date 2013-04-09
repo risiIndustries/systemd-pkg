@@ -1,0 +1,24 @@
+From 1e3ca980fad088ea532596c5f5bbfdda27e6730b Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 9 Apr 2013 18:29:24 +0200
+Subject: [PATCH] shutdown: print a nice message before returning to initrd
+ (cherry picked from commit 30d743f43007ed5a3db1f9a053b6d87c0940adb2)
+
+---
+ src/core/shutdown.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/core/shutdown.c b/src/core/shutdown.c
+index 86ea054..2db761d 100644
+--- a/src/core/shutdown.c
++++ b/src/core/shutdown.c
+@@ -274,6 +274,9 @@ int main(int argc, char *argv[]) {
+ 
+                 if (prepare_new_root() >= 0 &&
+                     pivot_to_new_root() >= 0) {
++
++                        log_info("Returning to initrd...");
++
+                         execv("/shutdown", argv);
+                         log_error("Failed to execute shutdown binary: %m");
+                 }

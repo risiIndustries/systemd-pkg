@@ -1,0 +1,33 @@
+From e96d07c92556e63584e0e63f47a40af6598f77dd Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 9 Apr 2013 11:27:22 +0200
+Subject: [PATCH] (F18): explain what happened to 'systemctl dot'
+
+---
+ src/systemctl/systemctl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index fd9f580..9a5810d 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -895,6 +895,11 @@ static int list_dependencies(DBusConnection *bus, char **args) {
+         return list_dependencies_one(bus, u, 0, NULL, 0);
+ }
+ 
++static int dot(DBusConnection *bus, char **args) {
++        log_info("The 'systemctl dot' command has been removed. Use 'systemd-analyze dot' instead.");
++        return 0;
++}
++
+ static int list_jobs(DBusConnection *bus, char **args) {
+         _cleanup_dbus_message_unref_ DBusMessage *reply = NULL;
+         DBusMessageIter iter, sub, sub2;
+@@ -5202,6 +5207,7 @@ static int systemctl_main(DBusConnection *bus, int argc, char *argv[], DBusError
+                 { "status",                MORE,  1, show              },
+                 { "help",                  MORE,  2, show              },
+                 { "dump",                  EQUAL, 1, dump              },
++                { "dot",                   EQUAL, 1, dot               },
+                 { "snapshot",              LESS,  2, snapshot          },
+                 { "delete",                MORE,  2, delete_snapshot   },
+                 { "daemon-reload",         EQUAL, 1, daemon_reload     },

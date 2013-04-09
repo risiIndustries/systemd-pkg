@@ -1,0 +1,23 @@
+From d8dda5789feeac657aa9003e6ae843f3a7c35f28 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 9 Apr 2013 11:31:07 +0200
+Subject: [PATCH] (F18): Make predictable net names opt-in instead of opt-out
+
+Users can simply pass "net.ifnames=1" on the kernel command line.
+---
+ rules/80-net-name-slot.rules | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rules/80-net-name-slot.rules b/rules/80-net-name-slot.rules
+index 15b5bc4..c0f66d1 100644
+--- a/rules/80-net-name-slot.rules
++++ b/rules/80-net-name-slot.rules
+@@ -5,7 +5,7 @@ SUBSYSTEM!="net", GOTO="net_name_slot_end"
+ NAME!="", GOTO="net_name_slot_end"
+ 
+ IMPORT{cmdline}="net.ifnames"
+-ENV{net.ifnames}=="0", GOTO="net_name_slot_end"
++ENV{net.ifnames}!="1", GOTO="net_name_slot_end"
+ 
+ NAME=="", ENV{ID_NET_NAME_ONBOARD}!="", NAME="$env{ID_NET_NAME_ONBOARD}"
+ NAME=="", ENV{ID_NET_NAME_SLOT}!="", NAME="$env{ID_NET_NAME_SLOT}"
