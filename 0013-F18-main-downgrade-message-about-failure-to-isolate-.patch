@@ -1,0 +1,25 @@
+From 84417b753f1ade6daff13c8530dc24af3fd2a71a Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Thu, 11 Apr 2013 13:37:50 +0200
+Subject: [PATCH] (F18) main: downgrade message about failure to isolate
+ default target
+
+dracut in F18 uses basic.target as default.target. It is pointless to
+log this as error for everyone. Downgrade it to debug.
+---
+ src/core/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index 7899761..364f1d1 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -1727,7 +1727,7 @@ int main(int argc, char *argv[]) {
+ 
+                 r = manager_add_job(m, JOB_START, target, JOB_ISOLATE, false, &error, &default_unit_job);
+                 if (r == -EPERM) {
+-                        log_error("Default target could not be isolated, starting instead: %s", bus_error(&error, r));
++                        log_debug("Default target could not be isolated, starting instead: %s", bus_error(&error, r));
+                         dbus_error_free(&error);
+ 
+                         r = manager_add_job(m, JOB_START, target, JOB_REPLACE, false, &error, &default_unit_job);

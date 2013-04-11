@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.1
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.2
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -50,6 +50,7 @@ Patch0009:      0009-keymap-Fix-typo-in-previous-commit.patch
 Patch0010:      0010-shutdown-print-a-nice-message-before-returning-to-in.patch
 Patch0011:      0011-units-fix-some-left-over-mentions-of-remote-fs-setup.patch
 Patch0012:      0012-logind-avoid-creating-stale-session-state-files.patch
+Patch0013:      0013-F18-main-downgrade-message-about-failure-to-isolate-.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -91,7 +92,6 @@ BuildRequires:  git
 Requires(post): coreutils
 Requires(post): gawk
 Requires(post): sed
-Requires(post): acl
 Requires(pre):  coreutils
 Requires(pre):  /usr/bin/getent
 Requires(pre):  /usr/sbin/groupadd
@@ -299,7 +299,6 @@ mkdir -p %{buildroot}%{_prefix}/lib/systemd/ntp-units.d/
 # Make sure directories in /var exist
 mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/coredump
 mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/catalog
-mkdir -p %{buildroot}%{_localstatedir}/log/journal
 touch %{buildroot}%{_localstatedir}/lib/systemd/catalog/database
 touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
 
@@ -338,6 +337,9 @@ ln -s ../NetworkManager-wait-online.service \
 # F18-specific doc
 install -m 0644 %{SOURCE7} %{buildroot}/%{_docdir}/systemd/
 
+# F18 - do not change sysctl defaults:
+rm -f %{buildroot}/%{_prefix}/lib/sysctl.d/50-default.conf
+
 %pre
 getent group cdrom >/dev/null 2>&1 || groupadd -r -g 11 cdrom >/dev/null 2>&1 || :
 getent group tape >/dev/null 2>&1 || groupadd -r -g 33 tape >/dev/null 2>&1 || :
@@ -345,7 +347,7 @@ getent group dialout >/dev/null 2>&1 || groupadd -r -g 18 dialout >/dev/null 2>&
 getent group floppy >/dev/null 2>&1 || groupadd -r -g 19 floppy >/dev/null 2>&1 || :
 getent group systemd-journal >/dev/null 2>&1 || groupadd -r -g 190 systemd-journal 2>&1 || :
 getent group systemd-journal-gateway >/dev/null 2>&1 || groupadd -r -g 191 systemd-journal-gateway 2>&1 || :
-getent passwd systemd-journal-gateway >/dev/null 2>&1 || useradd -r -l -u 191 -g systemd-journal-gateway -d %{_localstatedir}/log/journal -s /usr/sbin/nologin -c "Journal Gateway" systemd-journal-gateway >/dev/null 2>&1 || :
+getent passwd systemd-journal-gateway >/dev/null 2>&1 || useradd -r -l -u 191 -g systemd-journal-gateway -d / -s /usr/sbin/nologin -c "Journal Gateway" systemd-journal-gateway >/dev/null 2>&1 || :
 
 systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 
@@ -508,8 +510,6 @@ else
         rm -f /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf >/dev/null 2>&1 || :
 fi
 
-setfacl -Rnm g:wheel:rx,d:g:wheel:rx,g:adm:rx,d:g:adm:rx /var/log/journal/ >/dev/null 2>&1 || :
-
 %posttrans
 # Convert old /etc/sysconfig/desktop settings
 preferred=
@@ -602,7 +602,6 @@ fi
 %dir %{_datadir}/systemd
 %dir %{_datadir}/systemd/gatewayd
 %dir %{_datadir}/pkgconfig
-%dir %{_localstatedir}/log/journal
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
 %dir %{_localstatedir}/lib/systemd/coredump
@@ -673,7 +672,6 @@ fi
 %{_prefix}/lib/tmpfiles.d/x11.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
-%{_prefix}/lib/sysctl.d/50-default.conf
 %{_prefix}/lib/systemd/system-preset/90-default.preset
 %{_prefix}/lib/systemd/system-preset/90-display-manager.preset
 %{_prefix}/lib/systemd/catalog/systemd.catalog
@@ -790,6 +788,11 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Thu Apr 11 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.2
+- Do not create /var/log/journal in F18.
+- Downgrade error message about non-isolatable default target to debug level.
+- Do not ship changed sysctl defaults in F18.
+
 * Wed Apr 10 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.1
 - Update to upstream release v201 from F19.
 - Back out selected changes to avoid incompatibilities in a stable release.
