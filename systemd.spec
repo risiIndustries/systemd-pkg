@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.2
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.3
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -51,6 +51,7 @@ Patch0010:      0010-shutdown-print-a-nice-message-before-returning-to-in.patch
 Patch0011:      0011-units-fix-some-left-over-mentions-of-remote-fs-setup.patch
 Patch0012:      0012-logind-avoid-creating-stale-session-state-files.patch
 Patch0013:      0013-F18-main-downgrade-message-about-failure-to-isolate-.patch
+Patch0014:      0014-fileio-in-envfiles-do-not-skip-lines-following-empty.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -788,6 +789,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Mon Apr 15 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.3
+- Fix parsing of envfiles with empty lines (#951866).
+
 * Thu Apr 11 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.2
 - Do not create /var/log/journal in F18.
 - Downgrade error message about non-isolatable default target to debug level.
