@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.3
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.4
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -50,8 +50,11 @@ Patch0009:      0009-keymap-Fix-typo-in-previous-commit.patch
 Patch0010:      0010-shutdown-print-a-nice-message-before-returning-to-in.patch
 Patch0011:      0011-units-fix-some-left-over-mentions-of-remote-fs-setup.patch
 Patch0012:      0012-logind-avoid-creating-stale-session-state-files.patch
+# Simple workaround for dracut difference vs F19
 Patch0013:      0013-F18-main-downgrade-message-about-failure-to-isolate-.patch
 Patch0014:      0014-fileio-in-envfiles-do-not-skip-lines-following-empty.patch
+# Workaround some broken unit files in F18
+Patch0015:      0015-F18-ship-a-dummy-syslog.target.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -789,6 +792,10 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Mon Apr 15 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.4
+- Ship a dummy syslog.target (#951957).
+- Update README.Fedora-18.
+
 * Mon Apr 15 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.3
 - Fix parsing of envfiles with empty lines (#951866).
 
