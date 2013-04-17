@@ -1,0 +1,32 @@
+From a5b8a278a8e270dc819178edcd7c41fb8dc6a417 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 16 Apr 2013 23:07:14 +0200
+Subject: [PATCH] journal: fix off-by-one error in native message iovec
+ counting
+
+Thanks to Cristian Ciupitu for a reproducer.
+https://bugzilla.redhat.com/show_bug.cgi?id=924359
+(cherry picked from commit f6422def2c10aa0dea1b872d2f187853e61bd015)
+---
+ src/journal/journald-native.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/journal/journald-native.c b/src/journal/journald-native.c
+index 9d1f39f..f878dfc 100644
+--- a/src/journal/journald-native.c
++++ b/src/journal/journald-native.c
+@@ -123,11 +123,12 @@ void server_process_native_message(
+ 
+                 /* A property follows */
+ 
+-                if (n+N_IOVEC_META_FIELDS >= m) {
++                /* n received properties, +1 for _TRANSPORT */
++                if (n + 1 + N_IOVEC_META_FIELDS >= m) {
+                         struct iovec *c;
+                         unsigned u;
+ 
+-                        u = MAX((n+N_IOVEC_META_FIELDS+1) * 2U, 4U);
++                        u = MAX((n + 1 + N_IOVEC_META_FIELDS) * 2U, 4U);
+                         c = realloc(iovec, u * sizeof(struct iovec));
+                         if (!c) {
+                                 log_oom();

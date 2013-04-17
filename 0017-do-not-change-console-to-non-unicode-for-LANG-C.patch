@@ -1,0 +1,41 @@
+From 10f9852d9cf429d6baaf416fee3aea519df6dcae Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Mon, 15 Apr 2013 18:34:53 +0200
+Subject: [PATCH] do not change console to non-unicode for LANG=C
+
+If systemd-vconsole-setup was started with LANG=C (no locale.conf), then
+it would set the console to non-unicode, which is not what we want.
+(cherry picked from commit fee79e010f1f8ad2bce6b41c67e8ddd4f419ff4b)
+---
+ src/shared/util.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 57943b6..7f633a3 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -5402,7 +5402,23 @@ bool is_locale_utf8(void) {
+                 goto out;
+         }
+ 
+-        cached_answer = streq(set, "UTF-8");
++        if(streq(set, "UTF-8")) {
++                cached_answer = true;
++                goto out;
++        }
++
++        /* For LC_CTYPE=="C" return true,
++         * because CTYPE is effectly unset and
++         * everything defaults to UTF-8 nowadays. */
++
++        set = setlocale(LC_CTYPE, NULL);
++        if (!set) {
++                cached_answer = true;
++                goto out;
++        }
++
++        cached_answer = streq(set, "C");
++
+ out:
+         return (bool)cached_answer;
+ }

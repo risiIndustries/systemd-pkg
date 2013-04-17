@@ -1,0 +1,39 @@
+From 2c3bc61fef4b72f0f9c569dae961b90bd2d165ab Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Fri, 12 Apr 2013 11:56:27 +0200
+Subject: [PATCH] core/device.c: fix possible segfault
+
+https://bugs.freedesktop.org/show_bug.cgi?id=63189
+
+better fail than segfault
+
+systemd[1]: Failed to load device unit: Invalid argument
+systemd[1]: Failed to process udev device event: Invalid argument
+(cherry picked from commit 003ac9d0318ce28e0b29af5440c9f28f884da04c)
+---
+ src/core/device.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/device.c b/src/core/device.c
+index fb94868..734d3f3 100644
+--- a/src/core/device.c
++++ b/src/core/device.c
+@@ -312,6 +312,7 @@ fail:
+ static int device_process_new_device(Manager *m, struct udev_device *dev, bool update_state) {
+         const char *sysfs, *dn;
+         struct udev_list_entry *item = NULL, *first = NULL;
++        int r;
+ 
+         assert(m);
+ 
+@@ -319,7 +320,9 @@ static int device_process_new_device(Manager *m, struct udev_device *dev, bool u
+                 return -ENOMEM;
+ 
+         /* Add the main unit named after the sysfs path */
+-        device_update_unit(m, dev, sysfs, true);
++        r = device_update_unit(m, dev, sysfs, true);
++        if (r < 0)
++                return r;
+ 
+         /* Add an additional unit for the device node */
+         if ((dn = udev_device_get_devnode(dev)))

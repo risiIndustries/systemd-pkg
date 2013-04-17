@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.4
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.5
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -55,6 +55,10 @@ Patch0013:      0013-F18-main-downgrade-message-about-failure-to-isolate-.patch
 Patch0014:      0014-fileio-in-envfiles-do-not-skip-lines-following-empty.patch
 # Workaround some broken unit files in F18
 Patch0015:      0015-F18-ship-a-dummy-syslog.target.patch
+Patch0016:      0016-journal-fix-broken-tags-_SOURCE_REALTIME_TIMESTAMP-a.patch
+Patch0017:      0017-do-not-change-console-to-non-unicode-for-LANG-C.patch
+Patch0018:      0018-journal-fix-off-by-one-error-in-native-message-iovec.patch
+Patch0019:      0019-core-device.c-fix-possible-segfault.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -792,6 +796,13 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Wed Apr 17 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.5
+- Added 4 more fixes from upstream:
+- Fix broken _SOURCE_REALTIME_TIMESTAMP and _MACHINE_ID journal tags.
+- Fix a journald crash.
+- Fix a systemd crash in device units with certain udev rules.
+- Keep the console in unicode mode for LANG=C.
+
 * Mon Apr 15 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.4
 - Ship a dummy syslog.target (#951957).
 - Update README.Fedora-18.
