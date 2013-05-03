@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.5
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.6
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -59,6 +59,40 @@ Patch0016:      0016-journal-fix-broken-tags-_SOURCE_REALTIME_TIMESTAMP-a.patch
 Patch0017:      0017-do-not-change-console-to-non-unicode-for-LANG-C.patch
 Patch0018:      0018-journal-fix-off-by-one-error-in-native-message-iovec.patch
 Patch0019:      0019-core-device.c-fix-possible-segfault.patch
+# Avoid change in sysctl.d precedence behaviour
+Patch0020:      0020-F18-sysctl-give-files-with-later-names-precedence-ov.patch
+Patch0021:      0021-cryptsetup-set-the-timeout-to-0-by-default.patch
+Patch0022:      0022-man-document-that-timeout-0-is-the-default-for-entri.patch
+Patch0023:      0023-cryptsetup-generator-add-support-for-rd.luks.key.patch
+Patch0024:      0024-crypt-setup-generator-correctly-check-return-of-strd.patch
+Patch0025:      0025-logind-dbus-initialize-result-variable.patch
+Patch0026:      0026-nss-myhostname-ensure-that-glibc-s-assert-is-used.patch
+Patch0027:      0027-build-sys-prevent-library-underlinking.patch
+Patch0028:      0028-hwdb-update.patch
+Patch0029:      0029-hwdb-update.patch
+Patch0030:      0030-hwdb-update.patch
+Patch0031:      0031-conf-parser-generate-7-parsing-functions-from-a-macr.patch
+Patch0032:      0032-core-main-generate-4-parsing-functions-from-a-macro.patch
+Patch0033:      0033-Report-about-syntax-errors-with-metadata.patch
+Patch0034:      0034-core-let-s-make-our-log-messages-proper-sentences-wi.patch
+Patch0035:      0035-core-log-a-few-more-things-under-UNIT.patch
+Patch0036:      0036-Move-bus_error-to-dbus-common-and-remove-bus_error_m.patch
+Patch0037:      0037-unit-rework-trigger-dependency-logic.patch
+Patch0038:      0038-timer-make-sure-we-restart-timers-even-if-units-are-.patch
+Patch0039:      0039-logind-don-t-busy-loop-if-a-job-is-still-running-but.patch
+Patch0040:      0040-core-remove-duplicate-MESSAGE-from-log-message.patch
+Patch0041:      0041-man-clarify-what-Restart-means.patch
+Patch0042:      0042-man-improve-documentation-for-specifiers.patch
+Patch0043:      0043-dbus-execute-fix-introspection.patch
+Patch0044:      0044-unit-rework-stop-pending-logic.patch
+Patch0045:      0045-core-bump-simultaneous-bus-connection-limit-to-512.patch
+Patch0046:      0046-hwdb-update.patch
+Patch0047:      0047-core-unit_inactive_or_pending-should-actually-do-as-.patch
+Patch0048:      0048-man-correct-SIGUSR1-semantics-for-journald.patch
+Patch0049:      0049-man-clarify-behaviour-of-Also-in-unit-files.patch
+Patch0050:      0050-man-fix-typos-in-systemd.special.patch
+Patch0051:      0051-core-escape-unit-name-from-udev.patch
+Patch0052:      0052-journald-be-more-careful-when-we-try-to-flush-the-ru.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -796,6 +830,11 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Tue May 07 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.6
+- Avoid sysctl.d precedence rules change (#924433).
+- More patches from upstream.
+- Add vmtoolsd.service to 90-default.preset (Lennart).
+
 * Wed Apr 17 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.5
 - Added 4 more fixes from upstream:
 - Fix broken _SOURCE_REALTIME_TIMESTAMP and _MACHINE_ID journal tags.

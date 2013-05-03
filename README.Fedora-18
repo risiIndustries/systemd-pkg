@@ -40,3 +40,9 @@ following areas where systemd in Fedora 18 differs from the upstream version:
 - A dummy syslog.target unit is provided in F18 as a workaround for broken unit
   files that have requirement dependencies (such as Requires) on it. The units
   must be fixed for future Fedora releases.
+
+- The precedence rules for sysctl.d files are inverted. Files with lexically
+  later names override files with earlier names.
+
+- The Fedora package contains bugfixes and minor features cherry-picked from
+  later upstream versions than the RPM package version indicates.

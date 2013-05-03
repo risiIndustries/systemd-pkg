@@ -1,0 +1,24 @@
+From 22184f5563604bb011ae05bf5ffd75969cbd02a7 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 6 May 2013 22:28:39 +0200
+Subject: [PATCH] core: unit_inactive_or_pending() should actually do as it
+ claims (cherry picked from commit d956ac29a1b8120e83922fa8e75cdd8f6e562529)
+
+---
+ src/core/unit.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index d5bea83..502fbf1 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -2652,6 +2652,9 @@ bool unit_inactive_or_pending(Unit *u) {
+ 
+         /* Returns true if the unit is inactive or going down */
+ 
++        if (UNIT_IS_INACTIVE_OR_DEACTIVATING(unit_active_state(u)))
++                return true;
++
+         if (unit_stop_pending(u))
+                 return true;
+ 

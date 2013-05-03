@@ -1,0 +1,113 @@
+From d7b2c40ea16748d27951d53efe506ddc0ec19ee3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 15 Apr 2013 21:33:43 -0400
+Subject: [PATCH] core/main: generate 4 parsing functions from a macro (cherry
+ picked from commit 799de03f51def1cb3cea376c2e3e783c721c9b89)
+
+---
+ src/core/main.c | 89 ++++++++++++++-------------------------------------------
+ 1 file changed, 21 insertions(+), 68 deletions(-)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index 364f1d1..0ffd98f 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -421,77 +421,30 @@ static int parse_proc_cmdline_word(const char *word) {
+         return 0;
+ }
+ 
+-static int config_parse_level2(
+-                const char *filename,
+-                unsigned line,
+-                const char *section,
+-                const char *lvalue,
+-                int ltype,
+-                const char *rvalue,
+-                void *data,
+-                void *userdata) {
+-
+-        assert(filename);
+-        assert(lvalue);
+-        assert(rvalue);
+-
+-        log_set_max_level_from_string(rvalue);
+-        return 0;
+-}
+-
+-static int config_parse_target(
+-                const char *filename,
+-                unsigned line,
+-                const char *section,
+-                const char *lvalue,
+-                int ltype,
+-                const char *rvalue,
+-                void *data,
+-                void *userdata) {
+-
+-        assert(filename);
+-        assert(lvalue);
+-        assert(rvalue);
+-
+-        log_set_target_from_string(rvalue);
+-        return 0;
++#define DEFINE_SETTER(name, func)                       \
++        static int name(                                \
++                        const char *filename,           \
++                        unsigned line,                  \
++                        const char *section,            \
++                        const char *lvalue,             \
++                        int ltype,                      \
++                        const char *rvalue,             \
++                        void *data,                     \
++                        void *userdata) {               \
++                                                        \
++                assert(filename);                       \
++                assert(lvalue);                         \
++                assert(rvalue);                         \
++                                                        \
++                func(rvalue);                           \
++                return 0;                               \
+ }
+ 
+-static int config_parse_color(
+-                const char *filename,
+-                unsigned line,
+-                const char *section,
+-                const char *lvalue,
+-                int ltype,
+-                const char *rvalue,
+-                void *data,
+-                void *userdata) {
+-
+-        assert(filename);
+-        assert(lvalue);
+-        assert(rvalue);
+-
+-        log_show_color_from_string(rvalue);
+-        return 0;
+-}
++DEFINE_SETTER(config_parse_level2, log_set_max_level_from_string)
++DEFINE_SETTER(config_parse_target, log_set_target_from_string)
++DEFINE_SETTER(config_parse_color, log_show_color_from_string)
++DEFINE_SETTER(config_parse_location, log_show_location_from_string)
+ 
+-static int config_parse_location(
+-                const char *filename,
+-                unsigned line,
+-                const char *section,
+-                const char *lvalue,
+-                int ltype,
+-                const char *rvalue,
+-                void *data,
+-                void *userdata) {
+-
+-        assert(filename);
+-        assert(lvalue);
+-        assert(rvalue);
+-
+-        log_show_location_from_string(rvalue);
+-        return 0;
+-}
+ 
+ static int config_parse_cpu_affinity2(
+                 const char *filename,

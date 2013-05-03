@@ -1,0 +1,218 @@
+From f145dcdedeb0fec8d30318c4c6780500db4f74a0 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 25 Apr 2013 21:57:41 -0300
+Subject: [PATCH] unit: rework stop pending logic
+
+When a trigger unit wants to know if a stop is queued for it, we should
+just check precisely that and do not check whether it is actually
+stopped already. This is because we use these checks usually from state
+change calls where the state variables are not updated yet.
+
+This change splits unit_pending_inactive() into two calls
+unit_inactive_or_pending() and unit_stop_pending(). The former checks
+state and pending jobs, the latter only pending jobs.
+(cherry picked from commit 31afa0a44c2d7f93d837c840cdbd623982ac165f)
+---
+ src/core/automount.c |  2 +-
+ src/core/dbus.c      |  4 ++--
+ src/core/manager.c   |  4 ++--
+ src/core/manager.h   |  2 +-
+ src/core/path.c      |  2 +-
+ src/core/socket.c    |  4 ++--
+ src/core/timer.c     |  2 +-
+ src/core/unit.c      | 29 +++++++++++++++++++----------
+ src/core/unit.h      |  5 +++--
+ 9 files changed, 32 insertions(+), 22 deletions(-)
+
+diff --git a/src/core/automount.c b/src/core/automount.c
+index e6eedda..a20d534 100644
+--- a/src/core/automount.c
++++ b/src/core/automount.c
+@@ -593,7 +593,7 @@ static void automount_enter_runnning(Automount *a) {
+ 
+         /* We don't take mount requests anymore if we are supposed to
+          * shut down anyway */
+-        if (unit_pending_inactive(UNIT(a))) {
++        if (unit_stop_pending(UNIT(a))) {
+                 log_debug_unit(UNIT(a)->id,
+                                "Suppressing automount request on %s since unit stop is scheduled.", UNIT(a)->id);
+                 automount_send_ready(a, -EHOSTDOWN);
+diff --git a/src/core/dbus.c b/src/core/dbus.c
+index 67ab1ae..5a61a1a 100644
+--- a/src/core/dbus.c
++++ b/src/core/dbus.c
+@@ -363,8 +363,8 @@ static DBusHandlerResult api_bus_message_filter(DBusConnection *connection, DBus
+ 
+                         log_debug("Got D-Bus activation request for %s", name);
+ 
+-                        if (manager_unit_pending_inactive(m, SPECIAL_DBUS_SERVICE) ||
+-                            manager_unit_pending_inactive(m, SPECIAL_DBUS_SOCKET)) {
++                        if (manager_unit_inactive_or_pending(m, SPECIAL_DBUS_SERVICE) ||
++                            manager_unit_inactive_or_pending(m, SPECIAL_DBUS_SOCKET)) {
+                                 r = -EADDRNOTAVAIL;
+                                 dbus_set_error(&error, BUS_ERROR_SHUTTING_DOWN, "Refusing activation, D-Bus is shutting down.");
+                         } else {
+diff --git a/src/core/manager.c b/src/core/manager.c
+index f8d097e..d2582c8 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -2337,7 +2337,7 @@ void manager_reset_failed(Manager *m) {
+                 unit_reset_failed(u);
+ }
+ 
+-bool manager_unit_pending_inactive(Manager *m, const char *name) {
++bool manager_unit_inactive_or_pending(Manager *m, const char *name) {
+         Unit *u;
+ 
+         assert(m);
+@@ -2348,7 +2348,7 @@ bool manager_unit_pending_inactive(Manager *m, const char *name) {
+         if (!u)
+                 return true;
+ 
+-        return unit_pending_inactive(u);
++        return unit_inactive_or_pending(u);
+ }
+ 
+ void manager_check_finished(Manager *m) {
+diff --git a/src/core/manager.h b/src/core/manager.h
+index 649a8aa..a0be292 100644
+--- a/src/core/manager.h
++++ b/src/core/manager.h
+@@ -291,7 +291,7 @@ void manager_reset_failed(Manager *m);
+ void manager_send_unit_audit(Manager *m, Unit *u, int type, bool success);
+ void manager_send_unit_plymouth(Manager *m, Unit *u);
+ 
+-bool manager_unit_pending_inactive(Manager *m, const char *name);
++bool manager_unit_inactive_or_pending(Manager *m, const char *name);
+ 
+ void manager_check_finished(Manager *m);
+ 
+diff --git a/src/core/path.c b/src/core/path.c
+index 9d4f4f5..767d654 100644
+--- a/src/core/path.c
++++ b/src/core/path.c
+@@ -523,7 +523,7 @@ static void path_enter_running(Path *p) {
+         dbus_error_init(&error);
+ 
+         /* Don't start job if we are supposed to go down */
+-        if (unit_pending_inactive(UNIT(p)))
++        if (unit_stop_pending(UNIT(p)))
+                 return;
+ 
+         r = manager_add_job(UNIT(p)->manager, JOB_START, UNIT_TRIGGER(UNIT(p)),
+diff --git a/src/core/socket.c b/src/core/socket.c
+index 9f1af1e..c276afe 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -1447,7 +1447,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+ 
+         /* We don't take connections anymore if we are supposed to
+          * shut down anyway */
+-        if (unit_pending_inactive(UNIT(s))) {
++        if (unit_stop_pending(UNIT(s))) {
+                 log_debug_unit(UNIT(s)->id,
+                                "Suppressing connection request on %s since unit stop is scheduled.",
+                                UNIT(s)->id);
+@@ -1478,7 +1478,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+                 /* If there's already a start pending don't bother to
+                  * do anything */
+                 SET_FOREACH(u, UNIT(s)->dependencies[UNIT_TRIGGERS], i)
+-                        if (unit_pending_active(u)) {
++                        if (unit_active_or_pending(u)) {
+                                 pending = true;
+                                 break;
+                         }
+diff --git a/src/core/timer.c b/src/core/timer.c
+index b8039d8..ff8c305 100644
+--- a/src/core/timer.c
++++ b/src/core/timer.c
+@@ -374,7 +374,7 @@ static void timer_enter_running(Timer *t) {
+         dbus_error_init(&error);
+ 
+         /* Don't start job if we are supposed to go down */
+-        if (unit_pending_inactive(UNIT(t)))
++        if (unit_stop_pending(UNIT(t)))
+                 return;
+ 
+         r = manager_add_job(UNIT(t)->manager, JOB_START, UNIT_TRIGGER(UNIT(t)),
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 11c00ca..d5bea83 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1206,19 +1206,19 @@ static void unit_check_unneeded(Unit *u) {
+                 return;
+ 
+         SET_FOREACH(other, u->dependencies[UNIT_REQUIRED_BY], i)
+-                if (unit_pending_active(other))
++                if (unit_active_or_pending(other))
+                         return;
+ 
+         SET_FOREACH(other, u->dependencies[UNIT_REQUIRED_BY_OVERRIDABLE], i)
+-                if (unit_pending_active(other))
++                if (unit_active_or_pending(other))
+                         return;
+ 
+         SET_FOREACH(other, u->dependencies[UNIT_WANTED_BY], i)
+-                if (unit_pending_active(other))
++                if (unit_active_or_pending(other))
+                         return;
+ 
+         SET_FOREACH(other, u->dependencies[UNIT_BOUND_BY], i)
+-                if (unit_pending_active(other))
++                if (unit_active_or_pending(other))
+                         return;
+ 
+         log_info_unit(u->id, "Service %s is not needed anymore. Stopping.", u->id);
+@@ -2635,21 +2635,30 @@ Unit *unit_following(Unit *u) {
+         return NULL;
+ }
+ 
+-bool unit_pending_inactive(Unit *u) {
++bool unit_stop_pending(Unit *u) {
+         assert(u);
+ 
+-        /* Returns true if the unit is inactive or going down */
++        /* This call does check the current state of the unit. It's
++         * hence useful to be called from state change calls of the
++         * unit itself, where the state isn't updated yet. This is
++         * different from unit_inactive_or_pending() which checks both
++         * the current state and for a queued job. */
+ 
+-        if (UNIT_IS_INACTIVE_OR_DEACTIVATING(unit_active_state(u)))
+-                return true;
++        return u->job && u->job->type == JOB_STOP;
++}
++
++bool unit_inactive_or_pending(Unit *u) {
++        assert(u);
++
++        /* Returns true if the unit is inactive or going down */
+ 
+-        if (u->job && u->job->type == JOB_STOP)
++        if (unit_stop_pending(u))
+                 return true;
+ 
+         return false;
+ }
+ 
+-bool unit_pending_active(Unit *u) {
++bool unit_active_or_pending(Unit *u) {
+         assert(u);
+ 
+         /* Returns true if the unit is active or going up */
+diff --git a/src/core/unit.h b/src/core/unit.h
+index 51a8364..12bec03 100644
+--- a/src/core/unit.h
++++ b/src/core/unit.h
+@@ -537,8 +537,9 @@ void unit_reset_failed(Unit *u);
+ 
+ Unit *unit_following(Unit *u);
+ 
+-bool unit_pending_inactive(Unit *u);
+-bool unit_pending_active(Unit *u);
++bool unit_stop_pending(Unit *u);
++bool unit_inactive_or_pending(Unit *u);
++bool unit_active_or_pending(Unit *u);
+ 
+ int unit_add_default_target_dependency(Unit *u, Unit *target);
+ 

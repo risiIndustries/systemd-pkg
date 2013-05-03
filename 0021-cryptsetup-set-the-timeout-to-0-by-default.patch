@@ -1,0 +1,27 @@
+From 5497c33bd2eb15b597c4cdd50b3e27f0df899e41 Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Fri, 12 Apr 2013 09:45:26 +0200
+Subject: [PATCH] cryptsetup: set the timeout to 0 by default
+
+cryptsetup itself has no timeout as default from the beginning. So the
+default timeout has been "0" from the beginning.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=949702
+(cherry picked from commit 49714341c3f815118f8a51136aa9857bab7144c2)
+---
+ src/cryptsetup/cryptsetup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/cryptsetup/cryptsetup.c b/src/cryptsetup/cryptsetup.c
+index ae4aa8d..376f748 100644
+--- a/src/cryptsetup/cryptsetup.c
++++ b/src/cryptsetup/cryptsetup.c
+@@ -44,7 +44,7 @@ static unsigned opt_tries = 0;
+ static bool opt_readonly = false;
+ static bool opt_verify = false;
+ static bool opt_discards = false;
+-static usec_t opt_timeout = DEFAULT_TIMEOUT_USEC;
++static usec_t opt_timeout = 0;
+ 
+ /* Options Debian's crypttab knows we don't:
+ 

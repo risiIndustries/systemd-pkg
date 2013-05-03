@@ -1,0 +1,35 @@
+From f4e763d84ae66e4decb77617cff00f49459ce5e9 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 6 May 2013 22:47:41 +0200
+Subject: [PATCH] man: clarify behaviour of Also= in unit files (cherry picked
+ from commit a7be37a5014f5d7f8aa372915943611fe1112834)
+
+---
+ man/systemd.unit.xml | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/man/systemd.unit.xml b/man/systemd.unit.xml
+index 0dccb97..eb50b85 100644
+--- a/man/systemd.unit.xml
++++ b/man/systemd.unit.xml
+@@ -1160,13 +1160,14 @@
+                                 <term><varname>Also=</varname></term>
+ 
+                                 <listitem><para>Additional units to
+-                                install when this unit is
+-                                installed. If the user requests
+-                                installation of a unit with this
+-                                option configured,
++                                install/deinstall when this unit is
++                                installed/deinstalled. If the user
++                                requests installation/deinstallation
++                                of a unit with this option configured,
+                                 <command>systemctl enable</command>
+-                                will automatically install units
+-                                listed in this option as
++                                and <command>systemctl
++                                disable</command> will automatically
++                                install/uninstall units listed in this option as
+                                 well.</para></listitem>
+                         </varlistentry>
+                 </variablelist>

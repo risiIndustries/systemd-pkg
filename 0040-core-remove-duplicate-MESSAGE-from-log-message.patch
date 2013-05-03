@@ -1,0 +1,25 @@
+From 36affd2dc67a42220a004595bd82201d0782591c Mon Sep 17 00:00:00 2001
+From: Mirco Tischler <mt-ml@gmx.de>
+Date: Thu, 25 Apr 2013 15:14:57 +0200
+Subject: [PATCH] core: remove duplicate MESSAGE= from log message
+
+This was needed with log_struct_unit() but log_notice_unit() adds it
+anyway.
+(cherry picked from commit fcf8c44041a5138a170f9a442809c032259a26b1)
+---
+ src/core/unit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 4da745b..11c00ca 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1468,7 +1468,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+ 
+                 if (ns != os && ns == UNIT_FAILED) {
+                         log_notice_unit(u->id,
+-                                        "MESSAGE=Unit %s entered failed state.", u->id);
++                                        "Unit %s entered failed state.", u->id);
+                         unit_start_on_failure(u);
+                 }
+         }

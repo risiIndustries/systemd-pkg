@@ -1,0 +1,45 @@
+From 5e7c1d7b60f1f499dd04c31e24e7c259587a6f4c Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 7 May 2013 01:09:33 +0200
+Subject: [PATCH] journald: be more careful when we try to flush the runtime
+ journal to disk and the disk is close to being full
+
+Bump the minimal size of the journal so that we can be sure creating the
+journal file will always succeed. Previously the minimum size was
+smaller than a empty jounral file...
+(cherry picked from commit 253f59dff9c93ee1d2c33444b5715e42bc1c6889)
+---
+ src/journal/journal-file.c    | 2 +-
+ src/journal/journald-server.c | 6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/journal/journal-file.c b/src/journal/journal-file.c
+index a44e126..e14821f 100644
+--- a/src/journal/journal-file.c
++++ b/src/journal/journal-file.c
+@@ -44,7 +44,7 @@
+ #define COMPRESSION_SIZE_THRESHOLD (512ULL)
+ 
+ /* This is the minimum journal file size */
+-#define JOURNAL_FILE_SIZE_MIN (64ULL*1024ULL)                  /* 64 KiB */
++#define JOURNAL_FILE_SIZE_MIN (4ULL*1024ULL*1024ULL)           /* 4 MiB */
+ 
+ /* These are the lower and upper bounds if we deduce the max_use value
+  * from the file system size */
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index 5e8647c..96fefa4 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -990,6 +990,12 @@ int server_flush_to_var(Server *s) {
+                 server_rotate(s);
+                 server_vacuum(s);
+ 
++                if (!s->system_journal) {
++                        log_notice("Didn't flush runtime journal since rotation of system journal wasn't successful.");
++                        r = -EIO;
++                        goto finish;
++                }
++
+                 log_debug("Retrying write.");
+                 r = journal_file_copy_entry(f, s->system_journal, o, f->current_offset, NULL, NULL, NULL);
+                 if (r < 0) {

@@ -1,0 +1,209 @@
+From 09ad78bd16fd4bccd36e2f216ccc5bcfd1b623e6 Mon Sep 17 00:00:00 2001
+From: Simon Peeters <peeters.simon@gmail.com>
+Date: Thu, 11 Apr 2013 00:39:01 +0200
+Subject: [PATCH] Move bus_error to dbus-common and remove
+ bus_error_message_or_strerror
+
+bus_error and bus_error_message_or_strerror dit almost exactly the same,
+so use only one of them and place it in dbus-common.
+(cherry picked from commit 449101fce2757575c4813a9512890536365445f6)
+---
+ src/core/bus-errors.h    | 13 -------------
+ src/core/load-fragment.c |  2 +-
+ src/core/main.c          |  2 +-
+ src/core/path.c          |  2 +-
+ src/core/service.c       |  2 +-
+ src/core/socket.c        |  2 +-
+ src/core/timer.c         |  2 +-
+ src/core/transaction.c   |  1 +
+ src/login/inhibit.c      |  4 ++--
+ src/login/logind-dbus.c  |  2 +-
+ src/shared/dbus-common.c |  5 ++---
+ src/shared/dbus-common.h |  2 +-
+ 12 files changed, 13 insertions(+), 26 deletions(-)
+
+diff --git a/src/core/bus-errors.h b/src/core/bus-errors.h
+index 04c1b28..7a4084e 100644
+--- a/src/core/bus-errors.h
++++ b/src/core/bus-errors.h
+@@ -21,9 +21,6 @@
+   along with systemd; If not, see <http://www.gnu.org/licenses/>.
+ ***/
+ 
+-#include <string.h>
+-#include <dbus/dbus.h>
+-
+ #define BUS_ERROR_NO_SUCH_UNIT "org.freedesktop.systemd1.NoSuchUnit"
+ #define BUS_ERROR_NO_SUCH_JOB "org.freedesktop.systemd1.NoSuchJob"
+ #define BUS_ERROR_NOT_SUBSCRIBED "org.freedesktop.systemd1.NotSubscribed"
+@@ -43,13 +40,3 @@
+ #define BUS_ERROR_TRANSACTION_ORDER_IS_CYCLIC "org.freedesktop.systemd1.TransactionOrderIsCyclic"
+ #define BUS_ERROR_SHUTTING_DOWN "org.freedesktop.systemd1.ShuttingDown"
+ #define BUS_ERROR_NO_SUCH_PROCESS "org.freedesktop.systemd1.NoSuchProcess"
+-
+-static inline const char *bus_error(const DBusError *e, int r) {
+-        if (e && e->message)
+-                return e->message;
+-
+-        if (r >= 0)
+-                return strerror(r);
+-
+-        return strerror(-r);
+-}
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index 2a21727..52cdeb0 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -46,7 +46,7 @@
+ #include "missing.h"
+ #include "unit-name.h"
+ #include "unit-printf.h"
+-#include "bus-errors.h"
++#include "dbus-common.h"
+ #include "utf8.h"
+ #include "path-util.h"
+ #include "syscall-list.h"
+diff --git a/src/core/main.c b/src/core/main.c
+index 259787c..f647865 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -40,7 +40,7 @@
+ #include "fdset.h"
+ #include "special.h"
+ #include "conf-parser.h"
+-#include "bus-errors.h"
++#include "dbus-common.h"
+ #include "missing.h"
+ #include "label.h"
+ #include "build.h"
+diff --git a/src/core/path.c b/src/core/path.c
+index ff49c06..b8ba057 100644
+--- a/src/core/path.c
++++ b/src/core/path.c
+@@ -31,7 +31,7 @@
+ #include "mkdir.h"
+ #include "dbus-path.h"
+ #include "special.h"
+-#include "bus-errors.h"
++#include "dbus-common.h"
+ #include "path-util.h"
+ #include "macro.h"
+ 
+diff --git a/src/core/service.c b/src/core/service.c
+index e9e42b4..9ceff42 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -36,7 +36,7 @@
+ #include "unit-printf.h"
+ #include "dbus-service.h"
+ #include "special.h"
+-#include "bus-errors.h"
++#include "dbus-common.h"
+ #include "exit-status.h"
+ #include "def.h"
+ #include "path-util.h"
+diff --git a/src/core/socket.c b/src/core/socket.c
+index f3cbe08..9f1af1e 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -46,7 +46,7 @@
+ #include "dbus-socket.h"
+ #include "missing.h"
+ #include "special.h"
+-#include "bus-errors.h"
++#include "dbus-common.h"
+ #include "label.h"
+ #include "exit-status.h"
+ #include "def.h"
+diff --git a/src/core/timer.c b/src/core/timer.c
+index 16ca573..107dbb3 100644
+--- a/src/core/timer.c
++++ b/src/core/timer.c
+@@ -26,7 +26,7 @@
+ #include "timer.h"
+ #include "dbus-timer.h"
+ #include "special.h"
+-#include "bus-errors.h"
++#include "dbus-common.h"
+ 
+ static const UnitActiveState state_translation_table[_TIMER_STATE_MAX] = {
+         [TIMER_DEAD] = UNIT_INACTIVE,
+diff --git a/src/core/transaction.c b/src/core/transaction.c
+index 4a8d90e..610344e 100644
+--- a/src/core/transaction.c
++++ b/src/core/transaction.c
+@@ -24,6 +24,7 @@
+ 
+ #include "transaction.h"
+ #include "bus-errors.h"
++#include "dbus-common.h"
+ 
+ static void transaction_unlink_job(Transaction *tr, Job *j, bool delete_dependencies);
+ 
+diff --git a/src/login/inhibit.c b/src/login/inhibit.c
+index 9cb321f..fbab42a 100644
+--- a/src/login/inhibit.c
++++ b/src/login/inhibit.c
+@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
+ 
+                 r = print_inhibitors(bus, &error);
+                 if (r < 0) {
+-                        log_error("Failed to list inhibitors: %s", bus_error_message_or_strerror(&error, -r));
++                        log_error("Failed to list inhibitors: %s", bus_error(&error, r));
+                         goto finish;
+                 }
+ 
+@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
+                 free(w);
+ 
+                 if (fd < 0) {
+-                        log_error("Failed to inhibit: %s", bus_error_message_or_strerror(&error, -r));
++                        log_error("Failed to inhibit: %s", bus_error(&error, r));
+                         r = fd;
+                         goto finish;
+                 }
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index 7a38cdb..775a50f 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -2437,7 +2437,7 @@ int manager_dispatch_delayed(Manager *manager) {
+         dbus_error_init(&error);
+         r = execute_shutdown_or_sleep(manager, manager->action_what, manager->action_unit, &error);
+         if (r < 0) {
+-                log_warning("Failed to send delayed message: %s", bus_error_message_or_strerror(&error, -r));
++                log_warning("Failed to send delayed message: %s", bus_error(&error, r));
+                 dbus_error_free(&error);
+ 
+                 manager->action_unit = NULL;
+diff --git a/src/shared/dbus-common.c b/src/shared/dbus-common.c
+index 5afce76..b8c15cb 100644
+--- a/src/shared/dbus-common.c
++++ b/src/shared/dbus-common.c
+@@ -258,12 +258,11 @@ const char *bus_error_message(const DBusError *error) {
+         return error->message;
+ }
+ 
+-const char *bus_error_message_or_strerror(const DBusError *error, int err) {
+-
++const char *bus_error(const DBusError *error, int err) {
+         if (error && dbus_error_is_set(error))
+                 return bus_error_message(error);
+ 
+-        return strerror(err);
++        return strerror(err < 0 ? -err : err);
+ }
+ 
+ DBusHandlerResult bus_default_message_handler(
+diff --git a/src/shared/dbus-common.h b/src/shared/dbus-common.h
+index f7f614c..16fc14b 100644
+--- a/src/shared/dbus-common.h
++++ b/src/shared/dbus-common.h
+@@ -92,7 +92,7 @@ int bus_connect_system_ssh(const char *user, const char *host, DBusConnection **
+ int bus_connect_system_polkit(DBusConnection **_bus, DBusError *error);
+ 
+ const char *bus_error_message(const DBusError *error);
+-const char *bus_error_message_or_strerror(const DBusError *error, int err);
++const char *bus_error(const DBusError *e, int r);
+ 
+ typedef int (*BusPropertyCallback)(DBusMessageIter *iter, const char *property, void *data);
+ typedef int (*BusPropertySetCallback)(DBusMessageIter *iter, const char *property, void *data);

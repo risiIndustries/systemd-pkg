@@ -1,0 +1,23 @@
+From 2130ef6f3fe17f7c83588b801892838cc9f48ac2 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 15 Apr 2013 21:55:07 +0200
+Subject: [PATCH] core: let's make our log messages proper sentences with full
+ stops (cherry picked from commit 7a9ec5c9027d919839ab6e286ede753caa164241)
+
+---
+ src/core/unit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 63e42b2..b4fc095 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1456,7 +1456,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+                 if (ns != os && ns == UNIT_FAILED) {
+                         log_struct_unit(LOG_NOTICE,
+                                    u->id,
+-                                   "MESSAGE=Unit %s entered failed state", u->id,
++                                   "MESSAGE=Unit %s entered failed state.", u->id,
+                                    NULL);
+                         unit_trigger_on_failure(u);
+                 }

@@ -1,0 +1,909 @@
+From 779af3d3ae94fd6ac1b80ff5023dcbdc4704f812 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 23 Apr 2013 15:53:16 -0300
+Subject: [PATCH] unit: rework trigger dependency logic
+
+Instead of having explicit type-specific callbacks that inform the
+triggering unit when a triggered unit changes state, make this generic
+so that state changes are forwarded betwee any triggered and triggering
+unit.
+
+Also, get rid of UnitRef references from automount, timer, path units,
+to the units they trigger and rely exclsuively on UNIT_TRIGGER type
+dendencies.
+(cherry picked from commit 3ecaa09bccd8a59c9f1e06756a1334a162206dc4)
+---
+ src/core/automount.c                  |  40 ++++++-------
+ src/core/automount.h                  |   2 -
+ src/core/dbus-path.c                  |   6 +-
+ src/core/dbus-timer.c                 |   6 +-
+ src/core/job.c                        |   4 +-
+ src/core/load-fragment-gperf.gperf.m4 |   4 +-
+ src/core/load-fragment.c              | 103 ++++++++++-----------------------
+ src/core/load-fragment.h              |   3 +-
+ src/core/path.c                       |  69 +++++++++++-----------
+ src/core/path.h                       |   4 --
+ src/core/timer.c                      | 105 ++++++++++++++++------------------
+ src/core/timer.h                      |   3 -
+ src/core/unit.c                       |  19 ++++--
+ src/core/unit.h                       |  11 +++-
+ 14 files changed, 166 insertions(+), 213 deletions(-)
+
+diff --git a/src/core/automount.c b/src/core/automount.c
+index 4a98540..e6eedda 100644
+--- a/src/core/automount.c
++++ b/src/core/automount.c
+@@ -109,7 +109,6 @@ static void automount_done(Unit *u) {
+         assert(a);
+ 
+         unmount_autofs(a);
+-        unit_ref_unset(&a->mount);
+ 
+         free(a->where);
+         a->where = NULL;
+@@ -200,8 +199,8 @@ static int automount_verify(Automount *a) {
+ }
+ 
+ static int automount_load(Unit *u) {
+-        int r;
+         Automount *a = AUTOMOUNT(u);
++        int r;
+ 
+         assert(u);
+         assert(u->load_state == UNIT_STUB);
+@@ -222,17 +221,15 @@ static int automount_load(Unit *u) {
+ 
+                 path_kill_slashes(a->where);
+ 
+-                r = automount_add_mount_links(a);
++                r = unit_load_related_unit(u, ".mount", &x);
+                 if (r < 0)
+                         return r;
+ 
+-                r = unit_load_related_unit(u, ".mount", &x);
++                r = unit_add_two_dependencies(u, UNIT_BEFORE, UNIT_TRIGGERS, x, true);
+                 if (r < 0)
+                         return r;
+ 
+-                unit_ref_set(&a->mount, x);
+-
+-                r = unit_add_two_dependencies(u, UNIT_BEFORE, UNIT_TRIGGERS, UNIT_DEREF(a->mount), true);
++                r = automount_add_mount_links(a);
+                 if (r < 0)
+                         return r;
+ 
+@@ -586,12 +583,11 @@ fail:
+ }
+ 
+ static void automount_enter_runnning(Automount *a) {
+-        int r;
+-        struct stat st;
+         _cleanup_dbus_error_free_ DBusError error;
++        struct stat st;
++        int r;
+ 
+         assert(a);
+-        assert(UNIT_DEREF(a->mount));
+ 
+         dbus_error_init(&error);
+ 
+@@ -616,11 +612,15 @@ static void automount_enter_runnning(Automount *a) {
+         if (!S_ISDIR(st.st_mode) || st.st_dev != a->dev_id)
+                 log_info_unit(UNIT(a)->id,
+                               "%s's automount point already active?", UNIT(a)->id);
+-        else if ((r = manager_add_job(UNIT(a)->manager, JOB_START, UNIT_DEREF(a->mount), JOB_REPLACE, true, &error, NULL)) < 0) {
+-                log_warning_unit(UNIT(a)->id,
+-                                 "%s failed to queue mount startup job: %s",
+-                                 UNIT(a)->id, bus_error(&error, r));
+-                goto fail;
++        else {
++                r = manager_add_job(UNIT(a)->manager, JOB_START, UNIT_TRIGGER(UNIT(a)),
++                                    JOB_REPLACE, true, &error, NULL);
++                if (r < 0) {
++                        log_warning_unit(UNIT(a)->id,
++                                         "%s failed to queue mount startup job: %s",
++                                         UNIT(a)->id, bus_error(&error, r));
++                        goto fail;
++                }
+         }
+ 
+         automount_set_state(a, AUTOMOUNT_RUNNING);
+@@ -643,7 +643,7 @@ static int automount_start(Unit *u) {
+                 return -EEXIST;
+         }
+ 
+-        if (UNIT_DEREF(a->mount)->load_state != UNIT_LOADED)
++        if (UNIT_TRIGGER(u)->load_state != UNIT_LOADED)
+                 return -ENOENT;
+ 
+         a->result = AUTOMOUNT_SUCCESS;
+@@ -765,14 +765,12 @@ static const char *automount_sub_state_to_string(Unit *u) {
+ }
+ 
+ static bool automount_check_gc(Unit *u) {
+-        Automount *a = AUTOMOUNT(u);
+-
+-        assert(a);
++        assert(u);
+ 
+-        if (!UNIT_DEREF(a->mount))
++        if (!UNIT_TRIGGER(u))
+                 return false;
+ 
+-        return UNIT_VTABLE(UNIT_DEREF(a->mount))->check_gc(UNIT_DEREF(a->mount));
++        return UNIT_VTABLE(UNIT_TRIGGER(u))->check_gc(UNIT_TRIGGER(u));
+ }
+ 
+ static void automount_fd_event(Unit *u, int fd, uint32_t events, Watch *w) {
+diff --git a/src/core/automount.h b/src/core/automount.h
+index 3d5736d..8276051 100644
+--- a/src/core/automount.h
++++ b/src/core/automount.h
+@@ -48,8 +48,6 @@ struct Automount {
+ 
+         char *where;
+ 
+-        UnitRef mount;
+-
+         int pipe_fd;
+         mode_t directory_mode;
+         Watch pipe_watch;
+diff --git a/src/core/dbus-path.c b/src/core/dbus-path.c
+index f7fed17..1e62083 100644
+--- a/src/core/dbus-path.c
++++ b/src/core/dbus-path.c
+@@ -84,15 +84,15 @@ static int bus_path_append_paths(DBusMessageIter *i, const char *property, void
+ }
+ 
+ static int bus_path_append_unit(DBusMessageIter *i, const char *property, void *data) {
+-        Unit *u = data;
+-        Path *p = PATH(u);
++        Unit *u = data, *trigger;
+         const char *t;
+ 
+         assert(i);
+         assert(property);
+         assert(u);
+ 
+-        t = UNIT_DEREF(p->unit) ? UNIT_DEREF(p->unit)->id : "";
++        trigger = UNIT_TRIGGER(u);
++        t = trigger ? trigger->id : "";
+ 
+         return dbus_message_iter_append_basic(i, DBUS_TYPE_STRING, &t) ? 0 : -ENOMEM;
+ }
+diff --git a/src/core/dbus-timer.c b/src/core/dbus-timer.c
+index 75add81..4082f7f 100644
+--- a/src/core/dbus-timer.c
++++ b/src/core/dbus-timer.c
+@@ -152,15 +152,15 @@ static int bus_timer_append_calendar_timers(DBusMessageIter *i, const char *prop
+ }
+ 
+ static int bus_timer_append_unit(DBusMessageIter *i, const char *property, void *data) {
+-        Unit *u = data;
+-        Timer *timer = TIMER(u);
++        Unit *u = data, *trigger;
+         const char *t;
+ 
+         assert(i);
+         assert(property);
+         assert(u);
+ 
+-        t = UNIT_DEREF(timer->unit) ? UNIT_DEREF(timer->unit)->id : "";
++        trigger = UNIT_TRIGGER(u);
++        t = trigger ? trigger->id : "";
+ 
+         return dbus_message_iter_append_basic(i, DBUS_TYPE_STRING, &t) ? 0 : -ENOMEM;
+ }
+diff --git a/src/core/job.c b/src/core/job.c
+index af5855b..9a425a6 100644
+--- a/src/core/job.c
++++ b/src/core/job.c
+@@ -840,9 +840,11 @@ int job_finish_and_invalidate(Job *j, JobResult result, bool recursive) {
+                            job_result_to_string(result),
+                            NULL);
+ 
+-                unit_trigger_on_failure(u);
++                unit_start_on_failure(u);
+         }
+ 
++        unit_trigger_notify(u);
++
+ finish:
+         /* Try to start the next jobs that can be started */
+         SET_FOREACH(other, u->dependencies[UNIT_AFTER], i)
+diff --git a/src/core/load-fragment-gperf.gperf.m4 b/src/core/load-fragment-gperf.gperf.m4
+index d5e579f..4e1454e 100644
+--- a/src/core/load-fragment-gperf.gperf.m4
++++ b/src/core/load-fragment-gperf.gperf.m4
+@@ -241,14 +241,14 @@ Timer.OnBootSec,                 config_parse_timer,                 0,
+ Timer.OnStartupSec,              config_parse_timer,                 0,                             0
+ Timer.OnUnitActiveSec,           config_parse_timer,                 0,                             0
+ Timer.OnUnitInactiveSec,         config_parse_timer,                 0,                             0
+-Timer.Unit,                      config_parse_timer_unit,            0,                             0
++Timer.Unit,                      config_parse_trigger_unit,          0,                             0
+ m4_dnl
+ Path.PathExists,                 config_parse_path_spec,             0,                             0
+ Path.PathExistsGlob,             config_parse_path_spec,             0,                             0
+ Path.PathChanged,                config_parse_path_spec,             0,                             0
+ Path.PathModified,               config_parse_path_spec,             0,                             0
+ Path.DirectoryNotEmpty,          config_parse_path_spec,             0,                             0
+-Path.Unit,                       config_parse_path_unit,             0,                             0
++Path.Unit,                       config_parse_trigger_unit,          0,                             0
+ Path.MakeDirectory,              config_parse_bool,                  0,                             offsetof(Path, make_directory)
+ Path.DirectoryMode,              config_parse_mode,                  0,                             offsetof(Path, directory_mode)
+ m4_dnl The [Install] section is ignored here.
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index 52cdeb0..2065f09 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -1254,50 +1254,57 @@ int config_parse_timer(const char *unit,
+         return 0;
+ }
+ 
+-int config_parse_timer_unit(const char *unit,
+-                            const char *filename,
+-                            unsigned line,
+-                            const char *section,
+-                            const char *lvalue,
+-                            int ltype,
+-                            const char *rvalue,
+-                            void *data,
+-                            void *userdata) {
++int config_parse_trigger_unit(
++                const char *unit,
++                const char *filename,
++                unsigned line,
++                const char *section,
++                const char *lvalue,
++                int ltype,
++                const char *rvalue,
++                void *data,
++                void *userdata) {
+ 
+-        Timer *t = data;
+-        int r;
+-        DBusError error;
+-        Unit *u;
+         _cleanup_free_ char *p = NULL;
++        Unit *u = data;
++        UnitType type;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+         assert(rvalue);
+         assert(data);
+ 
+-        dbus_error_init(&error);
++        if (!set_isempty(u->dependencies[UNIT_TRIGGERS])) {
++                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
++                           "Multiple units to trigger specified, ignoring: %s", rvalue);
++                return 0;
++        }
+ 
+-        p = unit_name_printf(UNIT(t), rvalue);
++        p = unit_name_printf(u, rvalue);
+         if (!p)
+                 return log_oom();
+ 
+-        if (endswith(p, ".timer")) {
++        type = unit_name_to_type(p);
++        if (type < 0) {
+                 log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                           "Unit cannot be of type timer, ignoring: %s", rvalue);
++                           "Unit type not valid, ignoring: %s", rvalue);
+                 return 0;
+         }
+ 
+-        r = manager_load_unit(UNIT(t)->manager, p, NULL, NULL, &u);
++        if (type == u->type) {
++                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
++                           "Trigger cannot be of same type, ignoring: %s", rvalue);
++                return 0;
++        }
++
++        r = unit_add_two_dependencies_by_name(u, UNIT_BEFORE, UNIT_TRIGGERS, p, NULL, true);
+         if (r < 0) {
+                 log_syntax(unit, LOG_ERR, filename, line, -r,
+-                           "Failed to load unit %s, ignoring: %s",
+-                           rvalue, bus_error(&error, r));
+-                dbus_error_free(&error);
++                           "Failed to add trigger on %s, ignoring: %s", p, strerror(-r));
+                 return 0;
+         }
+ 
+-        unit_ref_set(&t->unit, u);
+-
+         return 0;
+ }
+ 
+@@ -1367,53 +1374,6 @@ int config_parse_path_spec(const char *unit,
+         return 0;
+ }
+ 
+-int config_parse_path_unit(const char *unit,
+-                           const char *filename,
+-                           unsigned line,
+-                           const char *section,
+-                           const char *lvalue,
+-                           int ltype,
+-                           const char *rvalue,
+-                           void *data,
+-                           void *userdata) {
+-
+-        Path *t = data;
+-        int r;
+-        DBusError error;
+-        Unit *u;
+-        _cleanup_free_ char *p = NULL;
+-
+-        assert(filename);
+-        assert(lvalue);
+-        assert(rvalue);
+-        assert(data);
+-
+-        dbus_error_init(&error);
+-
+-        p = unit_name_printf(UNIT(t), rvalue);
+-        if (!p)
+-                return log_oom();
+-
+-        if (endswith(p, ".path")) {
+-                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                           "Unit cannot be of type path, ignoring: %s", p);
+-                return 0;
+-        }
+-
+-        r = manager_load_unit(UNIT(t)->manager, p, NULL, &error, &u);
+-        if (r < 0) {
+-                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                           "Failed to load unit %s, ignoring: %s",
+-                           p, bus_error(&error, r));
+-                dbus_error_free(&error);
+-                return 0;
+-        }
+-
+-        unit_ref_set(&t->unit, u);
+-
+-        return 0;
+-}
+-
+ int config_parse_socket_service(const char *unit,
+                                 const char *filename,
+                                 unsigned line,
+@@ -2482,10 +2442,9 @@ void unit_dump_config_items(FILE *f) {
+                 { config_parse_unit_requires_mounts_for, "PATH [...]" },
+                 { config_parse_exec_mount_flags,      "MOUNTFLAG [...]" },
+                 { config_parse_unit_string_printf,    "STRING" },
++                { config_parse_trigger_unit,          "UNIT" },
+                 { config_parse_timer,                 "TIMER" },
+-                { config_parse_timer_unit,            "NAME" },
+                 { config_parse_path_spec,             "PATH" },
+-                { config_parse_path_unit,             "UNIT" },
+                 { config_parse_notify_access,         "ACCESS" },
+                 { config_parse_ip_tos,                "TOS" },
+                 { config_parse_unit_condition_path,   "CONDITION" },
+diff --git a/src/core/load-fragment.h b/src/core/load-fragment.h
+index 0161ce0..ff7f22a 100644
+--- a/src/core/load-fragment.h
++++ b/src/core/load-fragment.h
+@@ -61,9 +61,8 @@ int config_parse_fsck_passno(const char *unit, const char *filename, unsigned li
+ int config_parse_kill_signal(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_exec_mount_flags(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_timer(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+-int config_parse_timer_unit(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
++int config_parse_trigger_unit(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_path_spec(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+-int config_parse_path_unit(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_socket_service(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_service_sockets(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_unit_env_file(const char *unit, const char *filename, unsigned line, const char *section, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+diff --git a/src/core/path.c b/src/core/path.c
+index b8ba057..9d4f4f5 100644
+--- a/src/core/path.c
++++ b/src/core/path.c
+@@ -298,7 +298,6 @@ static void path_done(Unit *u) {
+ 
+         assert(p);
+ 
+-        unit_ref_unset(&p->unit);
+         path_free_specs(p);
+ }
+ 
+@@ -390,21 +389,18 @@ static int path_load(Unit *u) {
+ 
+         if (u->load_state == UNIT_LOADED) {
+ 
+-                if (!UNIT_DEREF(p->unit)) {
++                if (set_isempty(u->dependencies[UNIT_TRIGGERS])) {
+                         Unit *x;
+ 
+                         r = unit_load_related_unit(u, ".service", &x);
+                         if (r < 0)
+                                 return r;
+ 
+-                        unit_ref_set(&p->unit, x);
++                        r = unit_add_two_dependencies(u, UNIT_BEFORE, UNIT_TRIGGERS, x, true);
++                        if (r < 0)
++                                return r;
+                 }
+ 
+-                r = unit_add_two_dependencies(u, UNIT_BEFORE, UNIT_TRIGGERS,
+-                                              UNIT_DEREF(p->unit), true);
+-                if (r < 0)
+-                        return r;
+-
+                 r = path_add_mount_links(p);
+                 if (r < 0)
+                         return r;
+@@ -421,11 +417,14 @@ static int path_load(Unit *u) {
+ 
+ static void path_dump(Unit *u, FILE *f, const char *prefix) {
+         Path *p = PATH(u);
++        Unit *trigger;
+         PathSpec *s;
+ 
+         assert(p);
+         assert(f);
+ 
++        trigger = UNIT_TRIGGER(u);
++
+         fprintf(f,
+                 "%sPath State: %s\n"
+                 "%sResult: %s\n"
+@@ -434,7 +433,7 @@ static void path_dump(Unit *u, FILE *f, const char *prefix) {
+                 "%sDirectoryMode: %04o\n",
+                 prefix, path_state_to_string(p->state),
+                 prefix, path_result_to_string(p->result),
+-                prefix, UNIT_DEREF(p->unit)->id,
++                prefix, trigger ? trigger->id : "n/a",
+                 prefix, yes_no(p->make_directory),
+                 prefix, p->directory_mode);
+ 
+@@ -516,17 +515,18 @@ static void path_enter_dead(Path *p, PathResult f) {
+ }
+ 
+ static void path_enter_running(Path *p) {
++        _cleanup_dbus_error_free_ DBusError error;
+         int r;
+-        DBusError error;
+ 
+         assert(p);
++
+         dbus_error_init(&error);
+ 
+         /* Don't start job if we are supposed to go down */
+-        if (UNIT(p)->job && UNIT(p)->job->type == JOB_STOP)
++        if (unit_pending_inactive(UNIT(p)))
+                 return;
+ 
+-        r = manager_add_job(UNIT(p)->manager, JOB_START, UNIT_DEREF(p->unit),
++        r = manager_add_job(UNIT(p)->manager, JOB_START, UNIT_TRIGGER(UNIT(p)),
+                             JOB_REPLACE, true, &error, NULL);
+         if (r < 0)
+                 goto fail;
+@@ -544,8 +544,6 @@ fail:
+         log_warning("%s failed to queue unit startup job: %s",
+                     UNIT(p)->id, bus_error(&error, r));
+         path_enter_dead(p, PATH_FAILURE_RESOURCES);
+-
+-        dbus_error_free(&error);
+ }
+ 
+ static bool path_check_good(Path *p, bool initial) {
+@@ -616,7 +614,7 @@ static int path_start(Unit *u) {
+         assert(p);
+         assert(p->state == PATH_DEAD || p->state == PATH_FAILED);
+ 
+-        if (UNIT_DEREF(p->unit)->load_state != UNIT_LOADED)
++        if (UNIT_TRIGGER(u)->load_state != UNIT_LOADED)
+                 return -ENOENT;
+ 
+         path_mkdir(p);
+@@ -737,33 +735,28 @@ fail:
+         path_enter_dead(p, PATH_FAILURE_RESOURCES);
+ }
+ 
+-void path_unit_notify(Unit *u, UnitActiveState new_state) {
+-        Iterator i;
+-        Unit *k;
+-
+-        if (u->type == UNIT_PATH)
+-                return;
++static void path_trigger_notify(Unit *u, Unit *other) {
++        Path *p = PATH(u);
+ 
+-        SET_FOREACH(k, u->dependencies[UNIT_TRIGGERED_BY], i) {
+-                Path *p;
++        assert(u);
++        assert(other);
+ 
+-                if (k->type != UNIT_PATH)
+-                        continue;
++        /* Invoked whenever the unit we trigger changes state or gains
++         * or loses a job */
+ 
+-                if (k->load_state != UNIT_LOADED)
+-                        continue;
+-
+-                p = PATH(k);
++        if (other->load_state != UNIT_LOADED)
++                return;
+ 
+-                if (p->state == PATH_RUNNING && new_state == UNIT_INACTIVE) {
+-                        log_debug("%s got notified about unit deactivation.",
+-                                  UNIT(p)->id);
++        if (p->state == PATH_RUNNING &&
++            UNIT_IS_INACTIVE_OR_FAILED(unit_active_state(other))) {
++                log_debug_unit(UNIT(p)->id,
++                               "%s got notified about unit deactivation.",
++                               UNIT(p)->id);
+ 
+-                        /* Hmm, so inotify was triggered since the
+-                         * last activation, so I guess we need to
+-                         * recheck what is going on. */
+-                        path_enter_waiting(p, false, p->inotify_triggered);
+-                }
++                /* Hmm, so inotify was triggered since the
++                 * last activation, so I guess we need to
++                 * recheck what is going on. */
++                path_enter_waiting(p, false, p->inotify_triggered);
+         }
+ }
+ 
+@@ -830,6 +823,8 @@ const UnitVTable path_vtable = {
+ 
+         .fd_event = path_fd_event,
+ 
++        .trigger_notify = path_trigger_notify,
++
+         .reset_failed = path_reset_failed,
+ 
+         .bus_interface = "org.freedesktop.systemd1.Path",
+diff --git a/src/core/path.h b/src/core/path.h
+index 645feef..9740415 100644
+--- a/src/core/path.h
++++ b/src/core/path.h
+@@ -80,8 +80,6 @@ struct Path {
+ 
+         LIST_HEAD(PathSpec, specs);
+ 
+-        UnitRef unit;
+-
+         PathState state, deserialized_state;
+ 
+         bool inotify_triggered;
+@@ -92,8 +90,6 @@ struct Path {
+         PathResult result;
+ };
+ 
+-void path_unit_notify(Unit *u, UnitActiveState new_state);
+-
+ /* Called from the mount code figure out if a mount is a dependency of
+  * any of the paths of this path object */
+ int path_add_one_mount_link(Path *p, Mount *m);
+diff --git a/src/core/timer.c b/src/core/timer.c
+index 107dbb3..b5d895f 100644
+--- a/src/core/timer.c
++++ b/src/core/timer.c
+@@ -72,8 +72,6 @@ static void timer_done(Unit *u) {
+ 
+         unit_unwatch_timer(u, &t->monotonic_watch);
+         unit_unwatch_timer(u, &t->realtime_watch);
+-
+-        unit_ref_unset(&t->unit);
+ }
+ 
+ static int timer_verify(Timer *t) {
+@@ -122,20 +120,18 @@ static int timer_load(Unit *u) {
+ 
+         if (u->load_state == UNIT_LOADED) {
+ 
+-                if (!UNIT_DEREF(t->unit)) {
++                if (set_isempty(u->dependencies[UNIT_TRIGGERS])) {
+                         Unit *x;
+ 
+                         r = unit_load_related_unit(u, ".service", &x);
+                         if (r < 0)
+                                 return r;
+ 
+-                        unit_ref_set(&t->unit, x);
++                        r = unit_add_two_dependencies(u, UNIT_BEFORE, UNIT_TRIGGERS, x, true);
++                        if (r < 0)
++                                return r;
+                 }
+ 
+-                r = unit_add_two_dependencies(u, UNIT_BEFORE, UNIT_TRIGGERS, UNIT_DEREF(t->unit), true);
+-                if (r < 0)
+-                        return r;
+-
+                 if (UNIT(t)->default_dependencies) {
+                         r = timer_add_default_dependencies(t);
+                         if (r < 0)
+@@ -148,15 +144,18 @@ static int timer_load(Unit *u) {
+ 
+ static void timer_dump(Unit *u, FILE *f, const char *prefix) {
+         Timer *t = TIMER(u);
++        Unit *trigger;
+         TimerValue *v;
+ 
++        trigger = UNIT_TRIGGER(u);
++
+         fprintf(f,
+                 "%sTimer State: %s\n"
+                 "%sResult: %s\n"
+                 "%sUnit: %s\n",
+                 prefix, timer_state_to_string(t->state),
+                 prefix, timer_result_to_string(t->result),
+-                prefix, UNIT_DEREF(t->unit)->id);
++                prefix, trigger ? trigger->id : "n/a");
+ 
+         LIST_FOREACH(value, v, t->values) {
+ 
+@@ -285,18 +284,18 @@ static void timer_enter_waiting(Timer *t, bool initial) {
+ 
+                         case TIMER_UNIT_ACTIVE:
+ 
+-                                if (UNIT_DEREF(t->unit)->inactive_exit_timestamp.monotonic <= 0)
++                                if (UNIT_TRIGGER(UNIT(t))->inactive_exit_timestamp.monotonic <= 0)
+                                         continue;
+ 
+-                                base = UNIT_DEREF(t->unit)->inactive_exit_timestamp.monotonic;
++                                base = UNIT_TRIGGER(UNIT(t))->inactive_exit_timestamp.monotonic;
+                                 break;
+ 
+                         case TIMER_UNIT_INACTIVE:
+ 
+-                                if (UNIT_DEREF(t->unit)->inactive_enter_timestamp.monotonic <= 0)
++                                if (UNIT_TRIGGER(UNIT(t))->inactive_enter_timestamp.monotonic <= 0)
+                                         continue;
+ 
+-                                base = UNIT_DEREF(t->unit)->inactive_enter_timestamp.monotonic;
++                                base = UNIT_TRIGGER(UNIT(t))->inactive_enter_timestamp.monotonic;
+                                 break;
+ 
+                         default:
+@@ -369,10 +368,11 @@ static void timer_enter_running(Timer *t) {
+         dbus_error_init(&error);
+ 
+         /* Don't start job if we are supposed to go down */
+-        if (UNIT(t)->job && UNIT(t)->job->type == JOB_STOP)
++        if (unit_pending_inactive(UNIT(t)))
+                 return;
+ 
+-        r = manager_add_job(UNIT(t)->manager, JOB_START, UNIT_DEREF(t->unit), JOB_REPLACE, true, &error, NULL);
++        r = manager_add_job(UNIT(t)->manager, JOB_START, UNIT_TRIGGER(UNIT(t)),
++                            JOB_REPLACE, true, &error, NULL);
+         if (r < 0)
+                 goto fail;
+ 
+@@ -394,7 +394,7 @@ static int timer_start(Unit *u) {
+         assert(t);
+         assert(t->state == TIMER_DEAD || t->state == TIMER_FAILED);
+ 
+-        if (UNIT_DEREF(t->unit)->load_state != UNIT_LOADED)
++        if (UNIT_TRIGGER(u)->load_state != UNIT_LOADED)
+                 return -ENOENT;
+ 
+         t->result = TIMER_SUCCESS;
+@@ -481,58 +481,49 @@ static void timer_timer_event(Unit *u, uint64_t elapsed, Watch *w) {
+         timer_enter_running(t);
+ }
+ 
+-void timer_unit_notify(Unit *u, UnitActiveState new_state) {
+-        Iterator i;
+-        Unit *k;
++static void timer_trigger_notify(Unit *u, Unit *other) {
++        Timer *t = TIMER(u);
++        TimerValue *v;
+ 
+-        if (u->type == UNIT_TIMER)
+-                return;
++        assert(u);
++        assert(other);
+ 
+-        SET_FOREACH(k, u->dependencies[UNIT_TRIGGERED_BY], i) {
+-                Timer *t;
+-                TimerValue *v;
++        log_error("NOTIFY!");
+ 
+-                if (k->type != UNIT_TIMER)
+-                        continue;
++        if (other->load_state != UNIT_LOADED)
++                return;
+ 
+-                if (k->load_state != UNIT_LOADED)
+-                        continue;
++        /* Reenable all timers that depend on unit state */
++        LIST_FOREACH(value, v, t->values)
++                if (v->base == TIMER_UNIT_ACTIVE ||
++                    v->base == TIMER_UNIT_INACTIVE)
++                        v->disabled = false;
+ 
+-                t = TIMER(k);
++        switch (t->state) {
+ 
+-                /* Reenable all timers that depend on unit state */
+-                LIST_FOREACH(value, v, t->values)
+-                        if (v->base == TIMER_UNIT_ACTIVE ||
+-                            v->base == TIMER_UNIT_INACTIVE)
+-                                v->disabled = false;
++        case TIMER_WAITING:
++        case TIMER_ELAPSED:
+ 
+-                switch (t->state) {
++                /* Recalculate sleep time */
++                timer_enter_waiting(t, false);
++                break;
+ 
+-                case TIMER_WAITING:
+-                case TIMER_ELAPSED:
++        case TIMER_RUNNING:
+ 
+-                        /* Recalculate sleep time */
++                if (UNIT_IS_INACTIVE_OR_FAILED(unit_active_state(other))) {
++                        log_debug_unit(UNIT(t)->id,
++                                       "%s got notified about unit deactivation.",
++                                       UNIT(t)->id);
+                         timer_enter_waiting(t, false);
+-                        break;
+-
+-                case TIMER_RUNNING:
+-
+-                        if (UNIT_IS_INACTIVE_OR_FAILED(new_state)) {
+-                                log_debug_unit(UNIT(t)->id,
+-                                               "%s got notified about unit deactivation.",
+-                                               UNIT(t)->id);
+-                                timer_enter_waiting(t, false);
+-                        }
+-
+-                        break;
++                }
++                break;
+ 
+-                case TIMER_DEAD:
+-                case TIMER_FAILED:
+-                        break;
++        case TIMER_DEAD:
++        case TIMER_FAILED:
++                break;
+ 
+-                default:
+-                        assert_not_reached("Unknown timer state");
+-                }
++        default:
++                assert_not_reached("Unknown timer state");
+         }
+ }
+ 
+@@ -614,6 +605,8 @@ const UnitVTable timer_vtable = {
+ 
+         .timer_event = timer_timer_event,
+ 
++        .trigger_notify = timer_trigger_notify,
++
+         .reset_failed = timer_reset_failed,
+         .time_change = timer_time_change,
+ 
+diff --git a/src/core/timer.h b/src/core/timer.h
+index c145348..163bd6c 100644
+--- a/src/core/timer.h
++++ b/src/core/timer.h
+@@ -74,7 +74,6 @@ struct Timer {
+         usec_t next_elapse_realtime;
+ 
+         TimerState state, deserialized_state;
+-        UnitRef unit;
+ 
+         Watch monotonic_watch;
+         Watch realtime_watch;
+@@ -82,8 +81,6 @@ struct Timer {
+         TimerResult result;
+ };
+ 
+-void timer_unit_notify(Unit *u, UnitActiveState new_state);
+-
+ void timer_free_values(Timer *t);
+ 
+ extern const UnitVTable timer_vtable;
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 2525f49..4da745b 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1304,7 +1304,7 @@ static void check_unneeded_dependencies(Unit *u) {
+                         unit_check_unneeded(other);
+ }
+ 
+-void unit_trigger_on_failure(Unit *u) {
++void unit_start_on_failure(Unit *u) {
+         Unit *other;
+         Iterator i;
+ 
+@@ -1324,6 +1324,17 @@ void unit_trigger_on_failure(Unit *u) {
+         }
+ }
+ 
++void unit_trigger_notify(Unit *u) {
++        Unit *other;
++        Iterator i;
++
++        assert(u);
++
++        SET_FOREACH(other, u->dependencies[UNIT_TRIGGERED_BY], i)
++                if (UNIT_VTABLE(other)->trigger_notify)
++                        UNIT_VTABLE(other)->trigger_notify(other, u);
++}
++
+ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_success) {
+         Manager *m;
+         bool unexpected;
+@@ -1354,9 +1365,6 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+                         u->active_enter_timestamp = ts;
+                 else if (UNIT_IS_ACTIVE_OR_RELOADING(os) && !UNIT_IS_ACTIVE_OR_RELOADING(ns))
+                         u->active_exit_timestamp = ts;
+-
+-                timer_unit_notify(u, ns);
+-                path_unit_notify(u, ns);
+         }
+ 
+         if (UNIT_IS_INACTIVE_OR_FAILED(ns))
+@@ -1461,7 +1469,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+                 if (ns != os && ns == UNIT_FAILED) {
+                         log_notice_unit(u->id,
+                                         "MESSAGE=Unit %s entered failed state.", u->id);
+-                        unit_trigger_on_failure(u);
++                        unit_start_on_failure(u);
+                 }
+         }
+ 
+@@ -1512,6 +1520,7 @@ void unit_notify(Unit *u, UnitActiveState os, UnitActiveState ns, bool reload_su
+         }
+ 
+         manager_recheck_journal(m);
++        unit_trigger_notify(u);
+ 
+         /* Maybe we finished startup and are now ready for being
+          * stopped because unneeded? */
+diff --git a/src/core/unit.h b/src/core/unit.h
+index a972a31..51a8364 100644
+--- a/src/core/unit.h
++++ b/src/core/unit.h
+@@ -352,7 +352,7 @@ struct UnitVTable {
+         /* Called whenever a process of this unit sends us a message */
+         void (*notify_message)(Unit *u, pid_t pid, char **tags);
+ 
+-        /* Called whenever a name thus Unit registered for comes or
++        /* Called whenever a name this Unit registered for comes or
+          * goes away. */
+         void (*bus_name_owner_change)(Unit *u, const char *name, const char *old_owner, const char *new_owner);
+ 
+@@ -368,6 +368,10 @@ struct UnitVTable {
+         /* Return the set of units that are following each other */
+         int (*following_set)(Unit *u, Set **s);
+ 
++        /* Invoked each time a unit this unit is triggering changes
++         * state or gains/loses a job */
++        void (*trigger_notify)(Unit *u, Unit *trigger);
++
+         /* Called whenever CLOCK_REALTIME made a jump */
+         void (*time_change)(Unit *u);
+ 
+@@ -417,6 +421,8 @@ extern const UnitVTable * const unit_vtable[_UNIT_TYPE_MAX];
+ /* For casting the various unit types into a unit */
+ #define UNIT(u) (&(u)->meta)
+ 
++#define UNIT_TRIGGER(u) ((Unit*) set_first((u)->dependencies[UNIT_TRIGGERS]))
++
+ DEFINE_CAST(SOCKET, Socket);
+ DEFINE_CAST(TIMER, Timer);
+ DEFINE_CAST(SERVICE, Service);
+@@ -540,7 +546,8 @@ char *unit_default_cgroup_path(Unit *u);
+ 
+ int unit_following_set(Unit *u, Set **s);
+ 
+-void unit_trigger_on_failure(Unit *u);
++void unit_start_on_failure(Unit *u);
++void unit_trigger_notify(Unit *u);
+ 
+ bool unit_condition_test(Unit *u);
+ 

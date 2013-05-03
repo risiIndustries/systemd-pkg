@@ -1,0 +1,28 @@
+From aca3726355ad59bb8ac5dffc8871f48a0251974c Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 18 Apr 2013 02:21:01 +0200
+Subject: [PATCH] man: document that timeout=0 is the default for entries in
+ crypttab (cherry picked from commit 8b95c916386eff949d5a8abadf82cda09799794f)
+
+---
+ man/crypttab.xml | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/man/crypttab.xml b/man/crypttab.xml
+index a94163b..deb577b 100644
+--- a/man/crypttab.xml
++++ b/man/crypttab.xml
+@@ -219,9 +219,10 @@
+                                 <listitem><para>Specify the timeout
+                                 for querying for a password. If no
+                                 unit is specified seconds is used.
+-                                Supported units are s, ms,
+-                                us, min, h, d. A timeout of 0 waits
+-                                indefinitely.</para></listitem>
++                                Supported units are s, ms, us, min, h,
++                                d. A timeout of 0 waits indefinitely
++                                (which is the
++                                default).</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>

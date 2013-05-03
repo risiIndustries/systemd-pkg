@@ -1,0 +1,62 @@
+From 8e4bde308002d5ed0902c9af39ad3b5652e92701 Mon Sep 17 00:00:00 2001
+From: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
+Date: Tue, 23 Apr 2013 13:34:38 -0400
+Subject: [PATCH] core: escape unit name from udev
+
+This patch escapes a unit name which was derived from udev.
+
+Please imagine following udev rule.
+
+  ACTION=="online|offline", TAG+="systemd", ENV{SYSTEMD_WANTS}="muneda@%p.service"
+  ACTION=="online|offline", TAG+="systemd", ENV{SYSTEMD_WANTS}="muneda@%r.service"
+  ACTION=="online|offline", TAG+="systemd", ENV{SYSTEMD_WANTS}="muneda@%S.service"
+
+When unit name is derived from udev via
+udev_device_get_property_value(), the name may contains '/' if
+ENV{SYSTEMD_WANTS} has the udev options $devpath(%p), $root(%r), or
+$sys(%S).  However, '/' is a invalid char for unit name so processing
+of this rule fails as Invalid argument with following message.
+
+Apr 22 13:21:37 localhost systemd[1]: Failed to load device unit: Invalid argument
+Apr 22 13:21:37 localhost systemd[1]: Failed to process udev device event: Invalid argument
+
+This patch escapes those invalid chars in a unit name.
+Tested with 202, and confirmed to apply cleanly on top of commit 195f8e36.
+
+Thanks,
+Takahiro
+(cherry picked from commit d9abd1493d6adca4038121f2c969fdcaf89b9b7a)
+---
+ src/core/device.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/device.c b/src/core/device.c
+index 734d3f3..7b28aba 100644
+--- a/src/core/device.c
++++ b/src/core/device.c
+@@ -281,16 +281,22 @@ static int device_update_unit(Manager *m, struct udev_device *dev, const char *p
+                         size_t l;
+ 
+                         FOREACH_WORD_QUOTED(w, l, wants, state) {
+-                                char *e;
++                                char *e, *n;
+ 
+                                 e = strndup(w, l);
+                                 if (!e) {
+                                         r = -ENOMEM;
+                                         goto fail;
+                                 }
+-
+-                                r = unit_add_dependency_by_name(u, UNIT_WANTS, e, NULL, true);
++                                n = unit_name_mangle(e);
++                                if (!n) {
++                                        r = -ENOMEM;
++                                        goto fail;
++                                }
+                                 free(e);
++
++                                r = unit_add_dependency_by_name(u, UNIT_WANTS, n, NULL, true);
++                                free(n);
+                                 if (r < 0)
+                                         goto fail;
+                         }

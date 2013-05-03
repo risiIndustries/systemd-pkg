@@ -1,0 +1,39 @@
+From 6149a02ed35b2ce1acb891acab6d3631ae7426c8 Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <rchevalier@aldebaran-robotics.com>
+Date: Wed, 24 Apr 2013 15:17:19 +0200
+Subject: [PATCH] dbus-execute: fix introspection
+
+Add missing property and remove duplicate properties already in
+src/core/dbus-kill.h
+(cherry picked from commit 92dd3633b4257ccd82da662a64c24cbc73668c32)
+---
+ src/core/dbus-execute.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/dbus-execute.h b/src/core/dbus-execute.h
+index eaa1b73..91d70e5 100644
+--- a/src/core/dbus-execute.h
++++ b/src/core/dbus-execute.h
+@@ -37,6 +37,7 @@
+ 
+ #define BUS_EXEC_CONTEXT_INTERFACE                                      \
+         "  <property name=\"Environment\" type=\"as\" access=\"read\"/>\n" \
++        "  <property name=\"EnvironmentFiles\" type=\"a(sb)\" access=\"read\"/>\n" \
+         "  <property name=\"UMask\" type=\"u\" access=\"read\"/>\n"     \
+         "  <property name=\"LimitCPU\" type=\"t\" access=\"read\"/>\n"  \
+         "  <property name=\"LimitFSIZE\" type=\"t\" access=\"read\"/>\n" \
+@@ -88,13 +89,11 @@
+         "  <property name=\"InaccessibleDirectories\" type=\"as\" access=\"read\"/>\n" \
+         "  <property name=\"MountFlags\" type=\"t\" access=\"read\"/>\n" \
+         "  <property name=\"PrivateTmp\" type=\"b\" access=\"read\"/>\n" \
++        "  <property name=\"PrivateNetwork\" type=\"b\" access=\"read\"/>\n" \
+         "  <property name=\"SameProcessGroup\" type=\"b\" access=\"read\"/>\n" \
+-        "  <property name=\"KillMode\" type=\"s\" access=\"read\"/>\n"  \
+-        "  <property name=\"KillSignal\" type=\"i\" access=\"read\"/>\n" \
+         "  <property name=\"UtmpIdentifier\" type=\"s\" access=\"read\"/>\n" \
+         "  <property name=\"ControlGroupModify\" type=\"b\" access=\"read\"/>\n" \
+         "  <property name=\"ControlGroupPersistent\" type=\"b\" access=\"read\"/>\n" \
+-        "  <property name=\"PrivateNetwork\" type=\"b\" access=\"read\"/>\n" \
+         "  <property name=\"IgnoreSIGPIPE\" type=\"b\" access=\"read\"/>\n" \
+         "  <property name=\"NoNewPrivileges\" type=\"b\" access=\"read\"/>\n" \
+         "  <property name=\"SystemCallFilter\" type=\"au\" access=\"read\"/>\n"

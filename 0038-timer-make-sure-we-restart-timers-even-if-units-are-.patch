@@ -1,0 +1,104 @@
+From 868fd8a20ffd7d1f71cc224b41a3b61bde521bed Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 23 Apr 2013 17:42:31 -0300
+Subject: [PATCH] timer: make sure we restart timers even if units are still
+ running or if one of their conditions fails (cherry picked from commit
+ e41e194340f9a8dbd982b5030449281c3c8bf0dd)
+
+Conflicts:
+	TODO
+---
+ src/core/timer.c | 30 ++++++++++++++++++------------
+ src/core/timer.h |  2 ++
+ 2 files changed, 20 insertions(+), 12 deletions(-)
+
+diff --git a/src/core/timer.c b/src/core/timer.c
+index b5d895f..b8039d8 100644
+--- a/src/core/timer.c
++++ b/src/core/timer.c
+@@ -251,11 +251,6 @@ static void timer_enter_waiting(Timer *t, bool initial) {
+                         if (r < 0)
+                                 continue;
+ 
+-                        if (!initial && v->next_elapse < ts.realtime) {
+-                                v->disabled = true;
+-                                continue;
+-                        }
+-
+                         if (!found_realtime)
+                                 t->next_elapse_realtime = v->next_elapse;
+                         else
+@@ -284,18 +279,26 @@ static void timer_enter_waiting(Timer *t, bool initial) {
+ 
+                         case TIMER_UNIT_ACTIVE:
+ 
+-                                if (UNIT_TRIGGER(UNIT(t))->inactive_exit_timestamp.monotonic <= 0)
++                                base = UNIT_TRIGGER(UNIT(t))->inactive_exit_timestamp.monotonic;
++
++                                if (base <= 0)
++                                        base = t->last_trigger_monotonic;
++
++                                if (base <= 0)
+                                         continue;
+ 
+-                                base = UNIT_TRIGGER(UNIT(t))->inactive_exit_timestamp.monotonic;
+                                 break;
+ 
+                         case TIMER_UNIT_INACTIVE:
+ 
+-                                if (UNIT_TRIGGER(UNIT(t))->inactive_enter_timestamp.monotonic <= 0)
++                                base = UNIT_TRIGGER(UNIT(t))->inactive_enter_timestamp.monotonic;
++
++                                if (base <= 0)
++                                        base = t->last_trigger_monotonic;
++
++                                if (base <= 0)
+                                         continue;
+ 
+-                                base = UNIT_TRIGGER(UNIT(t))->inactive_enter_timestamp.monotonic;
+                                 break;
+ 
+                         default:
+@@ -304,7 +307,10 @@ static void timer_enter_waiting(Timer *t, bool initial) {
+ 
+                         v->next_elapse = base + v->value;
+ 
+-                        if (!initial && v->next_elapse < ts.monotonic) {
++                        if (!initial &&
++                            v->next_elapse < ts.monotonic &&
++                            (v->base == TIMER_ACTIVE || v->base == TIMER_BOOT || v->base == TIMER_STARTUP)) {
++                                /* This is a one time trigger, disable it now */
+                                 v->disabled = true;
+                                 continue;
+                         }
+@@ -376,6 +382,8 @@ static void timer_enter_running(Timer *t) {
+         if (r < 0)
+                 goto fail;
+ 
++        t->last_trigger_monotonic = now(CLOCK_MONOTONIC);
++
+         timer_set_state(t, TIMER_RUNNING);
+         return;
+ 
+@@ -488,8 +496,6 @@ static void timer_trigger_notify(Unit *u, Unit *other) {
+         assert(u);
+         assert(other);
+ 
+-        log_error("NOTIFY!");
+-
+         if (other->load_state != UNIT_LOADED)
+                 return;
+ 
+diff --git a/src/core/timer.h b/src/core/timer.h
+index 163bd6c..fed15e9 100644
+--- a/src/core/timer.h
++++ b/src/core/timer.h
+@@ -79,6 +79,8 @@ struct Timer {
+         Watch realtime_watch;
+ 
+         TimerResult result;
++
++        usec_t last_trigger_monotonic;
+ };
+ 
+ void timer_free_values(Timer *t);
