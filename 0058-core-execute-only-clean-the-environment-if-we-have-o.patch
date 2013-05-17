@@ -1,0 +1,24 @@
+From 341923eda80fc43cfcb2de76759b239c75c42ebf Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Thu, 18 Apr 2013 07:15:03 +0200
+Subject: [PATCH] core/execute: only clean the environment, if we have one
+ (cherry picked from commit 5521d6985648669a65d0529bb01c7a32edc99294)
+
+---
+ src/core/execute.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/execute.c b/src/core/execute.c
+index 4b29d8e..11993df 100644
+--- a/src/core/execute.c
++++ b/src/core/execute.c
+@@ -1757,7 +1757,8 @@ int exec_context_load_environment(const ExecContext *c, char ***l) {
+                                 return k;
+                          }
+                         /* Log invalid environment variables with filename */
+-                        p = strv_env_clean_log(p, pglob.gl_pathv[n]);
++			if (p)
++	                        p = strv_env_clean_log(p, pglob.gl_pathv[n]);
+ 
+                         if (r == NULL)
+                                 r = p;

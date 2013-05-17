@@ -1,0 +1,29 @@
+From c79393bba5b039537870f421d65cd0625e135149 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>
+Date: Sun, 14 Apr 2013 14:54:09 +0300
+Subject: [PATCH] fileio: also escape $ and ` when writing out env vars
+
+These are also considered special by sh and bash.
+(cherry picked from commit ced2d10a28cff3bab6fb613652db5abde8ed940e)
+---
+ src/shared/fileio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/shared/fileio.c b/src/shared/fileio.c
+index 400a416..617afea 100644
+--- a/src/shared/fileio.c
++++ b/src/shared/fileio.c
+@@ -529,11 +529,11 @@ static void write_env_var(FILE *f, const char *v) {
+         p++;
+         fwrite(v, 1, p-v, f);
+ 
+-        if (string_has_cc(p) || chars_intersect(p, WHITESPACE "\'\"\\")) {
++        if (string_has_cc(p) || chars_intersect(p, WHITESPACE "\'\"\\`$")) {
+                 fputc('\"', f);
+ 
+                 for (; *p; p++) {
+-                        if (strchr("\'\"\\", *p))
++                        if (strchr("\'\"\\`$", *p))
+                                 fputc('\\', f);
+ 
+                         fputc(*p, f);

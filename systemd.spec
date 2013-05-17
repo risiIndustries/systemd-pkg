@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.6
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.7
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -93,6 +93,12 @@ Patch0049:      0049-man-clarify-behaviour-of-Also-in-unit-files.patch
 Patch0050:      0050-man-fix-typos-in-systemd.special.patch
 Patch0051:      0051-core-escape-unit-name-from-udev.patch
 Patch0052:      0052-journald-be-more-careful-when-we-try-to-flush-the-ru.patch
+Patch0053:      0053-fileio-also-escape-and-when-writing-out-env-vars.patch
+Patch0054:      0054-fileio-parse_env_file_internal-fix-environment-file-.patch
+Patch0055:      0055-core-execute-report-invalid-environment-variables-fr.patch
+Patch0056:      0056-fileio.c-do-not-parse-comments-after-non-whitespace-.patch
+Patch0057:      0057-fileio-unify-how-we-chop-off-whitespace-from-key-and.patch
+Patch0058:      0058-core-execute-only-clean-the-environment-if-we-have-o.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -830,6 +836,10 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Fri May 17 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.7
+- Pick fileio fixes for environment files (#964132).
+- Drop isdn.service from default preset (Lennart, #959793).
+
 * Tue May 07 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.6
 - Avoid sysctl.d precedence rules change (#924433).
 - More patches from upstream.

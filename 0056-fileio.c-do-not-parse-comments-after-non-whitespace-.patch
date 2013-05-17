@@ -1,0 +1,134 @@
+From a422a32de4fa85c5cdbd20a8be0c963e4904cb7a Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Thu, 18 Apr 2013 10:15:25 +0200
+Subject: [PATCH] fileio.c: do not parse comments after non-whitespace chars
+
+systemd does not want to understand comments after the first
+non-whitespace char occured.
+
+key=foo #comment  will result into key == "foo #comment"
+key="foo" #comment  will result into key == "foo#comment"
+"key= #comment" will result into key == "#comment"
+"key #comment" is an invalid line
+(cherry picked from commit 98f59e59e0c31ffcb953d3a7dba0da5e6f2f55f7)
+---
+ src/shared/fileio.c    |  9 +++++----
+ src/test/test-fileio.c | 26 ++++++++++++++------------
+ 2 files changed, 19 insertions(+), 16 deletions(-)
+
+diff --git a/src/shared/fileio.c b/src/shared/fileio.c
+index 4390726..f654af7 100644
+--- a/src/shared/fileio.c
++++ b/src/shared/fileio.c
+@@ -239,7 +239,7 @@ static int parse_env_file_internal(
+                         break;
+ 
+                 case PRE_VALUE:
+-                        if (strchr(newline, c) || strchr(COMMENTS, c)) {
++                        if (strchr(newline, c)) {
+                                 state = PRE_KEY;
+                                 key[n_key] = 0;
+ 
+@@ -247,7 +247,7 @@ static int parse_env_file_internal(
+                                         value[n_value] = 0;
+ 
+                                 /* strip trailing whitespace from key */
+-                                while(strchr(WHITESPACE, key[--n_key]))
++                                while(n_key && strchr(WHITESPACE, key[--n_key]))
+                                         key[n_key]=0;
+ 
+                                 r = push(key, value, userdata);
+@@ -279,6 +279,7 @@ static int parse_env_file_internal(
+                 case VALUE:
+                         if (strchr(newline, c)) {
+                                 state = PRE_KEY;
++
+                                 key[n_key] = 0;
+ 
+                                 if (value)
+@@ -289,7 +290,7 @@ static int parse_env_file_internal(
+                                         value[last_whitespace] = 0;
+ 
+                                 /* strip trailing whitespace from key */
+-                                while(strchr(WHITESPACE, key[--n_key]))
++                                while(n_key && strchr(WHITESPACE, key[--n_key]))
+                                         key[n_key]=0;
+ 
+                                 r = push(key, value, userdata);
+@@ -417,7 +418,7 @@ static int parse_env_file_internal(
+                         value[n_value] = 0;
+ 
+                 /* strip trailing whitespace from key */
+-                while(strchr(WHITESPACE, key[--n_key]))
++                while(n_key && strchr(WHITESPACE, key[--n_key]))
+                         key[n_key]=0;
+ 
+                 r = push(key, value, userdata);
+diff --git a/src/test/test-fileio.c b/src/test/test-fileio.c
+index 2a74104..d56f7cc 100644
+--- a/src/test/test-fileio.c
++++ b/src/test/test-fileio.c
+@@ -47,16 +47,18 @@ static void test_parse_env_file(void) {
+         fputs("one=BAR   \n"
+               "# comment\n"
+               " # comment \n"
++              " ; comment \n"
+               "  two   =   bar    \n"
+               "invalid line\n"
++              "invalid line #comment\n"
+               "three = \"333\n"
+               "xxxx\"\n"
+               "four = \'44\\\"44\'\n"
+               "five = \'55\\\'55\' \"FIVE\" cinco   \n"
+               "six = seis sechs\\\n"
+               " sis\n"
+-              "seven=\"sevenval\"#comment\n"
+-              "eight=#comment\n"
++              "seven=\"sevenval\" #nocomment\n"
++              "eight=eightval #nocomment\n"
+               "export nine=nineval\n"
+               "ten=", f);
+ 
+@@ -75,20 +77,14 @@ static void test_parse_env_file(void) {
+         assert_se(streq(a[3], "four=44\"44"));
+         assert_se(streq(a[4], "five=55\'55FIVEcinco"));
+         assert_se(streq(a[5], "six=seis sechs sis"));
+-        assert_se(streq(a[6], "seven=sevenval"));
+-        assert_se(streq(a[7], "eight="));
++        assert_se(streq(a[6], "seven=sevenval#nocomment"));
++        assert_se(streq(a[7], "eight=eightval #nocomment"));
+         assert_se(streq(a[8], "export nine=nineval"));
+         assert_se(streq(a[9], "ten="));
+         assert_se(a[10] == NULL);
+ 
+         strv_env_clean_log(a, "/tmp/test-fileio");
+ 
+-        r = write_env_file("/tmp/test-fileio", a);
+-        assert_se(r >= 0);
+-
+-        r = load_env_file("/tmp/test-fileio", NULL, &b);
+-        assert_se(r >= 0);
+-
+         k = 0;
+         STRV_FOREACH(i, b) {
+                 log_info("Got2: <%s>", *i);
+@@ -128,11 +124,17 @@ static void test_parse_env_file(void) {
+         assert_se(streq(four, "44\"44"));
+         assert_se(streq(five, "55\'55FIVEcinco"));
+         assert_se(streq(six, "seis sechs sis"));
+-        assert_se(streq(seven, "sevenval"));
+-        assert_se(eight == NULL);
++        assert_se(streq(seven, "sevenval#nocomment"));
++        assert_se(streq(eight, "eightval #nocomment"));
+         assert_se(streq(nine, "nineval"));
+         assert_se(ten == NULL);
+ 
++        r = write_env_file("/tmp/test-fileio", a);
++        assert_se(r >= 0);
++
++        r = load_env_file("/tmp/test-fileio", NULL, &b);
++        assert_se(r >= 0);
++
+         unlink(t);
+         unlink("/tmp/test-fileio");
+ }

@@ -1,0 +1,292 @@
+From 66435e2e05c4e9a7570ac245cdbd064edf88b1ba Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Wed, 17 Apr 2013 15:25:02 +0200
+Subject: [PATCH] core/execute: report invalid environment variables from files
+
+Because "export key=val" is not supported by systemd, an error is logged
+where the invalid assignment is coming from.
+
+Introduce strv_env_clean_log() to log invalid environment assignments,
+where logging is possible and allowed.
+
+parse_env_file_internal() is modified to allow WHITESPACE in keys, to
+report the issues later on.
+(cherry picked from commit ebc05a09ad6d1672cf4f426ee4252cf495daa139)
+---
+ src/core/execute.c     |  2 ++
+ src/shared/env-util.c  |  8 ++++-
+ src/shared/env-util.h  |  1 +
+ src/shared/fileio.c    | 34 +++++++++-------------
+ src/test/test-fileio.c | 79 ++++++++++++++++++++++++++++----------------------
+ 5 files changed, 68 insertions(+), 56 deletions(-)
+
+diff --git a/src/core/execute.c b/src/core/execute.c
+index 5083af9..4b29d8e 100644
+--- a/src/core/execute.c
++++ b/src/core/execute.c
+@@ -1756,6 +1756,8 @@ int exec_context_load_environment(const ExecContext *c, char ***l) {
+                                 strv_free(r);
+                                 return k;
+                          }
++                        /* Log invalid environment variables with filename */
++                        p = strv_env_clean_log(p, pglob.gl_pathv[n]);
+ 
+                         if (r == NULL)
+                                 r = p;
+diff --git a/src/shared/env-util.c b/src/shared/env-util.c
+index 54988e6..d3d4c59 100644
+--- a/src/shared/env-util.c
++++ b/src/shared/env-util.c
+@@ -376,7 +376,7 @@ char *strv_env_get(char **l, const char *name) {
+         return strv_env_get_n(l, name, strlen(name));
+ }
+ 
+-char **strv_env_clean(char **e) {
++char **strv_env_clean_log(char **e, const char *message) {
+         char **p, **q;
+         int k = 0;
+ 
+@@ -385,6 +385,8 @@ char **strv_env_clean(char **e) {
+                 bool duplicate = false;
+ 
+                 if (!env_assignment_is_valid(*p)) {
++                        if (message)
++                                log_error("Ignoring invalid environment '%s': %s", *p, message);
+                         free(*p);
+                         continue;
+                 }
+@@ -407,3 +409,7 @@ char **strv_env_clean(char **e) {
+         e[k] = NULL;
+         return e;
+ }
++
++char **strv_env_clean(char **e) {
++        return strv_env_clean_log(e, NULL);
++}
+diff --git a/src/shared/env-util.h b/src/shared/env-util.h
+index 9449576..b2e520c 100644
+--- a/src/shared/env-util.h
++++ b/src/shared/env-util.h
+@@ -30,6 +30,7 @@ bool env_assignment_is_valid(const char *e);
+ 
+ bool strv_env_is_valid(char **e);
+ char **strv_env_clean(char **l);
++char **strv_env_clean_log(char **e, const char *message);
+ 
+ bool strv_env_name_or_assignment_is_valid(char **l);
+ 
+diff --git a/src/shared/fileio.c b/src/shared/fileio.c
+index 3f242ed..4390726 100644
+--- a/src/shared/fileio.c
++++ b/src/shared/fileio.c
+@@ -184,7 +184,6 @@ static int parse_env_file_internal(
+         enum {
+                 PRE_KEY,
+                 KEY,
+-                PRE_EQUAL,
+                 PRE_VALUE,
+                 VALUE,
+                 VALUE_ESCAPE,
+@@ -209,9 +208,7 @@ static int parse_env_file_internal(
+                 switch (state) {
+ 
+                 case PRE_KEY:
+-                        if (startswith(p, "export "))
+-                                p+=6;
+-                        else if (strchr(COMMENTS, c))
++                        if (strchr(COMMENTS, c))
+                                 state = COMMENT;
+                         else if (!strchr(WHITESPACE, c)) {
+                                 state = KEY;
+@@ -228,9 +225,7 @@ static int parse_env_file_internal(
+                         if (strchr(newline, c)) {
+                                 state = PRE_KEY;
+                                 n_key = 0;
+-                        } else if (strchr(WHITESPACE, c))
+-                                state = PRE_EQUAL;
+-                        else if (c == '=')
++                        } else if (c == '=')
+                                 state = PRE_VALUE;
+                         else {
+                                 if (!greedy_realloc((void**) &key, &key_alloc, n_key+2)) {
+@@ -243,19 +238,6 @@ static int parse_env_file_internal(
+ 
+                         break;
+ 
+-                case PRE_EQUAL:
+-                        if (strchr(newline, c)) {
+-                                state = PRE_KEY;
+-                                n_key = 0;
+-                        } else if (c == '=')
+-                                state = PRE_VALUE;
+-                        else if (!strchr(WHITESPACE, c)) {
+-                                n_key = 0;
+-                                state = COMMENT;
+-                        }
+-
+-                        break;
+-
+                 case PRE_VALUE:
+                         if (strchr(newline, c) || strchr(COMMENTS, c)) {
+                                 state = PRE_KEY;
+@@ -264,6 +246,10 @@ static int parse_env_file_internal(
+                                 if (value)
+                                         value[n_value] = 0;
+ 
++                                /* strip trailing whitespace from key */
++                                while(strchr(WHITESPACE, key[--n_key]))
++                                        key[n_key]=0;
++
+                                 r = push(key, value, userdata);
+                                 if (r < 0)
+                                         goto fail;
+@@ -302,6 +288,10 @@ static int parse_env_file_internal(
+                                 if (last_whitespace != (size_t) -1)
+                                         value[last_whitespace] = 0;
+ 
++                                /* strip trailing whitespace from key */
++                                while(strchr(WHITESPACE, key[--n_key]))
++                                        key[n_key]=0;
++
+                                 r = push(key, value, userdata);
+                                 if (r < 0)
+                                         goto fail;
+@@ -426,6 +416,10 @@ static int parse_env_file_internal(
+                 if (value)
+                         value[n_value] = 0;
+ 
++                /* strip trailing whitespace from key */
++                while(strchr(WHITESPACE, key[--n_key]))
++                        key[n_key]=0;
++
+                 r = push(key, value, userdata);
+                 if (r < 0)
+                         goto fail;
+diff --git a/src/test/test-fileio.c b/src/test/test-fileio.c
+index 994b89b..2a74104 100644
+--- a/src/test/test-fileio.c
++++ b/src/test/test-fileio.c
+@@ -26,12 +26,14 @@
+ #include "util.h"
+ #include "fileio.h"
+ #include "strv.h"
++#include "env-util.h"
+ 
+ static void test_parse_env_file(void) {
+         char t[] = "/tmp/test-parse-env-file-XXXXXX";
+         int fd, r;
+         FILE *f;
+-        _cleanup_free_ char *one = NULL, *two = NULL, *three = NULL, *four = NULL, *five = NULL, *six = NULL, *seven = NULL, *eight = NULL, *nine = NULL;
++        _cleanup_free_ char *one = NULL, *two = NULL, *three = NULL, *four = NULL, *five = NULL,
++                        *six = NULL, *seven = NULL, *eight = NULL, *nine = NULL, *ten = NULL;
+         _cleanup_strv_free_ char **a = NULL, **b = NULL;
+         char **i;
+         unsigned k;
+@@ -53,13 +55,46 @@ static void test_parse_env_file(void) {
+               "five = \'55\\\'55\' \"FIVE\" cinco   \n"
+               "six = seis sechs\\\n"
+               " sis\n"
+-              "export seven=\"sevenval\"#comment\n"
++              "seven=\"sevenval\"#comment\n"
+               "eight=#comment\n"
+-              "nine=", f);
++              "export nine=nineval\n"
++              "ten=", f);
+ 
+         fflush(f);
+         fclose(f);
+ 
++        r = load_env_file(t, NULL, &a);
++        assert_se(r >= 0);
++
++        STRV_FOREACH(i, a)
++                log_info("Got: <%s>", *i);
++
++        assert_se(streq(a[0], "one=BAR"));
++        assert_se(streq(a[1], "two=bar"));
++        assert_se(streq(a[2], "three=333\nxxxx"));
++        assert_se(streq(a[3], "four=44\"44"));
++        assert_se(streq(a[4], "five=55\'55FIVEcinco"));
++        assert_se(streq(a[5], "six=seis sechs sis"));
++        assert_se(streq(a[6], "seven=sevenval"));
++        assert_se(streq(a[7], "eight="));
++        assert_se(streq(a[8], "export nine=nineval"));
++        assert_se(streq(a[9], "ten="));
++        assert_se(a[10] == NULL);
++
++        strv_env_clean_log(a, "/tmp/test-fileio");
++
++        r = write_env_file("/tmp/test-fileio", a);
++        assert_se(r >= 0);
++
++        r = load_env_file("/tmp/test-fileio", NULL, &b);
++        assert_se(r >= 0);
++
++        k = 0;
++        STRV_FOREACH(i, b) {
++                log_info("Got2: <%s>", *i);
++                assert_se(streq(*i, a[k++]));
++        }
++
+         r = parse_env_file(
+                         t, NULL,
+                        "one", &one,
+@@ -70,7 +105,8 @@ static void test_parse_env_file(void) {
+                        "six", &six,
+                        "seven", &seven,
+                        "eight", &eight,
+-                       "nine", &nine,
++                       "export nine", &nine,
++                       "ten", &ten,
+                        NULL);
+ 
+         assert_se(r >= 0);
+@@ -83,7 +119,8 @@ static void test_parse_env_file(void) {
+         log_info("six=[%s]", strna(six));
+         log_info("seven=[%s]", strna(seven));
+         log_info("eight=[%s]", strna(eight));
+-        log_info("nine=[%s]", strna(nine));
++        log_info("export nine=[%s]", strna(nine));
++        log_info("ten=[%s]", strna(nine));
+ 
+         assert_se(streq(one, "BAR"));
+         assert_se(streq(two, "bar"));
+@@ -93,36 +130,8 @@ static void test_parse_env_file(void) {
+         assert_se(streq(six, "seis sechs sis"));
+         assert_se(streq(seven, "sevenval"));
+         assert_se(eight == NULL);
+-        assert_se(nine == NULL);
+-
+-        r = load_env_file(t, NULL, &a);
+-        assert_se(r >= 0);
+-
+-        STRV_FOREACH(i, a)
+-                log_info("Got: <%s>", *i);
+-
+-        assert_se(streq(a[0], "one=BAR"));
+-        assert_se(streq(a[1], "two=bar"));
+-        assert_se(streq(a[2], "three=333\nxxxx"));
+-        assert_se(streq(a[3], "four=44\"44"));
+-        assert_se(streq(a[4], "five=55\'55FIVEcinco"));
+-        assert_se(streq(a[5], "six=seis sechs sis"));
+-        assert_se(streq(a[6], "seven=sevenval"));
+-        assert_se(streq(a[7], "eight="));
+-        assert_se(streq(a[8], "nine="));
+-        assert_se(a[9] == NULL);
+-
+-        r = write_env_file("/tmp/test-fileio", a);
+-        assert_se(r >= 0);
+-
+-        r = load_env_file("/tmp/test-fileio", NULL, &b);
+-        assert_se(r >= 0);
+-
+-        k = 0;
+-        STRV_FOREACH(i, b) {
+-                log_info("Got2: <%s>", *i);
+-                assert_se(streq(*i, a[k++]));
+-        }
++        assert_se(streq(nine, "nineval"));
++        assert_se(ten == NULL);
+ 
+         unlink(t);
+         unlink("/tmp/test-fileio");
