@@ -19,7 +19,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        9%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        10%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -74,6 +74,7 @@ BuildRequires:  intltool
 BuildRequires:  gperf
 BuildRequires:  gtk-doc
 BuildRequires:  python2-devel
+BuildRequires:  python3-devel
 %if %{defined gitcommit}%{num_patches}
 BuildRequires:  automake
 BuildRequires:  autoconf
@@ -155,12 +156,22 @@ Requires:       %{name} = %{version}-%{release}
 SysV compatibility tools for systemd
 
 %package python
-Summary:        Python Bindings for systemd
+Summary:        Python 2 bindings for systemd
+License:        LGPLv2+
+Requires:       %{name} = %{version}-%{release}
+
+%package python3
+Summary:        Python 3 bindings for systemd
 License:        LGPLv2+
 Requires:       %{name} = %{version}-%{release}
 
 %description python
-This package contains python binds for systemd APIs
+This package contains bindings which allow Python 2 programs to use
+systemd APIs
+
+%description python3
+This package contains bindings which allow Python 3 programs to use
+systemd APIs
 
 %package -n libgudev1
 Summary:        Libraries for adding libudev support to applications that use glib
@@ -204,6 +215,23 @@ glib-based applications using libudev functionality.
     %endif
 %endif
 
+# first make python3 while source directory is empty
+rm -rf build2 build3
+mkdir build2
+mkdir build3
+
+pushd build3
+%define _configure ../configure
+%configure \
+        --libexecdir=%{_prefix}/lib \
+        --disable-manpages \
+        --with-sysvinit-path=/etc/rc.d/init.d \
+        --with-rc-local-script-path-start=/etc/rc.d/rc.local \
+        PYTHON=%{__python3}
+make %{?_smp_mflags}
+popd
+
+pushd build2
 %configure \
         --libexecdir=%{_prefix}/lib \
         --enable-gtk-doc \
@@ -214,9 +242,17 @@ glib-based applications using libudev functionality.
         --with-sysvinit-path=/etc/rc.d/init.d \
         --with-rc-local-script-path-start=/etc/rc.d/rc.local
 make %{?_smp_mflags} V=1
+popd
 
 %install
+# first install python3 so the binaries are overwritten by the python2 ones
+pushd build3
 %make_install
+popd
+pushd build2
+%make_install
+popd
+
 find %{buildroot} \( -name '*.a' -o -name '*.la' \) -delete
 
 # udev links
@@ -235,7 +271,7 @@ ln -s ../bin/systemctl %{buildroot}%{_sbindir}/telinit
 ln -s ../bin/systemctl %{buildroot}%{_sbindir}/runlevel
 
 # legacy links
-ln -s loginctl %{buildroot}%{_bindir}/systemd-loginctl
+ln -sf loginctl %{buildroot}%{_bindir}/systemd-loginctl
 
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
@@ -746,20 +782,12 @@ fi
 %{_bindir}/systemd-sysv-convert
 
 %files python
-%{python_sitearch}/systemd/__init__.py
-%{python_sitearch}/systemd/__init__.pyc
-%{python_sitearch}/systemd/__init__.pyo
-%{python_sitearch}/systemd/_journal.so
-%{python_sitearch}/systemd/_reader.so
-%{python_sitearch}/systemd/_daemon.so
-%{python_sitearch}/systemd/id128.so
-%{python_sitearch}/systemd/login.so
-%{python_sitearch}/systemd/journal.py
-%{python_sitearch}/systemd/journal.pyc
-%{python_sitearch}/systemd/journal.pyo
-%{python_sitearch}/systemd/daemon.py
-%{python_sitearch}/systemd/daemon.pyc
-%{python_sitearch}/systemd/daemon.pyo
+%{python_sitearch}/systemd
+%{python_sitearch}/systemd/*
+
+%files python3
+%{python3_sitearch}/systemd
+%{python3_sitearch}/systemd/*
 
 %files -n libgudev1
 %{_libdir}/libgudev-1.0.so.*
@@ -776,6 +804,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Sun Aug 11 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 204-10
+- New systemd-python3 package (#976427).
+
 * Mon Jun 24 2013 Michal Schmidt <mschmidt@redhat.com> 204-9
 - Rename nm_dispatcher to NetworkManager-dispatcher in default preset (#977433)
 
