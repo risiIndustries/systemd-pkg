@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        11%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        12%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -649,6 +649,7 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
 %ghost %config(noreplace) %{_sysconfdir}/machine-id
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
+%dir %{_sysconfdir}/X11/xorg.conf.d
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-system-setup-keyboard.conf
 %ghost %{_localstatedir}/lib/systemd/catalog/database
@@ -723,6 +724,8 @@ fi
 %{_datadir}/dbus-1/interfaces/org.freedesktop.hostname1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.locale1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1.xml
+%dir %{_datadir}/polkit-1
+%dir %{_datadir}/polkit-1/actions
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
@@ -806,6 +809,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Fri Sep 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-12
+- Add ownership of a few directories that we create (#894202).
+
 * Thu Sep 05 2013 Harald Hoyer <harald@redhat.com> 204-11
 - bump release
 - always call kmod, even when a driver is bound to the device
