@@ -786,11 +786,9 @@ fi
 
 %files python
 %{python_sitearch}/systemd
-%{python_sitearch}/systemd/*
 
 %files python3
 %{python3_sitearch}/systemd
-%{python3_sitearch}/systemd/*
 
 %files -n libgudev1
 %{_libdir}/libgudev-1.0.so.*
@@ -807,6 +805,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Sun Aug 16 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 204-11
+- Filter out provides for private python modules.
+
 * Sun Aug 11 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 204-10
 - New systemd-python3 package (#976427).
 
