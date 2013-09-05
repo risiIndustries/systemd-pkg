@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        10%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        11%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -46,6 +46,7 @@ Source6:        yum-protect-systemd.conf
 
 Patch1:         0001-journal-letting-interleaved-seqnums-go.patch
 Patch2:         0002-journal-remember-last-direction-of-search-and-keep-o.patch
+Patch3:         bf7f800f2b3e93ccd1229d4717166f3a4d3af72f.patch
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
 
@@ -805,7 +806,12 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
-* Sun Aug 16 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 204-11
+* Thu Sep 05 2013 Harald Hoyer <harald@redhat.com> 204-11
+- bump release
+- always call kmod, even when a driver is bound to the device
+Resolves: rhbz#1004456
+
+* Fri Aug 16 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 204-11
 - Filter out provides for private python modules.
 
 * Sun Aug 11 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 204-10
