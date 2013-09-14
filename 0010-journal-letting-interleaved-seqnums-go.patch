@@ -1,7 +1,7 @@
-From 53113dc8254cae9a27e321e539d2d876677e61b9 Mon Sep 17 00:00:00 2001
+From 0bad6bf0e0c53e68bc41dd011ad22d4672de56eb Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 7 Jun 2013 22:01:03 -0400
-Subject: [PATCH] journal: letting (interleaved) seqnums go
+Subject: [PATCH 10/25] journal: letting (interleaved) seqnums go
 
 In the following scenario:
   server creates system.journal
@@ -49,18 +49,15 @@ https://bugzilla.novell.com/show_bug.cgi?id=817778
 
 Possibly related:
 https://bugs.freedesktop.org/show_bug.cgi?id=64293
-
-Conflicts:
-	src/journal/journald-server.c
 ---
  src/journal/journald-server.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
-index cc52b8a..cde63c8 100644
+index da5b725..5813699 100644
 --- a/src/journal/journald-server.c
 +++ b/src/journal/journald-server.c
-@@ -280,7 +280,7 @@ static JournalFile* find_journal(Server *s, uid_t uid) {
+@@ -282,7 +282,7 @@ static JournalFile* find_journal(Server *s, uid_t uid) {
                  journal_file_close(f);
          }
  
@@ -70,5 +67,5 @@ index cc52b8a..cde63c8 100644
  
          if (r < 0)
 -- 
-1.8.2.1
+1.8.3.1
 

@@ -1,0 +1,62 @@
+From 451cbd3ce291b2e3205461068899bb55d7dcd9d4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 17 Jul 2013 12:50:43 -0400
+Subject: [PATCH 03/25] systemd-python: fix iteration
+
+Back in 6a58bf4135 raising stop iteration was removed from the C
+code, but wasn't added in the Python counterpart.
+---
+ configure.ac                  |  1 -
+ src/python-systemd/journal.py | 24 ++++++++++++------------
+ 2 files changed, 12 insertions(+), 13 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index e1278e8..a918252 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -939,7 +939,6 @@ AC_MSG_RESULT([
+         nss-myhostname:          ${have_myhostname}
+         gudev:                   ${enable_gudev}
+         gintrospection:          ${enable_introspection}
+-        keymap:                  ${enable_keymap}
+         Python:                  ${have_python}
+         Python Headers:          ${have_python_devel}
+         man pages:               ${have_manpages}
+diff --git a/src/python-systemd/journal.py b/src/python-systemd/journal.py
+index 8fd1bb3..adcc844 100644
+--- a/src/python-systemd/journal.py
++++ b/src/python-systemd/journal.py
+@@ -191,18 +191,18 @@ class Reader(_Reader):
+         """
+         return self
+ 
+-    if _sys.version_info >= (3,):
+-        def __next__(self):
+-            """Part of iterator protocol.
+-            Returns self.get_next().
+-            """
+-            return self.get_next()
+-    else:
+-        def next(self):
+-            """Part of iterator protocol.
+-            Returns self.get_next().
+-            """
+-            return self.get_next()
++    def __next__(self):
++        """Part of iterator protocol.
++        Returns self.get_next() or raises StopIteration.
++        """
++        ans = self.get_next()
++        if ans:
++            return ans
++        else:
++            raise StopIteration()
++
++    if _sys.version_info < (3,):
++        next = __next__
+ 
+     def add_match(self, *args, **kwargs):
+         """Add one or more matches to the filter journal log entries.
+-- 
+1.8.3.1
+

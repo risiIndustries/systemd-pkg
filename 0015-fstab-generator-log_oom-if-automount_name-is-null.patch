@@ -1,0 +1,25 @@
+From 591e3ca379b32a65aea20f84fba3f88dd0f85f9b Mon Sep 17 00:00:00 2001
+From: WANG Chao <chaowang@redhat.com>
+Date: Tue, 13 Aug 2013 16:38:19 +0800
+Subject: [PATCH 15/25] fstab-generator: log_oom() if automount_name is null
+
+---
+ src/fstab-generator/fstab-generator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index 479938f..6b3e67e 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -351,7 +351,7 @@ static int add_mount(
+ 
+         if (automount && !path_equal(where, "/")) {
+                 automount_name = unit_name_from_path(where, ".automount");
+-                if (!name)
++                if (!automount_name)
+                         return log_oom();
+ 
+                 automount_unit = strjoin(arg_dest, "/", automount_name, NULL);
+-- 
+1.8.3.1
+

@@ -1,7 +1,7 @@
-From 87011c25d96e9fbcd8a465ba758fa037c7d08203 Mon Sep 17 00:00:00 2001
+From c17f7d8a60e17af4abb63668756f9237db3b9634 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 6 Jun 2013 22:28:05 -0400
-Subject: [PATCH 01/13] journal: remember last direction of search and keep
+Subject: [PATCH 09/25] journal: remember last direction of search and keep
  offset cache
 
 The fields in JournalFile are moved around to avoid wasting
@@ -13,10 +13,10 @@ The fields in JournalFile are moved around to avoid wasting
  3 files changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/TODO b/TODO
-index 0dd19a0..1dc585c 100644
+index 4f5af14..55d70f7 100644
 --- a/TODO
 +++ b/TODO
-@@ -77,9 +77,6 @@ Features:
+@@ -36,9 +36,6 @@ Features:
  
  * investigate endianess issues of UUID vs. GUID
  
@@ -72,10 +72,10 @@ index 7b1cd42..5cc2c2d 100644
                  const char *fname,
                  int flags,
 diff --git a/src/journal/sd-journal.c b/src/journal/sd-journal.c
-index 3aa9ed4..4c4cc2d 100644
+index c21712b..c74b4a2 100644
 --- a/src/journal/sd-journal.c
 +++ b/src/journal/sd-journal.c
-@@ -102,7 +102,8 @@ static void init_location(Location *l, LocationType type, JournalFile *f, Object
+@@ -101,7 +101,8 @@ static void init_location(Location *l, LocationType type, JournalFile *f, Object
          l->seqnum_set = l->realtime_set = l->monotonic_set = l->xor_hash_set = true;
  }
  
@@ -85,7 +85,7 @@ index 3aa9ed4..4c4cc2d 100644
          assert(j);
          assert(type == LOCATION_DISCRETE || type == LOCATION_SEEK);
          assert(f);
-@@ -110,12 +111,10 @@ static void set_location(sd_journal *j, LocationType type, JournalFile *f, Objec
+@@ -109,12 +110,10 @@ static void set_location(sd_journal *j, LocationType type, JournalFile *f, Objec
  
          init_location(&j->current_location, type, f, o);
  
@@ -99,7 +99,7 @@ index 3aa9ed4..4c4cc2d 100644
          f->current_offset = offset;
  }
  
-@@ -811,7 +810,7 @@ static int next_beyond_location(sd_journal *j, JournalFile *f, direction_t direc
+@@ -826,7 +825,7 @@ static int next_beyond_location(sd_journal *j, JournalFile *f, direction_t direc
          assert(j);
          assert(f);
  
@@ -108,7 +108,7 @@ index 3aa9ed4..4c4cc2d 100644
                  cp = f->current_offset;
  
                  r = journal_file_move_to_object(f, OBJECT_ENTRY, cp, &c);
-@@ -908,7 +907,7 @@ static int real_journal_next(sd_journal *j, direction_t direction) {
+@@ -923,7 +922,7 @@ static int real_journal_next(sd_journal *j, direction_t direction) {
          if (r < 0)
                  return r;
  
@@ -118,5 +118,5 @@ index 3aa9ed4..4c4cc2d 100644
          return 1;
  }
 -- 
-1.8.2.1
+1.8.3.1
 

@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        12%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -44,9 +44,33 @@ Source4:        listen.conf
 # Prevent accidental removal of the systemd package
 Source6:        yum-protect-systemd.conf
 
-Patch1:         0001-journal-letting-interleaved-seqnums-go.patch
-Patch2:         0002-journal-remember-last-direction-of-search-and-keep-o.patch
-Patch3:         bf7f800f2b3e93ccd1229d4717166f3a4d3af72f.patch
+# i=1; for p in 00*patch;do printf "Patch%02d:        %s\n" $i $p; ((i++));done
+Patch01:        0001-journal-correctly-convert-usec_t-to-timespec.patch
+Patch02:        0002-systemd-python-do-not-attempt-to-convert-str-to-byte.patch
+Patch03:        0003-systemd-python-fix-iteration.patch
+Patch04:        0004-systemctl-honor-no-legend-in-list-sockets.patch
+Patch05:        0005-service-kill-processes-with-SIGKILL-on-watchdog-fail.patch
+Patch06:        0006-Fix-CPUShares-configuration-option.patch
+Patch07:        0007-journald-DO-recalculate-the-ACL-mask-but-only-if-it-.patch
+Patch08:        0008-service-don-t-report-alien-child-as-alive-when-it-s-.patch
+Patch09:        0009-journal-remember-last-direction-of-search-and-keep-o.patch
+Patch10:        0010-journal-letting-interleaved-seqnums-go.patch
+Patch11:        0011-rules-drivers-always-call-kmod-even-when-a-driver-is.patch
+Patch12:        0012-80-net-name-slot.rules-only-rename-network-interface.patch
+Patch13:        0013-journal-fix-hashmap-leak-in-mmap-cache.patch
+Patch14:        0014-fstab-generator-read-rd.fstab-on-off-switch-correctl.patch
+Patch15:        0015-fstab-generator-log_oom-if-automount_name-is-null.patch
+Patch16:        0016-journald-do-not-overwrite-syslog-facility-when-parsi.patch
+Patch17:        0017-journal-fix-parsing-of-facility-in-syslog-messages.patch
+Patch18:        0018-libudev-fix-memleak-when-enumerating-childs.patch
+Patch19:        0019-libudev-enumerate-fix-NULL-deref-for-subsystem-match.patch
+Patch20:        0020-systemd-coredump-Ignore-coredumps-larger-than-COREDU.patch
+Patch21:        0021-journalctl-use-_COMM-match-for-scripts.patch
+Patch22:        0022-Allow-tabs-in-environment-files.patch
+Patch23:        0023-Actually-allow-tabs-in-environment-files.patch
+Patch24:        0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
+Patch25:        0025-cgtop-fixup-the-online-help.patch
+
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
 
@@ -809,6 +833,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Fri Sep 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-13
+- Backport a bunch of fixes (#995575 and others).
+
 * Fri Sep 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-12
 - Add ownership of a few directories that we create (#894202).
 
