@@ -71,6 +71,9 @@ Patch23:        0023-Actually-allow-tabs-in-environment-files.patch
 Patch24:        0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
 Patch25:        0025-cgtop-fixup-the-online-help.patch
 
+# git diff --src-prefix=a/ --dst-prefix=b/ v204 -- hwdb/ > systemd-hwdb.patch
+Patch99:        systemd-hwdb.patch
+
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
 
@@ -833,6 +836,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Tue Sep 17 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-14
+- Backport the hardware database (#989103).
+
 * Fri Sep 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-13
 - Backport a bunch of fixes (#995575 and others).
 
