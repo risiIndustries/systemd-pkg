@@ -1,7 +1,7 @@
 From fa74dedd21c2c64dc6cf20f49be9db32d909db74 Mon Sep 17 00:00:00 2001
 From: David Herrmann <dh.herrmann@gmail.com>
 Date: Wed, 4 Sep 2013 12:36:19 +0200
-Subject: [PATCH 18/27] libudev: fix memleak when enumerating childs
+Subject: [PATCH 18/26] libudev: fix memleak when enumerating childs
 
 We need to free udev-devices again if they don't match. Funny that no-one
 noticed it yet since valgrind is quite verbose about it.

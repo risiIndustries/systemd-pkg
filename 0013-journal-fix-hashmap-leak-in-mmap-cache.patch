@@ -1,7 +1,7 @@
 From 812882be86dcb30b2ab6e7f95dfcd393d972c781 Mon Sep 17 00:00:00 2001
 From: George McCollister <george.mccollister@gmail.com>
 Date: Thu, 1 Aug 2013 12:40:01 -0500
-Subject: [PATCH 13/27] journal: fix hashmap leak in mmap-cache
+Subject: [PATCH 13/26] journal: fix hashmap leak in mmap-cache
 
 hashmap_free() wasn't being called on m->contexts and m->fds resulting
 in a leak.

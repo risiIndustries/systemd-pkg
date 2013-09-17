@@ -1,7 +1,7 @@
 From 0bad6bf0e0c53e68bc41dd011ad22d4672de56eb Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 7 Jun 2013 22:01:03 -0400
-Subject: [PATCH 10/27] journal: letting (interleaved) seqnums go
+Subject: [PATCH 10/26] journal: letting (interleaved) seqnums go
 
 In the following scenario:
   server creates system.journal

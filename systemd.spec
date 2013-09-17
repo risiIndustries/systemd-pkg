@@ -70,8 +70,7 @@ Patch22:        0022-Allow-tabs-in-environment-files.patch
 Patch23:        0023-Actually-allow-tabs-in-environment-files.patch
 Patch24:        0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
 Patch25:        0025-cgtop-fixup-the-online-help.patch
-Patch26:        0026-man-fix-description-of-sysctl.d-order.patch
-Patch27:        0027-transaction.c-do-not-point-users-to-logs-when-unit-n.patch
+Patch26:        0026-transaction.c-do-not-point-users-to-logs-when-unit-n.patch
 
 # git diff --src-prefix=a/ --dst-prefix=b/ v204 -- hwdb/ > systemd-hwdb.patch
 Patch99:        systemd-hwdb.patch

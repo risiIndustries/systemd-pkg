@@ -1,7 +1,7 @@
 From b2923bfc88c874b303efa86f51a53ba0a31f5aaa Mon Sep 17 00:00:00 2001
 From: "Jan Alexander Steffens (heftig)" <jan.steffens@gmail.com>
 Date: Tue, 28 May 2013 20:45:34 +0200
-Subject: [PATCH 07/27] journald: DO recalculate the ACL mask, but only if it
+Subject: [PATCH 07/26] journald: DO recalculate the ACL mask, but only if it
  doesn't exist
 
 Since 11ec7ce, journald isn't setting the ACLs properly anymore if

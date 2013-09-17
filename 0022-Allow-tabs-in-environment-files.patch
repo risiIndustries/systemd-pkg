@@ -1,7 +1,7 @@
 From c884f73cb754db77632a84830e5a058827d732e5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 11 Sep 2013 21:50:16 -0400
-Subject: [PATCH 22/27] Allow tabs in environment files
+Subject: [PATCH 22/26] Allow tabs in environment files
 
 bash allows them, and so should we.
 

@@ -1,7 +1,7 @@
-From 71a73884d42ffb3a2b4d64f099a145b9abc2eee0 Mon Sep 17 00:00:00 2001
+From 6756886b2193392af72c7a497b70ded76eef5c22 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 15 Sep 2013 12:15:38 -0400
-Subject: [PATCH 27/27] transaction.c: do not point users to logs when unit not
+Subject: [PATCH 26/26] transaction.c: do not point users to logs when unit not
  found
 
 The logs are unlikely to contain any useful information in this case.

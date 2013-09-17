@@ -1,7 +1,7 @@
 From 90c6172bd8c7e40cba714737f5a5f5364dc56084 Mon Sep 17 00:00:00 2001
 From: Michal Sekletar <msekleta@redhat.com>
 Date: Thu, 12 Sep 2013 15:42:24 +0200
-Subject: [PATCH 24/27] systemctl: process only signals for jobs we really wait
+Subject: [PATCH 24/26] systemctl: process only signals for jobs we really wait
  for
 
 wait_filter() callback shouldn't process JobRemove signals for arbitrary

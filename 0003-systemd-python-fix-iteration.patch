@@ -1,7 +1,7 @@
 From 451cbd3ce291b2e3205461068899bb55d7dcd9d4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 17 Jul 2013 12:50:43 -0400
-Subject: [PATCH 03/27] systemd-python: fix iteration
+Subject: [PATCH 03/26] systemd-python: fix iteration
 
 Back in 6a58bf4135 raising stop iteration was removed from the C
 code, but wasn't added in the Python counterpart.
