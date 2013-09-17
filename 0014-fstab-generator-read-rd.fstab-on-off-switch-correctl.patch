@@ -1,7 +1,7 @@
 From b09b841398cccd3794b9573d57828e810f5f33cb Mon Sep 17 00:00:00 2001
 From: WANG Chao <chaowang@redhat.com>
 Date: Fri, 9 Aug 2013 17:01:50 +0800
-Subject: [PATCH 14/25] fstab-generator: read rd.fstab=on/off switch correctly
+Subject: [PATCH 14/27] fstab-generator: read rd.fstab=on/off switch correctly
 
 ---
  src/fstab-generator/fstab-generator.c | 4 ++--

@@ -1,7 +1,7 @@
 From 416783827045e646f8c104aa9a0719e738f53ca6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>
 Date: Mon, 20 May 2013 11:20:15 +0300
-Subject: [PATCH 04/25] systemctl: honor "--no-legend" in 'list-sockets'
+Subject: [PATCH 04/27] systemctl: honor "--no-legend" in 'list-sockets'
 
 ---
  src/systemctl/systemctl.c | 22 +++++++++++++---------

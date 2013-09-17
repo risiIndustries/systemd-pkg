@@ -1,7 +1,7 @@
 From 0006eedfd2596b69a6d62e0ae6ec7cfeec20ce0c Mon Sep 17 00:00:00 2001
 From: David Herrmann <dh.herrmann@gmail.com>
 Date: Fri, 30 Aug 2013 15:50:41 +0200
-Subject: [PATCH 19/25] libudev: enumerate: fix NULL-deref for
+Subject: [PATCH 19/27] libudev: enumerate: fix NULL-deref for
  subsystem-matches
 
 udev_device_get_subsystem() may return NULL if no subsystem could be

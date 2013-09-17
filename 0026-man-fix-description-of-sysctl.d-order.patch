@@ -1,0 +1,28 @@
+From 69ade6b46e1e567bc729f0fa10afa23aa8940072 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>
+Date: Thu, 12 Sep 2013 00:53:36 +0300
+Subject: [PATCH 26/27] man: fix description of sysctl.d order
+
+systemd-sysctl gives priority to the latest occurence as of commit
+04bf3c1a60d82791e0320381e9268f727708f776, but the manpage hasn't been
+updated for that.
+---
+ man/sysctl.d.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/sysctl.d.xml b/man/sysctl.d.xml
+index 759b874..a5868e6 100644
+--- a/man/sysctl.d.xml
++++ b/man/sysctl.d.xml
+@@ -92,7 +92,7 @@
+                 alphabetical order, regardless in which of the
+                 directories they reside, to guarantee that a specific
+                 configuration file takes precedence over another file
+-                with an alphabetically later name, if both files
++                with an alphabetically earlier name, if both files
+                 contain the same variable setting.</para>
+ 
+                 <para>If the administrator wants to disable a
+-- 
+1.8.3.1
+

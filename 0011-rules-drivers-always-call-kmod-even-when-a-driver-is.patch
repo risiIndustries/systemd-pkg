@@ -1,7 +1,7 @@
 From 59eb9113f522703d80f2904c81825e4a165bb050 Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Sat, 20 Jul 2013 14:29:12 +0200
-Subject: [PATCH 11/25] rules: drivers - always call kmod, even when a driver
+Subject: [PATCH 11/27] rules: drivers - always call kmod, even when a driver
  is bound to the device
 
 On Sat, Jul 20, 2013 at 12:56 PM, Rafael J. Wysocki <rjw@sisk.pl> wrote:

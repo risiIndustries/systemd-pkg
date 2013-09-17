@@ -1,7 +1,7 @@
 From c17f7d8a60e17af4abb63668756f9237db3b9634 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 6 Jun 2013 22:28:05 -0400
-Subject: [PATCH 09/25] journal: remember last direction of search and keep
+Subject: [PATCH 09/27] journal: remember last direction of search and keep
  offset cache
 
 The fields in JournalFile are moved around to avoid wasting

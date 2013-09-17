@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -70,6 +70,8 @@ Patch22:        0022-Allow-tabs-in-environment-files.patch
 Patch23:        0023-Actually-allow-tabs-in-environment-files.patch
 Patch24:        0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
 Patch25:        0025-cgtop-fixup-the-online-help.patch
+Patch26:        0026-man-fix-description-of-sysctl.d-order.patch
+Patch27:        0027-transaction.c-do-not-point-users-to-logs-when-unit-n.patch
 
 # git diff --src-prefix=a/ --dst-prefix=b/ v204 -- hwdb/ > systemd-hwdb.patch
 Patch99:        systemd-hwdb.patch
@@ -838,6 +840,7 @@ fi
 %changelog
 * Tue Sep 17 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-14
 - Backport the hardware database (#989103).
+- Backport two small patches.
 
 * Fri Sep 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-13
 - Backport a bunch of fixes (#995575 and others).

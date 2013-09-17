@@ -1,7 +1,7 @@
 From 11fe664c24617569d1088fae7c6630718fbf1896 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micha=C5=82=20Bartoszkiewicz?= <mbartoszkiewicz@gmail.com>
 Date: Wed, 15 May 2013 11:28:58 +0200
-Subject: [PATCH 01/25] journal: correctly convert usec_t to timespec.
+Subject: [PATCH 01/27] journal: correctly convert usec_t to timespec.
 
 Use timespec_store instead of (incorrectly) doing it inline.
 ---

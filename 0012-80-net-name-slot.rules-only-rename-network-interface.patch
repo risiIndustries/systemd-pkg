@@ -1,7 +1,7 @@
 From 33e3e7fbcce582c26604d997df89e71908ac7999 Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Thu, 1 Aug 2013 12:31:38 +0200
-Subject: [PATCH 12/25] 80-net-name-slot.rules: only rename network interfaces
+Subject: [PATCH 12/27] 80-net-name-slot.rules: only rename network interfaces
  on ACTION=="add"
 
 Otherwise systemd-udevd will rename on "change" and "move" events,

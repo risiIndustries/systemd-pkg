@@ -1,7 +1,7 @@
 From 9331382dd5caabd748d8fc28a0bc2a087ed8f9a8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 10 Jun 2013 18:10:12 -0400
-Subject: [PATCH 16/25] journald: do not overwrite syslog facility when parsing
+Subject: [PATCH 16/27] journald: do not overwrite syslog facility when parsing
  priority
 
 https://bugs.freedesktop.org/show_bug.cgi?id=65610

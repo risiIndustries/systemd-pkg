@@ -1,7 +1,7 @@
 From 7d3f06fa516a0eacad9ca9a17c433ca7e4f5876a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 19 Jul 2013 04:02:50 -0400
-Subject: [PATCH 21/25] journalctl: use _COMM= match for scripts
+Subject: [PATCH 21/27] journalctl: use _COMM= match for scripts
 
 In case of scripts, _EXE is set to the interpreter name, and
 _COMM is set based on the file name. Add a match for _COMM,

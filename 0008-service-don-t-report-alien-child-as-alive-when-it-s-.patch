@@ -1,7 +1,7 @@
 From 184c94de2cd85228b729dac1fb5f59453cfbbbed Mon Sep 17 00:00:00 2001
 From: Ross Lagerwall <rosslagerwall@gmail.com>
 Date: Sun, 9 Jun 2013 17:28:44 +0100
-Subject: [PATCH 08/25] service: don't report alien child as alive when it's
+Subject: [PATCH 08/27] service: don't report alien child as alive when it's
  not
 
 When a sigchld is received from an alien child, main_pid is set to
