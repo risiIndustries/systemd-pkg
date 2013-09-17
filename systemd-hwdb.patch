@@ -17436,10 +17436,10 @@ index 8c9584b..da8385e 100644
  
 diff --git a/hwdb/60-keyboard.hwdb b/hwdb/60-keyboard.hwdb
 new file mode 100644
-index 0000000..53e83ad
+index 0000000..3862b4c
 --- /dev/null
 +++ b/hwdb/60-keyboard.hwdb
-@@ -0,0 +1,1080 @@
+@@ -0,0 +1,1087 @@
 +# This file is part of systemd.
 +#
 +# Keyboard mapping of scan codes to key codes, and
@@ -18324,6 +18324,8 @@ index 0000000..53e83ad
 + KEYBOARD_KEY_b1=!prog2                                 # Fn+F7 run Samsung Magic Doctor (keypressed event is generated twice)
 + KEYBOARD_KEY_b3=!prog3                                 # Fn+F8 switch power mode (battery/dynamic/performance)
 + KEYBOARD_KEY_b4=!wlan                                  # Fn+F9 (X60P)
++ KEYBOARD_KEY_c5=!prog3                                 # Fn+F8 switch power mode (battery/dynamic/performance)
++ KEYBOARD_KEY_d5=!wlan                                  # Fn+F12 wlan/airplane switch
 + KEYBOARD_KEY_f7=!f22                                   # Fn+F10 Touchpad on
 + KEYBOARD_KEY_f9=!f23                                   # Fn+F10 Touchpad off
 +
@@ -18331,9 +18333,18 @@ index 0000000..53e83ad
 +keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn*300E[457]*:pvr*
 +keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn*200E[45]*:pvr*
 + KEYBOARD_KEY_ce=!                                      # Fn+F1  launch control setting
-+ KEYBOARD_KEY_d5=!                                      # Fn+F12 Wi-Fi toggle
 +
 +# Series 5
++keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn*530U*:pvr*
++ KEYBOARD_KEY_ce=!prog1                                 # Fn+F1 launch settings
++ KEYBOARD_KEY_a8=!                                      # Fn Lock - Function lock on
++ KEYBOARD_KEY_a9=!                                      # Fn Lock - Function lock off
++
++keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn*550P*:pvr*
++ KEYBOARD_KEY_ce=!prog1                                 # Fn+F1 launch settings
++ KEYBOARD_KEY_a8=!                                      # Fn Lock - Function lock on
++ KEYBOARD_KEY_a9=!                                      # Fn Lock - Function lock off
++
 +keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn*700Z*:pvr*
 + KEYBOARD_KEY_ce=!prog1                                 # Fn+F1 launch settings
 + KEYBOARD_KEY_a0=!mute                                  # Fn+F6 mute
@@ -18342,7 +18353,6 @@ index 0000000..53e83ad
 + KEYBOARD_KEY_97=!kbdillumdown                          # Fn+F9 keyboard backlight down
 + KEYBOARD_KEY_96=!kbdillumup                            # Fn+F10 keyboard backlight up
 + KEYBOARD_KEY_b3=!prog3                                 # Fn+F11 fan/cooling mode changer
-+ KEYBOARD_KEY_d5=!wlan                                  # Fn+F12 wlan/airplane switch
 +
 +# Series 9
 +keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn*90X3A*:pvr*
@@ -18377,9 +18387,6 @@ index 0000000..53e83ad
 +
 +keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn*700T*:pvr*
 + KEYBOARD_KEY_ad=leftmeta
-+
-+keyboard:dmi:bvn*:bvr*:bd*:svn[sS][aA][mM][sS][uU][nN][gG]*:pn535U*:pvr*
-+ KEYBOARD_KEY_d5=!wlan
 +
 +###########################################################
 +# SONY
