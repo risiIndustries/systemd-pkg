@@ -1,3 +1,17 @@
+From 65d396cc787f8fc21fc68e088f003f1ad7b5c623 Mon Sep 17 00:00:00 2001
+From: Fedora systemd team <systemd-maint@redhat.com>
+Date: Tue, 17 Sep 2013 11:43:55 -0500
+Subject: [PATCH] Update hwdb
+
+---
+ hwdb/20-OUI.hwdb              | 2786 ++++++++++++++++++++---
+ hwdb/20-acpi-vendor.hwdb      |    3 -
+ hwdb/20-pci-vendor-model.hwdb | 4859 ++++++++++++++++++++++++++++++++++++++---
+ hwdb/20-usb-vendor-model.hwdb |  869 +++++++-
+ hwdb/60-keyboard.hwdb         | 1087 +++++++++
+ 5 files changed, 8893 insertions(+), 711 deletions(-)
+ create mode 100644 hwdb/60-keyboard.hwdb
+
 diff --git a/hwdb/20-OUI.hwdb b/hwdb/20-OUI.hwdb
 index 72795c6..4633977 100644
 --- a/hwdb/20-OUI.hwdb
@@ -18527,11 +18541,6 @@ index 0000000..3862b4c
 + KEYBOARD_KEY_a0=!                                      # mute
 + KEYBOARD_KEY_ae=!                                      # volume down
 + KEYBOARD_KEY_b0=!                                      # volume up
-diff --git a/hwdb/Makefile b/hwdb/Makefile
-new file mode 120000
-index 0000000..bd10475
---- /dev/null
-+++ b/hwdb/Makefile
-@@ -0,0 +1 @@
-+../src/Makefile
-\ No newline at end of file
+-- 
+1.8.3.1
+
