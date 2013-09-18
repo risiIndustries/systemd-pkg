@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.7
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.8
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -99,6 +99,7 @@ Patch0055:      0055-core-execute-report-invalid-environment-variables-fr.patch
 Patch0056:      0056-fileio.c-do-not-parse-comments-after-non-whitespace-.patch
 Patch0057:      0057-fileio-unify-how-we-chop-off-whitespace-from-key-and.patch
 Patch0058:      0058-core-execute-only-clean-the-environment-if-we-have-o.patch
+Patch0059:      0059-polkit-Avoid-race-condition-in-scraping-proc.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -836,6 +837,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Wed Sep 18 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 201-2.fc18.8
+- Fix polkit authentication issue (#1006680).
+
 * Fri May 17 2013 Michal Schmidt <mschmidt@redhat.com> - 201-2.fc18.7
 - Pick fileio fixes for environment files (#964132).
 - Drop isdn.service from default preset (Lennart, #959793).
