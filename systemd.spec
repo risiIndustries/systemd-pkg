@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -70,6 +70,7 @@ Patch22:        0022-Allow-tabs-in-environment-files.patch
 Patch23:        0023-Actually-allow-tabs-in-environment-files.patch
 Patch24:        0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
 Patch25:        0025-cgtop-fixup-the-online-help.patch
+Patch26:        0026-polkit-Avoid-race-condition-in-scraping-proc.patch
 
 # git diff --src-prefix=a/ --dst-prefix=b/ v204 -- hwdb/ > systemd-hwdb.patch
 Patch99:        systemd-hwdb.patch
@@ -836,6 +837,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Wed Sep 18 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-15
+- Fix policykit authentication (#1006680).
+
 * Tue Sep 17 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-14
 - Backport the hardware database (#989103).
 - Backport two small patches.
