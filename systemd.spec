@@ -878,7 +878,7 @@ fi
 
 %changelog
 * Sun Oct 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-16
-- Backport a bunch of fixes from upstream (#1010697, #1007059, #1007150).
+- Backport a bunch of fixes from upstream (#1010697, #1007059, #1007150, #999061).
 
 * Wed Sep 18 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-15
 - Fix policykit authentication (#1006680).
