@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        16%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -71,6 +71,46 @@ Patch23:        0023-Actually-allow-tabs-in-environment-files.patch
 Patch24:        0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
 Patch25:        0025-cgtop-fixup-the-online-help.patch
 Patch26:        0026-polkit-Avoid-race-condition-in-scraping-proc.patch
+Patch27:        0027-clarify-escaping-in-Exec-lines.patch
+Patch28:        0028-udev-builtin-blkid-export-ID_PART_TABLE_UUID.patch
+Patch29:        0029-nspawn-be-less-liberal-about-creating-bind-mount-des.patch
+Patch30:        0030-fix-grammatical-error.patch
+Patch31:        0031-completion-systemctl-add-missing-list-sockets-verb.patch
+Patch32:        0032-journalctl-1-s-adm-systemd-journal.patch
+Patch33:        0033-journald-accept-EPOLLERR-from-dev-kmsg.patch
+Patch34:        0034-logind-if-a-user-is-sitting-in-front-of-the-computer.patch
+Patch35:        0035-dbus-fix-introspection-for-TimerSlackNSec.patch
+Patch36:        0036-swap-properly-expose-timeout-property-on-the-bus.patch
+Patch37:        0037-Remove-duplicated-line.patch
+Patch38:        0038-Add-a-bit-more-explicit-message-to-help-confused-use.patch
+Patch39:        0039-Fix-buffer-overrun-when-enumerating-files.patch
+Patch40:        0040-set-IgnoreOnIsolate-true-for-systemd-cryptsetup-.ser.patch
+Patch41:        0041-man-mention-the-systemd-homepage-from-systemd-1.patch
+Patch42:        0042-main-don-t-free-fds-array-twice.patch
+Patch43:        0043-smack-setup-fix-path-to-Smack-CIPSO-mappings.patch
+Patch44:        0044-util.c-ignore-pollfd.revent-for-loop_read-loop_write.patch
+Patch45:        0045-cryptsetup-fix-OOM-handling-when-parsing-mount-optio.patch
+Patch46:        0046-journald-add-missing-error-check.patch
+Patch47:        0047-dbus-fix-return-value-of-dispatch_rqueue.patch
+Patch48:        0048-modules-load-fix-error-handling.patch
+Patch49:        0049-efi-never-call-qsort-on-potentially-NULL-arrays.patch
+Patch50:        0050-strv-don-t-access-potentially-NULL-string-arrays.patch
+Patch51:        0051-execute.c-always-set-SHELL.patch
+Patch52:        0052-man-Improve-the-description-of-parameter-X-in-tmpfil.patch
+Patch53:        0053-systemd-order-remote-mounts-from-mountinfo-before-re.patch
+Patch54:        0054-manager-when-verifying-whether-clients-may-change-en.patch
+Patch55:        0055-Advertise-hibernation-only-if-there-s-enough-free-sw.patch
+Patch56:        0056-Assume-that-proc-meminfo-can-be-missing.patch
+Patch57:        0057-Use-first-partition-in-proc-swaps-for-hibernation-te.patch
+Patch58:        0058-test-fileio-assume-that-Buffers-may-be-missing.patch
+Patch59:        0059-Remove-duplicate-entries-from-syscall-list.patch
+Patch60:        0060-libudev-add-missing-global-to-symbol-export.patch
+Patch61:        0061-man-fix-description-of-sysctl.d-order.patch
+Patch62:        0062-units-make-fsck-units-remain-after-exit.patch
+Patch63:        0063-systemd-tmpfiles-setup-dev-remain-after-exit.patch
+Patch64:        0064-kmod-static-nodes-remain-after-exit.patch
+Patch65:        0065-sysctl-allow-overwriting-of-values-specified-in-late.patch
+Patch66:        0066-Restore-reading-of-etc-sysctl.conf.patch
 
 # git diff --src-prefix=a/ --dst-prefix=b/ v204 -- hwdb/ > systemd-hwdb.patch
 Patch99:        systemd-hwdb.patch
@@ -837,6 +877,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Sun Oct 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-16
+- Backport a bunch of fixes from upstream (#1010697, #1007059, #1007150).
+
 * Wed Sep 18 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-15
 - Fix policykit authentication (#1006680).
 

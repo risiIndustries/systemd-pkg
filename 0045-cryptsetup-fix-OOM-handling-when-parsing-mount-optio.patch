@@ -1,0 +1,36 @@
+From 915491b8cd7af22bad97ad3dfc5eacd4db810af1 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 2 Oct 2013 19:36:28 +0200
+Subject: [PATCH] cryptsetup: fix OOM handling when parsing mount options
+
+Conflicts:
+	src/cryptsetup/cryptsetup.c
+---
+ src/cryptsetup/cryptsetup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/cryptsetup/cryptsetup.c b/src/cryptsetup/cryptsetup.c
+index 347394d..c75b745 100644
+--- a/src/cryptsetup/cryptsetup.c
++++ b/src/cryptsetup/cryptsetup.c
+@@ -70,7 +70,7 @@ static int parse_one_option(const char *option) {
+ 
+                 t = strdup(option+7);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 free(opt_cipher);
+                 opt_cipher = t;
+@@ -101,7 +101,7 @@ static int parse_one_option(const char *option) {
+ 
+                 t = strdup(option+5);
+                 if (!t)
+-                        return -ENOMEM;
++                        return log_oom();
+ 
+                 free(opt_hash);
+                 opt_hash = t;
+-- 
+1.8.2.562.g931e949
+

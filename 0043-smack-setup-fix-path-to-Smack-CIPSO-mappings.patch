@@ -1,0 +1,28 @@
+From 40d128581e8a836cd88b82ddab794da9dde206f8 Mon Sep 17 00:00:00 2001
+From: Patrick McCarty <patrick.mccarty@linux.intel.com>
+Date: Mon, 30 Sep 2013 17:43:38 -0700
+Subject: [PATCH] smack-setup: fix path to Smack/CIPSO mappings
+
+The correct path to the dir with CIPSO mappings is /etc/smack/cipso.d/;
+/etc/smack/cipso is a file that can include these mappings as well,
+though it is no longer supported in upstream libsmack.
+---
+ src/core/smack-setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/smack-setup.c b/src/core/smack-setup.c
+index 73eeb04..d203a30 100644
+--- a/src/core/smack-setup.c
++++ b/src/core/smack-setup.c
+@@ -40,7 +40,7 @@
+ #include "label.h"
+ 
+ #define SMACK_CONFIG "/etc/smack/accesses.d/"
+-#define CIPSO_CONFIG "/etc/smack/cipso/"
++#define CIPSO_CONFIG "/etc/smack/cipso.d/"
+ 
+ static int write_rules(const char* dstpath, const char* srcdir) {
+         _cleanup_fclose_ FILE *dst = NULL;
+-- 
+1.8.2.562.g931e949
+

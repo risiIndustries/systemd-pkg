@@ -1,8 +1,8 @@
 From 59eb9113f522703d80f2904c81825e4a165bb050 Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Sat, 20 Jul 2013 14:29:12 +0200
-Subject: [PATCH 11/26] rules: drivers - always call kmod, even when a driver
- is bound to the device
+Subject: [PATCH] rules: drivers - always call kmod, even when a driver is
+ bound to the device
 
 On Sat, Jul 20, 2013 at 12:56 PM, Rafael J. Wysocki <rjw@sisk.pl> wrote:
 > After a recent change present in 3.11-rc1 there is a driver, called processor,
@@ -38,5 +38,5 @@ index 50523e4..0b22d73 100644
  SUBSYSTEM=="tifm", ENV{TIFM_CARD_TYPE}=="MS", RUN{builtin}="kmod load tifm_ms"
  SUBSYSTEM=="memstick", RUN{builtin}="kmod load ms_block mspro_block"
 -- 
-1.8.3.1
+1.8.2.562.g931e949
 

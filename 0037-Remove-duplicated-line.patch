@@ -1,0 +1,26 @@
+From 3a6e57e5d611bc44521df25669f07de5e6e3f073 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 27 Sep 2013 07:58:57 +0200
+Subject: [PATCH] Remove duplicated line
+
+Conflicts:
+	src/core/load-fragment.c
+---
+ src/journal/journald-server.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index 6c03a0d..8a9957c 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -1190,7 +1190,6 @@ int process_event(Server *s, struct epoll_event *ev) {
+                 if ((ev->events|EPOLLIN|EPOLLHUP) != (EPOLLIN|EPOLLHUP)) {
+                         log_error("Got invalid event from epoll for %s: %"PRIx32,
+                                   "stdout stream", ev->events);
+-                        log_error("Got invalid event from epoll.");
+                         return -EIO;
+                 }
+ 
+-- 
+1.8.2.562.g931e949
+

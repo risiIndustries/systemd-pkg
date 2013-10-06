@@ -1,0 +1,25 @@
+From c3576f997b898b4374f4f05a829c2b5c3809b6d7 Mon Sep 17 00:00:00 2001
+From: Dave Reisner <dreisner@archlinux.org>
+Date: Thu, 19 Sep 2013 14:55:35 -0400
+Subject: [PATCH] fix grammatical error
+
+---
+ src/nspawn/nspawn.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index 33aaf14..847ad88 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -432,7 +432,7 @@ static int mount_binds(const char *dest, char **l, unsigned long flags) {
+ 
+                 if (stat(where, &dest_st) == 0) {
+                         if ((source_st.st_mode & S_IFMT) != (dest_st.st_mode & S_IFMT)) {
+-                                log_error("The file types of %s and %s do not matching. Refusing bind mount",
++                                log_error("The file types of %s and %s do not match. Refusing bind mount",
+                                                 *x, where);
+                                 return -EINVAL;
+                         }
+-- 
+1.8.2.562.g931e949
+

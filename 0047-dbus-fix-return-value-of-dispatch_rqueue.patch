@@ -1,0 +1,30 @@
+From 5625c498c41fbc4ae0f7861a98a2eef834ce4f8c Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 2 Oct 2013 19:37:30 +0200
+Subject: [PATCH] dbus: fix return value of dispatch_rqueue()
+
+---
+ src/libsystemd-bus/sd-bus.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/libsystemd-bus/sd-bus.c b/src/libsystemd-bus/sd-bus.c
+index 7d6d848..b0eb2f1 100644
+--- a/src/libsystemd-bus/sd-bus.c
++++ b/src/libsystemd-bus/sd-bus.c
+@@ -1088,11 +1088,11 @@ static int dispatch_rqueue(sd_bus *bus, sd_bus_message **m) {
+                 if (r == 0)
+                         return ret;
+ 
+-                r = 1;
++                ret = 1;
+         } while (!z);
+ 
+         *m = z;
+-        return 1;
++        return ret;
+ }
+ 
+ int sd_bus_send(sd_bus *bus, sd_bus_message *m, uint64_t *serial) {
+-- 
+1.8.2.562.g931e949
+

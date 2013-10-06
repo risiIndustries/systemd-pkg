@@ -1,7 +1,7 @@
 From 5ca24e3f6deaba05049e4b0e4d8cea8a31f9eea0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 26 Jul 2013 12:57:33 -0400
-Subject: [PATCH 17/26] journal: fix parsing of facility in syslog messages
+Subject: [PATCH] journal: fix parsing of facility in syslog messages
 
 In 49998b383 (journald: do not overwrite syslog facility when
 parsing priority) journald started ignoring facility part when
@@ -85,5 +85,5 @@ index 324b70e..8ccdb77 100644
  
  void server_forward_syslog(Server *s, int priority, const char *identifier, const char *message, struct ucred *ucred, struct timeval *tv);
 -- 
-1.8.3.1
+1.8.2.562.g931e949
 

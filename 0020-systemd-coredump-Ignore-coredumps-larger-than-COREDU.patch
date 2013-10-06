@@ -1,8 +1,7 @@
 From 27b1a19a3c1c42a3af0d3970ca5b5cb5b24c7254 Mon Sep 17 00:00:00 2001
 From: Andrew Cook <ariscop@gmail.com>
 Date: Wed, 4 Sep 2013 23:27:40 +1000
-Subject: [PATCH 20/26] systemd-coredump: Ignore coredumps larger than
- COREDUMP_MAX
+Subject: [PATCH] systemd-coredump: Ignore coredumps larger than COREDUMP_MAX
 
 Currently this check happens when the coredump has been collected in
 it's entirety and being received by journald. this is not ideal
@@ -40,5 +39,5 @@ index fd03e38..a7d3c34 100644
                          r = log_oom();
                          goto finish;
 -- 
-1.8.3.1
+1.8.2.562.g931e949
 

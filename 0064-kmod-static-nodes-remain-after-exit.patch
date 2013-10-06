@@ -1,0 +1,25 @@
+From 3bb6a0541b448e4b5d59c91d5c85f72709043a98 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Mon, 22 Jul 2013 17:10:15 +0200
+Subject: [PATCH] kmod-static-nodes: remain after exit
+
+Conflicts:
+	units/systemd-random-seed-save.service.in
+---
+ units/systemd-tmpfiles-setup-dev.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/units/systemd-tmpfiles-setup-dev.service.in b/units/systemd-tmpfiles-setup-dev.service.in
+index 0a814f0..764da01 100644
+--- a/units/systemd-tmpfiles-setup-dev.service.in
++++ b/units/systemd-tmpfiles-setup-dev.service.in
+@@ -14,5 +14,5 @@ ConditionCapability=CAP_MKNOD
+ 
+ [Service]
+ Type=oneshot
+-RemainAfterExit=true
++RemainAfterExit=yes
+ ExecStart=@rootbindir@/systemd-tmpfiles --prefix=/dev --create
+-- 
+1.8.2.562.g931e949
+

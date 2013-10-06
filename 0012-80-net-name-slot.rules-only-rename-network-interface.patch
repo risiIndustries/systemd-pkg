@@ -1,8 +1,8 @@
 From 33e3e7fbcce582c26604d997df89e71908ac7999 Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Thu, 1 Aug 2013 12:31:38 +0200
-Subject: [PATCH 12/26] 80-net-name-slot.rules: only rename network interfaces
- on ACTION=="add"
+Subject: [PATCH] 80-net-name-slot.rules: only rename network interfaces on
+ ACTION=="add"
 
 Otherwise systemd-udevd will rename on "change" and "move" events,
 resulting in weird renames in combination with biosdevname
@@ -38,5 +38,5 @@ index 15b5bc4..c5f1b38 100644
  NAME!="", GOTO="net_name_slot_end"
  
 -- 
-1.8.3.1
+1.8.2.562.g931e949
 

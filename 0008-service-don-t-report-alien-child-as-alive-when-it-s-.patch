@@ -1,8 +1,7 @@
 From 184c94de2cd85228b729dac1fb5f59453cfbbbed Mon Sep 17 00:00:00 2001
 From: Ross Lagerwall <rosslagerwall@gmail.com>
 Date: Sun, 9 Jun 2013 17:28:44 +0100
-Subject: [PATCH 08/26] service: don't report alien child as alive when it's
- not
+Subject: [PATCH] service: don't report alien child as alive when it's not
 
 When a sigchld is received from an alien child, main_pid is set to
 0 then service_enter_running calls main_pid_good to check if the
@@ -29,5 +28,5 @@ index e110a41..973bd03 100644
  
                  /* .. otherwise assume we'll get a SIGCHLD for it,
 -- 
-1.8.3.1
+1.8.2.562.g931e949
 

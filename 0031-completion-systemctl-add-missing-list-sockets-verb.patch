@@ -1,0 +1,41 @@
+From 995cdebf10e2ec67f4bdfcc154661931192e9290 Mon Sep 17 00:00:00 2001
+From: Dave Reisner <dreisner@archlinux.org>
+Date: Thu, 19 Sep 2013 18:00:36 -0400
+Subject: [PATCH] completion/systemctl: add missing list-sockets verb
+
+Conflicts:
+	shell-completion/bash/systemctl
+	shell-completion/zsh/_systemctl
+---
+ shell-completion/bash/systemctl             | 2 +-
+ shell-completion/systemd-zsh-completion.zsh | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/shell-completion/bash/systemctl b/shell-completion/bash/systemctl
+index 191b8d1..f1ec99b 100644
+--- a/shell-completion/bash/systemctl
++++ b/shell-completion/bash/systemctl
+@@ -133,7 +133,7 @@ _systemctl () {
+                      [ENVS]='set-environment unset-environment'
+                [STANDALONE]='daemon-reexec daemon-reload default dump
+                              emergency exit halt hibernate hybrid-sleep kexec list-jobs
+-                             list-units list-unit-files poweroff reboot rescue
++                             list-sockets list-units list-unit-files poweroff reboot rescue
+                              show-environment suspend'
+                      [NAME]='snapshot load'
+                      [FILE]='link'
+diff --git a/shell-completion/systemd-zsh-completion.zsh b/shell-completion/systemd-zsh-completion.zsh
+index 411646e..ff15da6 100644
+--- a/shell-completion/systemd-zsh-completion.zsh
++++ b/shell-completion/systemd-zsh-completion.zsh
+@@ -328,6 +328,7 @@ _outputmodes() {
+ {
+   local -a _systemctl_cmds
+   _systemctl_cmds=(
++    "list-sockets:List sockets"
+     "list-units:List units"
+     "start:Start (activate) one or more units"
+     "stop:Stop (deactivate) one or more units"
+-- 
+1.8.2.562.g931e949
+

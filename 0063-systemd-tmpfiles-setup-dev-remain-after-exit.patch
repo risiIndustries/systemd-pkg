@@ -1,0 +1,25 @@
+From f2c76cb8c04a4123c6ff76609ea808bcec28b2a4 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Mon, 22 Jul 2013 16:59:26 +0200
+Subject: [PATCH] systemd-tmpfiles-setup-dev: remain after exit
+
+Without this, tmpfiles-setpu-dev  would be re-run if any other service,
+which pulls in basic.target, was started after setup-dev was finished
+and before basic.target was active.
+---
+ units/systemd-tmpfiles-setup-dev.service.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/units/systemd-tmpfiles-setup-dev.service.in b/units/systemd-tmpfiles-setup-dev.service.in
+index f029285..0a814f0 100644
+--- a/units/systemd-tmpfiles-setup-dev.service.in
++++ b/units/systemd-tmpfiles-setup-dev.service.in
+@@ -14,4 +14,5 @@ ConditionCapability=CAP_MKNOD
+ 
+ [Service]
+ Type=oneshot
++RemainAfterExit=true
+ ExecStart=@rootbindir@/systemd-tmpfiles --prefix=/dev --create
+-- 
+1.8.2.562.g931e949
+

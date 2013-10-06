@@ -1,0 +1,24 @@
+From 5c6fa27f02690457f0865bfe31e8c3b5ffdee39c Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 1 Oct 2013 00:06:48 +0200
+Subject: [PATCH] main: don't free fds array twice
+
+---
+ src/core/main.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index 7fc06be..954b480 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -1650,6 +1650,7 @@ int main(int argc, char *argv[]) {
+         /* This will close all file descriptors that were opened, but
+          * not claimed by any unit. */
+         fdset_free(fds);
++        fds = NULL;
+ 
+         if (serialization) {
+                 fclose(serialization);
+-- 
+1.8.2.562.g931e949
+

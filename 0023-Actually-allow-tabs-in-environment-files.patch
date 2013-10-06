@@ -1,7 +1,7 @@
 From f3e54e0678ed5cf42ce21ef83cf4640889db1f5d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 12 Sep 2013 10:03:16 -0400
-Subject: [PATCH 23/26] Actually allow tabs in environment files
+Subject: [PATCH] Actually allow tabs in environment files
 
 Fixup for ac4c8d6da8b5e.
 ---
@@ -22,5 +22,5 @@ index 113133f..c9e9b87 100644
  
          return false;
 -- 
-1.8.3.1
+1.8.2.562.g931e949
 

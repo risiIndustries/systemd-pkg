@@ -1,0 +1,72 @@
+From 1691769c56255ce939fea32f83845d4862d7b198 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 19 Sep 2013 16:57:57 -0500
+Subject: [PATCH] journald: accept EPOLLERR from /dev/kmsg
+
+Also print out unexpected epoll events explictly.
+---
+ src/journal/journald-server.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index 5813699..6c03a0d 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -977,7 +977,8 @@ int process_event(Server *s, struct epoll_event *ev) {
+                 ssize_t n;
+ 
+                 if (ev->events != EPOLLIN) {
+-                        log_error("Got invalid event from epoll.");
++                        log_error("Got invalid event from epoll for %s: %"PRIx32,
++                                  "signal fd", ev->events);
+                         return -EIO;
+                 }
+ 
+@@ -1026,8 +1027,12 @@ int process_event(Server *s, struct epoll_event *ev) {
+         } else if (ev->data.fd == s->dev_kmsg_fd) {
+                 int r;
+ 
+-                if (ev->events != EPOLLIN) {
+-                        log_error("Got invalid event from epoll.");
++                if (ev->events & EPOLLERR)
++                        log_warning("/dev/kmsg buffer overrun, some messages lost.");
++
++                if (!(ev->events & EPOLLIN)) {
++                        log_error("Got invalid event from epoll for %s: %"PRIx32,
++                                  "/dev/kmsg", ev->events);
+                         return -EIO;
+                 }
+ 
+@@ -1041,7 +1046,9 @@ int process_event(Server *s, struct epoll_event *ev) {
+                    ev->data.fd == s->syslog_fd) {
+ 
+                 if (ev->events != EPOLLIN) {
+-                        log_error("Got invalid event from epoll.");
++                        log_error("Got invalid event from epoll for %s: %"PRIx32,
++                                  ev->data.fd == s->native_fd ? "native fd" : "syslog fd",
++                                  ev->events);
+                         return -EIO;
+                 }
+ 
+@@ -1169,7 +1176,8 @@ int process_event(Server *s, struct epoll_event *ev) {
+         } else if (ev->data.fd == s->stdout_fd) {
+ 
+                 if (ev->events != EPOLLIN) {
+-                        log_error("Got invalid event from epoll.");
++                        log_error("Got invalid event from epoll for %s: %"PRIx32,
++                                  "stdout fd", ev->events);
+                         return -EIO;
+                 }
+ 
+@@ -1180,6 +1188,8 @@ int process_event(Server *s, struct epoll_event *ev) {
+                 StdoutStream *stream;
+ 
+                 if ((ev->events|EPOLLIN|EPOLLHUP) != (EPOLLIN|EPOLLHUP)) {
++                        log_error("Got invalid event from epoll for %s: %"PRIx32,
++                                  "stdout stream", ev->events);
+                         log_error("Got invalid event from epoll.");
+                         return -EIO;
+                 }
+-- 
+1.8.2.562.g931e949
+

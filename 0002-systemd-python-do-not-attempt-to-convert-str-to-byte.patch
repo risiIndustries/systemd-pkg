@@ -1,7 +1,7 @@
 From 67cbbab20c41dd3a7908bc9e50f56ce3ee607bf7 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 16 May 2013 00:38:39 -0400
-Subject: [PATCH 02/26] systemd-python: do not attempt to convert str to bytes
+Subject: [PATCH] systemd-python: do not attempt to convert str to bytes
 
 Bug-spotted-by: Steven Hiscocks <steven-systemd@hiscocks.me.uk>
 ---
@@ -31,5 +31,5 @@ index 9ef1ede..8fd1bb3 100644
      'COREDUMP_PID': int,
      'COREDUMP_UID': int,
 -- 
-1.8.3.1
+1.8.2.562.g931e949
 

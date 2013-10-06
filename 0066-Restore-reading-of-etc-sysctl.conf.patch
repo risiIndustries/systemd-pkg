@@ -1,0 +1,38 @@
+From 52f92901cc76ea38549549083a153a5c79910732 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 6 Oct 2013 11:33:15 -0400
+Subject: [PATCH] Restore reading of /etc/sysctl.conf
+
+---
+ src/sysctl/sysctl.c             | 2 ++
+ units/systemd-sysctl.service.in | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/src/sysctl/sysctl.c b/src/sysctl/sysctl.c
+index b5670db..c0cce49 100644
+--- a/src/sysctl/sysctl.c
++++ b/src/sysctl/sysctl.c
+@@ -306,6 +306,8 @@ int main(int argc, char *argv[]) {
+                         goto finish;
+                 }
+ 
++                r = parse_file(sysctl_options, "/etc/sysctl.conf", true);
++
+                 STRV_FOREACH(f, files) {
+                         k = parse_file(sysctl_options, *f, true);
+                         if (k < 0 && r == 0)
+diff --git a/units/systemd-sysctl.service.in b/units/systemd-sysctl.service.in
+index 5baf22c..45e1ceb 100644
+--- a/units/systemd-sysctl.service.in
++++ b/units/systemd-sysctl.service.in
+@@ -13,6 +13,7 @@ Conflicts=shutdown.target
+ After=systemd-readahead-collect.service systemd-readahead-replay.service
+ Before=sysinit.target shutdown.target
+ ConditionPathIsReadWrite=/proc/sys/
++ConditionPathExists=|/etc/sysctl.conf
+ ConditionDirectoryNotEmpty=|/lib/sysctl.d
+ ConditionDirectoryNotEmpty=|/usr/lib/sysctl.d
+ ConditionDirectoryNotEmpty=|/usr/local/lib/sysctl.d
+-- 
+1.8.2.562.g931e949
+

@@ -1,0 +1,27 @@
+From a66b28a7b7936ba34dde7c45bc9e0e4302c624f0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 15 Sep 2013 10:35:51 -0400
+Subject: [PATCH] Remove duplicate entries from syscall list
+
+ARM syscall list includes SYS_OABI_SYSCALL_BASE and SYS_SYSCALL_BASE
+which were obsuring real syscall names.
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 3a196a6..82010a5 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1000,7 +1000,7 @@ BUILT_SOURCES += \
+ 
+ src/core/syscall-list.txt: Makefile
+ 	$(AM_V_at)$(MKDIR_P) $(dir $@)
+-	$(AM_V_GEN)$(CPP) $(CFLAGS) $(AM_CPPFLAGS) $(CPPFLAGS) -dM -include sys/syscall.h - < /dev/null | $(AWK) '/^#define[ \t]+__NR_[^ ]+[ \t]+[0-9(]/ { sub(/__NR_/, "", $$2); print $$2; }' > $@
++	$(AM_V_GEN)$(CPP) $(CFLAGS) $(AM_CPPFLAGS) $(CPPFLAGS) -dM -include sys/syscall.h - < /dev/null | $(AWK) '/^#define[ \t]+__NR_[^ ]+[ \t]+[0-9(]/ { sub(/__NR_/, "", $$2); if ($$2 !~ /SYSCALL_BASE/) print $$2; }' > $@
+ 
+ src/core/syscall-from-name.gperf: src/core/syscall-list.txt Makefile
+ 	$(AM_V_at)$(MKDIR_P) $(dir $@)
+-- 
+1.8.2.562.g931e949
+
