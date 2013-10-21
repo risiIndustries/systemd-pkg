@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        16%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        17%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -111,6 +111,29 @@ Patch63:        0063-systemd-tmpfiles-setup-dev-remain-after-exit.patch
 Patch64:        0064-kmod-static-nodes-remain-after-exit.patch
 Patch65:        0065-sysctl-allow-overwriting-of-values-specified-in-late.patch
 Patch66:        0066-Restore-reading-of-etc-sysctl.conf.patch
+Patch69:        0067-mount-when-learning-about-the-root-mount-from-mounti.patch
+Patch70:        0068-core-mount.c-mount_dump-don-t-segfault-if-mount-is-n.patch
+Patch71:        0069-systemd-serialize-deserialize-forbid_restart-value.patch
+Patch72:        0070-core-unify-the-way-we-denote-serialization-attribute.patch
+Patch73:        0071-journal-vacuum-cleanup.patch
+Patch74:        0072-journald-always-vacuum-empty-offline-files.patch
+Patch75:        0073-journald-fix-vacuuming-of-archived-journals.patch
+Patch76:        0074-journald-fix-fd-leak-in-journal_file_empty.patch
+Patch77:        0075-journald-be-a-bit-more-verbose-when-vacuuming.patch
+Patch78:        0076-journald-fix-minor-memory-leak.patch
+Patch79:        0077-journald-remove-rotated-file-from-hashmap-when-rotat.patch
+Patch80:        0078-udevadm.xml-document-resolve-names-option-for-test.patch
+Patch81:        0079-dbus-common-avoid-leak-in-error-path.patch
+Patch82:        0080-drop-ins-check-return-value.patch
+Patch83:        0081-man-add-more-markup-to-udevadm-8.patch
+Patch84:        0082-Fix-for-SIGSEGV-in-systemd-bootchart-on-short-living.patch
+Patch85:        0083-man-document-the-b-special-boot-option.patch
+Patch86:        0084-rules-expose-loop-block-devices-to-systemd.patch
+Patch87:        0085-rules-don-t-limit-some-of-the-rules-to-the-add-actio.patch
+Patch88:        0086-tmpfiles-log-unaccessible-FUSE-mount-points-only-as-.patch
+Patch89:        0087-rules-remove-pointless-MODE-settings.patch
+Patch90:        0088-shell-completion-dump-has-moved-to-systemd-analyze.patch
+Patch91:        0089-give-priority-to-etc-sysctl.conf.patch
 
 # git diff --src-prefix=a/ --dst-prefix=b/ v204 -- hwdb/ > systemd-hwdb.patch
 Patch99:        systemd-hwdb.patch
@@ -877,6 +900,11 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Mon Oct 21 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-17
+- Fix sysctl ordering issue introduced in previous update (#1017473).
+- Backport a bunch of fixes from upstream (#890463, #994268, #1017375, #880709).
+- Backport hwdb updates.
+
 * Sun Oct 06 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-16
 - Backport a bunch of fixes from upstream (#1010697, #1007059, #1007150, #999061).
 

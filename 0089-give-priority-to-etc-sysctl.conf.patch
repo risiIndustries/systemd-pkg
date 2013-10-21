@@ -1,0 +1,34 @@
+From 9933e0406fd8b9e848e4471043c705e837cdd94a Mon Sep 17 00:00:00 2001
+From: "Andrew J. Schorr" <aschorr@telemetry-investments.com>
+Date: Mon, 21 Oct 2013 17:45:18 -0400
+Subject: [PATCH] give priority to /etc/sysctl.conf
+
+---
+ src/sysctl/sysctl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/sysctl/sysctl.c b/src/sysctl/sysctl.c
+index c0cce49..783c610 100644
+--- a/src/sysctl/sysctl.c
++++ b/src/sysctl/sysctl.c
+@@ -306,13 +306,15 @@ int main(int argc, char *argv[]) {
+                         goto finish;
+                 }
+ 
+-                r = parse_file(sysctl_options, "/etc/sysctl.conf", true);
+-
+                 STRV_FOREACH(f, files) {
+                         k = parse_file(sysctl_options, *f, true);
+                         if (k < 0 && r == 0)
+                                 r = k;
+                 }
++
++                k = parse_file(sysctl_options, "/etc/sysctl.conf", true);
++		if (k < 0 && r == 0)
++			r = k;
+         }
+ 
+         k = apply_all(sysctl_options);
+-- 
+1.8.3.1
+

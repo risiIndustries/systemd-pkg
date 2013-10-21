@@ -1,0 +1,37 @@
+From 51ef0647f64a5a232d75b9e2eb54365f40593915 Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Tue, 15 Oct 2013 08:58:50 +0200
+Subject: [PATCH] man: document the -b special boot option
+
+---
+ man/kernel-command-line.xml | 1 +
+ man/systemd.xml             | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/man/kernel-command-line.xml b/man/kernel-command-line.xml
+index 6d064f6..d8fa29d 100644
+--- a/man/kernel-command-line.xml
++++ b/man/kernel-command-line.xml
+@@ -111,6 +111,7 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
++                                <term><varname>-b</varname></term>
+                                 <term><varname>emergency</varname></term>
+                                 <term><varname>single</varname></term>
+                                 <term><varname>s</varname></term>
+diff --git a/man/systemd.xml b/man/systemd.xml
+index 8b03417..a46f39d 100644
+--- a/man/systemd.xml
++++ b/man/systemd.xml
+@@ -1127,6 +1127,7 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
++                                <term><varname>-b</varname></term>
+                                 <term><varname>emergency</varname></term>
+ 
+                                 <listitem><para>Boot into emergency
+-- 
+1.8.3.1
+

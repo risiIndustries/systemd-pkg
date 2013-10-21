@@ -1,0 +1,32 @@
+From a2ead3ec681171cf1f5a29538d1effa68ec2c6e9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 11 Oct 2013 19:33:36 -0400
+Subject: [PATCH] drop-ins: check return value
+
+If the function failed, nothing serious would happen
+because unlink would probably return EFAULT, but this
+would obscure the real error and is a bit sloppy.
+
+Conflicts:
+	src/core/unit.c
+---
+ src/core/unit.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 9b36b22..e744cd3 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -2964,6 +2964,9 @@ int unit_remove_drop_in(Unit *u, bool runtime, const char *name) {
+         assert(u);
+ 
+         r = drop_in_file(u, runtime, name, &p, &q);
++        if (r < 0)
++                return r;
++
+         if (unlink(q) < 0)
+                 r = -errno;
+         else
+-- 
+1.8.3.1
+

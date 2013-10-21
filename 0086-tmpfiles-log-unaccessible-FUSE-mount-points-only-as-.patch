@@ -1,0 +1,37 @@
+From 354db87b46a4d7332486697745f16cf0933c21dc Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Thu, 17 Oct 2013 03:20:46 +0200
+Subject: [PATCH] tmpfiles: log unaccessible FUSE mount points only as debug
+ message
+
+---
+ src/tmpfiles/tmpfiles.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/src/tmpfiles/tmpfiles.c b/src/tmpfiles/tmpfiles.c
+index f4885ec..5822171 100644
+--- a/src/tmpfiles/tmpfiles.c
++++ b/src/tmpfiles/tmpfiles.c
+@@ -272,12 +272,15 @@ static int dir_cleanup(
+                         continue;
+ 
+                 if (fstatat(dirfd(d), dent->d_name, &s, AT_SYMLINK_NOFOLLOW) < 0) {
++                        if (errno == ENOENT)
++                                continue;
+ 
+-                        if (errno != ENOENT) {
++                        /* FUSE, NFS mounts, SELinux might return EACCES */
++                        if (errno == EACCES)
++                                log_debug("stat(%s/%s) failed: %m", p, dent->d_name);
++                        else
+                                 log_error("stat(%s/%s) failed: %m", p, dent->d_name);
+-                                r = -errno;
+-                        }
+-
++                        r = -errno;
+                         continue;
+                 }
+ 
+-- 
+1.8.3.1
+

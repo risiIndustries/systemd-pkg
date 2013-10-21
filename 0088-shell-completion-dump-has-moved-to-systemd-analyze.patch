@@ -1,0 +1,83 @@
+From f1ba71e2ef49d3e45f1a6246aa3c4b9535a18b2f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 21 Oct 2013 14:38:38 -0400
+Subject: [PATCH] shell-completion: dump has moved to systemd-analyze
+
+Rename NO_OPTION to STANDALONE for consistency with other files.
+
+Conflicts:
+	shell-completion/zsh/_systemctl
+	shell-completion/zsh/_systemd-analyze
+---
+ shell-completion/bash/systemctl             | 2 +-
+ shell-completion/bash/systemd-analyze       | 4 ++--
+ shell-completion/systemd-zsh-completion.zsh | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/shell-completion/bash/systemctl b/shell-completion/bash/systemctl
+index f1ec99b..2990482 100644
+--- a/shell-completion/bash/systemctl
++++ b/shell-completion/bash/systemctl
+@@ -131,7 +131,7 @@ _systemctl () {
+                      [JOBS]='cancel'
+                 [SNAPSHOTS]='delete'
+                      [ENVS]='set-environment unset-environment'
+-               [STANDALONE]='daemon-reexec daemon-reload default dump
++               [STANDALONE]='daemon-reexec daemon-reload default
+                              emergency exit halt hibernate hybrid-sleep kexec list-jobs
+                              list-sockets list-units list-unit-files poweroff reboot rescue
+                              show-environment suspend'
+diff --git a/shell-completion/bash/systemd-analyze b/shell-completion/bash/systemd-analyze
+index 11276ef..e442ce5 100644
+--- a/shell-completion/bash/systemd-analyze
++++ b/shell-completion/bash/systemd-analyze
+@@ -30,7 +30,7 @@ _systemd_analyze() {
+         local OPTS='--help --version --system --user --from-pattern --to-pattern --order --require'
+ 
+         local -A VERBS=(
+-                [NO_OPTION]='time blame plot'
++                [STANDALONE]='time blame plot dump'
+                 [CRITICAL_CHAIN]='critical-chain'
+                 [DOT]='dot'
+         )
+@@ -53,7 +53,7 @@ _systemd_analyze() {
+         if [[ -z $verb ]]; then
+                 comps=${VERBS[*]}
+ 
+-        elif __contains_word "$verb" ${VERBS[NO_OPTION]}; then
++        elif __contains_word "$verb" ${VERBS[STANDALONE]}; then
+                 if [[ $cur = -* ]]; then
+                         comps='--help --version --system --user'
+                 fi
+diff --git a/shell-completion/systemd-zsh-completion.zsh b/shell-completion/systemd-zsh-completion.zsh
+index ff15da6..db8ca1e 100644
+--- a/shell-completion/systemd-zsh-completion.zsh
++++ b/shell-completion/systemd-zsh-completion.zsh
+@@ -301,6 +301,7 @@ _systemd_analyze_command(){
+         'critical-chain:Print a tree of the time critical chain of units'
+         'plot:Output SVG graphic showing service initialization'
+         'dot:Dump dependency graph (in dot(1) format)'
++        'dump:Dump server status'
+     )
+ 
+     if (( CURRENT == 1 )); then
+@@ -362,7 +363,6 @@ _outputmodes() {
+     "is-enabled:Check whether unit files are enabled"
+     "list-jobs:List jobs"
+     "cancel:Cancel all, one, or more jobs"
+-    "dump:Dump server status"
+     "snapshot:Create a snapshot"
+     "delete:Remove one or more snapshots"
+     "show-environment:Dump environment"
+@@ -588,7 +588,7 @@ done
+ (( $+functions[_systemctl_link] )) || _systemctl_link() { _files }
+ 
+ # no systemctl completion for:
+-#    [STANDALONE]='daemon-reexec daemon-reload default dump
++#    [STANDALONE]='daemon-reexec daemon-reload default
+ #                  emergency exit halt kexec list-jobs list-units
+ #                  list-unit-files poweroff reboot rescue show-environment'
+ #         [NAME]='snapshot load'
+-- 
+1.8.3.1
+

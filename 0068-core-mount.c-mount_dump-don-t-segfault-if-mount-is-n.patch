@@ -1,0 +1,34 @@
+From 659773964a8e0b00e24f465b3b3a1fa6ca3bf54a Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Thu, 4 Jul 2013 11:01:47 +0200
+Subject: [PATCH] core/mount.c:mount_dump(): don't segfault, if mount is not
+ mounted anymore
+
+Don't segfault, if m->from_proc_self_mountinfo and m->from_fragment is
+false.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=957783#c9
+---
+ src/core/mount.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 605c56d..85f5000 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -820,9 +820,9 @@ static void mount_dump(Unit *u, FILE *f, const char *prefix) {
+                 prefix, mount_state_to_string(m->state),
+                 prefix, mount_result_to_string(m->result),
+                 prefix, m->where,
+-                prefix, strna(p->what),
+-                prefix, strna(p->fstype),
+-                prefix, strna(p->options),
++                prefix, p ? strna(p->what) : "n/a",
++                prefix, p ? strna(p->fstype) : "n/a",
++                prefix, p ? strna(p->options) : "n/a",
+                 prefix, yes_no(m->from_proc_self_mountinfo),
+                 prefix, yes_no(m->from_fragment),
+                 prefix, m->directory_mode);
+-- 
+1.8.3.1
+
