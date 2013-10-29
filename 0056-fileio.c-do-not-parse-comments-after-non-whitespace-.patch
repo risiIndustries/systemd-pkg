@@ -1,4 +1,4 @@
-From a422a32de4fa85c5cdbd20a8be0c963e4904cb7a Mon Sep 17 00:00:00 2001
+From fe5db02576a5ee267910679c8e330addcc77bea9 Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Thu, 18 Apr 2013 10:15:25 +0200
 Subject: [PATCH] fileio.c: do not parse comments after non-whitespace chars

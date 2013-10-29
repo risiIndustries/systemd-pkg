@@ -1,0 +1,101 @@
+From 93dcf370240827f847077941e24a165e3882d012 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 6 Jun 2013 22:28:05 -0400
+Subject: [PATCH] journal: remember last direction of search and keep offset
+ cache
+
+The fields in JournalFile are moved around to avoid wasting
+7 bytes because of alignment.
+
+Conflicts:
+	TODO
+---
+ src/journal/journal-file.h | 18 +++++++++++-------
+ src/journal/sd-journal.c   |  8 +++++---
+ 2 files changed, 16 insertions(+), 10 deletions(-)
+
+diff --git a/src/journal/journal-file.h b/src/journal/journal-file.h
+index 0eab501..aeaaa90 100644
+--- a/src/journal/journal-file.h
++++ b/src/journal/journal-file.h
+@@ -42,10 +42,14 @@ typedef struct JournalMetrics {
+         uint64_t keep_free;
+ } JournalMetrics;
+ 
++typedef enum direction {
++        DIRECTION_UP,
++        DIRECTION_DOWN
++} direction_t;
++
+ typedef struct JournalFile {
+         int fd;
+-        char *path;
+-        struct stat last_stat;
++
+         mode_t mode;
+ 
+         int flags;
+@@ -56,6 +60,11 @@ typedef struct JournalFile {
+ 
+         bool tail_entry_monotonic_valid;
+ 
++        direction_t last_direction;
++
++        char *path;
++        struct stat last_stat;
++
+         Header *header;
+         HashItem *data_hash_table;
+         HashItem *field_hash_table;
+@@ -90,11 +99,6 @@ typedef struct JournalFile {
+ #endif
+ } JournalFile;
+ 
+-typedef enum direction {
+-        DIRECTION_UP,
+-        DIRECTION_DOWN
+-} direction_t;
+-
+ int journal_file_open(
+                 const char *fname,
+                 int flags,
+diff --git a/src/journal/sd-journal.c b/src/journal/sd-journal.c
+index 7e06a70..30042e4 100644
+--- a/src/journal/sd-journal.c
++++ b/src/journal/sd-journal.c
+@@ -101,7 +101,8 @@ static void init_location(Location *l, LocationType type, JournalFile *f, Object
+         l->seqnum_set = l->realtime_set = l->monotonic_set = l->xor_hash_set = true;
+ }
+ 
+-static void set_location(sd_journal *j, LocationType type, JournalFile *f, Object *o, uint64_t offset) {
++static void set_location(sd_journal *j, LocationType type, JournalFile *f, Object *o,
++                         direction_t direction, uint64_t offset) {
+         assert(j);
+         assert(type == LOCATION_DISCRETE || type == LOCATION_SEEK);
+         assert(f);
+@@ -112,6 +113,7 @@ static void set_location(sd_journal *j, LocationType type, JournalFile *f, Objec
+         j->current_file = f;
+         j->current_field = 0;
+ 
++        f->last_direction = direction;
+         f->current_offset = offset;
+ }
+ 
+@@ -797,7 +799,7 @@ static int next_beyond_location(sd_journal *j, JournalFile *f, direction_t direc
+         assert(j);
+         assert(f);
+ 
+-        if (f->current_offset > 0) {
++        if (f->last_direction == direction && f->current_offset > 0) {
+                 cp = f->current_offset;
+ 
+                 r = journal_file_move_to_object(f, OBJECT_ENTRY, cp, &c);
+@@ -894,7 +896,7 @@ static int real_journal_next(sd_journal *j, direction_t direction) {
+         if (r < 0)
+                 return r;
+ 
+-        set_location(j, LOCATION_DISCRETE, new_file, o, new_offset);
++        set_location(j, LOCATION_DISCRETE, new_file, o, direction, new_offset);
+ 
+         return 1;
+ }

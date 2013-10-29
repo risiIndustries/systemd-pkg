@@ -1,0 +1,137 @@
+From 79271854cc4e16f5a252356c0206d5df6e8b9859 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 10 Sep 2013 08:20:24 -0400
+Subject: [PATCH] journald: be a bit more verbose when vacuuming
+
+Vacuuming behaviour is a bit confusing, and/or we have some bugs,
+so those additional messages should help to find out what's going
+on. Also, rotation of journal files shouldn't be happening too
+often, so the level of the messages is bumped to info, so that
+they'll be logged under normal operation.
+
+Conflicts:
+	src/journal/journalctl.c
+---
+ src/initctl/initctl.c         | 10 ++++++----
+ src/journal/journal-vacuum.c  | 20 ++++++++++++++------
+ src/journal/journalctl.c      |  2 +-
+ src/journal/journald-server.c |  4 ++++
+ 4 files changed, 25 insertions(+), 11 deletions(-)
+
+diff --git a/src/initctl/initctl.c b/src/initctl/initctl.c
+index 735f1e1..afdad5e 100644
+--- a/src/initctl/initctl.c
++++ b/src/initctl/initctl.c
+@@ -223,8 +223,10 @@ static int fifo_process(Fifo *f) {
+         assert(f);
+ 
+         errno = EIO;
+-        if ((l = read(f->fd, ((uint8_t*) &f->buffer) + f->bytes_read, sizeof(f->buffer) - f->bytes_read)) <= 0) {
+-
++        l = read(f->fd,
++                 ((uint8_t*) &f->buffer) + f->bytes_read,
++                 sizeof(f->buffer) - f->bytes_read);
++        if (l <= 0) {
+                 if (errno == EAGAIN)
+                         return 0;
+ 
+@@ -372,8 +374,8 @@ static int process_event(Server *s, struct epoll_event *ev) {
+         }
+ 
+         f = (Fifo*) ev->data.ptr;
+-
+-        if ((r = fifo_process(f)) < 0) {
++        r = fifo_process(f);
++        if (r < 0) {
+                 log_info("Got error on fifo: %s", strerror(-r));
+                 fifo_free(f);
+                 return r;
+diff --git a/src/journal/journal-vacuum.c b/src/journal/journal-vacuum.c
+index 178c803..c73ad8f 100644
+--- a/src/journal/journal-vacuum.c
++++ b/src/journal/journal-vacuum.c
+@@ -159,7 +159,7 @@ int journal_directory_vacuum(
+         struct vacuum_info *list = NULL;
+         unsigned n_list = 0, i;
+         size_t n_allocated = 0;
+-        uint64_t sum = 0;
++        uint64_t sum = 0, freed = 0;
+         usec_t retention_limit = 0;
+ 
+         assert(directory);
+@@ -267,13 +267,17 @@ int journal_directory_vacuum(
+                         continue;
+ 
+                 if (journal_file_empty(dirfd(d), p)) {
+-
+                         /* Always vacuum empty non-online files. */
+ 
+-                        if (unlinkat(dirfd(d), p, 0) >= 0)
+-                                log_debug("Deleted empty journal %s/%s.", directory, p);
+-                        else if (errno != ENOENT)
++                        uint64_t size = 512UL * (uint64_t) st.st_blocks;
++
++                        if (unlinkat(dirfd(d), p, 0) >= 0) {
++                                log_info("Deleted empty journal %s/%s (%"PRIu64" bytes).",
++                                         directory, p, size);
++                                freed += size;
++                        } else if (errno != ENOENT)
+                                 log_warning("Failed to delete %s/%s: %m", directory, p);
++
+                         continue;
+                 }
+ 
+@@ -310,7 +314,9 @@ int journal_directory_vacuum(
+                         break;
+ 
+                 if (unlinkat(dirfd(d), list[i].filename, 0) >= 0) {
+-                        log_debug("Deleted archived journal %s/%s.", directory, list[i].filename);
++                        log_debug("Deleted archived journal %s/%s (%"PRIu64" bytes).",
++                                  directory, list[i].filename, list[i].usage);
++                        freed += list[i].usage;
+ 
+                         if (list[i].usage < sum)
+                                 sum -= list[i].usage;
+@@ -329,5 +335,7 @@ finish:
+                 free(list[i].filename);
+         free(list);
+ 
++        log_info("Vacuuming done, freed %"PRIu64" bytes", freed);
++
+         return r;
+ }
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index 86895b8..efb544a 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -1001,7 +1001,7 @@ static int access_check(sd_journal *j) {
+ 
+ int main(int argc, char *argv[]) {
+         int r;
+-        sd_journal _cleanup_journal_close_ *j = NULL;
++        _cleanup_journal_close_ sd_journal *j = NULL;
+         bool need_seek = false;
+         sd_id128_t previous_boot_id;
+         bool previous_boot_id_valid = false, first_line = true;
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index eb3d4df..8d38d7f 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -1045,6 +1045,8 @@ int process_event(Server *s, struct epoll_event *ev) {
+                 }
+ 
+                 if (sfsi.ssi_signo == SIGUSR1) {
++                        log_info("Received request to flush runtime journal from PID %"PRIu32,
++                                 sfsi.ssi_pid);
+                         touch("/run/systemd/journal/flushed");
+                         server_flush_to_var(s);
+                         server_sync(s);
+@@ -1052,6 +1054,8 @@ int process_event(Server *s, struct epoll_event *ev) {
+                 }
+ 
+                 if (sfsi.ssi_signo == SIGUSR2) {
++                        log_info("Received request to rotate journal from PID %"PRIu32,
++                                 sfsi.ssi_pid);
+                         server_rotate(s);
+                         server_vacuum(s);
+                         return 1;

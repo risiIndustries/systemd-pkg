@@ -1,0 +1,24 @@
+From a8c35776cdfc4b852e7480ca662c3f8c9b9b8289 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 2 Oct 2013 19:38:28 +0200
+Subject: [PATCH] strv: don't access potentially NULL string arrays
+
+---
+ src/shared/env-util.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/env-util.c b/src/shared/env-util.c
+index d3d4c59..a9c148d 100644
+--- a/src/shared/env-util.c
++++ b/src/shared/env-util.c
+@@ -406,7 +406,9 @@ char **strv_env_clean_log(char **e, const char *message) {
+                 e[k++] = *p;
+         }
+ 
+-        e[k] = NULL;
++        if (e)
++                e[k] = NULL;
++
+         return e;
+ }
+ 

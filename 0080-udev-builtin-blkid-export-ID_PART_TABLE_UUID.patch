@@ -1,0 +1,23 @@
+From 908d0910ba5b49682fd80edc3afd7cf192e53cca Mon Sep 17 00:00:00 2001
+From: Dave Reisner <dreisner@archlinux.org>
+Date: Thu, 19 Sep 2013 11:36:40 -0400
+Subject: [PATCH] udev-builtin-blkid: export ID_PART_TABLE_UUID
+
+---
+ src/udev/udev-builtin-blkid.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/udev/udev-builtin-blkid.c b/src/udev/udev-builtin-blkid.c
+index bae4293..b48dccc 100644
+--- a/src/udev/udev-builtin-blkid.c
++++ b/src/udev/udev-builtin-blkid.c
+@@ -67,6 +67,9 @@ static void print_property(struct udev_device *dev, bool test, const char *name,
+         } else if (streq(name, "PTTYPE")) {
+                 udev_builtin_add_property(dev, test, "ID_PART_TABLE_TYPE", value);
+ 
++        } else if (streq(name, "PTUUID")) {
++                udev_builtin_add_property(dev, test, "ID_PART_TABLE_UUID", value);
++
+         } else if (streq(name, "PART_ENTRY_NAME")) {
+                 blkid_encode_string(value, s, sizeof(s));
+                 udev_builtin_add_property(dev, test, "ID_PART_ENTRY_NAME", s);

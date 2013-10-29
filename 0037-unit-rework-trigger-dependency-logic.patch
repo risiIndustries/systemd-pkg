@@ -1,4 +1,4 @@
-From 779af3d3ae94fd6ac1b80ff5023dcbdc4704f812 Mon Sep 17 00:00:00 2001
+From 77529d5944b1fb1385de5b2c21a643741ac4c6a3 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 23 Apr 2013 15:53:16 -0300
 Subject: [PATCH] unit: rework trigger dependency logic

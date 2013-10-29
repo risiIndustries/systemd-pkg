@@ -1,4 +1,4 @@
-From c6ee0089d433ce746625ac05a84de731272db39b Mon Sep 17 00:00:00 2001
+From 1a9e807ff085455b4a196feb99a5388889752537 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 9 Apr 2013 11:06:56 +0200
 Subject: [PATCH] (F18) Revert "service: sysv - remove distribution specific

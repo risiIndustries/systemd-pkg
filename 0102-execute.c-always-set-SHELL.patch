@@ -1,0 +1,242 @@
+From f94b45c027797454dcd3f38409d2cd72328e6104 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 2 Oct 2013 13:23:10 +0200
+Subject: [PATCH] execute.c: always set $SHELL
+
+In e6dca81 $SHELL was added to user@.service. Let's
+instead provide it to all units which have a user.
+
+Conflicts:
+	TODO
+	man/systemd.exec.xml
+---
+ man/systemd.exec.xml | 129 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/core/execute.c   |  56 ++++++++--------------
+ 2 files changed, 148 insertions(+), 37 deletions(-)
+
+diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
+index c25d96e..f162492 100644
+--- a/man/systemd.exec.xml
++++ b/man/systemd.exec.xml
+@@ -1248,6 +1248,135 @@
+         </refsect1>
+ 
+         <refsect1>
++                <title>Environment variables in spawned processes</title>
++
++                <para>Processes started by the system are executed in
++                a clean environment in which select variables
++                listed below are set. System processes started by systemd
++                do not inherit variables from PID 1, but processes
++                started by user systemd instances inherit all
++                environment variables from the user systemd instance.
++                </para>
++
++                <variablelist class='environment-variables'>
++                        <varlistentry>
++                                <term><varname>$PATH</varname></term>
++
++                                <listitem><para>Colon-separated list
++                                of directiories to use when launching
++                                executables. Systemd uses a fixed
++                                value of
++                                <filename>/usr/local/sbin</filename>:<filename>/usr/local/bin</filename>:<filename>/usr/sbin</filename>:<filename>/usr/bin</filename>:<filename>/sbin</filename>:<filename>/bin</filename>.
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>$LANG</varname></term>
++
++                                <listitem><para>Locale. Can be set in
++                                <citerefentry><refentrytitle>locale.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>
++                                or on the kernel command line (see
++                                <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>
++                                and
++                                <citerefentry><refentrytitle>kernel-command-line</refentrytitle><manvolnum>7</manvolnum></citerefentry>).
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>$USER</varname></term>
++                                <term><varname>$LOGNAME</varname></term>
++                                <term><varname>$HOME</varname></term>
++                                <term><varname>$SHELL</varname></term>
++
++                                <listitem><para>User name (twice), home
++                                directory, and the login shell.
++                                Set for the units which
++                                have <varname>User=</varname> set,
++                                which includes user
++                                <command>systemd</command> instances.
++                                See
++                                <citerefentry><refentrytitle>passwd</refentrytitle><manvolnum>5</manvolnum></citerefentry>.
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>$XDG_RUNTIME_DIR</varname></term>
++
++                                <listitem><para>The directory for volatile
++                                state. Set for the user <command>systemd</command>
++                                instance, and also in user sessions.
++                                See
++                                <citerefentry><refentrytitle>pam_systemd</refentrytitle><manvolnum>8</manvolnum></citerefentry>.
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>$XDG_SESSION_ID</varname></term>
++                                <term><varname>$XDG_SEAT</varname></term>
++                                <term><varname>$XDG_VTNR</varname></term>
++
++                                <listitem><para>The identifier of the
++                                session, and the seat name, and
++                                virtual terminal of the session. Set
++                                by
++                                <citerefentry><refentrytitle>pam_systemd</refentrytitle><manvolnum>8</manvolnum></citerefentry>
++                                for login sessions.
++                                <varname>$XDG_SEAT</varname> and
++                                <varname>$XDG_VTNR</varname> will be
++                                only set when attached to a seat and a
++                                tty.</para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>$MANAGERPID</varname></term>
++
++                                <listitem><para>The PID of the user
++                                <command>systemd</command> instance,
++                                set for processes spawned by it.
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>$LISTEN_FDS</varname></term>
++                                <term><varname>$LISTEN_PID</varname></term>
++
++                                <listitem><para>Information about file
++                                descriptors passed to a service for
++                                socket activation.  See
++                                <citerefentry><refentrytitle>sd_listen_fds</refentrytitle><manvolnum>3</manvolnum></citerefentry>.
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>$TERM</varname></term>
++
++                                <listitem><para>Terminal type, set
++                                only for units connected to a terminal
++                                (<varname>StandardInput=tty</varname>,
++                                <varname>StandardOutput=tty</varname>,
++                                or
++                                <varname>StandardError=tty</varname>).
++                                See
++                                <citerefentry><refentrytitle>termcap</refentrytitle><manvolnum>5</manvolnum></citerefentry>.
++                                </para></listitem>
++                        </varlistentry>
++                </variablelist>
++
++                <para>Additional variables may be configured by the
++                following means: for processes spawned in specific
++                units, use the <varname>Environment=</varname> and
++                <varname>EnvironmentFile=</varname> options above; to
++                specify variables globally, use
++                <varname>DefaultEnvironment=</varname> (see
++                <citerefentry><refentrytitle>systemd-system.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>)
++                or the kernel option
++                <varname>systemd.setenv=</varname> (see
++                <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>). Additional
++                variables may also be set through PAM,
++                c.f. <citerefentry><refentrytitle>pam_env</refentrytitle><manvolnum>8</manvolnum></citerefentry>.</para>
++        </refsect1>
++
++        <refsect1>
+                   <title>See Also</title>
+                   <para>
+                           <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+diff --git a/src/core/execute.c b/src/core/execute.c
+index 11993df..4da44c2 100644
+--- a/src/core/execute.c
++++ b/src/core/execute.c
+@@ -1065,7 +1065,7 @@ int exec_spawn(ExecCommand *command,
+         if (pid == 0) {
+                 int i, err;
+                 sigset_t ss;
+-                const char *username = NULL, *home = NULL;
++                const char *username = NULL, *home = NULL, *shell = NULL;
+                 uid_t uid = (uid_t) -1;
+                 gid_t gid = (gid_t) -1;
+                 char _cleanup_strv_free_ **our_env = NULL, **pam_env = NULL,
+@@ -1255,7 +1255,7 @@ int exec_spawn(ExecCommand *command,
+ 
+                 if (context->user) {
+                         username = context->user;
+-                        err = get_user_creds(&username, &uid, &gid, &home, NULL);
++                        err = get_user_creds(&username, &uid, &gid, &home, &shell);
+                         if (err < 0) {
+                                 r = EXIT_USER;
+                                 goto fail_child;
+@@ -1453,46 +1453,28 @@ int exec_spawn(ExecCommand *command,
+                         }
+                 }
+ 
+-                our_env = new0(char*, 7);
+-                if (!our_env) {
++                our_env = new(char*, 8);
++                if (!our_env ||
++                    (n_fds > 0 && (
++                            asprintf(our_env + n_env++, "LISTEN_PID=%lu", (unsigned long) getpid()) < 0 ||
++                            asprintf(our_env + n_env++, "LISTEN_FDS=%u", n_fds) < 0)) ||
++                    (home && asprintf(our_env + n_env++, "HOME=%s", home) < 0) ||
++                    (username && (
++                            asprintf(our_env + n_env++, "LOGNAME=%s", username) < 0 ||
++                            asprintf(our_env + n_env++, "USER=%s", username) < 0)) ||
++                    (shell && asprintf(our_env + n_env++, "SHELL=%s", shell) < 0) ||
++                    ((is_terminal_input(context->std_input) ||
++                      context->std_output == EXEC_OUTPUT_TTY ||
++                      context->std_error == EXEC_OUTPUT_TTY) && (
++                              !(our_env[n_env++] = strdup(default_term_for_tty(tty_path(context))))))) {
++
+                         err = -ENOMEM;
+                         r = EXIT_MEMORY;
+                         goto fail_child;
+                 }
+ 
+-                if (n_fds > 0)
+-                        if (asprintf(our_env + n_env++, "LISTEN_PID=%lu", (unsigned long) getpid()) < 0 ||
+-                            asprintf(our_env + n_env++, "LISTEN_FDS=%u", n_fds) < 0) {
+-                                err = -ENOMEM;
+-                                r = EXIT_MEMORY;
+-                                goto fail_child;
+-                        }
+-
+-                if (home)
+-                        if (asprintf(our_env + n_env++, "HOME=%s", home) < 0) {
+-                                err = -ENOMEM;
+-                                r = EXIT_MEMORY;
+-                                goto fail_child;
+-                        }
+-
+-                if (username)
+-                        if (asprintf(our_env + n_env++, "LOGNAME=%s", username) < 0 ||
+-                            asprintf(our_env + n_env++, "USER=%s", username) < 0) {
+-                                err = -ENOMEM;
+-                                r = EXIT_MEMORY;
+-                                goto fail_child;
+-                        }
+-
+-                if (is_terminal_input(context->std_input) ||
+-                    context->std_output == EXEC_OUTPUT_TTY ||
+-                    context->std_error == EXEC_OUTPUT_TTY)
+-                        if (!(our_env[n_env++] = strdup(default_term_for_tty(tty_path(context))))) {
+-                                err = -ENOMEM;
+-                                r = EXIT_MEMORY;
+-                                goto fail_child;
+-                        }
+-
+-                assert(n_env <= 7);
++                our_env[n_env++] = NULL;
++                assert(n_env <= 8);
+ 
+                 final_env = strv_env_merge(5,
+                                            environment,

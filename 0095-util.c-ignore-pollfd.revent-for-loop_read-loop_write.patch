@@ -1,0 +1,40 @@
+From de5542896870a5ecf57982e664d4c26315d3634d Mon Sep 17 00:00:00 2001
+From: Chen Jie <chenj@lemote.com>
+Date: Thu, 12 Sep 2013 09:21:41 +0800
+Subject: [PATCH] util.c: ignore pollfd.revent for loop_read/loop_write
+
+Let read()/write() report any error/EOF.
+---
+ src/shared/util.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 7492b16..049d125 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -2193,8 +2193,10 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
+                                         return n > 0 ? n : -errno;
+                                 }
+ 
+-                                if (pollfd.revents != POLLIN)
+-                                        return n > 0 ? n : -EIO;
++                                /* We knowingly ignore the revents value here,
++                                 * and expect that any error/EOF is reported
++                                 * via read()/write()
++                                 */
+ 
+                                 continue;
+                         }
+@@ -2241,8 +2243,10 @@ ssize_t loop_write(int fd, const void *buf, size_t nbytes, bool do_poll) {
+                                         return n > 0 ? n : -errno;
+                                 }
+ 
+-                                if (pollfd.revents != POLLOUT)
+-                                        return n > 0 ? n : -EIO;
++                                /* We knowingly ignore the revents value here,
++                                 * and expect that any error/EOF is reported
++                                 * via read()/write()
++                                 */
+ 
+                                 continue;
+                         }

@@ -1,4 +1,4 @@
-From 9ab0b89c1cda88234f675d566617179fb4f116cb Mon Sep 17 00:00:00 2001
+From 825404a9acb32bddedefec19c63fc76391d922d6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 15 Apr 2013 22:25:58 -0400
 Subject: [PATCH] Report about syntax errors with metadata

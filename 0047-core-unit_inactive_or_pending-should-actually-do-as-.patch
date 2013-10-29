@@ -1,4 +1,4 @@
-From 22184f5563604bb011ae05bf5ffd75969cbd02a7 Mon Sep 17 00:00:00 2001
+From 4adb14d65c1125dfeff2fe5a44269baba67dfad3 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 6 May 2013 22:28:39 +0200
 Subject: [PATCH] core: unit_inactive_or_pending() should actually do as it

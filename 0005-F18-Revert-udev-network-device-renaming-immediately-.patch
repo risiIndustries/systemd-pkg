@@ -1,4 +1,4 @@
-From 19e22f2480911d134cc0e02413591a9e8d187092 Mon Sep 17 00:00:00 2001
+From 6df56a7905ad44949885c90d97f246a77309112e Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Mon, 28 Jan 2013 14:15:56 +0100
 Subject: [PATCH] (F18) Revert "udev: network device renaming - immediately

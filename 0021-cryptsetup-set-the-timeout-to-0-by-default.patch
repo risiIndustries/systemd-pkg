@@ -1,4 +1,4 @@
-From 5497c33bd2eb15b597c4cdd50b3e27f0df899e41 Mon Sep 17 00:00:00 2001
+From 32b7c187fb1c6bb26576467bbe99bf4ad576354c Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Fri, 12 Apr 2013 09:45:26 +0200
 Subject: [PATCH] cryptsetup: set the timeout to 0 by default

@@ -1,4 +1,4 @@
-From 2130ef6f3fe17f7c83588b801892838cc9f48ac2 Mon Sep 17 00:00:00 2001
+From ff85663ec052967f096e127e096949b75af97a13 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 15 Apr 2013 21:55:07 +0200
 Subject: [PATCH] core: let's make our log messages proper sentences with full

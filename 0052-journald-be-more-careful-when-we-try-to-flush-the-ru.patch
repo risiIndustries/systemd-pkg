@@ -1,4 +1,4 @@
-From 5e7c1d7b60f1f499dd04c31e24e7c259587a6f4c Mon Sep 17 00:00:00 2001
+From f3893bd709a17bfeeb5fae8b10432a9476d7b1d2 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 7 May 2013 01:09:33 +0200
 Subject: [PATCH] journald: be more careful when we try to flush the runtime

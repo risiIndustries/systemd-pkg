@@ -1,4 +1,4 @@
-From 935d892fb6ed3ef54056abcc1873c24d77289cf9 Mon Sep 17 00:00:00 2001
+From c2e005019582254480fb29d56cb2b306759590f0 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Mon, 15 Apr 2013 18:07:00 +0200
 Subject: [PATCH] (F18) ship a dummy syslog.target

@@ -1,0 +1,21 @@
+From a0855f4947114cbf4182a75cb8bc2fa8d14e4e10 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 30 Sep 2013 18:56:34 +0200
+Subject: [PATCH] man: mention the systemd homepage from systemd(1)
+
+---
+ man/systemd.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/man/systemd.xml b/man/systemd.xml
+index cd38c16..39bccff 100644
+--- a/man/systemd.xml
++++ b/man/systemd.xml
+@@ -1258,6 +1258,7 @@
+         <refsect1>
+                 <title>See Also</title>
+                 <para>
++                        The <ulink url="http://www.freedesktop.org/wiki/Software/systemd/">systemd Homepage</ulink>,
+                         <citerefentry><refentrytitle>systemd-system.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>locale.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemctl</refentrytitle><manvolnum>1</manvolnum></citerefentry>,

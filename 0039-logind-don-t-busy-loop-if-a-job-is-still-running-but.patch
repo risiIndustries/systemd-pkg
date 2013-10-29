@@ -1,4 +1,4 @@
-From 4e21500a102ff541bbd9b54e57f9f7af1b4dda9a Mon Sep 17 00:00:00 2001
+From db97c7f66ef2f75ac6c268339e044590d7a08920 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 24 Apr 2013 15:23:01 -0300
 Subject: [PATCH] logind: don't busy loop if a job is still running but the

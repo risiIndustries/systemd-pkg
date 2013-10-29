@@ -1,4 +1,4 @@
-From 4ed0d8c26467979128cdbb53291351f1a8c3b6d0 Mon Sep 17 00:00:00 2001
+From c673e19a9026f17cd1e0f33e5ec1610622d908cb Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 11 Jan 2013 22:36:06 +0100
 Subject: [PATCH] (F18) units: don't always use sulogin in rescue.service

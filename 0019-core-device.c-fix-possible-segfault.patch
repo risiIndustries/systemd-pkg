@@ -1,4 +1,4 @@
-From 2c3bc61fef4b72f0f9c569dae961b90bd2d165ab Mon Sep 17 00:00:00 2001
+From cb5ec34519c5fd6671e4ca17790962ee916ac96e Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Fri, 12 Apr 2013 11:56:27 +0200
 Subject: [PATCH] core/device.c: fix possible segfault

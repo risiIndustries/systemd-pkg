@@ -1,0 +1,20 @@
+From 337722373bf5c0f52f3ae2cab5c5117942ed8c64 Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Tue, 17 Sep 2013 16:37:42 -0500
+Subject: [PATCH] libudev: add missing 'global' to symbol export
+
+---
+ src/libudev/libudev.sym | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libudev/libudev.sym b/src/libudev/libudev.sym
+index c232fbf..e0e5864 100644
+--- a/src/libudev/libudev.sym
++++ b/src/libudev/libudev.sym
+@@ -110,5 +110,6 @@ global:
+ } LIBUDEV_189;
+ 
+ LIBUDEV_199 {
++global:
+         udev_device_set_sysattr_value;
+ } LIBUDEV_196;

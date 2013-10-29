@@ -1,4 +1,4 @@
-From 36affd2dc67a42220a004595bd82201d0782591c Mon Sep 17 00:00:00 2001
+From 9cd67f9df462881fd99afa7ad4e167f7656b5f67 Mon Sep 17 00:00:00 2001
 From: Mirco Tischler <mt-ml@gmx.de>
 Date: Thu, 25 Apr 2013 15:14:57 +0200
 Subject: [PATCH] core: remove duplicate MESSAGE= from log message

@@ -1,0 +1,29 @@
+From c3926429efb09c2264f25b0fa60e1e9f0738f067 Mon Sep 17 00:00:00 2001
+From: Ross Lagerwall <rosslagerwall@gmail.com>
+Date: Sun, 9 Jun 2013 17:28:44 +0100
+Subject: [PATCH] service: don't report alien child as alive when it's not
+
+When a sigchld is received from an alien child, main_pid is set to
+0 then service_enter_running calls main_pid_good to check if the
+child is running.  This incorrectly returned true because
+kill(main_pid, 0) would return >= 0.
+
+This fixes an error where a service would die and the cgroup would
+become empty but the service would still report as active (running).
+---
+ src/core/service.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/service.c b/src/core/service.c
+index 0297eb5..2be8623 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -1878,7 +1878,7 @@ static int main_pid_good(Service *s) {
+ 
+                 /* If it's an alien child let's check if it is still
+                  * alive ... */
+-                if (s->main_pid_alien)
++                if (s->main_pid_alien && s->main_pid > 0)
+                         return kill(s->main_pid, 0) >= 0 || errno != ESRCH;
+ 
+                 /* .. otherwise assume we'll get a SIGCHLD for it,

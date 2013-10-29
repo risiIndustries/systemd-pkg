@@ -1,4 +1,4 @@
-From f145dcdedeb0fec8d30318c4c6780500db4f74a0 Mon Sep 17 00:00:00 2001
+From 5ecec44b34f269657ff354b6cf4fbb1c481c0f55 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 25 Apr 2013 21:57:41 -0300
 Subject: [PATCH] unit: rework stop pending logic

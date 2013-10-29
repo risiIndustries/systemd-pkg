@@ -1,0 +1,26 @@
+From 649bbc2c12b1af4a90ad630f9de89f7216a3f942 Mon Sep 17 00:00:00 2001
+From: Michael Scherer <misc@zarb.org>
+Date: Fri, 27 Sep 2013 11:43:28 +0200
+Subject: [PATCH] Add a bit more explicit message, to help confused users
+
+Seeing http://www.happyassassin.net/2013/09/27/further-sysadmin-adventures-wheres-my-freeipa-badge/
+it seems that the default message is a bit confusing for people
+who never encountered it before, so adding a link to the manpage could
+help them.
+
+Conflicts:
+	tmpfiles.d/systemd.conf
+---
+ tmpfiles.d/systemd.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tmpfiles.d/systemd.conf b/tmpfiles.d/systemd.conf
+index ee86f2e..fcda00f 100644
+--- a/tmpfiles.d/systemd.conf
++++ b/tmpfiles.d/systemd.conf
+@@ -21,4 +21,4 @@ d /run/systemd/sessions 0755 root root -
+ d /run/systemd/users 0755 root root -
+ d /run/systemd/shutdown 0755 root root -
+ 
+-F /run/nologin 0644 - - - "System is booting up."
++F /run/nologin 0644 - - - "System is booting up. See pam_nologin(8)"

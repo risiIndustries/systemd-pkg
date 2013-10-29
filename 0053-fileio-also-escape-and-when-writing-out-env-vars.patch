@@ -1,4 +1,4 @@
-From c79393bba5b039537870f421d65cd0625e135149 Mon Sep 17 00:00:00 2001
+From 457fd0ab5ea0f3c6a1c9cb1bb12633a9d9d4f48c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>
 Date: Sun, 14 Apr 2013 14:54:09 +0300
 Subject: [PATCH] fileio: also escape $ and ` when writing out env vars

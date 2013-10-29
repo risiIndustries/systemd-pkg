@@ -1,4 +1,4 @@
-From ef563b92ef8a2c1f816eb1e7574c44b2c75d9144 Mon Sep 17 00:00:00 2001
+From 74a2502ee5d65be05bfdf8e8f80ea6d58a1f3404 Mon Sep 17 00:00:00 2001
 From: Fedora systemd team <systemd-maint@redhat.com>
 Date: Wed, 10 Apr 2013 09:49:24 +0200
 Subject: [PATCH] logind: avoid creating stale session state files

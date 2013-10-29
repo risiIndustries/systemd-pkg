@@ -1,4 +1,4 @@
-From 256886161ef362271d6cae2d621bf5a2154fc4f2 Mon Sep 17 00:00:00 2001
+From 775334bc92e0acfd9fdc88973a628358b41cc6c7 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 29 Apr 2013 19:46:19 -0400
 Subject: [PATCH] man: clarify what Restart= means

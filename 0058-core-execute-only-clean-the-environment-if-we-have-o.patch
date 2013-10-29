@@ -1,4 +1,4 @@
-From 341923eda80fc43cfcb2de76759b239c75c42ebf Mon Sep 17 00:00:00 2001
+From 652bba47f77d7ba9583f91d2322221ef2e7c4d07 Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Thu, 18 Apr 2013 07:15:03 +0200
 Subject: [PATCH] core/execute: only clean the environment, if we have one

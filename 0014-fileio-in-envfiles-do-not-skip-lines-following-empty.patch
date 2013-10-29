@@ -1,4 +1,4 @@
-From bdeb02a1dc5b545ff05415d570d44ae7fef95edc Mon Sep 17 00:00:00 2001
+From ddba0d7ae4da28e6f12b140f1a6a3eb2da907cda Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 13 Apr 2013 20:22:53 -0400
 Subject: [PATCH] fileio: in envfiles, do not skip lines following empty lines

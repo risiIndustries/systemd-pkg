@@ -1,4 +1,4 @@
-From 9ef15e237b8fda40d1a40d0cc8a25e99358bd163 Mon Sep 17 00:00:00 2001
+From 780297602e73da8e372f50c51859f8fa1aef9ce0 Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Wed, 17 Apr 2013 11:02:56 +0200
 Subject: [PATCH] fileio:parse_env_file_internal() fix environment file parsing

@@ -1,4 +1,4 @@
-From e96d07c92556e63584e0e63f47a40af6598f77dd Mon Sep 17 00:00:00 2001
+From ad9cc4bca4fc351b38b4b44050e1f8d8408d0f7c Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 9 Apr 2013 11:27:22 +0200
 Subject: [PATCH] (F18): explain what happened to 'systemctl dot'

@@ -1,4 +1,4 @@
-From 6149a02ed35b2ce1acb891acab6d3631ae7426c8 Mon Sep 17 00:00:00 2001
+From 13aaa0295c40ae29c014021b022ea0e722bbfbd5 Mon Sep 17 00:00:00 2001
 From: Ronny Chevalier <rchevalier@aldebaran-robotics.com>
 Date: Wed, 24 Apr 2013 15:17:19 +0200
 Subject: [PATCH] dbus-execute: fix introspection

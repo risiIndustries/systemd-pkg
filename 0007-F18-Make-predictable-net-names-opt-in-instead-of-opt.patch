@@ -1,4 +1,4 @@
-From d8dda5789feeac657aa9003e6ae843f3a7c35f28 Mon Sep 17 00:00:00 2001
+From adedcc48f4871cef702f014a9f2b29e387784468 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 9 Apr 2013 11:31:07 +0200
 Subject: [PATCH] (F18): Make predictable net names opt-in instead of opt-out

@@ -1,4 +1,4 @@
-From b8a8c9fed5e35c773df624bc51165d91a73396b3 Mon Sep 17 00:00:00 2001
+From 520a6b9454fd4e905298c8b37a8141b764035b17 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 11 Jan 2013 23:22:49 +0100
 Subject: [PATCH] (F18) re-add http-daemon.target

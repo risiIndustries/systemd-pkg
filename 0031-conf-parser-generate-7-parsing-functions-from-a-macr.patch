@@ -1,4 +1,4 @@
-From a02a0a14966c9a72ec80940aad9b3c7df8c0a721 Mon Sep 17 00:00:00 2001
+From 00d49751a37d257386fb7588744da629c476a153 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 14 Apr 2013 22:29:43 -0400
 Subject: [PATCH] conf-parser: generate 7 parsing functions from a macro

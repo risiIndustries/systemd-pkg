@@ -1,4 +1,4 @@
-From 84417b753f1ade6daff13c8530dc24af3fd2a71a Mon Sep 17 00:00:00 2001
+From 4ae14051d9c63b35eb9b7bbc660c89ce04234af4 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 11 Apr 2013 13:37:50 +0200
 Subject: [PATCH] (F18) main: downgrade message about failure to isolate

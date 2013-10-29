@@ -1,4 +1,4 @@
-From aca3726355ad59bb8ac5dffc8871f48a0251974c Mon Sep 17 00:00:00 2001
+From c3093ffebfb2d123e7aaddef9b562b39e39427aa Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 18 Apr 2013 02:21:01 +0200
 Subject: [PATCH] man: document that timeout=0 is the default for entries in

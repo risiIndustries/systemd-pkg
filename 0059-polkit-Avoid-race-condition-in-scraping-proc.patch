@@ -1,4 +1,4 @@
-From ccafff92ceac710ef86d41d4c18aa8b64c725db8 Mon Sep 17 00:00:00 2001
+From 3c08015f7e0bd1837926f5a44494c2e562abce0a Mon Sep 17 00:00:00 2001
 From: Colin Walters <walters@verbum.org>
 Date: Thu, 22 Aug 2013 13:55:21 -0400
 Subject: [PATCH] polkit: Avoid race condition in scraping /proc
@@ -70,6 +70,3 @@ index cea7074..1c5e9e3 100644
              !dbus_message_iter_close_container(&iter_dict, &iter_variant) ||
              !dbus_message_iter_close_container(&iter_array, &iter_dict) ||
              !dbus_message_iter_close_container(&iter_struct, &iter_array) ||
--- 
-1.8.3.1
-

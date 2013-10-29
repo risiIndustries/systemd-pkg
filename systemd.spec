@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        201
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.8
+Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}.9
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -36,6 +36,7 @@ Source6:        yum-protect-systemd.conf
 # documented differences from upstream
 Source7:        README.Fedora-18
 
+# i=1; for p in 0*patch;do printf "Patch%04d:      %s\n" $i $p; ((i++));done
 # Back out incompatibilities in F18:
 Patch0001:      0001-F18-units-don-t-always-use-sulogin-in-rescue.service.patch
 Patch0002:      0002-F18-Revert-service-sysv-remove-distribution-specific.patch
@@ -46,7 +47,7 @@ Patch0006:      0006-F18-explain-what-happened-to-systemctl-dot.patch
 Patch0007:      0007-F18-Make-predictable-net-names-opt-in-instead-of-opt.patch
 # Selected post-v201 patches from upstream:
 Patch0008:      0008-keymap-Add-HP-EliteBook-8460p.patch
-Patch0009:      0009-keymap-Fix-typo-in-previous-commit.patch
+Patch0009:      0009-keymap-Fix-typo-in-previous-commit-cherry-picked-fro.patch
 Patch0010:      0010-shutdown-print-a-nice-message-before-returning-to-in.patch
 Patch0011:      0011-units-fix-some-left-over-mentions-of-remote-fs-setup.patch
 Patch0012:      0012-logind-avoid-creating-stale-session-state-files.patch
@@ -65,32 +66,32 @@ Patch0021:      0021-cryptsetup-set-the-timeout-to-0-by-default.patch
 Patch0022:      0022-man-document-that-timeout-0-is-the-default-for-entri.patch
 Patch0023:      0023-cryptsetup-generator-add-support-for-rd.luks.key.patch
 Patch0024:      0024-crypt-setup-generator-correctly-check-return-of-strd.patch
-Patch0025:      0025-logind-dbus-initialize-result-variable.patch
-Patch0026:      0026-nss-myhostname-ensure-that-glibc-s-assert-is-used.patch
+Patch0025:      0025-logind-dbus-initialize-result-variable-cherry-picked.patch
+Patch0026:      0026-nss-myhostname-ensure-that-glibc-s-assert-is-used-ch.patch
 Patch0027:      0027-build-sys-prevent-library-underlinking.patch
-Patch0028:      0028-hwdb-update.patch
-Patch0029:      0029-hwdb-update.patch
-Patch0030:      0030-hwdb-update.patch
+Patch0028:      0028-hwdb-update-cherry-picked-from-commit-c225e76785e21d.patch
+Patch0029:      0029-hwdb-update-cherry-picked-from-commit-de7a659c055f61.patch
+Patch0030:      0030-hwdb-update-cherry-picked-from-commit-0f0cf8d2e329a6.patch
 Patch0031:      0031-conf-parser-generate-7-parsing-functions-from-a-macr.patch
-Patch0032:      0032-core-main-generate-4-parsing-functions-from-a-macro.patch
+Patch0032:      0032-core-main-generate-4-parsing-functions-from-a-macro-.patch
 Patch0033:      0033-Report-about-syntax-errors-with-metadata.patch
 Patch0034:      0034-core-let-s-make-our-log-messages-proper-sentences-wi.patch
-Patch0035:      0035-core-log-a-few-more-things-under-UNIT.patch
+Patch0035:      0035-core-log-a-few-more-things-under-UNIT-.-cherry-picke.patch
 Patch0036:      0036-Move-bus_error-to-dbus-common-and-remove-bus_error_m.patch
 Patch0037:      0037-unit-rework-trigger-dependency-logic.patch
 Patch0038:      0038-timer-make-sure-we-restart-timers-even-if-units-are-.patch
 Patch0039:      0039-logind-don-t-busy-loop-if-a-job-is-still-running-but.patch
 Patch0040:      0040-core-remove-duplicate-MESSAGE-from-log-message.patch
 Patch0041:      0041-man-clarify-what-Restart-means.patch
-Patch0042:      0042-man-improve-documentation-for-specifiers.patch
+Patch0042:      0042-man-improve-documentation-for-specifiers-cherry-pick.patch
 Patch0043:      0043-dbus-execute-fix-introspection.patch
 Patch0044:      0044-unit-rework-stop-pending-logic.patch
-Patch0045:      0045-core-bump-simultaneous-bus-connection-limit-to-512.patch
-Patch0046:      0046-hwdb-update.patch
+Patch0045:      0045-core-bump-simultaneous-bus-connection-limit-to-512-c.patch
+Patch0046:      0046-hwdb-update-cherry-picked-from-commit-07125a9240088f.patch
 Patch0047:      0047-core-unit_inactive_or_pending-should-actually-do-as-.patch
-Patch0048:      0048-man-correct-SIGUSR1-semantics-for-journald.patch
-Patch0049:      0049-man-clarify-behaviour-of-Also-in-unit-files.patch
-Patch0050:      0050-man-fix-typos-in-systemd.special.patch
+Patch0048:      0048-man-correct-SIGUSR1-semantics-for-journald-cherry-pi.patch
+Patch0049:      0049-man-clarify-behaviour-of-Also-in-unit-files-cherry-p.patch
+Patch0050:      0050-man-fix-typos-in-systemd.special-cherry-picked-from-.patch
 Patch0051:      0051-core-escape-unit-name-from-udev.patch
 Patch0052:      0052-journald-be-more-careful-when-we-try-to-flush-the-ru.patch
 Patch0053:      0053-fileio-also-escape-and-when-writing-out-env-vars.patch
@@ -100,6 +101,79 @@ Patch0056:      0056-fileio.c-do-not-parse-comments-after-non-whitespace-.patch
 Patch0057:      0057-fileio-unify-how-we-chop-off-whitespace-from-key-and.patch
 Patch0058:      0058-core-execute-only-clean-the-environment-if-we-have-o.patch
 Patch0059:      0059-polkit-Avoid-race-condition-in-scraping-proc.patch
+# More patches backported from v204-stable
+Patch0060:      0060-journal-correctly-convert-usec_t-to-timespec.patch
+Patch0061:      0061-service-kill-processes-with-SIGKILL-on-watchdog-fail.patch
+Patch0062:      0062-Fix-CPUShares-configuration-option.patch
+Patch0063:      0063-service-don-t-report-alien-child-as-alive-when-it-s-.patch
+Patch0064:      0064-journal-remember-last-direction-of-search-and-keep-o.patch
+Patch0065:      0065-journal-letting-interleaved-seqnums-go.patch
+Patch0066:      0066-rules-drivers-always-call-kmod-even-when-a-driver-is.patch
+Patch0067:      0067-80-net-name-slot.rules-only-rename-network-interface.patch
+Patch0068:      0068-journal-fix-hashmap-leak-in-mmap-cache.patch
+Patch0069:      0069-fstab-generator-read-rd.fstab-on-off-switch-correctl.patch
+Patch0070:      0070-fstab-generator-log_oom-if-automount_name-is-null.patch
+Patch0071:      0071-journald-do-not-overwrite-syslog-facility-when-parsi.patch
+Patch0072:      0072-journal-fix-parsing-of-facility-in-syslog-messages.patch
+Patch0073:      0073-libudev-fix-memleak-when-enumerating-childs.patch
+Patch0074:      0074-libudev-enumerate-fix-NULL-deref-for-subsystem-match.patch
+Patch0075:      0075-Allow-tabs-in-environment-files.patch
+Patch0076:      0076-Actually-allow-tabs-in-environment-files.patch
+Patch0077:      0077-systemctl-process-only-signals-for-jobs-we-really-wa.patch
+Patch0078:      0078-cgtop-fixup-the-online-help.patch
+Patch0079:      0079-clarify-escaping-in-Exec-lines.patch
+Patch0080:      0080-udev-builtin-blkid-export-ID_PART_TABLE_UUID.patch
+Patch0081:      0081-nspawn-be-less-liberal-about-creating-bind-mount-des.patch
+Patch0082:      0082-fix-grammatical-error.patch
+Patch0083:      0083-completion-systemctl-add-missing-list-sockets-verb.patch
+Patch0084:      0084-journalctl-1-s-adm-systemd-journal.patch
+Patch0085:      0085-journald-accept-EPOLLERR-from-dev-kmsg.patch
+Patch0086:      0086-logind-if-a-user-is-sitting-in-front-of-the-computer.patch
+Patch0087:      0087-dbus-fix-introspection-for-TimerSlackNSec.patch
+Patch0088:      0088-swap-properly-expose-timeout-property-on-the-bus.patch
+Patch0089:      0089-Remove-duplicated-line.patch
+Patch0090:      0090-Add-a-bit-more-explicit-message-to-help-confused-use.patch
+Patch0091:      0091-Fix-buffer-overrun-when-enumerating-files.patch
+Patch0092:      0092-set-IgnoreOnIsolate-true-for-systemd-cryptsetup-.ser.patch
+Patch0093:      0093-man-mention-the-systemd-homepage-from-systemd-1.patch
+Patch0094:      0094-main-don-t-free-fds-array-twice.patch
+Patch0095:      0095-util.c-ignore-pollfd.revent-for-loop_read-loop_write.patch
+Patch0096:      0096-cryptsetup-fix-OOM-handling-when-parsing-mount-optio.patch
+Patch0097:      0097-journald-add-missing-error-check.patch
+Patch0098:      0098-dbus-fix-return-value-of-dispatch_rqueue.patch
+Patch0099:      0099-modules-load-fix-error-handling.patch
+Patch0100:      0100-efi-never-call-qsort-on-potentially-NULL-arrays.patch
+Patch0101:      0101-strv-don-t-access-potentially-NULL-string-arrays.patch
+Patch0102:      0102-execute.c-always-set-SHELL.patch
+Patch0103:      0103-man-Improve-the-description-of-parameter-X-in-tmpfil.patch
+Patch0104:      0104-systemd-order-remote-mounts-from-mountinfo-before-re.patch
+Patch0105:      0105-Remove-duplicate-entries-from-syscall-list.patch
+Patch0106:      0106-libudev-add-missing-global-to-symbol-export.patch
+Patch0107:      0107-units-make-fsck-units-remain-after-exit.patch
+Patch0108:      0108-mount-when-learning-about-the-root-mount-from-mounti.patch
+Patch0109:      0109-core-mount.c-mount_dump-don-t-segfault-if-mount-is-n.patch
+Patch0110:      0110-systemd-serialize-deserialize-forbid_restart-value.patch
+Patch0111:      0111-core-unify-the-way-we-denote-serialization-attribute.patch
+Patch0112:      0112-journal-vacuum-cleanup.patch
+Patch0113:      0113-journald-always-vacuum-empty-offline-files.patch
+Patch0114:      0114-journald-fix-vacuuming-of-archived-journals.patch
+Patch0115:      0115-journald-fix-fd-leak-in-journal_file_empty.patch
+Patch0116:      0116-journald-be-a-bit-more-verbose-when-vacuuming.patch
+Patch0117:      0117-journald-fix-minor-memory-leak.patch
+Patch0118:      0118-journald-remove-rotated-file-from-hashmap-when-rotat.patch
+Patch0119:      0119-udevadm.xml-document-resolve-names-option-for-test.patch
+Patch0120:      0120-dbus-common-avoid-leak-in-error-path.patch
+Patch0121:      0121-drop-ins-check-return-value.patch
+Patch0122:      0122-man-add-more-markup-to-udevadm-8.patch
+Patch0123:      0123-man-document-the-b-special-boot-option.patch
+Patch0124:      0124-rules-don-t-limit-some-of-the-rules-to-the-add-actio.patch
+Patch0125:      0125-tmpfiles-log-unaccessible-FUSE-mount-points-only-as-.patch
+Patch0126:      0126-rules-remove-pointless-MODE-settings.patch
+Patch0127:      0127-libudev-fix-hwdb-validation-to-look-for-the-new-file.patch
+Patch0128:      0128-catalog-remove-links-to-non-existent-wiki-pages.patch
+
+# git diff --src-prefix=a/ --dst-prefix=b/ master -- hwdb/ > systemd-hwdb.patch
+Patch0999:      systemd-hwdb.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -837,6 +911,11 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Tue Oct 29 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 201-2.fc18.9
+- Backport a considerable number of patches from upstream
+  (#1017161, #890463, #957783, #994268, #1017375, #880709).
+- Update to lastest version of the hardware database.
+
 * Wed Sep 18 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 201-2.fc18.8
 - Fix polkit authentication issue (#1006680).
 

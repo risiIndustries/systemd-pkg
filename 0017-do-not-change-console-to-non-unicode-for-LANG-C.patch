@@ -1,4 +1,4 @@
-From 10f9852d9cf429d6baaf416fee3aea519df6dcae Mon Sep 17 00:00:00 2001
+From d6ef4083085e184026c9a120dc7b75ce319ee401 Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Mon, 15 Apr 2013 18:34:53 +0200
 Subject: [PATCH] do not change console to non-unicode for LANG=C

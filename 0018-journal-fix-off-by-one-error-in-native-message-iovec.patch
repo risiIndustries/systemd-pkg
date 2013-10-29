@@ -1,4 +1,4 @@
-From a5b8a278a8e270dc819178edcd7c41fb8dc6a417 Mon Sep 17 00:00:00 2001
+From a5179e0936a14cfe43457dca678888bf2bce5634 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 16 Apr 2013 23:07:14 +0200
 Subject: [PATCH] journal: fix off-by-one error in native message iovec

@@ -1,4 +1,4 @@
-From 8e4bde308002d5ed0902c9af39ad3b5652e92701 Mon Sep 17 00:00:00 2001
+From 577aa8fce8b20cb906e05c576345feccab354f96 Mon Sep 17 00:00:00 2001
 From: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
 Date: Tue, 23 Apr 2013 13:34:38 -0400
 Subject: [PATCH] core: escape unit name from udev

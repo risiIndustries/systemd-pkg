@@ -1,4 +1,4 @@
-From 86a488ac3416b63b2146e2833ef692c76ae1decf Mon Sep 17 00:00:00 2001
+From 926f734836ab0b67e62d55b54e503728da30cee1 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 11 Jan 2013 23:47:11 +0100
 Subject: [PATCH] (F18) bring back single.service

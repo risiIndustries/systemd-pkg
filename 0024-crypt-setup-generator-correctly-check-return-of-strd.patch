@@ -1,4 +1,4 @@
-From 96e3fa404f52de26a93b0b52c5fb398871e229e5 Mon Sep 17 00:00:00 2001
+From 82e4f4eec9280a7867e4659f782dc7f0207537ad Mon Sep 17 00:00:00 2001
 From: Lukas Nykryn <lnykryn@redhat.com>
 Date: Fri, 19 Apr 2013 13:58:57 +0200
 Subject: [PATCH] crypt-setup-generator: correctly check return of strdup

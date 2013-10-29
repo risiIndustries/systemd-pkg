@@ -1,0 +1,23 @@
+From bc70fcd53738e7b1242e1e5b10a0cb6fd118bfa8 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Fri, 19 Apr 2013 13:58:58 +0200
+Subject: [PATCH] logind-dbus: initialize result variable (cherry picked from
+ commit 7f6437976d31fa772ccef9abedd152d6f5372303)
+
+---
+ src/login/logind-dbus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index aa212d1..7a38cdb 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -1117,7 +1117,7 @@ static int bus_manager_can_shutdown_or_sleep(
+                 DBusMessage **_reply) {
+ 
+         bool multiple_sessions, challenge, blocked, b;
+-        const char *result;
++        const char *result = NULL;
+         _cleanup_dbus_message_unref_ DBusMessage *reply = NULL;
+         int r;
+         unsigned long ul;
