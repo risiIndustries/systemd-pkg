@@ -1,0 +1,22 @@
+From 16ba284432f0b24feb4cd28d63c0626bb4e80acd Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Wed, 6 Nov 2013 11:18:02 +0100
+Subject: [PATCH] systemctl: return r instead of always returning 0
+
+---
+ src/systemctl/systemctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index e5bfbca..8fae09e 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -1329,7 +1329,7 @@ static int list_jobs(DBusConnection *bus, char **args) {
+         }
+         free(jobs);
+ 
+-        return 0;
++        return r;
+ }
+ 
+ static int load_unit(DBusConnection *bus, char **args) {

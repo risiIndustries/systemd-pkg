@@ -63,6 +63,3 @@ index 1ddb043..79572f1 100644
                  patch_realtime(directory, de->d_name, &st, &realtime);
  
                  GREEDY_REALLOC(list, n_allocated, n_list + 1);
--- 
-1.8.3.1
-

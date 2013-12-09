@@ -48,6 +48,3 @@ index b3c71eb..e229cdc 100644
  ExecStart=@rootlibexecdir@/systemd-fsck %f
  StandardOutput=journal+console
  TimeoutSec=0
--- 
-1.8.2.562.g931e949
-

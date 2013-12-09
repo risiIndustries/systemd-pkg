@@ -132,6 +132,3 @@ index 8a9957c..01f4678 100644
                          server_rotate(s);
                          server_vacuum(s);
                          return 1;
--- 
-1.8.3.1
-

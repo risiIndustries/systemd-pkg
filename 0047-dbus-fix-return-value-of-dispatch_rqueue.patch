@@ -25,6 +25,3 @@ index 7d6d848..b0eb2f1 100644
  }
  
  int sd_bus_send(sd_bus *bus, sd_bus_message *m, uint64_t *serial) {
--- 
-1.8.2.562.g931e949
-

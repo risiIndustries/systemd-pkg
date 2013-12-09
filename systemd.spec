@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        17%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        18%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -44,100 +44,127 @@ Source4:        listen.conf
 # Prevent accidental removal of the systemd package
 Source6:        yum-protect-systemd.conf
 
-# i=1; for p in 00*patch;do printf "Patch%02d:        %s\n" $i $p; ((i++));done
-Patch01:        0001-journal-correctly-convert-usec_t-to-timespec.patch
-Patch02:        0002-systemd-python-do-not-attempt-to-convert-str-to-byte.patch
-Patch03:        0003-systemd-python-fix-iteration.patch
-Patch04:        0004-systemctl-honor-no-legend-in-list-sockets.patch
-Patch05:        0005-service-kill-processes-with-SIGKILL-on-watchdog-fail.patch
-Patch06:        0006-Fix-CPUShares-configuration-option.patch
-Patch07:        0007-journald-DO-recalculate-the-ACL-mask-but-only-if-it-.patch
-Patch08:        0008-service-don-t-report-alien-child-as-alive-when-it-s-.patch
-Patch09:        0009-journal-remember-last-direction-of-search-and-keep-o.patch
-Patch10:        0010-journal-letting-interleaved-seqnums-go.patch
-Patch11:        0011-rules-drivers-always-call-kmod-even-when-a-driver-is.patch
-Patch12:        0012-80-net-name-slot.rules-only-rename-network-interface.patch
-Patch13:        0013-journal-fix-hashmap-leak-in-mmap-cache.patch
-Patch14:        0014-fstab-generator-read-rd.fstab-on-off-switch-correctl.patch
-Patch15:        0015-fstab-generator-log_oom-if-automount_name-is-null.patch
-Patch16:        0016-journald-do-not-overwrite-syslog-facility-when-parsi.patch
-Patch17:        0017-journal-fix-parsing-of-facility-in-syslog-messages.patch
-Patch18:        0018-libudev-fix-memleak-when-enumerating-childs.patch
-Patch19:        0019-libudev-enumerate-fix-NULL-deref-for-subsystem-match.patch
-Patch20:        0020-systemd-coredump-Ignore-coredumps-larger-than-COREDU.patch
-Patch21:        0021-journalctl-use-_COMM-match-for-scripts.patch
-Patch22:        0022-Allow-tabs-in-environment-files.patch
-Patch23:        0023-Actually-allow-tabs-in-environment-files.patch
-Patch24:        0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
-Patch25:        0025-cgtop-fixup-the-online-help.patch
-Patch26:        0026-polkit-Avoid-race-condition-in-scraping-proc.patch
-Patch27:        0027-clarify-escaping-in-Exec-lines.patch
-Patch28:        0028-udev-builtin-blkid-export-ID_PART_TABLE_UUID.patch
-Patch29:        0029-nspawn-be-less-liberal-about-creating-bind-mount-des.patch
-Patch30:        0030-fix-grammatical-error.patch
-Patch31:        0031-completion-systemctl-add-missing-list-sockets-verb.patch
-Patch32:        0032-journalctl-1-s-adm-systemd-journal.patch
-Patch33:        0033-journald-accept-EPOLLERR-from-dev-kmsg.patch
-Patch34:        0034-logind-if-a-user-is-sitting-in-front-of-the-computer.patch
-Patch35:        0035-dbus-fix-introspection-for-TimerSlackNSec.patch
-Patch36:        0036-swap-properly-expose-timeout-property-on-the-bus.patch
-Patch37:        0037-Remove-duplicated-line.patch
-Patch38:        0038-Add-a-bit-more-explicit-message-to-help-confused-use.patch
-Patch39:        0039-Fix-buffer-overrun-when-enumerating-files.patch
-Patch40:        0040-set-IgnoreOnIsolate-true-for-systemd-cryptsetup-.ser.patch
-Patch41:        0041-man-mention-the-systemd-homepage-from-systemd-1.patch
-Patch42:        0042-main-don-t-free-fds-array-twice.patch
-Patch43:        0043-smack-setup-fix-path-to-Smack-CIPSO-mappings.patch
-Patch44:        0044-util.c-ignore-pollfd.revent-for-loop_read-loop_write.patch
-Patch45:        0045-cryptsetup-fix-OOM-handling-when-parsing-mount-optio.patch
-Patch46:        0046-journald-add-missing-error-check.patch
-Patch47:        0047-dbus-fix-return-value-of-dispatch_rqueue.patch
-Patch48:        0048-modules-load-fix-error-handling.patch
-Patch49:        0049-efi-never-call-qsort-on-potentially-NULL-arrays.patch
-Patch50:        0050-strv-don-t-access-potentially-NULL-string-arrays.patch
-Patch51:        0051-execute.c-always-set-SHELL.patch
-Patch52:        0052-man-Improve-the-description-of-parameter-X-in-tmpfil.patch
-Patch53:        0053-systemd-order-remote-mounts-from-mountinfo-before-re.patch
-Patch54:        0054-manager-when-verifying-whether-clients-may-change-en.patch
-Patch55:        0055-Advertise-hibernation-only-if-there-s-enough-free-sw.patch
-Patch56:        0056-Assume-that-proc-meminfo-can-be-missing.patch
-Patch57:        0057-Use-first-partition-in-proc-swaps-for-hibernation-te.patch
-Patch58:        0058-test-fileio-assume-that-Buffers-may-be-missing.patch
-Patch59:        0059-Remove-duplicate-entries-from-syscall-list.patch
-Patch60:        0060-libudev-add-missing-global-to-symbol-export.patch
-Patch61:        0061-man-fix-description-of-sysctl.d-order.patch
-Patch62:        0062-units-make-fsck-units-remain-after-exit.patch
-Patch63:        0063-systemd-tmpfiles-setup-dev-remain-after-exit.patch
-Patch64:        0064-kmod-static-nodes-remain-after-exit.patch
-Patch65:        0065-sysctl-allow-overwriting-of-values-specified-in-late.patch
-Patch66:        0066-Restore-reading-of-etc-sysctl.conf.patch
-Patch67:        0067-mount-when-learning-about-the-root-mount-from-mounti.patch
-Patch68:        0068-core-mount.c-mount_dump-don-t-segfault-if-mount-is-n.patch
-Patch69:        0069-systemd-serialize-deserialize-forbid_restart-value.patch
-Patch70:        0070-core-unify-the-way-we-denote-serialization-attribute.patch
-Patch71:        0071-journal-vacuum-cleanup.patch
-Patch72:        0072-journald-always-vacuum-empty-offline-files.patch
-Patch73:        0073-journald-fix-vacuuming-of-archived-journals.patch
-Patch74:        0074-journald-fix-fd-leak-in-journal_file_empty.patch
-Patch75:        0075-journald-be-a-bit-more-verbose-when-vacuuming.patch
-Patch76:        0076-journald-fix-minor-memory-leak.patch
-Patch77:        0077-journald-remove-rotated-file-from-hashmap-when-rotat.patch
-Patch78:        0078-udevadm.xml-document-resolve-names-option-for-test.patch
-Patch79:        0079-dbus-common-avoid-leak-in-error-path.patch
-Patch80:        0080-drop-ins-check-return-value.patch
-Patch81:        0081-man-add-more-markup-to-udevadm-8.patch
-Patch82:        0082-Fix-for-SIGSEGV-in-systemd-bootchart-on-short-living.patch
-Patch83:        0083-man-document-the-b-special-boot-option.patch
-Patch84:        0084-rules-expose-loop-block-devices-to-systemd.patch
-Patch85:        0085-rules-don-t-limit-some-of-the-rules-to-the-add-actio.patch
-Patch86:        0086-tmpfiles-log-unaccessible-FUSE-mount-points-only-as-.patch
-Patch87:        0087-rules-remove-pointless-MODE-settings.patch
-Patch88:        0088-shell-completion-dump-has-moved-to-systemd-analyze.patch
-Patch89:        0089-give-priority-to-etc-sysctl.conf.patch
-Patch90:        0090-libudev-fix-hwdb-validation-to-look-for-the-new-file.patch
+# GIT_DIR=~/src/systemd/.git git format-patch --src-prefix=a/ --dst-prefix=b/ -M -N --no-signature v204..v204-stable
+# i=1; for p in 0*patch;do printf "Patch%03d:       %s\n" $i $p; ((i++));done
+Patch001:       0001-journal-correctly-convert-usec_t-to-timespec.patch
+Patch002:       0002-systemd-python-do-not-attempt-to-convert-str-to-byte.patch
+Patch003:       0003-systemd-python-fix-iteration.patch
+Patch004:       0004-systemctl-honor-no-legend-in-list-sockets.patch
+Patch005:       0005-service-kill-processes-with-SIGKILL-on-watchdog-fail.patch
+Patch006:       0006-Fix-CPUShares-configuration-option.patch
+Patch007:       0007-journald-DO-recalculate-the-ACL-mask-but-only-if-it-.patch
+Patch008:       0008-service-don-t-report-alien-child-as-alive-when-it-s-.patch
+Patch009:       0009-journal-remember-last-direction-of-search-and-keep-o.patch
+Patch010:       0010-journal-letting-interleaved-seqnums-go.patch
+Patch011:       0011-rules-drivers-always-call-kmod-even-when-a-driver-is.patch
+Patch012:       0012-80-net-name-slot.rules-only-rename-network-interface.patch
+Patch013:       0013-journal-fix-hashmap-leak-in-mmap-cache.patch
+Patch014:       0014-fstab-generator-read-rd.fstab-on-off-switch-correctl.patch
+Patch015:       0015-fstab-generator-log_oom-if-automount_name-is-null.patch
+Patch016:       0016-journald-do-not-overwrite-syslog-facility-when-parsi.patch
+Patch017:       0017-journal-fix-parsing-of-facility-in-syslog-messages.patch
+Patch018:       0018-libudev-fix-memleak-when-enumerating-childs.patch
+Patch019:       0019-libudev-enumerate-fix-NULL-deref-for-subsystem-match.patch
+Patch020:       0020-systemd-coredump-Ignore-coredumps-larger-than-COREDU.patch
+Patch021:       0021-journalctl-use-_COMM-match-for-scripts.patch
+Patch022:       0022-Allow-tabs-in-environment-files.patch
+Patch023:       0023-Actually-allow-tabs-in-environment-files.patch
+Patch024:       0024-systemctl-process-only-signals-for-jobs-we-really-wa.patch
+Patch025:       0025-cgtop-fixup-the-online-help.patch
+Patch026:       0026-polkit-Avoid-race-condition-in-scraping-proc.patch
+Patch027:       0027-clarify-escaping-in-Exec-lines.patch
+Patch028:       0028-udev-builtin-blkid-export-ID_PART_TABLE_UUID.patch
+Patch029:       0029-nspawn-be-less-liberal-about-creating-bind-mount-des.patch
+Patch030:       0030-fix-grammatical-error.patch
+Patch031:       0031-completion-systemctl-add-missing-list-sockets-verb.patch
+Patch032:       0032-journalctl-1-s-adm-systemd-journal.patch
+Patch033:       0033-journald-accept-EPOLLERR-from-dev-kmsg.patch
+Patch034:       0034-logind-if-a-user-is-sitting-in-front-of-the-computer.patch
+Patch035:       0035-dbus-fix-introspection-for-TimerSlackNSec.patch
+Patch036:       0036-swap-properly-expose-timeout-property-on-the-bus.patch
+Patch037:       0037-Remove-duplicated-line.patch
+Patch038:       0038-Add-a-bit-more-explicit-message-to-help-confused-use.patch
+Patch039:       0039-Fix-buffer-overrun-when-enumerating-files.patch
+Patch040:       0040-set-IgnoreOnIsolate-true-for-systemd-cryptsetup-.ser.patch
+Patch041:       0041-man-mention-the-systemd-homepage-from-systemd-1.patch
+Patch042:       0042-main-don-t-free-fds-array-twice.patch
+Patch043:       0043-smack-setup-fix-path-to-Smack-CIPSO-mappings.patch
+Patch044:       0044-util.c-ignore-pollfd.revent-for-loop_read-loop_write.patch
+Patch045:       0045-cryptsetup-fix-OOM-handling-when-parsing-mount-optio.patch
+Patch046:       0046-journald-add-missing-error-check.patch
+Patch047:       0047-dbus-fix-return-value-of-dispatch_rqueue.patch
+Patch048:       0048-modules-load-fix-error-handling.patch
+Patch049:       0049-efi-never-call-qsort-on-potentially-NULL-arrays.patch
+Patch050:       0050-strv-don-t-access-potentially-NULL-string-arrays.patch
+Patch051:       0051-execute.c-always-set-SHELL.patch
+Patch052:       0052-man-Improve-the-description-of-parameter-X-in-tmpfil.patch
+Patch053:       0053-systemd-order-remote-mounts-from-mountinfo-before-re.patch
+Patch054:       0054-manager-when-verifying-whether-clients-may-change-en.patch
+Patch055:       0055-Advertise-hibernation-only-if-there-s-enough-free-sw.patch
+Patch056:       0056-Assume-that-proc-meminfo-can-be-missing.patch
+Patch057:       0057-Use-first-partition-in-proc-swaps-for-hibernation-te.patch
+Patch058:       0058-test-fileio-assume-that-Buffers-may-be-missing.patch
+Patch059:       0059-Remove-duplicate-entries-from-syscall-list.patch
+Patch060:       0060-libudev-add-missing-global-to-symbol-export.patch
+Patch061:       0061-man-fix-description-of-sysctl.d-order.patch
+Patch062:       0062-units-make-fsck-units-remain-after-exit.patch
+Patch063:       0063-systemd-tmpfiles-setup-dev-remain-after-exit.patch
+Patch064:       0064-kmod-static-nodes-remain-after-exit.patch
+Patch065:       0065-sysctl-allow-overwriting-of-values-specified-in-late.patch
+Patch066:       0066-Restore-reading-of-etc-sysctl.conf.patch
+Patch067:       0067-mount-when-learning-about-the-root-mount-from-mounti.patch
+Patch068:       0068-core-mount.c-mount_dump-don-t-segfault-if-mount-is-n.patch
+Patch069:       0069-systemd-serialize-deserialize-forbid_restart-value.patch
+Patch070:       0070-core-unify-the-way-we-denote-serialization-attribute.patch
+Patch071:       0071-journal-vacuum-cleanup.patch
+Patch072:       0072-journald-always-vacuum-empty-offline-files.patch
+Patch073:       0073-journald-fix-vacuuming-of-archived-journals.patch
+Patch074:       0074-journald-fix-fd-leak-in-journal_file_empty.patch
+Patch075:       0075-journald-be-a-bit-more-verbose-when-vacuuming.patch
+Patch076:       0076-journald-fix-minor-memory-leak.patch
+Patch077:       0077-journald-remove-rotated-file-from-hashmap-when-rotat.patch
+Patch078:       0078-udevadm.xml-document-resolve-names-option-for-test.patch
+Patch079:       0079-dbus-common-avoid-leak-in-error-path.patch
+Patch080:       0080-drop-ins-check-return-value.patch
+Patch081:       0081-man-add-more-markup-to-udevadm-8.patch
+Patch082:       0082-Fix-for-SIGSEGV-in-systemd-bootchart-on-short-living.patch
+Patch083:       0083-man-document-the-b-special-boot-option.patch
+Patch084:       0084-rules-expose-loop-block-devices-to-systemd.patch
+Patch085:       0085-rules-don-t-limit-some-of-the-rules-to-the-add-actio.patch
+Patch086:       0086-tmpfiles-log-unaccessible-FUSE-mount-points-only-as-.patch
+Patch087:       0087-rules-remove-pointless-MODE-settings.patch
+Patch088:       0088-shell-completion-dump-has-moved-to-systemd-analyze.patch
+Patch089:       0089-give-priority-to-etc-sysctl.conf.patch
+Patch090:       0090-libudev-fix-hwdb-validation-to-look-for-the-new-file.patch
+Patch091:       0091-catalog-remove-links-to-non-existent-wiki-pages.patch
+Patch092:       0092-udev-ata_id-log-faling-ioctls-as-debug.patch
+Patch093:       0093-libudev-default-log_priority-to-INFO.patch
+Patch094:       0094-man-explain-NAME-in-systemctl-man-page.patch
+Patch095:       0095-systemd-python-convert-keyword-value-to-string.patch
+Patch096:       0096-systemctl-make-LOAD-column-width-dynamic.patch
+Patch097:       0097-Make-hibernation-test-work-for-swap-files.patch
+Patch098:       0098-systemctl-return-r-instead-of-always-returning-0.patch
+Patch099:       0099-button-don-t-exit-if-we-cannot-handle-a-button-press.patch
+Patch100:       0100-timer-properly-format-relative-timestamps-in-the-fut.patch
+Patch101:       0101-activate-mention-E-in-the-help-text.patch
+Patch102:       0102-activate-fix-crash-when-s-is-passed.patch
+Patch103:       0103-journal-timestamp-support-on-console-messages.patch
+Patch104:       0104-Resolve-dev-console-to-the-active-tty-instead-of-jus.patch
+Patch105:       0105-manager-don-t-do-plymouth-in-a-container.patch
+Patch106:       0106-valgrind-make-running-PID-1-in-valgrind-useful.patch
+Patch107:       0107-automount-log-info-about-triggering-process.patch
+Patch108:       0108-util.c-check-if-return-value-from-ttyname_r-is-0-ins.patch
+Patch109:       0109-docs-remove-unneeded-the-s-in-gudev-docs.patch
+Patch110:       0110-systemd-treat-reload-failure-as-failure.patch
+Patch111:       0111-journal-fail-silently-in-sd_j_sendv-if-journal-is-un.patch
+Patch112:       0112-journal-handle-multiline-syslog-messages.patch
+Patch113:       0113-systemctl-core-allow-nuking-of-symlinks-to-removed-u.patch
+Patch114:       0114-journald-bump-the-journal-per-unit-ratelimit-default.patch
+Patch115:       0115-service-execute-ExecStopPost-commands-when-the-watch.patch
+Patch116:       0116-localed-match-converted-keymaps-before-legacy.patch
 
-# git diff --src-prefix=a/ --dst-prefix=b/ v204 -- hwdb/ > systemd-hwdb.patch
-Patch99:        systemd-hwdb.patch
+# git diff --src-prefix=a/ --dst-prefix=b/ v204-stable..master -- hwdb/ > systemd-hwdb.patch
+Patch0999:      systemd-hwdb.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -901,6 +928,17 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Sun Dec 08 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-19
+- Update hardward database
+- Backport fixes: keyboard configuration, run ExecStopPost= on
+  watchdog timeouts, bump journal ratelimits, fix systemctl disable
+  for multiple units, fix handling of multiline syslog messages, fail
+  journal logging gracefuly in mock, various logging updates,
+  documentation updates, fix systemctl reload failure propagation,
+  allow running systemd under valgrind, make journald log timestamps
+  on the console, allow hibernation to swap files, do not advertise
+  non-existent wiki pages, assorted smaller bugfixes.
+
 * Wed Oct 23 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-18
 - Fix hwdb validation to look for the *new* file.
 

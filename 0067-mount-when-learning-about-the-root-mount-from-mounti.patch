@@ -28,6 +28,3 @@ index 8777b47..605c56d 100644
  
                  unit_add_to_load_queue(u);
          } else {
--- 
-1.8.3.1
-

@@ -175,6 +175,3 @@ index d56f7cc..b08e796 100644
 +        test_executable_is_script();
          return 0;
  }
--- 
-1.8.2.562.g931e949
-

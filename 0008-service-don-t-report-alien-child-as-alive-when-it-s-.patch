@@ -27,6 +27,3 @@ index e110a41..973bd03 100644
                          return kill(s->main_pid, 0) >= 0 || errno != ESRCH;
  
                  /* .. otherwise assume we'll get a SIGCHLD for it,
--- 
-1.8.2.562.g931e949
-

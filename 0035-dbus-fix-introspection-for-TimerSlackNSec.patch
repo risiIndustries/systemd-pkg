@@ -20,6 +20,3 @@ index 91d70e5..698102f 100644
          "  <property name=\"CPUSchedulingResetOnFork\" type=\"b\" access=\"read\"/>\n" \
          "  <property name=\"NonBlocking\" type=\"b\" access=\"read\"/>\n" \
          "  <property name=\"StandardInput\" type=\"s\" access=\"read\"/>\n" \
--- 
-1.8.2.562.g931e949
-

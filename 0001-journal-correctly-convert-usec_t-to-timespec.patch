@@ -26,6 +26,3 @@ index cc52b8a..b717b92 100644
  
                  r = timerfd_settime(s->sync_timer_fd, 0, &sync_timer_enable, NULL);
                  if (r < 0)
--- 
-1.8.2.562.g931e949
-

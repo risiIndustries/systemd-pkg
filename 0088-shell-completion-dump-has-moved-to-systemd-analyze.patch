@@ -78,6 +78,3 @@ index ff15da6..db8ca1e 100644
  #                  emergency exit halt kexec list-jobs list-units
  #                  list-unit-files poweroff reboot rescue show-environment'
  #         [NAME]='snapshot load'
--- 
-1.8.3.1
-

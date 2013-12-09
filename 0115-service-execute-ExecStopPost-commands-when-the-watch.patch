@@ -1,0 +1,28 @@
+From 04a3f098eae9478dd58bd3b7c89afbc5d7b978b6 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 6 Jun 2013 09:10:12 +0200
+Subject: [PATCH] service: execute ExecStopPost= commands when the watchdog
+ timeout hits
+
+We can assume that a service for which a watchdog timeout was triggered
+is unresponsive to a clean shutdown. However, it still makes sense to
+execute the post-stop cleanup commands that can be configured with
+ExecStopPost=. Hence, when the timeout is hit enter STOP_SIGKILL rather
+than FINAL_SIGKILL.
+---
+ src/core/service.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/service.c b/src/core/service.c
+index bc00f88..6e0abe6 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -249,7 +249,7 @@ static void service_handle_watchdog(Service *s) {
+         offset = now(CLOCK_MONOTONIC) - s->watchdog_timestamp.monotonic;
+         if (offset >= s->watchdog_usec) {
+                 log_error_unit(UNIT(s)->id, "%s watchdog timeout!", UNIT(s)->id);
+-                service_enter_signal(s, SERVICE_FINAL_SIGKILL, SERVICE_FAILURE_WATCHDOG);
++                service_enter_signal(s, SERVICE_STOP_SIGKILL, SERVICE_FAILURE_WATCHDOG);
+                 return;
+         }
+ 

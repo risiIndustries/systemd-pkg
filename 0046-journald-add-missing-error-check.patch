@@ -20,6 +20,3 @@ index 38499a6..bb80905 100644
  
          o->field.hash = htole64(hash);
          memcpy(o->field.payload, field, size);
--- 
-1.8.2.562.g931e949
-

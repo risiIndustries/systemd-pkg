@@ -57,6 +57,3 @@ index 8fd1bb3..adcc844 100644
  
      def add_match(self, *args, **kwargs):
          """Add one or more matches to the filter journal log entries.
--- 
-1.8.2.562.g931e949
-

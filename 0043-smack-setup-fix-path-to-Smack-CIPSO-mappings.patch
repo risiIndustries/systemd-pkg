@@ -23,6 +23,3 @@ index 73eeb04..d203a30 100644
  
  static int write_rules(const char* dstpath, const char* srcdir) {
          _cleanup_fclose_ FILE *dst = NULL;
--- 
-1.8.2.562.g931e949
-

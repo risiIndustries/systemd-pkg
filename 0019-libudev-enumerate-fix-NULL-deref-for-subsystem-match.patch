@@ -42,6 +42,3 @@ index 7e63820..77f75bf 100644
          udev_list_entry_foreach(list_entry, udev_list_get_entry(&udev_enumerate->subsystem_nomatch_list)) {
                  if (fnmatch(udev_list_entry_get_name(list_entry), subsystem, 0) == 0)
                          return false;
--- 
-1.8.2.562.g931e949
-

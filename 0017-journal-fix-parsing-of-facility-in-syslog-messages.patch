@@ -84,6 +84,3 @@ index 324b70e..8ccdb77 100644
  size_t syslog_parse_identifier(const char **buf, char **identifier, char **pid);
  
  void server_forward_syslog(Server *s, int priority, const char *identifier, const char *message, struct ucred *ucred, struct timeval *tv);
--- 
-1.8.2.562.g931e949
-

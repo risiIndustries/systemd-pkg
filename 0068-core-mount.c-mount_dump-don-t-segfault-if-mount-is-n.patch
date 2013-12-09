@@ -29,6 +29,3 @@ index 605c56d..85f5000 100644
                  prefix, yes_no(m->from_proc_self_mountinfo),
                  prefix, yes_no(m->from_fragment),
                  prefix, m->directory_mode);
--- 
-1.8.3.1
-

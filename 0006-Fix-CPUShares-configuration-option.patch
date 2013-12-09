@@ -22,6 +22,3 @@ index 82b02bb..7df9d01 100644
          { "memory",  "memory.soft_limit_in_bytes", "MemorySoftLimit",       false, parse_memory_limit,        NULL,       NULL },
          { "memory",  "memory.limit_in_bytes",      "MemoryLimit",           false, parse_memory_limit,        NULL,       NULL },
          { "devices", "devices.allow",              "DeviceAllow",           true,  parse_device,              map_device, NULL },
--- 
-1.8.2.562.g931e949
-

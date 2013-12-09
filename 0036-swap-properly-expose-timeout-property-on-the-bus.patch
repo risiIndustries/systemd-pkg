@@ -19,6 +19,3 @@ index 2e99fba..e72749a 100644
          BUS_EXEC_COMMAND_PROPERTY("ExecActivate",   offsetof(Swap, exec_command[SWAP_EXEC_ACTIVATE]),   false),
          BUS_EXEC_COMMAND_PROPERTY("ExecDeactivate", offsetof(Swap, exec_command[SWAP_EXEC_DEACTIVATE]), false),
          { "ControlPID", bus_property_append_pid,    "u", offsetof(Swap, control_pid) },
--- 
-1.8.2.562.g931e949
-

@@ -22,6 +22,3 @@ index 0454cf2..7d32e5d 100644
                                  argument (i.e. the program to execute)
                                  may not be a variable, since it must
                                  be a literal and absolute path
--- 
-1.8.2.562.g931e949
-

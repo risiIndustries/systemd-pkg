@@ -20,6 +20,3 @@ index 479938f..6b3e67e 100644
                          return log_oom();
  
                  automount_unit = strjoin(arg_dest, "/", automount_name, NULL);
--- 
-1.8.2.562.g931e949
-

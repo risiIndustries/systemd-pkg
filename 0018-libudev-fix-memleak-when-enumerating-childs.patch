@@ -47,6 +47,3 @@ index 5ccaabd..7e63820 100644
  }
  
  static int parent_crawl_children(struct udev_enumerate *enumerate, const char *path, int maxdepth)
--- 
-1.8.2.562.g931e949
-

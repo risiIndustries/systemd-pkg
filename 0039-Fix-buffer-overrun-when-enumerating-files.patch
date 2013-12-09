@@ -138,6 +138,3 @@ index c9e9b87..eb9b0f7 100644
  }
  
  char *strjoin(const char *x, ...) {
--- 
-1.8.2.562.g931e949
-

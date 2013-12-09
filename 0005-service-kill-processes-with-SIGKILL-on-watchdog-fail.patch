@@ -45,6 +45,3 @@ index 3617c24..e110a41 100644
  static void service_enter_stop_post(Service *s, ServiceResult f) {
          int r;
          assert(s);
--- 
-1.8.2.562.g931e949
-

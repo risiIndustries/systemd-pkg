@@ -67,6 +67,3 @@ index 5813699..6c03a0d 100644
                          log_error("Got invalid event from epoll.");
                          return -EIO;
                  }
--- 
-1.8.2.562.g931e949
-

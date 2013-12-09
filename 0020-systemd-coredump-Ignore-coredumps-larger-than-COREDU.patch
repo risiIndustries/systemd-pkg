@@ -38,6 +38,3 @@ index fd03e38..a7d3c34 100644
                  if (!GREEDY_REALLOC(coredump_data, coredump_bufsize, coredump_size + 1)) {
                          r = log_oom();
                          goto finish;
--- 
-1.8.2.562.g931e949
-

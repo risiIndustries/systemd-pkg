@@ -22,6 +22,3 @@ index 3a196a6..82010a5 100644
  
  src/core/syscall-from-name.gperf: src/core/syscall-list.txt Makefile
  	$(AM_V_at)$(MKDIR_P) $(dir $@)
--- 
-1.8.2.562.g931e949
-

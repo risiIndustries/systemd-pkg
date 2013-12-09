@@ -21,6 +21,3 @@ index 0c551d4..b96d32d 100644
                  </defaults>
                  <annotate key="org.freedesktop.policykit.imply">org.freedesktop.login1.reboot</annotate>
          </action>
--- 
-1.8.2.562.g931e949
-

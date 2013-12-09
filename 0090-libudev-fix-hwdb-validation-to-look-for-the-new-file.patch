@@ -20,6 +20,3 @@ index 42ab6d9..c2695b5 100644
                  return true;
          if (timespec_load(&hwdb->st.st_mtim) != timespec_load(&st.st_mtim))
                  return true;
--- 
-1.8.3.1
-

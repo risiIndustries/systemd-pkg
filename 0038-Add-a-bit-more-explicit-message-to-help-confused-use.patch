@@ -24,6 +24,3 @@ index ee86f2e..fcda00f 100644
  
 -F /run/nologin 0644 - - - "System is booting up."
 +F /run/nologin 0644 - - - "System is booting up. See pam_nologin(8)"
--- 
-1.8.2.562.g931e949
-

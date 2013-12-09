@@ -27,6 +27,3 @@ index 9b36b22..e744cd3 100644
          if (unlink(q) < 0)
                  r = -errno;
          else
--- 
-1.8.3.1
-

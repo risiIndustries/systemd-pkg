@@ -29,6 +29,3 @@ index c0cce49..783c610 100644
          }
  
          k = apply_all(sysctl_options);
--- 
-1.8.3.1
-

@@ -30,6 +30,3 @@ index ace7722..178c803 100644
  
          fd = openat(dir_fd, name, O_RDONLY|O_CLOEXEC|O_NOFOLLOW|O_NONBLOCK);
          if (fd < 0)
--- 
-1.8.3.1
-

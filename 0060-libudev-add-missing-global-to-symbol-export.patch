@@ -18,6 +18,3 @@ index 8e09430..1e6f885 100644
 +global:
          udev_device_set_sysattr_value;
  } LIBUDEV_196;
--- 
-1.8.2.562.g931e949
-

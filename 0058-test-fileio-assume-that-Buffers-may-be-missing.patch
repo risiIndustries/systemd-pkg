@@ -23,6 +23,3 @@ index a05640a..c589f19 100644
          puts(s);
          assert_se(safe_atollu(s, &buffers) == 0);
  
--- 
-1.8.2.562.g931e949
-

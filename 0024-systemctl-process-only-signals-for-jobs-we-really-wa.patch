@@ -49,6 +49,3 @@ index e6bd855..50f61a3 100644
  
                          if (*result)
                                  d->result = strdup(result);
--- 
-1.8.2.562.g931e949
-

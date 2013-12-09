@@ -40,6 +40,3 @@ index 79572f1..ace7722 100644
  
                  GREEDY_REALLOC(list, n_allocated, n_list + 1);
  
--- 
-1.8.3.1
-

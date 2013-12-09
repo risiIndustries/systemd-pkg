@@ -205,6 +205,3 @@ index c3cb9c5..545dfab 100644
  
          log_info("Suspend configured and possible: %s", yes_no(can_sleep("suspend") > 0));
          log_info("Hibernation configured and possible: %s", yes_no(can_sleep("hibernate") > 0));
--- 
-1.8.2.562.g931e949
-

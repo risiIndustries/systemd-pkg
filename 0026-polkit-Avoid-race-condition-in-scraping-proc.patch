@@ -70,6 +70,3 @@ index cea7074..1c5e9e3 100644
              !dbus_message_iter_close_container(&iter_dict, &iter_variant) ||
              !dbus_message_iter_close_container(&iter_array, &iter_dict) ||
              !dbus_message_iter_close_container(&iter_struct, &iter_array) ||
--- 
-1.8.2.562.g931e949
-

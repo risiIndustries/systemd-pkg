@@ -35,6 +35,3 @@ index 767f555..03b57be 100644
          while (m->unused)
                  window_free(m->unused);
  
--- 
-1.8.2.562.g931e949
-

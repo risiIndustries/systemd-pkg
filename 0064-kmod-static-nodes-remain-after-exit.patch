@@ -20,6 +20,3 @@ index 0a814f0..764da01 100644
 -RemainAfterExit=true
 +RemainAfterExit=yes
  ExecStart=@rootbindir@/systemd-tmpfiles --prefix=/dev --create
--- 
-1.8.2.562.g931e949
-

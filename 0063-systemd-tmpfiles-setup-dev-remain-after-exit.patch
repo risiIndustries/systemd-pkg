@@ -20,6 +20,3 @@ index f029285..0a814f0 100644
  Type=oneshot
 +RemainAfterExit=true
  ExecStart=@rootbindir@/systemd-tmpfiles --prefix=/dev --create
--- 
-1.8.2.562.g931e949
-

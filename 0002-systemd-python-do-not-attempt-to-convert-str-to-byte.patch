@@ -30,6 +30,3 @@ index 9ef1ede..8fd1bb3 100644
      'COREDUMP': bytes,
      'COREDUMP_PID': int,
      'COREDUMP_UID': int,
--- 
-1.8.2.562.g931e949
-
