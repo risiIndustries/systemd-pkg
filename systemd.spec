@@ -221,6 +221,7 @@ Requires(pre):  /usr/sbin/groupadd
 Requires:       dbus
 Requires:       nss-myhostname
 Requires:       %{name}-libs = %{version}-%{release}
+Requires:       diffutils
 
 
 Obsoletes:      SysVinit < 2.86-24, sysvinit < 2.86-24
