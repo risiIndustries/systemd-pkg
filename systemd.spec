@@ -216,6 +216,7 @@ Requires(pre):  /usr/sbin/groupadd
 Requires:       dbus
 Requires:       nss-myhostname
 Requires:       %{name}-libs = %{version}-%{release}
+Requires:       diffutils
 
 Provides:       /bin/systemctl
 Provides:       /sbin/shutdown
