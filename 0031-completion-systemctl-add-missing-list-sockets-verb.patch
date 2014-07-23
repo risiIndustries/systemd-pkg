@@ -12,7 +12,7 @@ Conflicts:
  2 files changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/shell-completion/bash/systemctl b/shell-completion/bash/systemctl
-index 191b8d1..f1ec99b 100644
+index 191b8d13ec..f1ec99bdd2 100644
 --- a/shell-completion/bash/systemctl
 +++ b/shell-completion/bash/systemctl
 @@ -133,7 +133,7 @@ _systemctl () {
@@ -25,7 +25,7 @@ index 191b8d1..f1ec99b 100644
                       [NAME]='snapshot load'
                       [FILE]='link'
 diff --git a/shell-completion/systemd-zsh-completion.zsh b/shell-completion/systemd-zsh-completion.zsh
-index 411646e..ff15da6 100644
+index 411646ea59..ff15da6d37 100644
 --- a/shell-completion/systemd-zsh-completion.zsh
 +++ b/shell-completion/systemd-zsh-completion.zsh
 @@ -328,6 +328,7 @@ _outputmodes() {

@@ -8,7 +8,7 @@ Subject: [PATCH] core: unify the way we denote serialization attributes
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/core/service.c b/src/core/service.c
-index 0c8a81b..bc00f88 100644
+index 0c8a81b9a5..bc00f885e8 100644
 --- a/src/core/service.c
 +++ b/src/core/service.c
 @@ -2641,7 +2641,7 @@ static int service_serialize(Unit *u, FILE *f, FDSet *fds) {

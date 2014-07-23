@@ -12,7 +12,7 @@ Conflicts:
  2 files changed, 8 insertions(+), 9 deletions(-)
 
 diff --git a/src/sysctl/sysctl.c b/src/sysctl/sysctl.c
-index db18dd9..b5670db 100644
+index db18dd9f6e..b5670dbb86 100644
 --- a/src/sysctl/sysctl.c
 +++ b/src/sysctl/sysctl.c
 @@ -135,6 +135,7 @@ static int parse_file(Hashmap *sysctl_options, const char *path, bool ignore_eno
@@ -62,7 +62,7 @@ index db18dd9..b5670db 100644
                          k = parse_file(sysctl_options, *f, true);
                          if (k < 0 && r == 0)
 diff --git a/units/systemd-sysctl.service.in b/units/systemd-sysctl.service.in
-index 45e1ceb..5baf22c 100644
+index 45e1ceb25c..5baf22c183 100644
 --- a/units/systemd-sysctl.service.in
 +++ b/units/systemd-sysctl.service.in
 @@ -13,7 +13,6 @@ Conflicts=shutdown.target

@@ -8,7 +8,7 @@ Subject: [PATCH] give priority to /etc/sysctl.conf
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/src/sysctl/sysctl.c b/src/sysctl/sysctl.c
-index c0cce49..783c610 100644
+index c0cce491b6..783c6102a7 100644
 --- a/src/sysctl/sysctl.c
 +++ b/src/sysctl/sysctl.c
 @@ -306,13 +306,15 @@ int main(int argc, char *argv[]) {

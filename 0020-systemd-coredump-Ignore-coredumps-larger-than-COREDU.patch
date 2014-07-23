@@ -13,7 +13,7 @@ application.
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/src/journal/coredump.c b/src/journal/coredump.c
-index fd03e38..a7d3c34 100644
+index fd03e389bb..a7d3c34fe4 100644
 --- a/src/journal/coredump.c
 +++ b/src/journal/coredump.c
 @@ -41,7 +41,7 @@

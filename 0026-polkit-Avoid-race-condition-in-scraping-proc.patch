@@ -11,7 +11,7 @@ passing system-bus-name as a subject.
  1 file changed, 5 insertions(+), 26 deletions(-)
 
 diff --git a/src/shared/polkit.c b/src/shared/polkit.c
-index cea7074..1c5e9e3 100644
+index cea7074ad3..1c5e9e3e0f 100644
 --- a/src/shared/polkit.c
 +++ b/src/shared/polkit.c
 @@ -38,12 +38,8 @@ int verify_polkit(

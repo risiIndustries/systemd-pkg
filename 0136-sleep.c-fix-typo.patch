@@ -1,0 +1,24 @@
+From 9930cd2e5859ef40ce116e392d037f8cdca9d997 Mon Sep 17 00:00:00 2001
+From: Michele Curti <michele.curti@gmail.com>
+Date: Tue, 7 Jan 2014 17:51:41 +0100
+Subject: [PATCH] sleep.c: fix typo
+
+(cherry picked from commit 096924092b664e992cec49e2ef4ce33443877ac8)
+(cherry picked from commit fdaa623f6260f03f2c7c38802fc713a865a3fc34)
+---
+ src/sleep/sleep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/sleep/sleep.c b/src/sleep/sleep.c
+index a56ab89e54..fd3f48899a 100644
+--- a/src/sleep/sleep.c
++++ b/src/sleep/sleep.c
+@@ -91,7 +91,7 @@ static int execute(char **modes, char **states) {
+         const char* note = strappenda("SLEEP=", arg_verb);
+ 
+         /* This file is opened first, so that if we hit an error,
+-         * we can abort before modyfing any state. */
++         * we can abort before modifying any state. */
+         f = fopen("/sys/power/state", "we");
+         if (!f) {
+                 log_error("Failed to open /sys/power/state: %m");

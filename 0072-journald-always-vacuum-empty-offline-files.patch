@@ -17,7 +17,7 @@ costs around 3 MB, and there's little point in keeping them around.
  1 file changed, 29 insertions(+)
 
 diff --git a/src/journal/journal-vacuum.c b/src/journal/journal-vacuum.c
-index 1ddb043..79572f1 100644
+index 1ddb043e2c..79572f1fb6 100644
 --- a/src/journal/journal-vacuum.c
 +++ b/src/journal/journal-vacuum.c
 @@ -128,6 +128,24 @@ static void patch_realtime(

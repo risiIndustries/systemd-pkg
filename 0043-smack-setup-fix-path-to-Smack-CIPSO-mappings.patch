@@ -11,7 +11,7 @@ though it is no longer supported in upstream libsmack.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/core/smack-setup.c b/src/core/smack-setup.c
-index 73eeb04..d203a30 100644
+index 73eeb04190..d203a30aaf 100644
 --- a/src/core/smack-setup.c
 +++ b/src/core/smack-setup.c
 @@ -40,7 +40,7 @@

@@ -8,7 +8,7 @@ Subject: [PATCH] man: mention the systemd homepage from systemd(1)
  1 file changed, 1 insertion(+)
 
 diff --git a/man/systemd.xml b/man/systemd.xml
-index d009ed8..8b03417 100644
+index d009ed8e1c..8b03417bd4 100644
 --- a/man/systemd.xml
 +++ b/man/systemd.xml
 @@ -1258,6 +1258,7 @@

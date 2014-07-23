@@ -10,7 +10,7 @@ That way systemd won't try to umount it at shutdown.
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/src/core/mount.c b/src/core/mount.c
-index 8777b47..605c56d 100644
+index 8777b47ca9..605c56d26d 100644
 --- a/src/core/mount.c
 +++ b/src/core/mount.c
 @@ -1541,9 +1541,11 @@ static int mount_add_one(

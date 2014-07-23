@@ -15,7 +15,7 @@ Conflicts:
  3 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/shell-completion/bash/systemctl b/shell-completion/bash/systemctl
-index f1ec99b..2990482 100644
+index f1ec99bdd2..2990482352 100644
 --- a/shell-completion/bash/systemctl
 +++ b/shell-completion/bash/systemctl
 @@ -131,7 +131,7 @@ _systemctl () {
@@ -28,7 +28,7 @@ index f1ec99b..2990482 100644
                               list-sockets list-units list-unit-files poweroff reboot rescue
                               show-environment suspend'
 diff --git a/shell-completion/bash/systemd-analyze b/shell-completion/bash/systemd-analyze
-index 11276ef..e442ce5 100644
+index 11276ef09c..e442ce5446 100644
 --- a/shell-completion/bash/systemd-analyze
 +++ b/shell-completion/bash/systemd-analyze
 @@ -30,7 +30,7 @@ _systemd_analyze() {
@@ -50,7 +50,7 @@ index 11276ef..e442ce5 100644
                          comps='--help --version --system --user'
                  fi
 diff --git a/shell-completion/systemd-zsh-completion.zsh b/shell-completion/systemd-zsh-completion.zsh
-index ff15da6..db8ca1e 100644
+index ff15da6d37..db8ca1e89a 100644
 --- a/shell-completion/systemd-zsh-completion.zsh
 +++ b/shell-completion/systemd-zsh-completion.zsh
 @@ -301,6 +301,7 @@ _systemd_analyze_command(){

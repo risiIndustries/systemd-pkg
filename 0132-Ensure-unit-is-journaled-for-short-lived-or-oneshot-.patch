@@ -1,0 +1,36 @@
+From 3b5a302b9fd026cf24cf422460cc3c1c6ab125d2 Mon Sep 17 00:00:00 2001
+From: Dan McGee <dan@archlinux.org>
+Date: Sun, 8 Dec 2013 13:27:05 -0600
+Subject: [PATCH] Ensure unit is journaled for short-lived or oneshot processes
+
+In the time it takes to process incoming log messages, the process we
+are logging details for may exit. This means the cgroup data is no
+longer available from '/proc'. Unfortunately, the way the code was
+structured before, we never log _SYSTEMD_UNIT if we don't have this
+cgroup information.
+
+Add an else if case that allows the passed in unit_id to be logged even
+if we couldn't capture cgroup information. This ensures a command like
+`journalctl -u run-XXX` will return all log messages from a oneshot
+process.
+
+(cherry picked from commit 2d43b190901902dbd98ccea77c1d1ddc9e2a9955)
+(cherry picked from commit 66d0783137db1d37f0cdc904773087878da469ce)
+---
+ src/journal/journald-server.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index 24c52271d7..d70f68955b 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -615,6 +615,9 @@ static void dispatch_message_real(
+                                 IOVEC_SET_STRING(iovec[n++], unit);
+ 
+                         free(c);
++                } else if (unit_id) {
++                        x = strappenda("_SYSTEMD_UNIT=", unit_id);
++                        IOVEC_SET_STRING(iovec[n++], x);
+                 }
+ 
+ #ifdef HAVE_SELINUX

@@ -13,7 +13,7 @@ The fields in JournalFile are moved around to avoid wasting
  3 files changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/TODO b/TODO
-index 4f5af14..55d70f7 100644
+index 4f5af140f0..55d70f7acd 100644
 --- a/TODO
 +++ b/TODO
 @@ -36,9 +36,6 @@ Features:
@@ -27,7 +27,7 @@ index 4f5af14..55d70f7 100644
    should be able to safely try another attempt when the bus call LoadUnit() is invoked.
  
 diff --git a/src/journal/journal-file.h b/src/journal/journal-file.h
-index 7b1cd42..5cc2c2d 100644
+index 7b1cd42854..5cc2c2d28d 100644
 --- a/src/journal/journal-file.h
 +++ b/src/journal/journal-file.h
 @@ -42,10 +42,14 @@ typedef struct JournalMetrics {
@@ -72,7 +72,7 @@ index 7b1cd42..5cc2c2d 100644
                  const char *fname,
                  int flags,
 diff --git a/src/journal/sd-journal.c b/src/journal/sd-journal.c
-index c21712b..c74b4a2 100644
+index c21712b7c4..c74b4a22cd 100644
 --- a/src/journal/sd-journal.c
 +++ b/src/journal/sd-journal.c
 @@ -101,7 +101,8 @@ static void init_location(Location *l, LocationType type, JournalFile *f, Object

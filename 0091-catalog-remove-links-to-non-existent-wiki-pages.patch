@@ -15,7 +15,7 @@ Conflicts:
  1 file changed, 7 deletions(-)
 
 diff --git a/catalog/systemd.catalog b/catalog/systemd.catalog
-index 62635c8..8b0c9bf 100644
+index 62635c87b0..8b0c9bfd55 100644
 --- a/catalog/systemd.catalog
 +++ b/catalog/systemd.catalog
 @@ -204,7 +204,6 @@ Unit @UNIT@ has begun shutting down.

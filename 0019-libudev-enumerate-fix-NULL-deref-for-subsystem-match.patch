@@ -30,7 +30,7 @@ this time-frame:
  1 file changed, 2 insertions(+)
 
 diff --git a/src/libudev/libudev-enumerate.c b/src/libudev/libudev-enumerate.c
-index 7e63820..77f75bf 100644
+index 7e63820cba..77f75bfd3a 100644
 --- a/src/libudev/libudev-enumerate.c
 +++ b/src/libudev/libudev-enumerate.c
 @@ -718,6 +718,8 @@ static bool match_subsystem(struct udev_enumerate *udev_enumerate, const char *s

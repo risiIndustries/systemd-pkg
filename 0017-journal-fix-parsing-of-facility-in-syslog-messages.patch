@@ -20,7 +20,7 @@ https://bugzilla.redhat.com/show_bug.cgi?id=988814
  3 files changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/src/journal/journald-stream.c b/src/journal/journald-stream.c
-index 6d51c29..ad5df4c 100644
+index 6d51c29083..ad5df4c81d 100644
 --- a/src/journal/journald-stream.c
 +++ b/src/journal/journald-stream.c
 @@ -90,7 +90,7 @@ static int stdout_stream_log(StdoutStream *s, const char *p) {
@@ -33,7 +33,7 @@ index 6d51c29..ad5df4c 100644
          if (s->forward_to_syslog || s->server->forward_to_syslog)
                  server_forward_syslog(s->server, syslog_fixup_facility(priority), s->identifier, p, &s->ucred, NULL);
 diff --git a/src/journal/journald-syslog.c b/src/journal/journald-syslog.c
-index 4aeb9a3..88d2a87 100644
+index 4aeb9a35f0..88d2a87236 100644
 --- a/src/journal/journald-syslog.c
 +++ b/src/journal/journald-syslog.c
 @@ -236,7 +236,7 @@ size_t syslog_parse_identifier(const char **buf, char **identifier, char **pid)
@@ -72,7 +72,7 @@ index 4aeb9a3..88d2a87 100644
          if (s->forward_to_syslog)
                  forward_syslog_raw(s, priority, orig, ucred, tv);
 diff --git a/src/journal/journald-syslog.h b/src/journal/journald-syslog.h
-index 324b70e..8ccdb77 100644
+index 324b70eef0..8ccdb77a09 100644
 --- a/src/journal/journald-syslog.h
 +++ b/src/journal/journald-syslog.h
 @@ -25,7 +25,7 @@

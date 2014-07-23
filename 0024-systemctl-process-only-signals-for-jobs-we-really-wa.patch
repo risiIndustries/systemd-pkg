@@ -11,7 +11,7 @@ set of jobs we wait for.
  1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
-index e6bd855..50f61a3 100644
+index e6bd855c15..50f61a3487 100644
 --- a/src/systemctl/systemctl.c
 +++ b/src/systemctl/systemctl.c
 @@ -1486,7 +1486,7 @@ static DBusHandlerResult wait_filter(DBusConnection *connection, DBusMessage *me

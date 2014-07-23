@@ -25,7 +25,7 @@ On Sat, Jul 20, 2013 at 12:56 PM, Rafael J. Wysocki <rjw@sisk.pl> wrote:
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/rules/80-drivers.rules b/rules/80-drivers.rules
-index 50523e4..0b22d73 100644
+index 50523e4333..0b22d73ce5 100644
 --- a/rules/80-drivers.rules
 +++ b/rules/80-drivers.rules
 @@ -2,7 +2,7 @@

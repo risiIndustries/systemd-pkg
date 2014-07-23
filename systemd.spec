@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        18%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        20%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -162,6 +162,42 @@ Patch113:       0113-systemctl-core-allow-nuking-of-symlinks-to-removed-u.patch
 Patch114:       0114-journald-bump-the-journal-per-unit-ratelimit-default.patch
 Patch115:       0115-service-execute-ExecStopPost-commands-when-the-watch.patch
 Patch116:       0116-localed-match-converted-keymaps-before-legacy.patch
+Patch117:       0117-utmp-turn-systemd-update-utmp-shutdown.service-into-.patch
+Patch118:       0118-systemctl-make-systemctl-is-enabled-work-for-templat.patch
+Patch119:       0119-shared-install-fix-trivial-memleak.patch
+Patch120:       0120-install-make-reenable-work-with-templated-units.patch
+Patch121:       0121-systemd-fix-NULL-dereference-when-disabling-a-nonexi.patch
+Patch122:       0122-shared-install-modernization.patch
+Patch123:       0123-core-do-not-segfault-if-swap-activity-happens-when-p.patch
+Patch124:       0124-Properly-check-for-overflow-in-offsets.patch
+Patch125:       0125-journalctl-no-color-for-reboot-when-not-on-tty.patch
+Patch126:       0126-journalctl-print-proper-IDs-with-header.patch
+Patch127:       0127-Fix-memory-leak-in-stdout-journal-streams.patch
+Patch128:       0128-hostnamed-avoid-using-NULL-in-error-path.patch
+Patch129:       0129-drop-several-entries-from-kbd-model-map-whose-kbd-la.patch
+Patch130:       0130-correct-name-of-Tajik-kbd-layout-in-kbd-model-map.patch
+Patch131:       0131-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch132:       0132-Ensure-unit-is-journaled-for-short-lived-or-oneshot-.patch
+Patch133:       0133-core-manager-remove-infinite-loop.patch
+Patch134:       0134-util-check-for-overflow-in-greedy_realloc.patch
+Patch135:       0135-hwdb-update.patch
+Patch136:       0136-sleep.c-fix-typo.patch
+Patch137:       0137-journal-fix-access-to-munmapped-memory-in-sd_journal.patch
+Patch138:       0138-coredumpctl-in-case-of-error-free-pattern-after-prin.patch
+Patch139:       0139-systemctl-skip-native-unit-file-handling-if-sysv-fil.patch
+Patch140:       0140-core-do-not-segfault-if-proc-swaps-cannot-be-opened.patch
+Patch141:       0141-core-more-exact-test-on-the-procfs-special-string-de.patch
+Patch142:       0142-journal-don-t-clobber-return-parameters-of-sd_journa.patch
+Patch143:       0143-man-there-is-no-ExecStopPre-for-service-units.patch
+Patch144:       0144-man-document-that-per-interface-sysctl-variables-are.patch
+Patch145:       0145-journal-downgrade-vaccuum-message-to-debug-level.patch
+Patch146:       0146-core-gc-half-created-stub-units.patch
+Patch147:       0147-util-add-timeout-to-generator-execution.patch
+Patch148:       0148-journal-compress-simplify-compress_blob.patch
+Patch149:       0149-journal-compress-add-stream-compression-decompressio.patch
+Patch150:       0150-journal-compress-improve-xz-compression-performance.patch
+Patch151:       0151-socket-add-SocketUser-and-SocketGroup-for-chown-ing-.patch
+Patch152:       0152-socket-add-SocketUser-and-SocketGroup-for-chown-ing-.patch
 
 # git diff --src-prefix=a/ --dst-prefix=b/ v204-stable..master -- hwdb/ > systemd-hwdb.patch
 Patch0999:      systemd-hwdb.patch
@@ -929,8 +965,14 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Tue Jul 22 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-20
+- Update hardware database
+- Add SocketUser/SocketGroup (#1119282)
+- Bugfixes (#1047148, #969795, #1074259, #1062955, #1028687) and
+  some more
+
 * Sun Dec 08 2013 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-19
-- Update hardward database
+- Update hardware database
 - Backport fixes: keyboard configuration, run ExecStopPost= on
   watchdog timeouts, bump journal ratelimits, fix systemctl disable
   for multiple units, fix handling of multiline syslog messages, fail

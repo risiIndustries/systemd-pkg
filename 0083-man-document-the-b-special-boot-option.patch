@@ -9,7 +9,7 @@ Subject: [PATCH] man: document the -b special boot option
  2 files changed, 2 insertions(+)
 
 diff --git a/man/kernel-command-line.xml b/man/kernel-command-line.xml
-index 6d064f6..d8fa29d 100644
+index 6d064f6373..d8fa29d04b 100644
 --- a/man/kernel-command-line.xml
 +++ b/man/kernel-command-line.xml
 @@ -111,6 +111,7 @@
@@ -21,7 +21,7 @@ index 6d064f6..d8fa29d 100644
                                  <term><varname>single</varname></term>
                                  <term><varname>s</varname></term>
 diff --git a/man/systemd.xml b/man/systemd.xml
-index 8b03417..a46f39d 100644
+index 8b03417bd4..a46f39db65 100644
 --- a/man/systemd.xml
 +++ b/man/systemd.xml
 @@ -1127,6 +1127,7 @@

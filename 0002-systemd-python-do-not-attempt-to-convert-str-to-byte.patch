@@ -9,7 +9,7 @@ Bug-spotted-by: Steven Hiscocks <steven-systemd@hiscocks.me.uk>
  1 file changed, 4 insertions(+)
 
 diff --git a/src/python-systemd/journal.py b/src/python-systemd/journal.py
-index 9ef1ede..8fd1bb3 100644
+index 9ef1ede229..8fd1bb357c 100644
 --- a/src/python-systemd/journal.py
 +++ b/src/python-systemd/journal.py
 @@ -55,6 +55,9 @@ def _convert_realtime(t):

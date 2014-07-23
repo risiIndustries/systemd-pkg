@@ -57,7 +57,7 @@ https://bugzilla.redhat.com/show_bug.cgi?id=855313
  1 file changed, 1 insertion(+), 6 deletions(-)
 
 diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
-index 7a316c2..de8ac68 100644
+index 7a316c271e..de8ac68ad0 100644
 --- a/src/journal/journald-server.c
 +++ b/src/journal/journald-server.c
 @@ -1155,12 +1155,7 @@ int process_event(Server *s, struct epoll_event *ev) {

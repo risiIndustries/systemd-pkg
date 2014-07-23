@@ -15,7 +15,7 @@ Conflicts:
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tmpfiles.d/systemd.conf b/tmpfiles.d/systemd.conf
-index ee86f2e..fcda00f 100644
+index ee86f2ebce..fcda00f426 100644
 --- a/tmpfiles.d/systemd.conf
 +++ b/tmpfiles.d/systemd.conf
 @@ -21,4 +21,4 @@ d /run/systemd/sessions 0755 root root -

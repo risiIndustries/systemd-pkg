@@ -12,7 +12,7 @@ that directly.
  2 files changed, 64 insertions(+), 23 deletions(-)
 
 diff --git a/src/core/swap.c b/src/core/swap.c
-index d503fe2..1ad11a7 100644
+index d503fe20df..1ad11a72b8 100644
 --- a/src/core/swap.c
 +++ b/src/core/swap.c
 @@ -1052,7 +1052,7 @@ static int swap_load_proc_swaps(Manager *m, bool set_flags) {
@@ -45,7 +45,7 @@ index d503fe2..1ad11a7 100644
                          r = k;
          }
 diff --git a/src/shared/sleep-config.c b/src/shared/sleep-config.c
-index 148c4dc..d068bfc 100644
+index 148c4dc617..d068bfce3c 100644
 --- a/src/shared/sleep-config.c
 +++ b/src/shared/sleep-config.c
 @@ -165,24 +165,70 @@ int can_sleep_disk(char **types) {

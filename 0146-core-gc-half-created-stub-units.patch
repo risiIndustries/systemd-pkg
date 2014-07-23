@@ -1,0 +1,25 @@
+From 98c38334d7c09cfb238ac78e37e8ae3b9f8e3c04 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 24 Feb 2014 03:20:54 +0100
+Subject: [PATCH] core: gc half-created stub units
+
+(cherry picked from commit c35fa384d00dc5dc7d9f339113b015a3f8a5cf79)
+(cherry picked from commit 97a7eeadeee5bed4e219b56c3414d3d72504234a)
+---
+ src/core/unit.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index cdeceae1e2..c00d55d9cc 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -243,9 +243,6 @@ int unit_set_description(Unit *u, const char *description) {
+ bool unit_check_gc(Unit *u) {
+         assert(u);
+ 
+-        if (u->load_state == UNIT_STUB)
+-                return true;
+-
+         if (UNIT_VTABLE(u)->no_gc)
+                 return true;
+ 

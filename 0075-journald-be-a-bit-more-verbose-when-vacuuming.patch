@@ -16,7 +16,7 @@ they'll be logged under normal operation.
  4 files changed, 25 insertions(+), 11 deletions(-)
 
 diff --git a/src/initctl/initctl.c b/src/initctl/initctl.c
-index 735f1e1..afdad5e 100644
+index 735f1e1450..afdad5e7f2 100644
 --- a/src/initctl/initctl.c
 +++ b/src/initctl/initctl.c
 @@ -223,8 +223,10 @@ static int fifo_process(Fifo *f) {
@@ -44,7 +44,7 @@ index 735f1e1..afdad5e 100644
                  fifo_free(f);
                  return r;
 diff --git a/src/journal/journal-vacuum.c b/src/journal/journal-vacuum.c
-index 178c803..c73ad8f 100644
+index 178c8030db..c73ad8f393 100644
 --- a/src/journal/journal-vacuum.c
 +++ b/src/journal/journal-vacuum.c
 @@ -159,7 +159,7 @@ int journal_directory_vacuum(
@@ -98,7 +98,7 @@ index 178c803..c73ad8f 100644
          return r;
  }
 diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
-index 7fc2c36..3e6817a 100644
+index 7fc2c36c7c..3e6817a581 100644
 --- a/src/journal/journalctl.c
 +++ b/src/journal/journalctl.c
 @@ -1050,7 +1050,7 @@ static int access_check(sd_journal *j) {
@@ -111,7 +111,7 @@ index 7fc2c36..3e6817a 100644
          sd_id128_t previous_boot_id;
          bool previous_boot_id_valid = false, first_line = true;
 diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
-index 8a9957c..01f4678 100644
+index 8a9957c655..01f46782f2 100644
 --- a/src/journal/journald-server.c
 +++ b/src/journal/journald-server.c
 @@ -995,6 +995,8 @@ int process_event(Server *s, struct epoll_event *ev) {

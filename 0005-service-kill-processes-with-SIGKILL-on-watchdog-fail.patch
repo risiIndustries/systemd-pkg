@@ -15,7 +15,7 @@ are just killed and the service can try to restart.
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/src/core/service.c b/src/core/service.c
-index 3617c24..e110a41 100644
+index 3617c24711..e110a41dae 100644
 --- a/src/core/service.c
 +++ b/src/core/service.c
 @@ -235,7 +235,7 @@ static void service_stop_watchdog(Service *s) {

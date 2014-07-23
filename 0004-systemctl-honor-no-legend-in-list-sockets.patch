@@ -8,7 +8,7 @@ Subject: [PATCH] systemctl: honor "--no-legend" in 'list-sockets'
  1 file changed, 13 insertions(+), 9 deletions(-)
 
 diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
-index 3cca861..e6bd855 100644
+index 3cca861cf6..e6bd855c15 100644
 --- a/src/systemctl/systemctl.c
 +++ b/src/systemctl/systemctl.c
 @@ -655,11 +655,12 @@ static int output_sockets_list(struct socket_info *socket_infos, unsigned cs) {

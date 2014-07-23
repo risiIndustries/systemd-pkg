@@ -13,7 +13,7 @@ Signed-off-by: George McCollister <george.mccollister@gmail.com>
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/src/journal/journal-vacuum.c b/src/journal/journal-vacuum.c
-index 79572f1..ace7722 100644
+index 79572f1fb6..ace772273b 100644
 --- a/src/journal/journal-vacuum.c
 +++ b/src/journal/journal-vacuum.c
 @@ -265,18 +265,18 @@ int journal_directory_vacuum(

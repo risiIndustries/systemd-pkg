@@ -8,7 +8,7 @@ Subject: [PATCH] fstab-generator: log_oom() if automount_name is null
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
-index 479938f..6b3e67e 100644
+index 479938f336..6b3e67e666 100644
 --- a/src/fstab-generator/fstab-generator.c
 +++ b/src/fstab-generator/fstab-generator.c
 @@ -351,7 +351,7 @@ static int add_mount(

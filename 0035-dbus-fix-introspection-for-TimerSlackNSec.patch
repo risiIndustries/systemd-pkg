@@ -8,7 +8,7 @@ Subject: [PATCH] dbus: fix introspection for TimerSlackNSec
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/core/dbus-execute.h b/src/core/dbus-execute.h
-index 91d70e5..698102f 100644
+index 91d70e535f..698102f01e 100644
 --- a/src/core/dbus-execute.h
 +++ b/src/core/dbus-execute.h
 @@ -63,7 +63,7 @@

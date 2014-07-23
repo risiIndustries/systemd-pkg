@@ -10,7 +10,7 @@ Conflicts:
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/units/systemd-tmpfiles-setup-dev.service.in b/units/systemd-tmpfiles-setup-dev.service.in
-index 0a814f0..764da01 100644
+index 0a814f064c..764da01186 100644
 --- a/units/systemd-tmpfiles-setup-dev.service.in
 +++ b/units/systemd-tmpfiles-setup-dev.service.in
 @@ -14,5 +14,5 @@ ConditionCapability=CAP_MKNOD

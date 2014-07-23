@@ -10,7 +10,7 @@ Conflicts:
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/man/journalctl.xml b/man/journalctl.xml
-index cc7d1a0..5bacf32 100644
+index cc7d1a0533..5bacf3297f 100644
 --- a/man/journalctl.xml
 +++ b/man/journalctl.xml
 @@ -103,8 +103,8 @@

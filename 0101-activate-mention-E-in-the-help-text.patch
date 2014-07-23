@@ -8,7 +8,7 @@ Subject: [PATCH] activate: mention -E in the help text
  1 file changed, 2 insertions(+)
 
 diff --git a/src/activate/activate.c b/src/activate/activate.c
-index 87526d4..a24c66a 100644
+index 87526d47cc..a24c66ae33 100644
 --- a/src/activate/activate.c
 +++ b/src/activate/activate.c
 @@ -317,6 +317,8 @@ static int help(void) {

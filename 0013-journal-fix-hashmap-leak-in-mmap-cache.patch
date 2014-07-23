@@ -18,7 +18,7 @@ Memory usage will increase until OOM.
  1 file changed, 4 insertions(+)
 
 diff --git a/src/journal/mmap-cache.c b/src/journal/mmap-cache.c
-index 767f555..03b57be 100644
+index 767f555526..03b57beb04 100644
 --- a/src/journal/mmap-cache.c
 +++ b/src/journal/mmap-cache.c
 @@ -307,9 +307,13 @@ static void mmap_cache_free(MMapCache *m) {

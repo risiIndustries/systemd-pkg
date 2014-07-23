@@ -16,7 +16,7 @@ and destination match.
  1 file changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
-index 09153c8..33aaf14 100644
+index 09153c87ce..33aaf145dd 100644
 --- a/src/nspawn/nspawn.c
 +++ b/src/nspawn/nspawn.c
 @@ -419,12 +419,39 @@ static int mount_binds(const char *dest, char **l, unsigned long flags) {

@@ -13,7 +13,7 @@ possible.
  2 files changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/src/shared/sleep-config.c b/src/shared/sleep-config.c
-index 5ec7cce..148c4dc 100644
+index 5ec7cce458..148c4dc617 100644
 --- a/src/shared/sleep-config.c
 +++ b/src/shared/sleep-config.c
 @@ -172,7 +172,8 @@ static bool enough_memory_for_hibernation(void) {
@@ -27,7 +27,7 @@ index 5ec7cce..148c4dc 100644
          }
  
 diff --git a/src/test/test-fileio.c b/src/test/test-fileio.c
-index 6c10d9f..a05640a 100644
+index 6c10d9f1fb..a05640a0a1 100644
 --- a/src/test/test-fileio.c
 +++ b/src/test/test-fileio.c
 @@ -229,12 +229,16 @@ static void test_executable_is_script(void) {

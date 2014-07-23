@@ -1,0 +1,111 @@
+From 5ecc3465eafcb733bec68577deb18c3a1a6bb995 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 27 Dec 2013 01:04:01 -0500
+Subject: [PATCH] shared/install: modernization
+
+---
+ src/shared/install.c      | 47 ++++++++++++++---------------------------------
+ src/systemctl/systemctl.c |  2 +-
+ 2 files changed, 15 insertions(+), 34 deletions(-)
+
+diff --git a/src/shared/install.c b/src/shared/install.c
+index 79b56dc115..a62bf387c8 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -1035,6 +1035,7 @@ static int unit_file_search(
+ 
+         char **p;
+         int r;
++        _cleanup_free_ char *template = NULL;
+ 
+         assert(c);
+         assert(info);
+@@ -1045,62 +1046,42 @@ static int unit_file_search(
+ 
+         assert(info->name);
+ 
++        template = unit_name_template(info->name);
++        if (!template)
++                return -ENOMEM;
++
+         STRV_FOREACH(p, paths->unit_path) {
+-                char *path = NULL;
++                _cleanup_free_ char *path = NULL;
+ 
+                 if (isempty(root_dir))
+                         asprintf(&path, "%s/%s", *p, info->name);
+                 else
+                         asprintf(&path, "%s/%s/%s", root_dir, *p, info->name);
+-
+                 if (!path)
+                         return -ENOMEM;
+ 
+                 r = unit_file_load(c, info, path, allow_symlink);
+-
+-                if (r >= 0)
++                if (r >= 0) {
+                         info->path = path;
+-                else {
++                        path = NULL;
++                } else {
+                         if (r == -ENOENT && unit_name_is_instance(info->name)) {
+                                 /* Unit file doesn't exist, however instance enablement was requested.
+                                  * We will check if it is possible to load template unit file. */
+-                                char *template = NULL,
+-                                     *template_path = NULL,
+-                                     *template_dir = NULL;
+-
+-                                template = unit_name_template(info->name);
+-                                if (!template) {
+-                                        free(path);
+-                                        return -ENOMEM;
+-                                }
++                                char *template_path;
+ 
+                                 /* We will reuse path variable since we don't need it anymore. */
+-                                template_dir = path;
+                                 *(strrchr(path, '/') + 1) = '\0';
+ 
+-                                template_path = strjoin(template_dir, template, NULL);
+-                                if (!template_path) {
+-                                        free(path);
+-                                        free(template);
++                                template_path = strappend(path, template);
++                                if (!template_path)
+                                         return -ENOMEM;
+-                                }
+ 
+                                 /* Let's try to load template unit. */
+                                 r = unit_file_load(c, info, template_path, allow_symlink);
+-                                if (r >= 0) {
+-                                        info->path = strdup(template_path);
+-                                        if (!info->path) {
+-                                                free(path);
+-                                                free(template);
+-                                                free(template_path);
+-                                                return -ENOMEM;
+-                                        }
+-                                }
+-
+-                                free(template);
+-                                free(template_path);
++                                if (r >= 0)
++                                        info->path = template_path;
+                         }
+-                        free(path);
+                 }
+ 
+                 if (r != -ENOENT && r != -ELOOP)
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 8fae09efe2..e9a7daabad 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -4394,7 +4394,7 @@ static int enable_unit(DBusConnection *bus, char **args) {
+                         dbus_message_iter_next(&sub);
+                 }
+ 
+-                /* Try to reload if enabeld */
++                /* Try to reload if enabled */
+                 if (!arg_no_reload)
+                         r = daemon_reload(bus, args);
+         }

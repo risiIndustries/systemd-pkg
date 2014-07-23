@@ -8,7 +8,7 @@ Subject: [PATCH] fstab-generator: read rd.fstab=on/off switch correctly
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
-index c17299f..479938f 100644
+index c17299f267..479938f336 100644
 --- a/src/fstab-generator/fstab-generator.c
 +++ b/src/fstab-generator/fstab-generator.c
 @@ -596,9 +596,9 @@ static int parse_proc_cmdline(void) {

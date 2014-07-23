@@ -10,7 +10,7 @@ which were obsuring real syscall names.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile.am b/Makefile.am
-index 3a196a6..82010a5 100644
+index 3a196a65e7..82010a59d1 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -1000,7 +1000,7 @@ BUILT_SOURCES += \

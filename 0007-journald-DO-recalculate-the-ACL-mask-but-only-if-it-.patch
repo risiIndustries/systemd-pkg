@@ -16,7 +16,7 @@ invalid, so make sure a mask exists before trying to set the ACL.
  3 files changed, 33 insertions(+), 2 deletions(-)
 
 diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
-index b717b92..da5b725 100644
+index b717b92ffb..da5b725863 100644
 --- a/src/journal/journald-server.c
 +++ b/src/journal/journald-server.c
 @@ -227,9 +227,11 @@ void server_fix_perms(Server *s, JournalFile *f, uid_t uid) {
@@ -34,7 +34,7 @@ index b717b92..da5b725 100644
                  goto finish;
          }
 diff --git a/src/shared/acl-util.c b/src/shared/acl-util.c
-index 48bb12f..fb04e49 100644
+index 48bb12f46b..fb04e49dc4 100644
 --- a/src/shared/acl-util.c
 +++ b/src/shared/acl-util.c
 @@ -69,6 +69,34 @@ int acl_find_uid(acl_t acl, uid_t uid, acl_entry_t *entry) {
@@ -73,7 +73,7 @@ index 48bb12f..fb04e49 100644
          acl_t acl;
  
 diff --git a/src/shared/acl-util.h b/src/shared/acl-util.h
-index 23090d9..36ef490 100644
+index 23090d9984..36ef490d7e 100644
 --- a/src/shared/acl-util.h
 +++ b/src/shared/acl-util.h
 @@ -24,4 +24,5 @@

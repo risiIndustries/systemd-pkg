@@ -8,7 +8,7 @@ Subject: [PATCH] systemctl: return r instead of always returning 0
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
-index e5bfbca..8fae09e 100644
+index e5bfbca078..8fae09efe2 100644
 --- a/src/systemctl/systemctl.c
 +++ b/src/systemctl/systemctl.c
 @@ -1329,7 +1329,7 @@ static int list_jobs(DBusConnection *bus, char **args) {

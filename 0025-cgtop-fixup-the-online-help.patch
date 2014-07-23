@@ -10,7 +10,7 @@ lower case. Make the online help follow reality.
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/cgtop/cgtop.c b/src/cgtop/cgtop.c
-index 1e21b00..f7d84da 100644
+index 1e21b0074d..f7d84da107 100644
 --- a/src/cgtop/cgtop.c
 +++ b/src/cgtop/cgtop.c
 @@ -824,9 +824,9 @@ int main(int argc, char *argv[]) {

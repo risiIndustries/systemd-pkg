@@ -14,7 +14,7 @@ Conflicts:
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/rules/99-systemd.rules.in b/rules/99-systemd.rules.in
-index c0e137e..f15100f 100644
+index c0e137ea12..f15100f45d 100644
 --- a/rules/99-systemd.rules.in
 +++ b/rules/99-systemd.rules.in
 @@ -54,7 +54,7 @@ SUBSYSTEM=="net", KERNEL!="lo", RUN+="@rootlibexecdir@/systemd-sysctl --prefix=/

@@ -8,7 +8,7 @@ Subject: [PATCH] fix grammatical error
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
-index 33aaf14..847ad88 100644
+index 33aaf145dd..847ad883b2 100644
 --- a/src/nspawn/nspawn.c
 +++ b/src/nspawn/nspawn.c
 @@ -432,7 +432,7 @@ static int mount_binds(const char *dest, char **l, unsigned long flags) {

@@ -16,7 +16,7 @@ Signed-off-by: George McCollister <george.mccollister@gmail.com>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/src/journal/journal-vacuum.c b/src/journal/journal-vacuum.c
-index ace7722..178c803 100644
+index ace772273b..178c8030db 100644
 --- a/src/journal/journal-vacuum.c
 +++ b/src/journal/journal-vacuum.c
 @@ -129,8 +129,9 @@ static void patch_realtime(

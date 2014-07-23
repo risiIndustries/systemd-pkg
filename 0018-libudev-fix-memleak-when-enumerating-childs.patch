@@ -11,7 +11,7 @@ Fix it and free non-matching devices.
  1 file changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/src/libudev/libudev-enumerate.c b/src/libudev/libudev-enumerate.c
-index 5ccaabd..7e63820 100644
+index 5ccaabdc6c..7e63820cba 100644
 --- a/src/libudev/libudev-enumerate.c
 +++ b/src/libudev/libudev-enumerate.c
 @@ -826,23 +826,27 @@ nomatch:

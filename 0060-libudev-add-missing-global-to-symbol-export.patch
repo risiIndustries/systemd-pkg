@@ -8,7 +8,7 @@ Subject: [PATCH] libudev: add missing 'global' to symbol export
  1 file changed, 1 insertion(+)
 
 diff --git a/src/libudev/libudev.sym b/src/libudev/libudev.sym
-index 8e09430..1e6f885 100644
+index 8e09430aec..1e6f885141 100644
 --- a/src/libudev/libudev.sym
 +++ b/src/libudev/libudev.sym
 @@ -109,5 +109,6 @@ global:

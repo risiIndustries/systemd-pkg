@@ -8,7 +8,7 @@ Subject: [PATCH] udev-builtin-blkid: export ID_PART_TABLE_UUID
  1 file changed, 3 insertions(+)
 
 diff --git a/src/udev/udev-builtin-blkid.c b/src/udev/udev-builtin-blkid.c
-index bae4293..b48dccc 100644
+index bae429344f..b48dccc2fb 100644
 --- a/src/udev/udev-builtin-blkid.c
 +++ b/src/udev/udev-builtin-blkid.c
 @@ -67,6 +67,9 @@ static void print_property(struct udev_device *dev, bool test, const char *name,

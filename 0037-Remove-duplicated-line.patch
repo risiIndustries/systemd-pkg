@@ -10,7 +10,7 @@ Conflicts:
  1 file changed, 1 deletion(-)
 
 diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
-index 6c03a0d..8a9957c 100644
+index 6c03a0d9c3..8a9957c655 100644
 --- a/src/journal/journald-server.c
 +++ b/src/journal/journald-server.c
 @@ -1190,7 +1190,6 @@ int process_event(Server *s, struct epoll_event *ev) {

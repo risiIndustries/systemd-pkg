@@ -13,7 +13,7 @@ https://bugzilla.redhat.com/show_bug.cgi?id=957783#c9
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/core/mount.c b/src/core/mount.c
-index 605c56d..85f5000 100644
+index 605c56d26d..85f500005d 100644
 --- a/src/core/mount.c
 +++ b/src/core/mount.c
 @@ -820,9 +820,9 @@ static void mount_dump(Unit *u, FILE *f, const char *prefix) {

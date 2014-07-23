@@ -11,7 +11,7 @@ code, but wasn't added in the Python counterpart.
  2 files changed, 12 insertions(+), 13 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index e1278e8..a918252 100644
+index e1278e8504..a9182520fa 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -939,7 +939,6 @@ AC_MSG_RESULT([
@@ -23,7 +23,7 @@ index e1278e8..a918252 100644
          Python Headers:          ${have_python_devel}
          man pages:               ${have_manpages}
 diff --git a/src/python-systemd/journal.py b/src/python-systemd/journal.py
-index 8fd1bb3..adcc844 100644
+index 8fd1bb357c..adcc844f46 100644
 --- a/src/python-systemd/journal.py
 +++ b/src/python-systemd/journal.py
 @@ -191,18 +191,18 @@ class Reader(_Reader):

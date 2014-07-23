@@ -14,7 +14,7 @@ Conflicts:
  1 file changed, 3 insertions(+)
 
 diff --git a/src/core/unit.c b/src/core/unit.c
-index 9b36b22..e744cd3 100644
+index 9b36b225fa..e744cd3473 100644
 --- a/src/core/unit.c
 +++ b/src/core/unit.c
 @@ -2964,6 +2964,9 @@ int unit_remove_drop_in(Unit *u, bool runtime, const char *name) {

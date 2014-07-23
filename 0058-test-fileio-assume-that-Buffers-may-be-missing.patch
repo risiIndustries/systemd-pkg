@@ -8,7 +8,7 @@ Subject: [PATCH] test-fileio: assume that Buffers may be missing
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/src/test/test-fileio.c b/src/test/test-fileio.c
-index a05640a..c589f19 100644
+index a05640a0a1..c589f19350 100644
 --- a/src/test/test-fileio.c
 +++ b/src/test/test-fileio.c
 @@ -242,7 +242,10 @@ static void test_status_field(void) {

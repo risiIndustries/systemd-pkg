@@ -12,7 +12,7 @@ https://bugzilla.redhat.com/show_bug.cgi?id=965803
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
-index de8ac68..24c5227 100644
+index de8ac68ad0..24c52271d7 100644
 --- a/src/journal/journald-server.c
 +++ b/src/journal/journald-server.c
 @@ -65,8 +65,8 @@
@@ -27,7 +27,7 @@ index de8ac68..24c5227 100644
  #define RECHECK_AVAILABLE_SPACE_USEC (30*USEC_PER_SEC)
  
 diff --git a/src/journal/journald.conf b/src/journal/journald.conf
-index 5410477..54f6833 100644
+index 5410477201..54f6833a17 100644
 --- a/src/journal/journald.conf
 +++ b/src/journal/journald.conf
 @@ -13,8 +13,8 @@

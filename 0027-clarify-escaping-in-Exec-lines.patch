@@ -9,7 +9,7 @@ Explain that literal $ can be passed by doubling it.
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/man/systemd.service.xml b/man/systemd.service.xml
-index 0454cf2..7d32e5d 100644
+index 0454cf292e..7d32e5dbc2 100644
 --- a/man/systemd.service.xml
 +++ b/man/systemd.service.xml
 @@ -362,7 +362,8 @@

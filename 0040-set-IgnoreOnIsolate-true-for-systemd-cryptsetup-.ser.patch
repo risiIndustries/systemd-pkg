@@ -14,7 +14,7 @@ default for cryptsetup units as well.
  1 file changed, 1 insertion(+)
 
 diff --git a/src/cryptsetup/cryptsetup-generator.c b/src/cryptsetup/cryptsetup-generator.c
-index 81b7708..edd0b40 100644
+index 81b770890a..edd0b40318 100644
 --- a/src/cryptsetup/cryptsetup-generator.c
 +++ b/src/cryptsetup/cryptsetup-generator.c
 @@ -111,6 +111,7 @@ static int create_disk(

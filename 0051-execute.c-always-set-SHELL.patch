@@ -15,7 +15,7 @@ Conflicts:
  2 files changed, 148 insertions(+), 37 deletions(-)
 
 diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
-index b3e0287..34bbdb2 100644
+index b3e0287d72..34bbdb283a 100644
 --- a/man/systemd.exec.xml
 +++ b/man/systemd.exec.xml
 @@ -1248,6 +1248,135 @@
@@ -155,7 +155,7 @@ index b3e0287..34bbdb2 100644
                    <para>
                            <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
 diff --git a/src/core/execute.c b/src/core/execute.c
-index 3959ef9..27f88b9 100644
+index 3959ef9623..27f88b9e5c 100644
 --- a/src/core/execute.c
 +++ b/src/core/execute.c
 @@ -1066,7 +1066,7 @@ int exec_spawn(ExecCommand *command,

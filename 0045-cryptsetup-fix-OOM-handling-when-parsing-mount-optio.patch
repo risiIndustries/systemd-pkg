@@ -10,7 +10,7 @@ Conflicts:
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/cryptsetup/cryptsetup.c b/src/cryptsetup/cryptsetup.c
-index 347394d..c75b745 100644
+index 347394db8e..c75b7458de 100644
 --- a/src/cryptsetup/cryptsetup.c
 +++ b/src/cryptsetup/cryptsetup.c
 @@ -70,7 +70,7 @@ static int parse_one_option(const char *option) {

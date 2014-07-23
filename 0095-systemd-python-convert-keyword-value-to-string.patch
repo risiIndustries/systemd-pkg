@@ -13,7 +13,7 @@ and requires passing PRIORITY value as string to work.
  1 file changed, 2 insertions(+)
 
 diff --git a/src/python-systemd/journal.py b/src/python-systemd/journal.py
-index adcc844..b157533 100644
+index adcc844f46..b1575336b1 100644
 --- a/src/python-systemd/journal.py
 +++ b/src/python-systemd/journal.py
 @@ -351,6 +351,8 @@ def get_catalog(mid):

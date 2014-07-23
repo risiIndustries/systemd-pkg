@@ -9,7 +9,7 @@ Let read()/write() report any error/EOF.
  1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/src/shared/util.c b/src/shared/util.c
-index eb9b0f7..1b35c54 100644
+index eb9b0f7e92..1b35c54c75 100644
 --- a/src/shared/util.c
 +++ b/src/shared/util.c
 @@ -2193,8 +2193,10 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {

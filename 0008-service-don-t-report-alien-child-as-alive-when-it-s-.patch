@@ -15,7 +15,7 @@ become empty but the service would still report as active (running).
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/core/service.c b/src/core/service.c
-index e110a41..973bd03 100644
+index e110a41dae..973bd03c78 100644
 --- a/src/core/service.c
 +++ b/src/core/service.c
 @@ -1865,7 +1865,7 @@ static int main_pid_good(Service *s) {

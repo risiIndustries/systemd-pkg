@@ -17,7 +17,7 @@ https://bugs.freedesktop.org/show_bug.cgi?id=62395
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/src/shared/install.c b/src/shared/install.c
-index edf4d2a..a695e12 100644
+index edf4d2a9fe..a695e129d6 100644
 --- a/src/shared/install.c
 +++ b/src/shared/install.c
 @@ -1413,7 +1413,9 @@ static int install_context_mark_for_removal(

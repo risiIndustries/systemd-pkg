@@ -1,0 +1,39 @@
+From 523288259e7429539ed066b06a2c5dee72a4b829 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sun, 23 Feb 2014 16:43:19 +0100
+Subject: [PATCH] man: document that per-interface sysctl variables are applied
+ as network interfaces show up
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1062955
+(cherry picked from commit 8f03fd08911016d8bbcad5892b2c07b30a4c2306)
+(cherry picked from commit 536e62fefffdc7726c7bf5b83e8f1cb155960e28)
+
+Conflicts:
+	man/sysctl.d.xml
+---
+ man/sysctl.d.xml | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/man/sysctl.d.xml b/man/sysctl.d.xml
+index a5868e638f..10db97fab3 100644
+--- a/man/sysctl.d.xml
++++ b/man/sysctl.d.xml
+@@ -100,7 +100,17 @@
+                 recommended way is to place a symlink to
+                 <filename>/dev/null</filename> in
+                 <filename>/etc/sysctl.d/</filename> bearing the
+-                same file name.</para>
++                same filename.</para>
++
++                <para>The settings configured with
++                <filename>sysctl.d</filename> files will be applied
++                early on boot. The network interface-specific options
++                will also be applied individually for each network
++                interface as it shows up in the system. (More
++                specifically, that is
++                <filename>net.ipv4.conf.*</filename>,
++                <filename>net.ipv6.conf.*</filename>,
++                <filename>net.ipv4.neigh.*</filename> and <filename>net.ipv6.neigh.*</filename>)</para>
+         </refsect1>
+ 
+         <refsect1>

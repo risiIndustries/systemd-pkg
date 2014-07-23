@@ -9,7 +9,7 @@ Subject: [PATCH] Restore reading of /etc/sysctl.conf
  2 files changed, 3 insertions(+)
 
 diff --git a/src/sysctl/sysctl.c b/src/sysctl/sysctl.c
-index b5670db..c0cce49 100644
+index b5670dbb86..c0cce491b6 100644
 --- a/src/sysctl/sysctl.c
 +++ b/src/sysctl/sysctl.c
 @@ -306,6 +306,8 @@ int main(int argc, char *argv[]) {
@@ -22,7 +22,7 @@ index b5670db..c0cce49 100644
                          k = parse_file(sysctl_options, *f, true);
                          if (k < 0 && r == 0)
 diff --git a/units/systemd-sysctl.service.in b/units/systemd-sysctl.service.in
-index 5baf22c..45e1ceb 100644
+index 5baf22c183..45e1ceb25c 100644
 --- a/units/systemd-sysctl.service.in
 +++ b/units/systemd-sysctl.service.in
 @@ -13,6 +13,7 @@ Conflicts=shutdown.target

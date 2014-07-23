@@ -1,0 +1,160 @@
+From 6279f0e3c4f064a040ef6b60633afac71c2619b5 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 5 Jun 2014 09:55:53 +0200
+Subject: [PATCH] socket: add SocketUser= and SocketGroup= for chown()ing
+ sockets in the file system
+
+This is relatively complex, as we cannot invoke NSS from PID 1, and thus
+need to fork a helper process temporarily.
+
+(cherry picked from commit 3900e5fdff688dc3c273f177d9d913b7389d5561)
+
+Conflicts:
+	src/core/dbus-socket.c
+	src/core/socket.c
+	src/shared/exit-status.c
+	src/shared/exit-status.h
+
+(cherry picked from commit 45d1e4a9908ca1e152fe0b0e8da236d5a6b40b75)
+
+Conflicts:
+        all over the place :(
+---
+ src/core/shutdown.c      |  1 +
+ src/core/socket.c        | 41 +++++++++++++++++++----------------------
+ src/shared/socket-util.c | 12 ++++++++++++
+ src/shared/socket-util.h |  2 ++
+ src/shared/util.h        |  7 +++++++
+ 5 files changed, 41 insertions(+), 22 deletions(-)
+
+diff --git a/src/core/shutdown.c b/src/core/shutdown.c
+index edebc37f26..be211a6155 100644
+--- a/src/core/shutdown.c
++++ b/src/core/shutdown.c
+@@ -45,6 +45,7 @@
+ #include "virt.h"
+ #include "watchdog.h"
+ #include "killall.h"
++#include "def.h"
+ 
+ #define FINALIZE_ATTEMPTS 50
+ 
+diff --git a/src/core/socket.c b/src/core/socket.c
+index fba4124225..abb2f17cbf 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -1733,19 +1733,17 @@ static int socket_start(Unit *u) {
+ 
+         /* We cannot fulfill this request right now, try again later
+          * please! */
+-        if (IN_SET(s->state,
+-                   SOCKET_STOP_PRE,
+-                   SOCKET_STOP_PRE_SIGKILL,
+-                   SOCKET_STOP_PRE_SIGTERM,
+-                   SOCKET_STOP_POST,
+-                   SOCKET_FINAL_SIGTERM,
+-                   SOCKET_FINAL_SIGKILL))
++        if (s->state == SOCKET_STOP_PRE ||
++            s->state == SOCKET_STOP_PRE_SIGKILL ||
++            s->state == SOCKET_STOP_PRE_SIGTERM ||
++            s->state == SOCKET_STOP_POST ||
++            s->state == SOCKET_FINAL_SIGTERM ||
++            s->state == SOCKET_FINAL_SIGKILL)
+                 return -EAGAIN;
+ 
+-        if (IN_SET(s->state,
+-                   SOCKET_START_PRE,
+-                   SOCKET_START_CHOWN,
+-                   SOCKET_START_POST))
++        if (s->state == SOCKET_START_PRE ||
++            s->state == SOCKET_START_CHOWN ||
++            s->state == SOCKET_START_POST)
+                 return 0;
+ 
+         /* Cannot run this without the service being around */
+@@ -1794,21 +1792,20 @@ static int socket_stop(Unit *u) {
+         assert(s);
+ 
+         /* Already on it */
+-        if (IN_SET(s->state,
+-                   SOCKET_STOP_PRE,
+-                   SOCKET_STOP_PRE_SIGTERM,
+-                   SOCKET_STOP_PRE_SIGKILL,
+-                   SOCKET_STOP_POST,
+-                   SOCKET_FINAL_SIGTERM,
+-                   SOCKET_FINAL_SIGKILL))
++        if (
++            s->state == SOCKET_STOP_PRE ||
++            s->state == SOCKET_STOP_PRE_SIGTERM ||
++            s->state == SOCKET_STOP_PRE_SIGKILL ||
++            s->state == SOCKET_STOP_POST ||
++            s->state == SOCKET_FINAL_SIGTERM ||
++            s->state == SOCKET_FINAL_SIGKILL)
+                 return 0;
+ 
+         /* If there's already something running we go directly into
+          * kill mode. */
+-        if (IN_SET(s->state,
+-                   SOCKET_START_PRE,
+-                   SOCKET_START_CHOWN,
+-                   SOCKET_START_POST)) {
++        if (s->state == SOCKET_START_PRE ||
++            s->state == SOCKET_START_CHOWN ||
++            s->state == SOCKET_START_POST) {
+                 socket_enter_signal(s, SOCKET_STOP_PRE_SIGTERM, SOCKET_SUCCESS);
+                 return -EAGAIN;
+         }
+diff --git a/src/shared/socket-util.c b/src/shared/socket-util.c
+index c583d3dfea..0adcb37557 100644
+--- a/src/shared/socket-util.c
++++ b/src/shared/socket-util.c
+@@ -486,6 +486,18 @@ bool socket_address_is_netlink(const SocketAddress *a, const char *s) {
+         return socket_address_equal(a, &b);
+ }
+ 
++const char* socket_address_get_path(const SocketAddress *a) {
++        assert(a);
++
++        if (socket_address_family(a) != AF_UNIX)
++                return NULL;
++
++        if (a->sockaddr.un.sun_path[0] == 0)
++                return NULL;
++
++        return a->sockaddr.un.sun_path;
++}
++
+ bool socket_address_needs_mount(const SocketAddress *a, const char *prefix) {
+         assert(a);
+ 
+diff --git a/src/shared/socket-util.h b/src/shared/socket-util.h
+index 7829a337fc..51181f9390 100644
+--- a/src/shared/socket-util.h
++++ b/src/shared/socket-util.h
+@@ -86,6 +86,8 @@ int socket_address_listen(
+ bool socket_address_is(const SocketAddress *a, const char *s, int type);
+ bool socket_address_is_netlink(const SocketAddress *a, const char *s);
+ 
++const char* socket_address_get_path(const SocketAddress *a);
++
+ bool socket_address_matches_fd(const SocketAddress *a, int fd);
+ 
+ int make_socket_fd(const char* address, int flags);
+diff --git a/src/shared/util.h b/src/shared/util.h
+index 119730994c..9a5b2c57cb 100644
+--- a/src/shared/util.h
++++ b/src/shared/util.h
+@@ -521,6 +521,13 @@ void warn_melody(void);
+ 
+ int get_home_dir(char **ret);
+ 
++#define DEFINE_TRIVIAL_CLEANUP_FUNC(type, func)                 \
++        static inline void func##p(type *p) {                   \
++        if (*p)                                         \
++                func(*p);                               \
++        }                                                       \
++        struct __useless_struct_to_allow_trailing_semicolon__
++
+ static inline void freep(void *p) {
+         free(*(void**) p);
+ }

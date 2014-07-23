@@ -11,7 +11,7 @@ benefit that mount dependencies on loop devices start to work.
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/rules/99-systemd.rules.in b/rules/99-systemd.rules.in
-index d17bdd9..c0e137e 100644
+index d17bdd9a0a..c0e137ea12 100644
 --- a/rules/99-systemd.rules.in
 +++ b/rules/99-systemd.rules.in
 @@ -11,12 +11,12 @@ SUBSYSTEM=="tty", KERNEL=="tty[a-zA-Z]*|hvc*|xvc*|hvsi*", TAG+="systemd"

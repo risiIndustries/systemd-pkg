@@ -8,7 +8,7 @@ Subject: [PATCH] main: don't free fds array twice
  1 file changed, 1 insertion(+)
 
 diff --git a/src/core/main.c b/src/core/main.c
-index 7fc06be..954b480 100644
+index 7fc06bea05..954b480fd3 100644
 --- a/src/core/main.c
 +++ b/src/core/main.c
 @@ -1650,6 +1650,7 @@ int main(int argc, char *argv[]) {

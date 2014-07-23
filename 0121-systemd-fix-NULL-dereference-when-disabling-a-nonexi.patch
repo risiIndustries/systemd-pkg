@@ -1,0 +1,100 @@
+From f84a0664eee0017ca46bef34d727400ddb0ecce2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 14 Jul 2013 23:36:14 -0400
+Subject: [PATCH] systemd: fix NULL dereference when disabling a nonexistent
+ instance
+
+Assertion 'p' failed at src/shared/path-util.c:51, function path_get_file_name(). Aborting.
+
+The unit file could not be found, and i->path would not be set.
+In 02b9e969 a code path was added which attempts to remove symlinks
+to a nonexistent (removed) unit file. This worked OK in case of
+non-instance services, but broke in the case of instance services.
+
+Behaviour wrt. to instance units is changed in the way that 02b9e969
+changed it for non-instance units: it is now possible to remove
+instance symlinks to a template unit that has been removed.
+
+This patch isn't a full fix, because the behaviour wrt. to enabling
+and disabling instance units is still broken: e.g it is possible to
+start autovt@tty5.service, but it is not possible to enable it,
+because autovt@.service is a symlink, and on the other hand, disabling
+getty@tty5.service removes all symlinks to getty@.service, which is
+wrong too. But segfaults make bad pr, so let's add at least this
+partial fix for now.
+---
+ src/shared/install.c | 38 ++++++++++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 12 deletions(-)
+
+diff --git a/src/shared/install.c b/src/shared/install.c
+index 78eaa72755..79b56dc115 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -1062,8 +1062,8 @@ static int unit_file_search(
+                         info->path = path;
+                 else {
+                         if (r == -ENOENT && unit_name_is_instance(info->name)) {
+-                                /* unit file doesn't exist, however instance enablement was request */
+-                                /* we will check if it is possible to load template unit file */
++                                /* Unit file doesn't exist, however instance enablement was requested.
++                                 * We will check if it is possible to load template unit file. */
+                                 char *template = NULL,
+                                      *template_path = NULL,
+                                      *template_dir = NULL;
+@@ -1074,7 +1074,7 @@ static int unit_file_search(
+                                         return -ENOMEM;
+                                 }
+ 
+-                                /* we will reuse path variable since we don't need it anymore */
++                                /* We will reuse path variable since we don't need it anymore. */
+                                 template_dir = path;
+                                 *(strrchr(path, '/') + 1) = '\0';
+ 
+@@ -1085,7 +1085,7 @@ static int unit_file_search(
+                                         return -ENOMEM;
+                                 }
+ 
+-                                /* let's try to load template unit */
++                                /* Let's try to load template unit. */
+                                 r = unit_file_load(c, info, template_path, allow_symlink);
+                                 if (r >= 0) {
+                                         info->path = strdup(template_path);
+@@ -1425,16 +1425,30 @@ static int install_context_mark_for_removal(
+                         r += q;
+ 
+                 if (unit_name_is_instance(i->name)) {
+-                        char *unit_file = NULL;
++                        char *unit_file;
++
++                        if (i->path) {
++                                unit_file = path_get_file_name(i->path);
++
++                                if (unit_name_is_instance(unit_file))
++                                        /* unit file named as instance exists, thus all symlinks
++                                         * pointing to it will be removed */
++                                        q = mark_symlink_for_removal(remove_symlinks_to, i->name);
++                                else
++                                        /* does not exist, thus we will mark for removal symlinks
++                                         * to template unit file */
++                                        q = mark_symlink_for_removal(remove_symlinks_to, unit_file);
++                        } else {
++                                /* If i->path is not set, it means that we didn't actually find
++                                 * the unit file. But we can still remove symlinks to the
++                                 * nonexistent template. */
++                                unit_file = unit_name_template(i->name);
++                                if (!unit_file)
++                                        return log_oom();
+ 
+-                        unit_file = path_get_file_name(i->path);
+-
+-                        if (unit_name_is_instance(unit_file))
+-                                /* unit file named as instance exists, thus all symlinks pointing to it, will be removed */
+-                                q = mark_symlink_for_removal(remove_symlinks_to, i->name);
+-                        else
+-                                /* does not exist, thus we will mark for removal symlinks to template unit file */
+                                 q = mark_symlink_for_removal(remove_symlinks_to, unit_file);
++                                free(unit_file);
++                        }
+                 } else
+                         q = mark_symlink_for_removal(remove_symlinks_to, i->name);
+ 

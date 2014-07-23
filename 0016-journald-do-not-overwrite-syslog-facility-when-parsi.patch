@@ -10,7 +10,7 @@ https://bugs.freedesktop.org/show_bug.cgi?id=65610
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/journal/journald-syslog.c b/src/journal/journald-syslog.c
-index 000f5ac..4aeb9a3 100644
+index 000f5acc10..4aeb9a35f0 100644
 --- a/src/journal/journald-syslog.c
 +++ b/src/journal/journald-syslog.c
 @@ -268,7 +268,7 @@ void syslog_parse_priority(char **p, int *priority) {

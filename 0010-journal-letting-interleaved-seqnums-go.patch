@@ -54,7 +54,7 @@ https://bugs.freedesktop.org/show_bug.cgi?id=64293
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
-index da5b725..5813699 100644
+index da5b725863..5813699b85 100644
 --- a/src/journal/journald-server.c
 +++ b/src/journal/journald-server.c
 @@ -282,7 +282,7 @@ static JournalFile* find_journal(Server *s, uid_t uid) {

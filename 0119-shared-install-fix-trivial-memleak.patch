@@ -1,0 +1,45 @@
+From 7c7431b8ea8374cde86464c788500196a4bfa0ee Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 12 Jul 2013 08:15:21 -0400
+Subject: [PATCH] shared/install: fix trivial memleak
+
+We lost the reference when setting path second time.
+---
+ src/shared/install.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/shared/install.c b/src/shared/install.c
+index c2380faec5..0349f1b6b0 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -506,7 +506,7 @@ static int find_symlinks_in_scope(
+                 UnitFileState *state) {
+ 
+         int r;
+-        _cleanup_free_ char *path = NULL;
++        _cleanup_free_ char *path2 = NULL;
+         bool same_name_link_runtime = false, same_name_link = false;
+ 
+         assert(scope >= 0);
+@@ -514,6 +514,7 @@ static int find_symlinks_in_scope(
+         assert(name);
+ 
+         if (scope == UNIT_FILE_SYSTEM || scope == UNIT_FILE_GLOBAL) {
++                _cleanup_free_ char *path = NULL;
+ 
+                 /* First look in runtime config path */
+                 r = get_config_path(scope, true, root_dir, &path);
+@@ -530,11 +531,11 @@ static int find_symlinks_in_scope(
+         }
+ 
+         /* Then look in the normal config path */
+-        r = get_config_path(scope, false, root_dir, &path);
++        r = get_config_path(scope, false, root_dir, &path2);
+         if (r < 0)
+                 return r;
+ 
+-        r = find_symlinks(name, path, &same_name_link);
++        r = find_symlinks(name, path2, &same_name_link);
+         if (r < 0)
+                 return r;
+         else if (r > 0) {

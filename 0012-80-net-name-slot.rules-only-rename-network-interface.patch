@@ -26,7 +26,7 @@ systemd-udevd[421]: renamed network interface eth1 to p3p1
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/rules/80-net-name-slot.rules b/rules/80-net-name-slot.rules
-index 15b5bc4..c5f1b38 100644
+index 15b5bc4107..c5f1b3885b 100644
 --- a/rules/80-net-name-slot.rules
 +++ b/rules/80-net-name-slot.rules
 @@ -1,6 +1,6 @@

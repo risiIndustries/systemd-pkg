@@ -1,0 +1,67 @@
+From 627b653bec362539033b05715dea867e9b685197 Mon Sep 17 00:00:00 2001
+From: Ross Lagerwall <rosslagerwall@gmail.com>
+Date: Mon, 17 Jun 2013 19:11:50 +0100
+Subject: [PATCH] install: make "reenable" work with templated units
+
+Before, "systemctl reenable getty@tty1.service" would fail with:
+Failed to issue method call: File exists
+To fix this, reimplement "reenable" explicitly as a disable followed by
+an enable.
+This is shorter and is how the man page documents its behavior.
+---
+ src/shared/install.c | 38 +++++---------------------------------
+ 1 file changed, 5 insertions(+), 33 deletions(-)
+
+diff --git a/src/shared/install.c b/src/shared/install.c
+index 0349f1b6b0..78eaa72755 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -1534,43 +1534,15 @@ int unit_file_reenable(
+                 bool force,
+                 UnitFileChange **changes,
+                 unsigned *n_changes) {
++        int r;
+ 
+-        _cleanup_lookup_paths_free_ LookupPaths paths = {};
+-        _cleanup_install_context_done_ InstallContext c = {};
+-        char **i;
+-        _cleanup_free_ char *config_path = NULL;
+-        _cleanup_set_free_free_ Set *remove_symlinks_to = NULL;
+-        int r, q;
+-
+-        assert(scope >= 0);
+-        assert(scope < _UNIT_FILE_SCOPE_MAX);
+-
+-        r = lookup_paths_init_from_scope(&paths, scope);
+-        if (r < 0)
+-                return r;
+-
+-        r = get_config_path(scope, runtime, root_dir, &config_path);
++        r = unit_file_disable(scope, runtime, root_dir, files,
++                              changes, n_changes);
+         if (r < 0)
+                 return r;
+ 
+-        STRV_FOREACH(i, files) {
+-                r = mark_symlink_for_removal(&remove_symlinks_to, *i);
+-                if (r < 0)
+-                        return r;
+-
+-                r = install_info_add_auto(&c, *i);
+-                if (r < 0)
+-                        return r;
+-        }
+-
+-        r = remove_marked_symlinks(remove_symlinks_to, config_path, changes, n_changes, files);
+-
+-        /* Returns number of symlinks that where supposed to be installed. */
+-        q = install_context_apply(&c, &paths, config_path, root_dir, force, changes, n_changes);
+-        if (r == 0)
+-                r = q;
+-
+-        return r;
++        return unit_file_enable(scope, runtime, root_dir, files, force,
++                                changes, n_changes);
+ }
+ 
+ UnitFileState unit_file_get_state(

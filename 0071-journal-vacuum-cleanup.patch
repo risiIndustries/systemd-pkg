@@ -8,7 +8,7 @@ Subject: [PATCH] journal/vacuum: cleanup
  1 file changed, 4 insertions(+), 19 deletions(-)
 
 diff --git a/src/journal/journal-vacuum.c b/src/journal/journal-vacuum.c
-index 4a3a5a9..1ddb043 100644
+index 4a3a5a9e63..1ddb043e2c 100644
 --- a/src/journal/journal-vacuum.c
 +++ b/src/journal/journal-vacuum.c
 @@ -135,10 +135,11 @@ int journal_directory_vacuum(

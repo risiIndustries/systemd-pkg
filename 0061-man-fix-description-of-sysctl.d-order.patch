@@ -11,7 +11,7 @@ updated for that.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/man/sysctl.d.xml b/man/sysctl.d.xml
-index 759b874..a5868e6 100644
+index 759b8740f5..a5868e638f 100644
 --- a/man/sysctl.d.xml
 +++ b/man/sysctl.d.xml
 @@ -92,7 +92,7 @@
