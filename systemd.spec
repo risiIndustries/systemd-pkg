@@ -22,7 +22,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        204
-Release:        20%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        21%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -198,6 +198,7 @@ Patch149:       0149-journal-compress-add-stream-compression-decompressio.patch
 Patch150:       0150-journal-compress-improve-xz-compression-performance.patch
 Patch151:       0151-socket-add-SocketUser-and-SocketGroup-for-chown-ing-.patch
 Patch152:       0152-socket-add-SocketUser-and-SocketGroup-for-chown-ing-.patch
+Patch153:       0153-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 
 # git diff --src-prefix=a/ --dst-prefix=b/ v204-stable..master -- hwdb/ > systemd-hwdb.patch
 Patch0999:      systemd-hwdb.patch
@@ -965,6 +966,9 @@ fi
 %{_libdir}/pkgconfig/gudev-1.0*
 
 %changelog
+* Thu Sep 14 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-21
+- Fix regression in systemctl enable/disable (#1128308)
+
 * Tue Jul 22 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> 204-20
 - Update hardware database
 - Add SocketUser/SocketGroup (#1119282)

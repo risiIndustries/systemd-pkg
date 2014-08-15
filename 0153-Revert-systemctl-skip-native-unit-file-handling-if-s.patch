@@ -1,0 +1,33 @@
+From 105f345e6f6b7bfab55addf8fcbeb549a237eb1e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 14 Aug 2014 21:38:09 -0400
+Subject: [PATCH] Revert "systemctl: skip native unit file handling if sysv
+ file handling already handled everything"
+
+This patch only makes sense on top of patches which fix unit name
+mangling when --root is used, but those patches have not been
+cherry-picked for this branch.
+
+This reverts commit 3a02c6b4dc75987ef0938beae6fc48e8834aef5a.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1128308
+---
+ src/systemctl/systemctl.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index f18da82930..e9a7daabad 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -4232,11 +4232,6 @@ static int enable_unit(DBusConnection *bus, char **args) {
+         if (!args[1])
+                 return 0;
+ 
+-        /* If the operation was fully executed by the SysV compat,
+-         * let's finish early */
+-        if (strv_isempty(mangled_names))
+-                return 0;
+-
+         if (!bus || avoid_bus()) {
+                 if (streq(verb, "enable")) {
+                         r = unit_file_enable(arg_scope, arg_runtime, arg_root, args+1, arg_force, &changes, &n_changes);
