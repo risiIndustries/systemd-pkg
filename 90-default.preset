@@ -61,6 +61,10 @@ enable x509watch.timer
 # Hardware
 enable gpm.*
 enable gpsd.*
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1141607
+enable x2gocleansessions.service
+
 enable irqbalance.service
 enable lm_sensors.service
 enable mcelog.*
