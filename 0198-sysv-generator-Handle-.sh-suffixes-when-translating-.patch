@@ -1,0 +1,73 @@
+From cd1694328b8e947875bdd7a7356fbf798a52e18f Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martin.pitt@ubuntu.com>
+Date: Tue, 20 Jan 2015 16:41:31 +0100
+Subject: [PATCH] sysv-generator: Handle .sh suffixes when translating
+ Provides:
+
+When deciding whether the provided name equals the file name in
+sysv_translate_facility(), also consider them equal if the file name has a
+".sh" suffix.
+
+This was uncovered by commit b7e7184 which then created a symlink
+"<name>.service" to itself for ".sh" suffixed init.d scripts.
+
+For additional robustness, refuse to create symlinks to itself in add_alias().
+
+Add test case which reproduces the bug.
+
+https://bugs.debian.org/775889
+(cherry picked from commit 29e0e6d8c1f7f648b7c998880d034eaa3e58c53a)
+
+Conflicts:
+	test/sysv-generator-test.py
+---
+ src/sysv-generator/sysv-generator.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/src/sysv-generator/sysv-generator.c b/src/sysv-generator/sysv-generator.c
+index bf49b24195..6bb9ca0eb4 100644
+--- a/src/sysv-generator/sysv-generator.c
++++ b/src/sysv-generator/sysv-generator.c
+@@ -119,6 +119,11 @@ static int add_alias(const char *service, const char *alias) {
+         assert(service);
+         assert(alias);
+ 
++        if (streq(service, alias)) {
++                log_error("Ignoring creation of an alias %s for itself", service);
++                return 0;
++        }
++
+         link = strjoin(arg_dest, "/", alias, NULL);
+         if (!link)
+                 return log_oom();
+@@ -268,6 +273,7 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+         unsigned i;
+         char *r;
+         const char *n;
++        _cleanup_free_ char *filename_no_sh = NULL;
+ 
+         assert(name);
+         assert(_r);
+@@ -289,6 +295,13 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+                 goto finish;
+         }
+ 
++        /* strip ".sh" suffix from file name for comparison */
++        filename_no_sh = strdup(filename);
++        if (!filename_no_sh)
++                return -ENOMEM;
++        if (endswith(filename, ".sh"))
++                filename_no_sh[strlen(filename)-3] = '\0';
++
+         /* If we don't know this name, fallback heuristics to figure
+          * out whether something is a target or a service alias. */
+ 
+@@ -298,7 +311,7 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+ 
+                 /* Facilities starting with $ are most likely targets */
+                 r = unit_name_build(n, NULL, ".target");
+-        } else if (filename && streq(name, filename))
++        } else if (filename && streq(name, filename_no_sh))
+                 /* Names equaling the file name of the services are redundant */
+                 return 0;
+         else

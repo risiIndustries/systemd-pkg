@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        16%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        17%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -234,6 +234,15 @@ Patch0190:      0190-fix-zsh-completion-typo.patch
 Patch0191:      0191-udev-fix-NULL-ptr-deref.patch
 Patch0192:      0192-manager-print-fatal-errors-on-the-console-too.patch
 Patch0193:      0193-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
+Patch0194:      0194-hwdb-restore-comments-about-MSI-devices.patch
+Patch0195:      0195-timesyncd-consider-too-long-packets-as-invalid.patch
+Patch0196:      0196-zsh-completion-Do-not-interpret-escape-sequences-in-.patch
+Patch0197:      0197-journal-Fix-syslog-forwarding-without-CAP_SYS_ADMIN.patch
+Patch0198:      0198-sysv-generator-Handle-.sh-suffixes-when-translating-.patch
+Patch0199:      0199-util-Add-some-missing-hidden_file-suffixes.patch
+Patch0200:      0200-tmpfiles-make-sure-not-to-concatenate-non-absolute-p.patch
+Patch0201:      0201-sysv-generator-only-allow-regular-files-in-enumerate.patch
+Patch0202:      0202-logind-fix-sd_eviocrevoke-ioctl-call.patch
 
 
 Patch0997:      units-remove-dev-log-to-always-create-symlink.patch
@@ -1023,6 +1032,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Thu Jan 22 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-17
+- Fix syslog forwarding in containers, make sysv generator more robust, fix logind revoke call
+
 * Fri Jan 16 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-16
 - Fix patch
 

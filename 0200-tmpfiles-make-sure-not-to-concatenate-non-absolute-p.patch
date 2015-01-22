@@ -1,0 +1,42 @@
+From 02df84807928361cc5dc546cbf85c0b1d6049c85 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 9 Jan 2015 01:27:31 -0500
+Subject: [PATCH] tmpfiles: make sure not to concatenate non-absolute path
+
+If the path is absolute was only checked later.
+Also do not check if path if absolute if we just
+specified it starting with a slash.
+
+(cherry picked from commit 222c47f47615a275b9a9862a45f9b91b01eb8be5)
+---
+ src/tmpfiles/tmpfiles.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/src/tmpfiles/tmpfiles.c b/src/tmpfiles/tmpfiles.c
+index 29041388d3..2f63722446 100644
+--- a/src/tmpfiles/tmpfiles.c
++++ b/src/tmpfiles/tmpfiles.c
+@@ -1259,7 +1259,7 @@ static int parse_line(const char *fname, unsigned line, const char *buffer) {
+ 
+         case CREATE_SYMLINK:
+                 if (!i->argument) {
+-                        i->argument = strappend("/usr/share/factory", i->path);
++                        i->argument = strappend("/usr/share/factory/", i->path);
+                         if (!i->argument)
+                                 return log_oom();
+                 }
+@@ -1274,12 +1274,10 @@ static int parse_line(const char *fname, unsigned line, const char *buffer) {
+ 
+         case COPY_FILES:
+                 if (!i->argument) {
+-                        i->argument = strappend("/usr/share/factory", i->path);
++                        i->argument = strappend("/usr/share/factory/", i->path);
+                         if (!i->argument)
+                                 return log_oom();
+-                }
+-
+-                if (!path_is_absolute(i->argument)) {
++                } else if (!path_is_absolute(i->argument)) {
+                         log_error("[%s:%u] Source path is not absolute.", fname, line);
+                         return -EBADMSG;
+                 }

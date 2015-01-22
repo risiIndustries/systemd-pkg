@@ -1,0 +1,33 @@
+From 8874d83156b00e483e5d5d4a264a536355efaf07 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
+Date: Wed, 14 Jan 2015 02:51:41 -0300
+Subject: [PATCH] sysv-generator: only allow regular files in enumerate_sysv()
+
+Otherwise, if the directory contains other directories we fail
+at fopen in load_sysv() with EISDIR.
+
+(cherry picked from commit 0814f65ec6feba5efcf0f5b14c054f3c40e4cd8f)
+
+Conflicts:
+	src/sysv-generator/sysv-generator.c
+---
+ src/sysv-generator/sysv-generator.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/sysv-generator/sysv-generator.c b/src/sysv-generator/sysv-generator.c
+index 6bb9ca0eb4..c97db797df 100644
+--- a/src/sysv-generator/sysv-generator.c
++++ b/src/sysv-generator/sysv-generator.c
+@@ -745,8 +745,10 @@ static int enumerate_sysv(LookupPaths lp, Hashmap *all_services) {
+                         struct stat st;
+                         int r;
+ 
+-                        if (ignore_file(de->d_name))
+-                                continue;
++                        dirent_ensure_type(d, de);
++
++                        if (!dirent_is_file(de))
++                            continue;
+ 
+                         if (fstatat(dirfd(d), de->d_name, &st, 0) < 0) {
+                                 log_warning("stat() failed on %s/%s: %s",

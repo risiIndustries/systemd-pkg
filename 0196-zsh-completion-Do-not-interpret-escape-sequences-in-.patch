@@ -1,0 +1,29 @@
+From ca6494000fc1f396853baeeaaf880f8bf9b7d48f Mon Sep 17 00:00:00 2001
+From: Wieland Hoffmann <themineo@gmail.com>
+Date: Sat, 17 Jan 2015 02:10:42 +0100
+Subject: [PATCH] zsh-completion: Do not interpret escape sequences in
+ _filter_units_by_property
+
+This makes all functions that rely on _filter_units_by_property() (like
+_systemctl_{stop,kill,try_restart}) work with unit names that contain backslash
+escaped sequences (like automount units with spaces that are escaped to
+"\x20").
+
+(cherry picked from commit e37b56c7355a9b84ac1e1893ab828b19aa1dc217)
+---
+ shell-completion/zsh/_systemctl.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/shell-completion/zsh/_systemctl.in b/shell-completion/zsh/_systemctl.in
+index 0ee4856fa3..acc0bb7e1a 100644
+--- a/shell-completion/zsh/_systemctl.in
++++ b/shell-completion/zsh/_systemctl.in
+@@ -136,7 +136,7 @@ _filter_units_by_property() {
+     unit=${units[i]}
+     prop=${(f)"$(_call_program units "$service show --no-pager --property="$property" ${unit} 2>/dev/null")"}
+     if [[ "${prop}" = "$property=$value" ]]; then
+-      echo " ${unit}"
++      echo -E - " ${unit}"
+     fi
+   done
+ }
