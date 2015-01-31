@@ -1054,6 +1054,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 - Update bluetooth identifiers hwdb
 - Fix offline updates with separate /var (#1178978)
 - Fix permissions of /var/log/journal (#1048424)
+- Disable rpcbind in presets (#1099595)
 
 * Thu Feb 05 2015 Jan Synáček <jsynacek@redhat.com> - 216-18
 - RFE: journal: automatically rotate the file if it is unlinked (#1171719)
