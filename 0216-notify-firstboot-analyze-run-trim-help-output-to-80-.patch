@@ -1,0 +1,82 @@
+From 76b8ed804201fbccc19e8611c3c433d1c087d8ff Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 27 Jan 2015 21:22:57 -0500
+Subject: [PATCH] notify,firstboot,analyze,run: trim --help output to 80 lines
+
+(cherry picked from commit b57b06258e0b1894edb6d1fc52a80b3c33164892)
+
+Conflicts:
+	src/notify/notify.c
+	src/run/run.c
+---
+ src/analyze/analyze.c     | 17 +++++++----------
+ src/firstboot/firstboot.c |  2 +-
+ src/notify/notify.c       | 12 ++++++------
+ 3 files changed, 14 insertions(+), 17 deletions(-)
+
+diff --git a/src/analyze/analyze.c b/src/analyze/analyze.c
+index 5e55988063..d9d0242438 100644
+--- a/src/analyze/analyze.c
++++ b/src/analyze/analyze.c
+@@ -1195,18 +1195,15 @@ static void help(void) {
+                "     --user               Operate on user systemd instance\n"
+                "  -H --host=[USER@]HOST   Operate on remote host\n"
+                "  -M --machine=CONTAINER  Operate on local container\n"
+-               "     --order              When generating a dependency graph, show only order\n"
+-               "     --require            When generating a dependency graph, show only requirement\n"
+-               "     --from-pattern=GLOB, --to-pattern=GLOB\n"
+-               "                          When generating a dependency graph, filter only origins\n"
+-               "                          or destinations, respectively\n"
+-               "     --fuzz=TIMESPAN      When printing the tree of the critical chain, print also\n"
+-               "                          services, which finished TIMESPAN earlier, than the\n"
+-               "                          latest in the branch. The unit of TIMESPAN is seconds\n"
+-               "                          unless specified with a different unit, i.e. 50ms\n"
++               "     --order              Show only order in the graph\n"
++               "     --require            Show only requirement in the graph\n"
++               "     --from-pattern=GLOB  Show only origins in the graph\n"
++               "     --to-pattern=GLOB    Show only destinations in the graph\n"
++               "     --fuzz=SECONDS       Also print also services which finished SECONDS\n"
++               "                          earlier than the latest in the branch\n"
+                "     --man[=BOOL]         Do [not] check for existence of man pages\n\n"
+                "Commands:\n"
+-               "  time                    Print time spent in the kernel before reaching userspace\n"
++               "  time                    Print time spent in the kernel\n"
+                "  blame                   Print list of running units ordered by time to init\n"
+                "  critical-chain          Print a tree of the time critical chain of units\n"
+                "  plot                    Output SVG graphic showing service initialization\n"
+diff --git a/src/firstboot/firstboot.c b/src/firstboot/firstboot.c
+index 93273d903c..66dda454b6 100644
+--- a/src/firstboot/firstboot.c
++++ b/src/firstboot/firstboot.c
+@@ -661,7 +661,7 @@ static void help(void) {
+                "     --prompt-timezone         Prompt the user for timezone\n"
+                "     --prompt-hostname         Prompt the user for hostname\n"
+                "     --prompt-root-password    Prompt the user for root password\n"
+-               "     --prompt                  Prompt for locale, timezone, hostname, root password\n"
++               "     --prompt                  Prompt for all of the above\n"
+                "     --copy-locale             Copy locale from host\n"
+                "     --copy-timezone           Copy timezone from host\n"
+                "     --copy-root-password      Copy root password from host\n"
+diff --git a/src/notify/notify.c b/src/notify/notify.c
+index 33933e4bf6..5cf7ab9bf4 100644
+--- a/src/notify/notify.c
++++ b/src/notify/notify.c
+@@ -44,12 +44,12 @@ static const char *arg_readahead = NULL;
+ static void help(void) {
+         printf("%s [OPTIONS...] [VARIABLE=VALUE...]\n\n"
+                "Notify the init system about service status updates.\n\n"
+-               "  -h --help             Show this help\n"
+-               "     --version          Show package version\n"
+-               "     --ready            Inform the init system about service start-up completion\n"
+-               "     --pid[=PID]        Set main pid of daemon\n"
+-               "     --status=TEXT      Set status text\n"
+-               "     --booted           Returns 0 if the system was booted up with systemd, non-zero otherwise\n"
++               "  -h --help            Show this help\n"
++               "     --version         Show package version\n"
++               "     --ready           Inform the init system about service start-up completion\n"
++               "     --pid[=PID]       Set main pid of daemon\n"
++               "     --status=TEXT     Set status text\n"
++               "     --booted          Check if the system was booted up with systemd\n"
+                "     --readahead=ACTION Controls read-ahead operations\n",
+                program_invocation_short_name);
+ }

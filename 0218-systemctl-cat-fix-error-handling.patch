@@ -1,0 +1,40 @@
+From b4b97da0106315071a5adc829d5df65f8858d3ed Mon Sep 17 00:00:00 2001
+From: Ivan Shapovalov <intelfx100@gmail.com>
+Date: Thu, 5 Feb 2015 01:56:58 +0300
+Subject: [PATCH] systemctl: cat: fix error handling
+
+- correctly check for local vs. remote transport
+- return after receiving error from expand_names()
+
+(cherry picked from commit 3e7eed8497098d1b09fd4ae1260c5242e16a8127)
+
+Conflicts:
+	src/systemctl/systemctl.c
+---
+ src/systemctl/systemctl.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index c25417a36a..eef0f4424d 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -4544,14 +4544,16 @@ static int cat(sd_bus *bus, char **args) {
+         assert(bus);
+         assert(args);
+ 
+-        if (arg_host) {
+-                log_error("Option --host cannot be used with 'cat'");
++        if (arg_transport != BUS_TRANSPORT_LOCAL) {
++                log_error("Cannot remotely cat units");
+                 return -EINVAL;
+         }
+ 
+         r = expand_names(bus, args + 1, NULL, &names);
+-        if (r < 0)
++        if (r < 0) {
+                 log_error("Failed to expand names: %s", strerror(-r));
++                return r;
++        }
+ 
+         pager_open_if_enabled();
+ 

@@ -1,0 +1,47 @@
+From 795fcf13d2664623a5ac174dee30b142dd7a5fb1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 28 Jan 2015 21:30:06 -0500
+Subject: [PATCH] systemctl: refuse --host with cat
+
+This might be fixed one day, but for now it's better to fail.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1186952
+(cherry picked from commit 3e495a6651609d0a45b62aab5c3ed5a3b40e11ab)
+
+Conflicts:
+	src/systemctl/systemctl.c
+---
+ TODO                      | 3 +++
+ src/systemctl/systemctl.c | 5 +++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/TODO b/TODO
+index 68506671fa..a1448ff5bb 100644
+--- a/TODO
++++ b/TODO
+@@ -22,6 +22,9 @@ Bugfixes:
+   str_split_quoted() should return a real return code, so spawn_child can
+   report the failure properly.
+ 
++* When systemctl --host is used, underlying ssh connection can remain open.
++  bus_close does not kill children?
++
+ External:
+ * Fedora: add an rpmlint check that verifies that all unit files in the RPM are listed in %systemd_post macros.
+ 
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 161f76f237..c25417a36a 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -4544,6 +4544,11 @@ static int cat(sd_bus *bus, char **args) {
+         assert(bus);
+         assert(args);
+ 
++        if (arg_host) {
++                log_error("Option --host cannot be used with 'cat'");
++                return -EINVAL;
++        }
++
+         r = expand_names(bus, args + 1, NULL, &names);
+         if (r < 0)
+                 log_error("Failed to expand names: %s", strerror(-r));

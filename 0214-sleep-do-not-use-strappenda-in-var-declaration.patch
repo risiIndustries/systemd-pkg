@@ -1,0 +1,27 @@
+From 097e69a5fa7e58a71e4d482ce032c1773cae311c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 5 Feb 2015 14:09:00 -0500
+Subject: [PATCH] sleep: do not use strappenda in var declaration
+
+Based on e2cc6eca73cd1df8be552d7c23f9ff3d69c06f1e.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1147610
+---
+ src/sleep/sleep.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/sleep/sleep.c b/src/sleep/sleep.c
+index ca00eea4ab..f4c5817634 100644
+--- a/src/sleep/sleep.c
++++ b/src/sleep/sleep.c
+@@ -91,7 +91,9 @@ static int execute(char **modes, char **states) {
+         char* arguments[4];
+         int r;
+         _cleanup_fclose_ FILE *f = NULL;
+-        const char* note = strappenda("SLEEP=", arg_verb);
++        const char* note;
++
++        note = strappenda("SLEEP=", arg_verb);
+ 
+         /* This file is opened first, so that if we hit an error,
+          * we can abort before modifying any state. */

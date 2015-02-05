@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        19%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        20%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -254,6 +254,12 @@ Patch0210:      0210-hwdb-Update-database-of-Bluetooth-company-identifier.patch
 Patch0211:      0211-cryptsetup-Do-not-warn-If-the-key-is-dev-random.patch
 Patch0212:      0212-cryptsetup-only-warn-on-real-key-files.patch
 Patch0213:      0213-units-so-far-we-defaulted-to-90s-as-default-timeout-.patch
+Patch0214:      0214-sleep-do-not-use-strappenda-in-var-declaration.patch
+Patch0215:      0215-journalctl-trim-help-to-fit-in-80-columns.patch
+Patch0216:      0216-notify-firstboot-analyze-run-trim-help-output-to-80-.patch
+Patch0217:      0217-systemctl-refuse-host-with-cat.patch
+Patch0218:      0218-systemctl-cat-fix-error-handling.patch
+
 
 Patch0995:      journald-when-we-detect-the-journal-file-we-are-abou.patch
 Patch0996:      hwdb-add-a-touchpad-hwdb.patch
@@ -1044,6 +1050,12 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Thu Feb 05 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-20
+- Patch for crash in systemd-sleep (#1147610)
+- Improved --help and error handling in commandline errors (#1183771, #1186952)
+- Fix permissions of /var/log/journal (#1048424)
+- Disable rpcbind in presets (#1099595)
+
 * Thu Feb 05 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-19
 - Quick fix for https://github.com/docker/docker/issues/10280
 - Fix 'systemctl reboot arg' invocations
@@ -1053,8 +1065,6 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 - Do not warn if cryptsetup keys are /dev/random*
 - Update bluetooth identifiers hwdb
 - Fix offline updates with separate /var (#1178978)
-- Fix permissions of /var/log/journal (#1048424)
-- Disable rpcbind in presets (#1099595)
 
 * Thu Feb 05 2015 Jan Synáček <jsynacek@redhat.com> - 216-18
 - RFE: journal: automatically rotate the file if it is unlinked (#1171719)
