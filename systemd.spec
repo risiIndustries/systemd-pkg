@@ -244,6 +244,7 @@ Patch0200:      0200-tmpfiles-make-sure-not-to-concatenate-non-absolute-p.patch
 Patch0201:      0201-sysv-generator-only-allow-regular-files-in-enumerate.patch
 Patch0202:      0202-logind-fix-sd_eviocrevoke-ioctl-call.patch
 Patch0203:      0203-journald-when-we-detect-the-journal-file-we-are-abou.patch
+Patch0204:      0204-hwdb-add-a-touchpad-hwdb.patch
 
 
 Patch0997:      units-remove-dev-log-to-always-create-symlink.patch
@@ -1033,8 +1034,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
-* Wed Feb  4 2015 Jan Synáček <jsynacek@redhat.com> - 216-18
+* Thu Feb  5 2015 Jan Synáček <jsynacek@redhat.com> - 216-18
 - RFE: journal: automatically rotate the file if it is unlinked (#1171719)
+- Add the touchpad hwdb (#1189319)
 
 * Thu Jan 22 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-17
 - Fix syslog forwarding in containers, make sysv generator more robust, fix logind revoke call
