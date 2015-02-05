@@ -244,6 +244,16 @@ Patch0200:      0200-tmpfiles-make-sure-not-to-concatenate-non-absolute-p.patch
 Patch0201:      0201-sysv-generator-only-allow-regular-files-in-enumerate.patch
 Patch0202:      0202-logind-fix-sd_eviocrevoke-ioctl-call.patch
 Patch0203:      0203-core-cgroup-fix-embarrassing-typo.patch
+Patch0204:      0204-sd-bus-fix-handling-of-double-parameters-in-sd_bus_m.patch
+Patch0205:      0205-systemctl-bugfix-for-systemctl-reboot-command-with-a.patch
+Patch0206:      0206-system-update-generator-accept-a-dangling-symlink.patch
+Patch0207:      0207-logind-remove-per-user-runtime-dir-again-if-setup-fa.patch
+Patch0208:      0208-core-make-setting-the-shutdown-watchdog-configuratio.patch
+Patch0209:      0209-units-set-TimeoutSec-on-some-oneshot-services.patch
+Patch0210:      0210-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0211:      0211-cryptsetup-Do-not-warn-If-the-key-is-dev-random.patch
+Patch0212:      0212-cryptsetup-only-warn-on-real-key-files.patch
+Patch0213:      0213-units-so-far-we-defaulted-to-90s-as-default-timeout-.patch
 
 Patch0995:      journald-when-we-detect-the-journal-file-we-are-abou.patch
 Patch0996:      hwdb-add-a-touchpad-hwdb.patch
@@ -1036,6 +1046,13 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Thu Feb 05 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-19
 - Quick fix for https://github.com/docker/docker/issues/10280
+- Fix 'systemctl reboot arg' invocations
+- Fix shutdown watchdog configuration over dbus
+- Remove per-user runtime dir again if setup fails
+- Specify timeouts on more systemd jobs to avoid stalling if they hang
+- Do not warn if cryptsetup keys are /dev/random*
+- Update bluetooth identifiers hwdb
+- Fix offline updates with separate /var (#1178978)
 
 * Thu Feb 05 2015 Jan Synáček <jsynacek@redhat.com> - 216-18
 - RFE: journal: automatically rotate the file if it is unlinked (#1171719)

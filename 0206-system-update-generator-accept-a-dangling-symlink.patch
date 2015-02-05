@@ -1,0 +1,43 @@
+From f0e9c36257cb2be566dac427124c4abd111fa7ea Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 26 Jan 2015 07:34:32 +0100
+Subject: [PATCH] system-update-generator: accept a dangling symlink
+
+The offline update mechanism is explicitly designed to work with a
+separate /var. systemd-update-generator is supposed to run early,
+before filesystems are mounted, so it cannot check if the
+/system-update symlink actually points to anything.
+
+The update is run *after* filesystems are mounted, so it should be
+able to access the target of the symlink without trouble.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1178978
+(cherry picked from commit 6b321a790142449e0cf3685ffa5294e147d692f7)
+---
+ src/shared/util.h                                     | 2 ++
+ src/system-update-generator/system-update-generator.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/util.h b/src/shared/util.h
+index 6b595d51ea..e4fb54215b 100644
+--- a/src/shared/util.h
++++ b/src/shared/util.h
+@@ -999,3 +999,5 @@ int free_and_strdup(char **p, const char *s);
+ int sethostname_idempotent(const char *s);
+ 
+ #define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
++
++#define laccess(path, mode) faccessat(AT_FDCWD, (path), (mode), AT_SYMLINK_NOFOLLOW)
+diff --git a/src/system-update-generator/system-update-generator.c b/src/system-update-generator/system-update-generator.c
+index 4f22c9c359..e1be3f2bc9 100644
+--- a/src/system-update-generator/system-update-generator.c
++++ b/src/system-update-generator/system-update-generator.c
+@@ -37,7 +37,7 @@ static const char *arg_dest = "/tmp";
+ static int generate_symlink(void) {
+         const char *p = NULL;
+ 
+-        if (access("/system-update", F_OK) < 0) {
++        if (laccess("/system-update", F_OK) < 0) {
+                 if (errno == ENOENT)
+                         return 0;
+ 

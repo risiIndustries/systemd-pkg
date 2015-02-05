@@ -1,0 +1,47 @@
+From 7f7f58a080285d4f3c95ebb8c11bf15938f0692c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 30 Jan 2015 23:54:21 -0500
+Subject: [PATCH] units: set TimeoutSec on some oneshot services
+
+Services which are not crucial to system bootup, and have Type=oneshot
+can effectively "hang" the system if they fail to complete for whatever
+reason. To allow the boot to continue, kill them after a timeout.
+
+In case of systemd-journal-flush the flush will continue in the background,
+and in the other two cases the job will be aborted, but this should not
+result in any permanent problem.
+
+(cherry picked from commit 0775b9b61120f8be99cd45a7df907b828188cb47)
+---
+ units/systemd-backlight@.service.in             | 1 +
+ units/systemd-journal-catalog-update.service.in | 1 +
+ units/systemd-journal-flush.service.in          | 1 +
+ 3 files changed, 3 insertions(+)
+
+diff --git a/units/systemd-backlight@.service.in b/units/systemd-backlight@.service.in
+index e945d8733f..82d0868bea 100644
+--- a/units/systemd-backlight@.service.in
++++ b/units/systemd-backlight@.service.in
+@@ -19,3 +19,4 @@ Type=oneshot
+ RemainAfterExit=yes
+ ExecStart=@rootlibexecdir@/systemd-backlight load %i
+ ExecStop=@rootlibexecdir@/systemd-backlight save %i
++TimeoutSec=2min
+diff --git a/units/systemd-journal-catalog-update.service.in b/units/systemd-journal-catalog-update.service.in
+index 0cb7076f12..98b546e75c 100644
+--- a/units/systemd-journal-catalog-update.service.in
++++ b/units/systemd-journal-catalog-update.service.in
+@@ -18,3 +18,4 @@ ConditionNeedsUpdate=/etc
+ Type=oneshot
+ RemainAfterExit=yes
+ ExecStart=@rootbindir@/journalctl --update-catalog
++TimeoutSec=2min
+diff --git a/units/systemd-journal-flush.service.in b/units/systemd-journal-flush.service.in
+index 98c91b4bc5..53a6f30cfd 100644
+--- a/units/systemd-journal-flush.service.in
++++ b/units/systemd-journal-flush.service.in
+@@ -19,3 +19,4 @@ RequiresMountsFor=/var/log/journal
+ ExecStart=@rootbindir@/journalctl --flush
+ Type=oneshot
+ RemainAfterExit=yes
++TimeoutSec=2min

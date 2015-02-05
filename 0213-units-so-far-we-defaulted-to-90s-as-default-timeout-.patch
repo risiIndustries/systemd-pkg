@@ -1,0 +1,45 @@
+From 838ec2a9a6448c8defef353ddd44a32fa7de2750 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 2 Feb 2015 21:34:32 +0100
+Subject: [PATCH] units: so far we defaulted to 90s as default timeout for most
+ things, let's do so for our oneshot services too
+
+Fewer surprises, and stuff...
+
+(cherry picked from commit 75f709fbf284041d951717cfb3bf6304db0fa7c9)
+---
+ units/systemd-backlight@.service.in             | 2 +-
+ units/systemd-journal-catalog-update.service.in | 2 +-
+ units/systemd-journal-flush.service.in          | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/units/systemd-backlight@.service.in b/units/systemd-backlight@.service.in
+index 82d0868bea..b146e30f2d 100644
+--- a/units/systemd-backlight@.service.in
++++ b/units/systemd-backlight@.service.in
+@@ -19,4 +19,4 @@ Type=oneshot
+ RemainAfterExit=yes
+ ExecStart=@rootlibexecdir@/systemd-backlight load %i
+ ExecStop=@rootlibexecdir@/systemd-backlight save %i
+-TimeoutSec=2min
++TimeoutSec=90s
+diff --git a/units/systemd-journal-catalog-update.service.in b/units/systemd-journal-catalog-update.service.in
+index 98b546e75c..5b85889dda 100644
+--- a/units/systemd-journal-catalog-update.service.in
++++ b/units/systemd-journal-catalog-update.service.in
+@@ -18,4 +18,4 @@ ConditionNeedsUpdate=/etc
+ Type=oneshot
+ RemainAfterExit=yes
+ ExecStart=@rootbindir@/journalctl --update-catalog
+-TimeoutSec=2min
++TimeoutSec=90s
+diff --git a/units/systemd-journal-flush.service.in b/units/systemd-journal-flush.service.in
+index 53a6f30cfd..a0a2e3fdb4 100644
+--- a/units/systemd-journal-flush.service.in
++++ b/units/systemd-journal-flush.service.in
+@@ -19,4 +19,4 @@ RequiresMountsFor=/var/log/journal
+ ExecStart=@rootbindir@/journalctl --flush
+ Type=oneshot
+ RemainAfterExit=yes
+-TimeoutSec=2min
++TimeoutSec=90s

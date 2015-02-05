@@ -1,0 +1,28 @@
+From de879b0c3136e84a07eb5322828a8dd6481d45f1 Mon Sep 17 00:00:00 2001
+From: Maxim Mikityanskiy <maxtram95@gmail.com>
+Date: Thu, 29 Jan 2015 01:23:07 +0100
+Subject: [PATCH] core: make setting the shutdown watchdog configuration via
+ dbus work
+
+https://bugs.freedesktop.org/show_bug.cgi?id=88284
+(cherry picked from commit 81f5fc2d43800c23a4440ed94cfe38d579e896fe)
+
+Conflicts:
+	src/core/main.c
+---
+ src/core/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index face753f87..f0dd0c95b9 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -1839,6 +1839,8 @@ finish:
+         pager_close();
+ 
+         if (m) {
++                arg_shutdown_watchdog = m->shutdown_watchdog;
++
+                 manager_free(m);
+                 m = NULL;
+         }

@@ -1,0 +1,66 @@
+From ef51af0c9e0e17fe8643ad4cfbfa4980cd136b2d Mon Sep 17 00:00:00 2001
+From: Marcel Holtmann <marcel@holtmann.org>
+Date: Mon, 2 Feb 2015 09:18:28 +0100
+Subject: [PATCH] hwdb: Update database of Bluetooth company identifiers
+
+(cherry picked from commit 3cc711193df8f11daf30c918ec2dc4c0bfe04715)
+---
+ hwdb/20-bluetooth-vendor-product.hwdb | 48 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
+
+diff --git a/hwdb/20-bluetooth-vendor-product.hwdb b/hwdb/20-bluetooth-vendor-product.hwdb
+index d3aea5f66f..1dd1fee46d 100644
+--- a/hwdb/20-bluetooth-vendor-product.hwdb
++++ b/hwdb/20-bluetooth-vendor-product.hwdb
+@@ -1325,3 +1325,51 @@ bluetooth:v01B6*
+ 
+ bluetooth:v01B7*
+  ID_VENDOR_FROM_DATABASE=General Electric Company
++
++bluetooth:v01B8*
++ ID_VENDOR_FROM_DATABASE=i+D3 S.L.
++
++bluetooth:v01B9*
++ ID_VENDOR_FROM_DATABASE=HANA Micron
++
++bluetooth:v01BA*
++ ID_VENDOR_FROM_DATABASE=Stages Cycling LLC
++
++bluetooth:v01BB*
++ ID_VENDOR_FROM_DATABASE=Cochlear Bone Anchored Solutions AB
++
++bluetooth:v01BC*
++ ID_VENDOR_FROM_DATABASE=SenionLab AB
++
++bluetooth:v01BD*
++ ID_VENDOR_FROM_DATABASE=Syszone Co., Ltd
++
++bluetooth:v01BE*
++ ID_VENDOR_FROM_DATABASE=Pulsate Mobile Ltd.
++
++bluetooth:v01BF*
++ ID_VENDOR_FROM_DATABASE=Hong Kong HunterSun Electronic Limited
++
++bluetooth:v01C0*
++ ID_VENDOR_FROM_DATABASE=pironex GmbH
++
++bluetooth:v01C1*
++ ID_VENDOR_FROM_DATABASE=BRADATECH Corp.
++
++bluetooth:v01C2*
++ ID_VENDOR_FROM_DATABASE=Transenergooil AG
++
++bluetooth:v01C3*
++ ID_VENDOR_FROM_DATABASE=Bunch
++
++bluetooth:v01C4*
++ ID_VENDOR_FROM_DATABASE=DME Microelectronics
++
++bluetooth:v01C5*
++ ID_VENDOR_FROM_DATABASE=Bitcraze AB
++
++bluetooth:v01C6*
++ ID_VENDOR_FROM_DATABASE=HASWARE Inc.
++
++bluetooth:v01C7*
++ ID_VENDOR_FROM_DATABASE=Abiogenix Inc.

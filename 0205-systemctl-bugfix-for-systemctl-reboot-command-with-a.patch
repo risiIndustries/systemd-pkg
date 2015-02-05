@@ -1,0 +1,41 @@
+From c0008e613b88b2e117a0876d1055ef5628092718 Mon Sep 17 00:00:00 2001
+From: Sangjung Woo <sangjung.woo@samsung.com>
+Date: Fri, 23 Jan 2015 20:21:57 +0900
+Subject: [PATCH] systemctl: bugfix for systemctl reboot command with argument
+
+According to systemctl man page, 'systemctl reboot [arg]' should work
+without any errors. However, it does not work because of 'Invalid number
+of arguments' error, except for 'reboot [arg]'. This patch fixes the bug
+so that both of commands work in exactly the same way.
+
+(cherry picked from commit b986229efe2cc96157aa14c37bab7843311bbef1)
+---
+ src/systemctl/systemctl.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 251eeb4333..161f76f237 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -3031,6 +3031,12 @@ static int start_special(sd_bus *bus, char **args) {
+                 return -EPERM;
+         }
+ 
++        if (a == ACTION_REBOOT) {
++                r = update_reboot_param_file(args[1]);
++                if (r < 0)
++                        return r;
++        }
++
+         if (arg_force >= 2 &&
+             (a == ACTION_HALT ||
+              a == ACTION_POWEROFF ||
+@@ -6749,7 +6755,7 @@ static int systemctl_main(sd_bus *bus, int argc, char *argv[], int bus_error) {
+                 { "import-environment",    MORE,  1, import_environment},
+                 { "halt",                  EQUAL, 1, start_special,    FORCE },
+                 { "poweroff",              EQUAL, 1, start_special,    FORCE },
+-                { "reboot",                EQUAL, 1, start_special,    FORCE },
++                { "reboot",                MORE,  1, start_special,    FORCE },
+                 { "kexec",                 EQUAL, 1, start_special     },
+                 { "suspend",               EQUAL, 1, start_special     },
+                 { "hibernate",             EQUAL, 1, start_special     },

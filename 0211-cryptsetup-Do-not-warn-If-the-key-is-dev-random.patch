@@ -1,0 +1,30 @@
+From 71e27642c3661572502a7d18f4d55fe4f6d70a64 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Cristian=20Rodr=C3=ADguez?= <crrodriguez@opensuse.org>
+Date: Mon, 2 Feb 2015 12:06:05 -0300
+Subject: [PATCH] cryptsetup: Do not warn If the key is /dev/*random
+
+Using /dev/urandom as a key is valid for swap, do not
+warn if this devices are world readable.
+
+(cherry picked from commit 05f73ad22b85270c7db4ff7cbb6da852ad71d4c1)
+---
+ src/cryptsetup/cryptsetup.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/cryptsetup/cryptsetup.c b/src/cryptsetup/cryptsetup.c
+index 94570eb82d..1c1feb53ab 100644
+--- a/src/cryptsetup/cryptsetup.c
++++ b/src/cryptsetup/cryptsetup.c
+@@ -596,8 +596,10 @@ int main(int argc, char *argv[]) {
+ 
+                         /* Ideally we'd do this on the open fd, but since this is just a
+                          * warning it's OK to do this in two steps. */
+-                        if (stat(key_file, &st) >= 0 && (st.st_mode & 0005))
+-                                log_warning("Key file %s is world-readable. This is not a good idea!", key_file);
++                        if (stat(key_file, &st) >= 0 && (st.st_mode & 0005)) {
++                                if(!STR_IN_SET(key_file, "/dev/urandom", "/dev/random", "/dev/hw_random"))
++                                    log_warning("Key file %s is world-readable. This is not a good idea!", key_file);
++                        }
+                 }
+ 
+                 for (tries = 0; arg_tries == 0 || tries < arg_tries; tries++) {

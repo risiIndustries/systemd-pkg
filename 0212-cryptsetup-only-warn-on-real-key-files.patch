@@ -1,0 +1,30 @@
+From 66eb624c2216aa0a1e667acb39706d6f8b2e84c0 Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martin.pitt@ubuntu.com>
+Date: Mon, 2 Feb 2015 16:53:39 +0100
+Subject: [PATCH] cryptsetup: only warn on real key files
+
+Simplify the check from commit 05f73ad to only apply the warning to regular
+files instead of enumerating device nodes.
+
+(cherry picked from commit 3f4d56a069d8aedc0a784b6f4a2c049db76289b7)
+---
+ src/cryptsetup/cryptsetup.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/cryptsetup/cryptsetup.c b/src/cryptsetup/cryptsetup.c
+index 1c1feb53ab..a0f58c88eb 100644
+--- a/src/cryptsetup/cryptsetup.c
++++ b/src/cryptsetup/cryptsetup.c
+@@ -596,10 +596,8 @@ int main(int argc, char *argv[]) {
+ 
+                         /* Ideally we'd do this on the open fd, but since this is just a
+                          * warning it's OK to do this in two steps. */
+-                        if (stat(key_file, &st) >= 0 && (st.st_mode & 0005)) {
+-                                if(!STR_IN_SET(key_file, "/dev/urandom", "/dev/random", "/dev/hw_random"))
+-                                    log_warning("Key file %s is world-readable. This is not a good idea!", key_file);
+-                        }
++                        if (stat(key_file, &st) >= 0 && S_ISREG(st.st_mode) && (st.st_mode & 0005))
++                                log_warning("Key file %s is world-readable. This is not a good idea!", key_file);
+                 }
+ 
+                 for (tries = 0; arg_tries == 0 || tries < arg_tries; tries++) {
