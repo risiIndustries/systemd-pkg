@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        18%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        19%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -243,10 +243,10 @@ Patch0199:      0199-util-Add-some-missing-hidden_file-suffixes.patch
 Patch0200:      0200-tmpfiles-make-sure-not-to-concatenate-non-absolute-p.patch
 Patch0201:      0201-sysv-generator-only-allow-regular-files-in-enumerate.patch
 Patch0202:      0202-logind-fix-sd_eviocrevoke-ioctl-call.patch
-Patch0203:      0203-journald-when-we-detect-the-journal-file-we-are-abou.patch
-Patch0204:      0204-hwdb-add-a-touchpad-hwdb.patch
+Patch0203:      0203-core-cgroup-fix-embarrassing-typo.patch
 
-
+Patch0995:      journald-when-we-detect-the-journal-file-we-are-abou.patch
+Patch0996:      hwdb-add-a-touchpad-hwdb.patch
 Patch0997:      units-remove-dev-log-to-always-create-symlink.patch
 Patch0998:      fedora-disable-resolv.conf-symlink.patch
 Patch0999:      fedora-add-bridge-sysctl-configuration.patch
@@ -1034,7 +1034,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
-* Thu Feb  5 2015 Jan Synáček <jsynacek@redhat.com> - 216-18
+* Thu Feb 05 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-19
+- Quick fix for https://github.com/docker/docker/issues/10280
+
+* Thu Feb 05 2015 Jan Synáček <jsynacek@redhat.com> - 216-18
 - RFE: journal: automatically rotate the file if it is unlinked (#1171719)
 - Add the touchpad hwdb (#1189319)
 
