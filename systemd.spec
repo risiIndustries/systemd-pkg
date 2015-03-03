@@ -1,9 +1,6 @@
 #global gitcommit f01de96
 
-# PIE is broken on s390 (#868839, #872148)
-%ifnarch s390 s390x
 %global _hardened_build 1
-%endif
 
 # We ship a .pc file but don't want to have a dep on pkg-config. We
 # strip the automatically generated dep here and instead co-own the
@@ -894,6 +891,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 - Reworked device handling (#1195761)
 - ACL handling fixes
 - Various log messages downgraded (#1184712)
+- Allow PIE on s390 again (#1197721)
 
 * Tue Feb 24 2015 Colin Walters <walters@redhat.com> - 219-5
 - Revert patch that breaks Atomic/OSTree (#1195761)
