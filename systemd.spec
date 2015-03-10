@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        7%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        8%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -64,6 +64,7 @@ Patch0023:      0023-journal-fix-Inappropriate-ioctl-for-device-on-ext4.patch
 Patch0024:      0024-sd-daemon-replace-VLA-with-alloca-to-make-llvm-happy.patch
 Patch0025:      0025-tmpfiles-quietly-ignore-ACLs-on-unsupported-filesyst.patch
 Patch0026:      0026-shared-util-assume-ac-when-sys-class-power_supply-is.patch
+Patch0027:      0027-hwdb-fix-ThinkPad-X-Tablet-special-keys.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -881,6 +882,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Mar 10 2015 Jan Synáček <jsynacek@redhat.com> - 219-8
+- Buttons on Lenovo X6* tablets broken (#1198939)
+
 * Fri Mar 06 2015 Michal Schmidt <mschmidt@redhat.com> - 219-7
 - arm: reenable lto. gcc-5.0.0-0.16 fixed the crash (#1193212)
 
