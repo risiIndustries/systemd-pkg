@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        208
-Release:        30%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        31%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -1302,6 +1302,9 @@ getent passwd systemd-journal-gateway >/dev/null 2>&1 || useradd -r -l -u 191 -g
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Fri Mar 13 2015 Harald Hoyer <harald@redhat.com> 208-31
+- update kernel-install to cope with kernel images in locations other than /boot
+
 * Thu Feb  5 2015 Jan Synáček <jsynacek@redhat.com> - 208-30
 - RFE: journal: automatically rotate the file if it is unlinked (#1171719)
 - Add a touchpad hwdb (#1189319)
