@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        20%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        21%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -1050,6 +1050,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Fri Mar 13 2015 Harald Hoyer <harald@redhat.com> 216-21
+- update kernel-install to cope with kernel images in locations other than /boot
+
 * Thu Feb 05 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-20
 - Patch for crash in systemd-sleep (#1147610)
 - Improved --help and error handling in commandline errors (#1183771, #1186952)
