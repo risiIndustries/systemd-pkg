@@ -1,0 +1,27 @@
+From 2586e65f45c1f21c3583136acc33a8c3e6d23170 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 6 Feb 2015 09:12:27 -0500
+Subject: [PATCH] build-sys: remove reference to long gone file
+
+Interesting that automake doesn't complain about this at all.
+That file was removed in 3fb97a58fa3f233.
+
+(cherry picked from commit a08d90d6b3eaafa5a8305f601f16cd85480b82c3)
+---
+ Makefile.am | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index d057fcb9b1..1fbda3a48a 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -4719,9 +4719,6 @@ BUSNAMES_TARGET_WANTS += \
+ dist_pkgdata_DATA += \
+ 	src/locale/kbd-model-map
+ 
+-dist_noinst_SCRIPT = \
+-	src/locale/generate-kbd-model-map
+-
+ localectl_SOURCES = \
+ 	src/locale/localectl.c
+ 

@@ -1,0 +1,37 @@
+From 2d52b2dd8c9b34bb90c42c4b33d777aeb767d76f Mon Sep 17 00:00:00 2001
+From: Hui Wang <hui.wang@canonical.com>
+Date: Tue, 10 Feb 2015 16:42:22 +0800
+Subject: [PATCH] keymap: Add microphone mute keymap for several HP laptops
+
+On these several HP laptops, the microphone mute hotkey is "Fn+F8" and
+the scancode for this hotkey is 0x81, but this scancode was mapped to
+fn_esc in the HP generic keymap section. To fix this problem, we add
+a machine specific keymap section to add the correct keymap rule.
+
+BugLink: https://bugs.launchpad.net/bugs/1409721
+BugLink: https://bugs.launchpad.net/bugs/1334968
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+(cherry picked from commit 4b9bb683eecda5a70594075297ef89af91cde8fe)
+---
+ hwdb/60-keyboard.hwdb | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/hwdb/60-keyboard.hwdb b/hwdb/60-keyboard.hwdb
+index c6c07e8ed5..a0719c52fe 100644
+--- a/hwdb/60-keyboard.hwdb
++++ b/hwdb/60-keyboard.hwdb
+@@ -473,6 +473,14 @@ keyboard:dmi:bvn*:bvr*:bd*:svnHewlett-Packard*:pnFalco:pvr*
+ # KEYBOARD_KEY_3e=fullscreen, no defined key sym
+ 
+ 
++# HP EliteBook 725 G2
++keyboard:dmi:bvn*:bvr*:bd*:svnHewlett-Packard*:pnHPLicrice:pvr*
++# HP ProBook 440 G2
++keyboard:dmi:bvn*:bvr*:bd*:svnHewlett-Packard*:pnHP440G2:pvr*
++# HP ProBook 445 G1
++keyboard:dmi:bvn*:bvr*:bd*:svnHewlett-Packard*:pnHPProBook445G1NotebookPC:pvr*
++ KEYBOARD_KEY_81=f20                                    # Fn+F8; Microphone mute button, should be micmute
++
+ ###########################################################
+ # IBM
+ ###########################################################

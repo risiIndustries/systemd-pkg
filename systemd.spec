@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        21%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        22%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -259,6 +259,52 @@ Patch0215:      0215-journalctl-trim-help-to-fit-in-80-columns.patch
 Patch0216:      0216-notify-firstboot-analyze-run-trim-help-output-to-80-.patch
 Patch0217:      0217-systemctl-refuse-host-with-cat.patch
 Patch0218:      0218-systemctl-cat-fix-error-handling.patch
+Patch0219:      0219-shared-log-read-proc-cmdline-only-in-daemons.patch
+Patch0220:      0220-build-sys-remove-reference-to-long-gone-file.patch
+Patch0221:      0221-sysctl-consider-prefix-while-parsing-the-files.patch
+Patch0222:      0222-keymap-Add-microphone-mute-keymap-for-several-HP-lap.patch
+Patch0223:      0223-core-correct-a-log-message.patch
+Patch0224:      0224-systemctl-don-t-update-the-reboot-parameter-if-none-.patch
+Patch0225:      0225-core-don-t-watch-for-socket-events-when-service-is-i.patch
+Patch0226:      0226-core-don-t-fail-to-run-services-in-user-instances-if.patch
+Patch0227:      0227-core-disarm-shutdown-watchdog-if-we-fail-to-set-time.patch
+Patch0228:      0228-exec-also-evaluate-working_directory_missing_ok-when.patch
+Patch0229:      0229-rules-Fix-by-path-of-mmc-RPMB-partitions-and-don-t-b.patch
+Patch0230:      0230-rules-simplify-mmc-RPMB-handling.patch
+Patch0231:      0231-hwdb-update-name-databases.patch
+Patch0232:      0232-core-make-RuntimeDirectory-honor-SELinux-labels.patch
+Patch0233:      0233-hwdb-update.patch
+Patch0234:      0234-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0235:      0235-journal-remote-fix-certificate-status-memory-leak.patch
+Patch0236:      0236-journal-remote-fix-client_cert-memory-leak.patch
+Patch0237:      0237-systemctl-bump-NOFILE-only-for-systemctl_main.patch
+Patch0238:      0238-bootchart-svg-fix-checking-of-list-end.patch
+Patch0239:      0239-unit-use-weaker-dependencies-between-mount-and-devic.patch
+Patch0240:      0240-sysctl-downgrade-message-about-sysctl-overrides-to-d.patch
+Patch0241:      0241-shared-AFS-is-also-a-network-filesystem.patch
+Patch0242:      0242-journal-remote-fix-saving-of-binary-fields.patch
+Patch0243:      0243-shared-util-assume-ac-when-sys-class-power_supply-is.patch
+Patch0244:      0244-hwdb-fix-ThinkPad-X-Tablet-special-keys.patch
+Patch0245:      0245-core-shared-in-deserializing-match-same-files-reache.patch
+Patch0246:      0246-shared-handle-unnamed-sockets-in-socket_address_equa.patch
+Patch0247:      0247-man-make-bootup-graph-consistent.patch
+Patch0248:      0248-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0250:      0250-Use-correct-uname-identifiers-in-arch_map-for-SuperH.patch
+Patch0251:      0251-hwdb-fix-Dell-XPS12-9Q33-key-name.patch
+Patch0252:      0252-Remove-the-cap-on-epoll-events.patch
+Patch0253:      0253-Allow-up-to-4096-simultaneous-connections.patch
+Patch0254:      0254-vconsole-match-on-vtcon-events-not-fbcon-ones.patch
+Patch0255:      0255-login-fix-copy-pasto-in-error-path.patch
+Patch0256:      0256-sd-journal-return-error-when-we-cannot-open-a-file.patch
+Patch0257:      0257-udevd-close-race-in-udev-settle.patch
+Patch0258:      0258-console-fix-error-code-inversion.patch
+Patch0259:      0259-cgtop-fix-assert-when-not-on-tty.patch
+Patch0260:      0260-hwdb-update.patch
+Patch0261:      0261-gpt-auto-generator-fix-detection-of-srv.patch
+Patch0262:      0262-selinux-fix-SEGV-during-switch-root-if-SELinux-polic.patch
+Patch0263:      0263-timedated-flip-internal-status-after-executing-opera.patch
+Patch0264:      0264-shared-add-path_compare-an-ordering-path-comparison.patch
+Patch0265:      0265-core-namespace-fix-path-sorting.patch
 
 
 Patch0995:      journald-when-we-detect-the-journal-file-we-are-abou.patch
@@ -1050,6 +1096,25 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Sun Mar 22 2015  Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-22
+- Ignore 'debug' on the kernel commandline in user tools
+- Hardware database and key map updates
+- Disarm watch if initialization failed
+- Ignore events on a socket when a service is shutting down
+- Allow user service to run without $HOME (useful after a user is deleted)
+- Do not access mmc-rpmb devices
+- Honor SELinux labels fro RuntimeDirectories (#1192726)
+- Do not set resource limits from telinit (#1184712)
+- Fix deserialization of sockets when the path changed (#1186018)
+- Increase epoll resource limits to handle more concurrent connections
+- Run vconsole setup when on vtcon not fbcon event
+- Properly report when the user cannot access journal files
+- gpt-auto-generator detects /srv partitions properly
+- Fix segmentation fault during switch-root with SELinux policy loaded (#1185604
+)
+- Fix error handling when enabling or disabling ntp (#1014315)
+- Fix path comparisons (#1184016)
+
 * Fri Mar 13 2015 Harald Hoyer <harald@redhat.com> 216-21
 - update kernel-install to cope with kernel images in locations other than /boot
 

@@ -1,0 +1,24 @@
+From ebe3008887acd6fc55cbde4ee3ff1748f09c95c6 Mon Sep 17 00:00:00 2001
+From: Chris Morin <chris.morin2@gmail.com>
+Date: Wed, 4 Feb 2015 14:54:34 -0500
+Subject: [PATCH] man: make bootup graph consistent
+
+(cherry picked from commit b44787bd437f4051660272b37bd6f75392f17931)
+(cherry picked from commit 1295853b39d330c6e7c6ea431a8fc7ce8be801b3)
+---
+ man/bootup.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/bootup.xml b/man/bootup.xml
+index 0854b6c316..f95608d914 100644
+--- a/man/bootup.xml
++++ b/man/bootup.xml
+@@ -145,7 +145,7 @@
+          v                  v                  |                    v              <emphasis>rescue.target</emphasis>
+    timers.target      paths.target             |             sockets.target
+          |                  |                  |                    |
+-         v                  |_________________ | ___________________/
++         v                  \_________________ | ___________________/
+                                               \|/
+                                                v
+                                          basic.target

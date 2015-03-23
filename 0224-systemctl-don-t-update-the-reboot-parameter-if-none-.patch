@@ -1,0 +1,27 @@
+From 27834dd75b87dcc99ec6e0a043f5f766c8773a33 Mon Sep 17 00:00:00 2001
+From: Michael Olbrich <m.olbrich@pengutronix.de>
+Date: Sun, 8 Feb 2015 20:29:50 +0100
+Subject: [PATCH] systemctl: don't update the reboot parameter if none is given
+
+Otherwise systemd-reboot.service will remove the parameter that was set
+before. This was broken in commit "b986229efe2cc96157aa14c37bab7843311bbef1
+systemctl: bugfix for systemctl reboot command with argument"
+
+(cherry picked from commit c31c4324c5120d9b38f8a5e39623c8242ee001e0)
+---
+ src/systemctl/systemctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index eef0f4424d..c4a95d5778 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -3031,7 +3031,7 @@ static int start_special(sd_bus *bus, char **args) {
+                 return -EPERM;
+         }
+ 
+-        if (a == ACTION_REBOOT) {
++        if (a == ACTION_REBOOT && args[1]) {
+                 r = update_reboot_param_file(args[1]);
+                 if (r < 0)
+                         return r;

@@ -1,0 +1,29 @@
+From e341873c563d0299d480445914d60ce3a5f6c47a Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 11 Feb 2015 18:51:35 +0100
+Subject: [PATCH] core: correct a log message
+
+The log message talks specifically about services, though it actually
+applies to any kind of unit.
+
+(cherry picked from commit 418761f5864fe1ae7e9bb884259cc9933ae8ad0c)
+
+Conflicts:
+	src/core/unit.c
+---
+ src/core/unit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 8bf026f11c..891df3cb05 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1555,7 +1555,7 @@ static void unit_check_binds_to(Unit *u) {
+         if (!stop)
+                 return;
+ 
+-        log_info_unit(u->id, "Unit %s is bound to inactive service. Stopping, too.", u->id);
++        log_info_unit(u->id, "Unit %s is bound to inactive unit. Stopping, too.", u->id);
+ 
+         /* A unit we need to run is gone. Sniff. Let's stop this. */
+         manager_add_job(u->manager, JOB_STOP, u, JOB_FAIL, true, NULL, NULL);

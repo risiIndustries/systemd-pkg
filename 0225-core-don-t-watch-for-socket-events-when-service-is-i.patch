@@ -1,0 +1,31 @@
+From 531201b4b671a287391300f84dd1c831dc4f16eb Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 11 Feb 2015 21:25:30 +0100
+Subject: [PATCH] core: don't watch for socket events when service is in
+ SERVICE_STOP
+
+If a service has an ExecStop= program that uses the socket the service was
+activated by to tell it to terminate, then that should not be used as
+trigger to start the service again.
+
+http://lists.freedesktop.org/archives/systemd-devel/2015-February/028058.html
+(cherry picked from commit d54ddab8cbad46290306fc6e3346089fe3772d5c)
+---
+ src/core/socket.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/core/socket.c b/src/core/socket.c
+index 9004cb42cf..76c10f29b0 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -2600,10 +2600,6 @@ static void socket_trigger_notify(Unit *u, Unit *other) {
+                 socket_notify_service_dead(s, se->result == SERVICE_FAILURE_START_LIMIT);
+ 
+         if (se->state == SERVICE_DEAD ||
+-            se->state == SERVICE_STOP ||
+-            se->state == SERVICE_STOP_SIGTERM ||
+-            se->state == SERVICE_STOP_SIGKILL ||
+-            se->state == SERVICE_STOP_POST ||
+             se->state == SERVICE_FINAL_SIGTERM ||
+             se->state == SERVICE_FINAL_SIGKILL ||
+             se->state == SERVICE_AUTO_RESTART)

@@ -1,0 +1,27 @@
+From b1cb97af130b7426761baeb6c71ba51e416293fd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sat, 14 Feb 2015 14:11:24 -0500
+Subject: [PATCH] core: make RuntimeDirectory honor SELinux labels
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1192726
+(cherry picked from commit ca905b2fce3831c48dcf10e7ada58282504dc988)
+
+Conflicts:
+	src/core/execute.c
+---
+ src/core/execute.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/execute.c b/src/core/execute.c
+index 7c429a018a..9cda73e05a 100644
+--- a/src/core/execute.c
++++ b/src/core/execute.c
+@@ -1512,7 +1512,7 @@ static int exec_child(ExecCommand *command,
+                                 return -ENOMEM;
+                         }
+ 
+-                        err = mkdir_safe(p, context->runtime_directory_mode, uid, gid);
++                        err = mkdir_safe_label(p, context->runtime_directory_mode, uid, gid);
+                         if (err < 0) {
+                                 *error = EXIT_RUNTIME_DIRECTORY;
+                                 return err;

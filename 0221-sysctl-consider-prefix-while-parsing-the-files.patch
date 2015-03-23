@@ -1,0 +1,67 @@
+From 171335eb583e1eda594a1b89fd65b69e4b3e1bf4 Mon Sep 17 00:00:00 2001
+From: Umut Tezduyar Lindskog <umut.tezduyar@axis.com>
+Date: Sat, 7 Feb 2015 14:12:41 +0100
+Subject: [PATCH] sysctl: consider --prefix while parsing the files
+
+not while applying the parsed sysctl values. Otherwise
+info "Overwriting earlier assignment of %s in file %s" is
+visible many times even though the given --prefix doesn't
+try to set the overridden value.
+
+This also optimizes the startup tiny bit since we have udev
+rules running on network devices and setting sysctl through
+the rules.
+
+(cherry picked from commit b99802f769f9c0a5c2bc94e59ed43279492daa04)
+---
+ src/sysctl/sysctl.c | 30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
+
+diff --git a/src/sysctl/sysctl.c b/src/sysctl/sysctl.c
+index 809e59b71f..28457ddc74 100644
+--- a/src/sysctl/sysctl.c
++++ b/src/sysctl/sysctl.c
+@@ -86,22 +86,6 @@ static int apply_sysctl(const char *property, const char *value) {
+         n = stpcpy(p, "/proc/sys/");
+         strcpy(n, property);
+ 
+-        if (!strv_isempty(arg_prefixes)) {
+-                char **i;
+-                bool good = false;
+-
+-                STRV_FOREACH(i, arg_prefixes)
+-                        if (path_startswith(p, *i)) {
+-                                good = true;
+-                                break;
+-                        }
+-
+-                if (!good) {
+-                        log_debug("Skipping %s", p);
+-                        return 0;
+-                }
+-        }
+-
+         k = write_string_file(p, value);
+         if (k < 0) {
+                 log_full(k == -ENOENT ? LOG_DEBUG : LOG_WARNING,
+@@ -182,6 +166,20 @@ static int parse_file(Hashmap *sysctl_options, const char *path, bool ignore_eno
+                 p = normalize_sysctl(strstrip(p));
+                 value = strstrip(value);
+ 
++                if (!strv_isempty(arg_prefixes)) {
++                        char **i, *t;
++                        STRV_FOREACH(i, arg_prefixes) {
++                                t = path_startswith(*i, "/proc/sys/");
++                                if (t == NULL)
++                                        t = *i;
++                                if (path_startswith(p, t))
++                                        goto found;
++                        }
++                        /* not found */
++                        continue;
++                }
++
++found:
+                 existing = hashmap_get2(sysctl_options, p, &v);
+                 if (existing) {
+                         if (streq(value, existing))

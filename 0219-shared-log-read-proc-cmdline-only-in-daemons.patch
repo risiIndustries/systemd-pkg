@@ -1,0 +1,31 @@
+From 4d9755167359d4e20476a3539cdfb066452be05d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 5 Feb 2015 19:44:13 -0500
+Subject: [PATCH] shared/log: read /proc/cmdline only in daemons
+
+http://lists.freedesktop.org/archives/systemd-devel/2015-February/027960.html
+(cherry picked from commit ee46e555702715f1adcc3381dac73e76e2d9a048)
+
+Conflicts:
+	src/shared/log.c
+---
+ src/shared/log.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/log.c b/src/shared/log.c
+index 26c604afd8..7bf04c787b 100644
+--- a/src/shared/log.c
++++ b/src/shared/log.c
+@@ -910,7 +910,11 @@ static int parse_proc_cmdline_item(const char *key, const char *value) {
+ void log_parse_environment(void) {
+         const char *e;
+ 
+-        parse_proc_cmdline(parse_proc_cmdline_item);
++        if (get_ctty_devnr(0, NULL) < 0)
++                /* Only try to read the command line in daemons.
++                   We assume that anything that has a controlling
++                   tty is user stuff. */
++                (void) parse_proc_cmdline(parse_proc_cmdline_item);
+ 
+         e = secure_getenv("SYSTEMD_LOG_TARGET");
+         if (e && log_set_target_from_string(e) < 0)

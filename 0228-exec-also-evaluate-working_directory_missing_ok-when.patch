@@ -1,0 +1,36 @@
+From 5e0da7f600a10f7b0ace714e4ace08553aeca65f Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 12 Feb 2015 18:58:43 +0100
+Subject: [PATCH] exec: also evaluate working_directory_missing_ok when not
+ applying chroots
+
+(cherry picked from commit cf1d0302aeaf4e44a6a643fb41e5525fdd04b1d5)
+
+Conflicts:
+	src/core/execute.c
+---
+ src/core/execute.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/execute.c b/src/core/execute.c
+index 2c17bd234d..7c429a018a 100644
+--- a/src/core/execute.c
++++ b/src/core/execute.c
+@@ -1609,13 +1609,14 @@ static int exec_child(ExecCommand *command,
+                 _cleanup_free_ char *d = NULL;
+ 
+                 if (asprintf(&d, "%s/%s",
+-                             context->root_directory ? context->root_directory : "",
+-                             context->working_directory ? context->working_directory : "") < 0) {
++                             context->root_directory ?: "",
++                             context->working_directory ?: "") < 0) {
+                         *error = EXIT_MEMORY;
+                         return -ENOMEM;
+                 }
+ 
+-                if (chdir(d) < 0) {
++                if (chdir(d) < 0 &&
++                    !context->working_directory_missing_ok) {
+                         *error = EXIT_CHDIR;
+                         return -errno;
+                 }

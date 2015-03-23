@@ -1,0 +1,75 @@
+From 811843de4f73abfb83214286b67159df428c48df Mon Sep 17 00:00:00 2001
+From: Marcel Holtmann <marcel@holtmann.org>
+Date: Mon, 16 Feb 2015 19:10:39 +0100
+Subject: [PATCH] hwdb: Update database of Bluetooth company identifiers
+
+(cherry picked from commit 488c8d08c322471f2e702e25b75f31bed7ae5975)
+---
+ hwdb/20-bluetooth-vendor-product.hwdb | 57 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+
+diff --git a/hwdb/20-bluetooth-vendor-product.hwdb b/hwdb/20-bluetooth-vendor-product.hwdb
+index 1dd1fee46d..fb789fd495 100644
+--- a/hwdb/20-bluetooth-vendor-product.hwdb
++++ b/hwdb/20-bluetooth-vendor-product.hwdb
+@@ -1373,3 +1373,60 @@ bluetooth:v01C6*
+ 
+ bluetooth:v01C7*
+  ID_VENDOR_FROM_DATABASE=Abiogenix Inc.
++
++bluetooth:v01C8*
++ ID_VENDOR_FROM_DATABASE=Poly-Control ApS
++
++bluetooth:v01C9*
++ ID_VENDOR_FROM_DATABASE=Avi-on
++
++bluetooth:v01CA*
++ ID_VENDOR_FROM_DATABASE=Laerdal Medical AS
++
++bluetooth:v01CB*
++ ID_VENDOR_FROM_DATABASE=Fetch My Pet
++
++bluetooth:v01CC*
++ ID_VENDOR_FROM_DATABASE=Sam Labs Ltd.
++
++bluetooth:v01CD*
++ ID_VENDOR_FROM_DATABASE=Chengdu Synwing Technology Ltd
++
++bluetooth:v01CE*
++ ID_VENDOR_FROM_DATABASE=HOUWA SYSTEM DESIGN, k.k.
++
++bluetooth:v01CF*
++ ID_VENDOR_FROM_DATABASE=BSH
++
++bluetooth:v01D0*
++ ID_VENDOR_FROM_DATABASE=Primus Inter Pares Ltd
++
++bluetooth:v01D1*
++ ID_VENDOR_FROM_DATABASE=August
++
++bluetooth:v01D2*
++ ID_VENDOR_FROM_DATABASE=Gill Electronics
++
++bluetooth:v01D3*
++ ID_VENDOR_FROM_DATABASE=Sky Wave Design
++
++bluetooth:v01D4*
++ ID_VENDOR_FROM_DATABASE=Newlab S.r.l.
++
++bluetooth:v01D5*
++ ID_VENDOR_FROM_DATABASE=ELAD srl
++
++bluetooth:v01D6*
++ ID_VENDOR_FROM_DATABASE=G-wearables inc.
++
++bluetooth:v01D7*
++ ID_VENDOR_FROM_DATABASE=Squadrone Systems Inc.
++
++bluetooth:v01D8*
++ ID_VENDOR_FROM_DATABASE=Code Corporation
++
++bluetooth:v01D9*
++ ID_VENDOR_FROM_DATABASE=Savant Systems LLC
++
++bluetooth:v01DA*
++ ID_VENDOR_FROM_DATABASE=Logitech International SA
