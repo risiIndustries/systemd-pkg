@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        22%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        23%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -949,10 +949,13 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_bindir}/kernel-install
 %{_prefix}/lib/systemd/systemd
 %exclude %{_prefix}/lib/systemd/system/systemd-journal-gatewayd.*
+%exclude %{_prefix}/lib/systemd/system/systemd-journal-remote.*
+%exclude %{_prefix}/lib/systemd/system/systemd-journal-upload.*
 %{_prefix}/lib/systemd/system
 %{_prefix}/lib/systemd/user
 %exclude %{_prefix}/lib/systemd/systemd-journal-gatewayd
 %exclude %{_prefix}/lib/systemd/systemd-journal-remote
+%exclude %{_prefix}/lib/systemd/systemd-journal-upload
 %{_prefix}/lib/systemd/systemd-*
 %{_prefix}/lib/udev
 %{_prefix}/lib/tmpfiles.d/systemd.conf
@@ -987,6 +990,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man7/*
 %exclude %{_mandir}/man8/systemd-journal-gatewayd.*
 %exclude %{_mandir}/man8/systemd-journal-remote.*
+%exclude %{_mandir}/man8/systemd-journal-upload.*
 %{_mandir}/man8/*
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
@@ -1087,15 +1091,23 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
 %config(noreplace) %{_sysconfdir}/systemd/journal-upload.conf
 %{_prefix}/lib/systemd/system/systemd-journal-gatewayd.*
+%{_prefix}/lib/systemd/system/systemd-journal-remote.*
+%{_prefix}/lib/systemd/system/systemd-journal-upload.*
 %{_prefix}/lib/systemd/systemd-journal-gatewayd
 %{_prefix}/lib/systemd/systemd-journal-remote
+%{_prefix}/lib/systemd/systemd-journal-upload
 %{_prefix}/lib/tmpfiles.d/systemd-remote.conf
 %{_prefix}/lib/sysusers.d/systemd-remote.conf
 %{_mandir}/man8/systemd-journal-gatewayd.*
 %{_mandir}/man8/systemd-journal-remote.*
+%{_mandir}/man8/systemd-journal-upload.*
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Sun Mar 22 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-23
+- Move all parts systemd-journal-{remote,upload} to
+  systemd-journal-gatewayd subpackage (#1193143).
+
 * Sun Mar 22 2015  Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-22
 - Ignore 'debug' on the kernel commandline in user tools
 - Hardware database and key map updates
