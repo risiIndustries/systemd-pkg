@@ -687,6 +687,7 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/coredump
 mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/catalog
 mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/backlight
 mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/rfkill
+mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/journal-upload
 mkdir -p %{buildroot}%{_localstatedir}/log/journal
 touch %{buildroot}%{_localstatedir}/lib/systemd/catalog/database
 touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
@@ -1098,6 +1099,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_prefix}/lib/systemd/systemd-journal-upload
 %{_prefix}/lib/tmpfiles.d/systemd-remote.conf
 %{_prefix}/lib/sysusers.d/systemd-remote.conf
+%dir %attr(0644,systemd-journal-upload,systemd-journal-upload) %{_localstatedir}/lib/systemd/journal-upload
 %{_mandir}/man8/systemd-journal-gatewayd.*
 %{_mandir}/man8/systemd-journal-remote.*
 %{_mandir}/man8/systemd-journal-upload.*
@@ -1107,6 +1109,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 * Sun Mar 22 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-23
 - Move all parts systemd-journal-{remote,upload} to
   systemd-journal-gatewayd subpackage (#1193143).
+- Create /var/lib/systemd/journal-upload directory (#1193145).
 
 * Sun Mar 22 2015  Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-22
 - Ignore 'debug' on the kernel commandline in user tools
