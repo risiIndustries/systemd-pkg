@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        23%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        24%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -305,6 +305,9 @@ Patch0262:      0262-selinux-fix-SEGV-during-switch-root-if-SELinux-polic.patch
 Patch0263:      0263-timedated-flip-internal-status-after-executing-opera.patch
 Patch0264:      0264-shared-add-path_compare-an-ordering-path-comparison.patch
 Patch0265:      0265-core-namespace-fix-path-sorting.patch
+Patch0266:      0266-Revert-vconsole-match-on-vtcon-events-not-fbcon-ones.patch
+Patch0267:      0267-vconsole-don-t-hard-code-systemd-vconsole-setup-bina.patch
+Patch0268:      0268-vconsole-match-on-vtcon-events-not-fbcon-ones.patch
 
 
 Patch0995:      journald-when-we-detect-the-journal-file-we-are-abou.patch
@@ -1106,6 +1109,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Fri Mar 27 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-24
+- Fix botched vconsole patch (#1206480).
+
 * Sun Mar 22 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-23
 - Move all parts systemd-journal-{remote,upload} to
   systemd-journal-gatewayd subpackage (#1193143).

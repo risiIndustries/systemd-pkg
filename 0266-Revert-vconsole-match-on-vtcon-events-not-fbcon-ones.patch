@@ -1,0 +1,27 @@
+From 317ca85db08beaef6d786fa5858bd1de559b40e1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 27 Mar 2015 13:51:41 -0400
+Subject: [PATCH] Revert "vconsole: match on vtcon events, not fbcon ones"
+
+This reverts commit b71cdaca9ba538ad54c6880d025fc478a1af087e.
+
+The file got renamed in the meanwhile.
+---
+ src/vconsole/90-vconsole.rules | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/vconsole/90-vconsole.rules b/src/vconsole/90-vconsole.rules
+index 35b9ad5151..bf6a9efaa5 100644
+--- a/src/vconsole/90-vconsole.rules
++++ b/src/vconsole/90-vconsole.rules
+@@ -5,6 +5,7 @@
+ #  the Free Software Foundation; either version 2.1 of the License, or
+ #  (at your option) any later version.
+ 
+-# Each vtcon keeps its own state of fonts.
+-#
+-ACTION=="add", SUBSYSTEM=="vtconsole", KERNEL=="vtcon*", RUN+="@rootlibexecdir@/systemd-vconsole-setup"
++# Kernel resets vconsole state when changing console drivers so run
++# systemd-vconsole-setup when fbcon loads
++
++ACTION=="add", SUBSYSTEM=="graphics", KERNEL=="fbcon", RUN+="/usr/lib/systemd/systemd-vconsole-setup"

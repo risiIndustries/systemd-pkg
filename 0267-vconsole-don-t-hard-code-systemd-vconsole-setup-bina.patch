@@ -1,0 +1,57 @@
+From 64a51989b90b89a4cd3e908131dd8fac9e64a973 Mon Sep 17 00:00:00 2001
+From: Michael Biebl <biebl@debian.org>
+Date: Sat, 29 Nov 2014 06:35:38 +0100
+Subject: [PATCH] vconsole: don't hard-code systemd-vconsole-setup binary path
+
+---
+ Makefile.am                                              | 6 +++++-
+ src/vconsole/.gitignore                                  | 1 +
+ src/vconsole/{90-vconsole.rules => 90-vconsole.rules.in} | 2 +-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+ create mode 100644 src/vconsole/.gitignore
+ rename src/vconsole/{90-vconsole.rules => 90-vconsole.rules.in} (79%)
+
+diff --git a/Makefile.am b/Makefile.am
+index 1fbda3a48a..7e8973435d 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -4414,14 +4414,18 @@ rootlibexec_PROGRAMS += \
+ nodist_systemunit_DATA += \
+ 	units/systemd-vconsole-setup.service
+ 
+-dist_udevrules_DATA += \
++nodist_udevrules_DATA += \
+ 	src/vconsole/90-vconsole.rules
+ 
+ SYSINIT_TARGET_WANTS += \
+ 	systemd-vconsole-setup.service
++
++CLEANFILES += \
++	src/vconsole/90-vconsole.rules
+ endif
+ 
+ EXTRA_DIST += \
++	src/vconsole/90-vconsole.rules.in \
+ 	units/systemd-vconsole-setup.service.in
+ 
+ # ------------------------------------------------------------------------------
+diff --git a/src/vconsole/.gitignore b/src/vconsole/.gitignore
+new file mode 100644
+index 0000000000..82741b2fb3
+--- /dev/null
++++ b/src/vconsole/.gitignore
+@@ -0,0 +1 @@
++/90-vconsole.rules
+diff --git a/src/vconsole/90-vconsole.rules b/src/vconsole/90-vconsole.rules.in
+similarity index 79%
+rename from src/vconsole/90-vconsole.rules
+rename to src/vconsole/90-vconsole.rules.in
+index bf6a9efaa5..062009640c 100644
+--- a/src/vconsole/90-vconsole.rules
++++ b/src/vconsole/90-vconsole.rules.in
+@@ -8,4 +8,4 @@
+ # Kernel resets vconsole state when changing console drivers so run
+ # systemd-vconsole-setup when fbcon loads
+ 
+-ACTION=="add", SUBSYSTEM=="graphics", KERNEL=="fbcon", RUN+="/usr/lib/systemd/systemd-vconsole-setup"
++ACTION=="add", SUBSYSTEM=="graphics", KERNEL=="fbcon", RUN+="@rootlibexecdir@/systemd-vconsole-setup"
