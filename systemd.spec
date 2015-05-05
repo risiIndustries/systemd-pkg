@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -638,7 +638,7 @@ grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
 
 # Replace obsolete keymaps
 # https://bugzilla.redhat.com/show_bug.cgi?id=1151958
-grep -v -E -q '^KEYMAP="?fi-latin[19]"?' /etc/vconsole.conf || \
+grep -q -E '^KEYMAP="?fi-latin[19]"?' /etc/vconsole.conf 2>/dev/null &&
     sed -i.rpm.bak -r 's/^KEYMAP="?fi-latin[19]"?/KEYMAP="fi"/' /etc/vconsole.conf || :
 
 # Services we install by default, and which are controlled by presets.
@@ -1026,6 +1026,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue May 12 2015 Jan Synáček <jsynacek@redhat.com> - 219-14
+- Fix vconsole.conf sed script (#1218252)
+
 * Wed Apr 29 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 219-13
 - Patches for some outstanding annoyances
 - Small keyboard hwdb updates
