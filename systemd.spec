@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -188,6 +188,7 @@ Patch0144:      0144-units-set-KillMode-mixed-for-our-daemons-that-fork-w.patch
 Patch0145:      0145-unit-don-t-add-automatic-dependencies-on-device-unit.patch
 Patch0146:      0146-update-done-ignore-nanosecond-file-timestamp-compone.patch
 Patch0147:      0147-sd-daemon-simplify-sd_pid_notify_with_fds.patch
+Patch0148:      0148-core-Fix-assertion-with-empty-Exec-paths.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1026,6 +1027,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon May 18 2015 Jan Synáček <jsynacek@redhat.com> - 219-15
+- systemd aborts after systemctl daemon-reload (#1221652)
+
 * Tue May 12 2015 Jan Synáček <jsynacek@redhat.com> - 219-14
 - Fix vconsole.conf sed script (#1218252)
 
