@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        16%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -310,7 +310,7 @@ package, you need to update your link options and build.
 Summary:        Development headers for systemd
 License:        LGPLv2+ and MIT
 # We need both libsystemd and libsystemd-<compat> libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 Requires:       %{name}-compat-libs%{?_isa} = %{version}-%{release}
 Provides:       libudev-devel = %{version}
 Obsoletes:      libudev-devel < 183
@@ -1027,6 +1027,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Sat May 30 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 219-16
+- systemd-devel should require systemd-libs, not the main package (#1226301)
+
 * Mon May 18 2015 Jan Synáček <jsynacek@redhat.com> - 219-15
 - systemd aborts after systemctl daemon-reload (#1221652)
 
