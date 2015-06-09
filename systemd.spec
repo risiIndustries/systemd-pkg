@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        17%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        18%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -194,6 +194,8 @@ Patch0148:      0148-core-Fix-assertion-with-empty-Exec-paths.patch
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
 Patch1001:      fedora-disable-resolv.conf-symlink.patch
+# Add support for petera disk encryption
+Patch1002:      cryptsetup-craft-a-unique-ID-with-the-source-device.patch
 
 %global num_patches %{lua: c=0; for i,p in ipairs(patches) do c=c+1; end; print(c);}
 
@@ -1030,6 +1032,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Jun 09 2015 Harald Hoyer <harald@redhat.com> 219-18
+- add support for network disk encryption
+Resolves: rhbz#1229672
+
 * Tue Jun 09 2015 Michal Sekletar <msekleta@redhat.com> - 219-17
 - Add unbound-anchor.timer to presets (#1215641)
 
