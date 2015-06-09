@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        24%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        25%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -1109,6 +1109,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Tue Jun 09 2015 Michal Sekletar <msekleta@redhat.com> - 216-25
+- Add unbound-anchor.timer to presets (#1215641)
+
 * Fri Mar 27 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-24
 - Fix botched vconsole patch (#1206480).
 

@@ -117,3 +117,6 @@ enable upower.service
 enable udisks2.service
 enable polkit.service
 enable packagekit-offline-update.service
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1215641
+enable unbound-anchor.timer
