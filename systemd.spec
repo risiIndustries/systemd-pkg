@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        18%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        19%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -767,6 +767,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/udev
 %dir %{_sysconfdir}/udev/rules.d
+%dir %{_sysconfdir}/udev/hwdb.d
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
 /etc/inittab
 %config(noreplace) %{_sysconfdir}/sysctl.conf
@@ -1032,6 +1033,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Jul  7 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@laptop> - 219-19
+- Make /etc/udev/hwdb.d part of the rpm (#1226379)
+
 * Tue Jun 09 2015 Harald Hoyer <harald@redhat.com> 219-18
 - add support for network disk encryption
 Resolves: rhbz#1229672
