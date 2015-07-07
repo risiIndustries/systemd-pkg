@@ -1,4 +1,4 @@
-From 35b1078e1c375df244e19961792aeb78ca34bb54 Mon Sep 17 00:00:00 2001
+From f7981f669621f3873c2182cac08a39086acf3a84 Mon Sep 17 00:00:00 2001
 From: Martin Pitt <martin.pitt@ubuntu.com>
 Date: Thu, 14 May 2015 09:06:40 +0200
 Subject: [PATCH] core: Fix assertion with empty Exec*= paths
@@ -19,16 +19,17 @@ Add corresponding test cases. Also add a test case for a completely empty value
 which resets the command list.
 
 https://launchpad.net/bugs/1454173
+(cherry picked from commit 35b1078e1c375df244e19961792aeb78ca34bb54)
 ---
  src/core/load-fragment.c  |  6 +++++-
  src/test/test-unit-file.c | 21 +++++++++++++++++++++
  2 files changed, 26 insertions(+), 1 deletion(-)
 
 diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
-index 33d9e27..3865017 100644
+index f17a82fcdf..ec4cf4eefa 100644
 --- a/src/core/load-fragment.c
 +++ b/src/core/load-fragment.c
-@@ -595,7 +595,11 @@ int config_parse_exec(
+@@ -604,7 +604,11 @@ int config_parse_exec(const char *unit,
                                  skip = separate_argv0 + ignore;
  
                                  /* skip special chars in the beginning */
@@ -42,10 +43,10 @@ index 33d9e27..3865017 100644
                          } else if (strneq(word, ";", MAX(l, 1U)))
                                  /* new commandline */
 diff --git a/src/test/test-unit-file.c b/src/test/test-unit-file.c
-index f3f6c29..03ca70a 100644
+index 9f3e3a227e..5500983322 100644
 --- a/src/test/test-unit-file.c
 +++ b/src/test/test-unit-file.c
-@@ -317,6 +317,27 @@ static void test_config_parse_exec(void) {
+@@ -318,6 +318,27 @@ static void test_config_parse_exec(void) {
          assert_se(r == 0);
          assert_se(c1->command_next == NULL);
  
@@ -73,6 +74,3 @@ index f3f6c29..03ca70a 100644
          exec_command_free_list(c);
  }
  
--- 
-2.1.0
-

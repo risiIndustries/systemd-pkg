@@ -1,0 +1,26 @@
+From 3696d003f28083d7a398189e8d655040ae25e108 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 21 May 2015 15:39:11 +1000
+Subject: [PATCH] hwdb: add MS Arc Touch Mouse SE
+
+https://bugs.freedesktop.org/show_bug.cgi?id=90540
+(cherry picked from commit 3641cff2f1bce4f8d8a46ab9bb988093d45aa697)
+---
+ hwdb/70-mouse.hwdb | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hwdb/70-mouse.hwdb b/hwdb/70-mouse.hwdb
+index 49e9ae2e9d..69cd0fa236 100644
+--- a/hwdb/70-mouse.hwdb
++++ b/hwdb/70-mouse.hwdb
+@@ -280,6 +280,10 @@ mouse:usb:v045ep07b1:name:Microsoft Microsoft® Nano Transceiver v1.0:
+ mouse:bluetooth:v045ep0702:name:Microsoft  Wireless Laser Mouse 8000:
+  MOUSE_DPI=1000@1000
+ 
++# Microsoft Arc Touch Mouse SE:
++mouse:bluetooth:v045ep07f3:name:Arc Touch Mouse SE:
++ MOUSE_DPI=1000@2000
++
+ ##########################################
+ # Oklick
+ ##########################################

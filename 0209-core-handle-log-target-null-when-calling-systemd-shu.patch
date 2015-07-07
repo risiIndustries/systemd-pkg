@@ -1,0 +1,28 @@
+From 3fd4f8ef4dd223a0c60fcb2ee9fd18b6ad0b556d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Iago=20L=C3=B3pez=20Galeiras?= <iago@endocode.com>
+Date: Tue, 30 Jun 2015 15:08:49 +0200
+Subject: [PATCH] core: handle --log-target=null when calling systemd-shutdown
+
+When shutting down, if systemd was started with --log-target=null,
+systemd-shutdown was being called with --log-target=console.
+
+(cherry picked from commit 10f00ff17b9c9b55dc77c99797d27cb819fa5fdf)
+---
+ src/core/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index fd527d4d63..1c8d67dac2 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -2001,6 +2001,10 @@ finish:
+                         command_line[pos++] = "kmsg";
+                         break;
+ 
++                case LOG_TARGET_NULL:
++                        command_line[pos++] = "null";
++                        break;
++
+                 case LOG_TARGET_CONSOLE:
+                 default:
+                         command_line[pos++] = "console";

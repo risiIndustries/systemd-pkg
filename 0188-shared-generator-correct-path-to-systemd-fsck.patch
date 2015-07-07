@@ -1,0 +1,41 @@
+From 615a3a363b6aa84436f8bfffcf58f7249c281c23 Mon Sep 17 00:00:00 2001
+From: Mike Gilbert <floppym@gentoo.org>
+Date: Sun, 24 May 2015 16:33:35 -0400
+Subject: [PATCH] shared: generator - correct path to systemd-fsck
+
+In generated systemd-fsck-root.service. This would break if rootprefix
+is not /usr/lib/systemd.
+
+[tomegun: flesh out commit message]
+
+(cherry picked from commit 77eb82f9f0f60535ab5f585834ed6e66cf39b184)
+---
+ Makefile.am            | 1 +
+ src/shared/generator.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 78f77d7090..c18c79e115 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -176,6 +176,7 @@ AM_CPPFLAGS = \
+ 	-DCATALOG_DATABASE=\"$(catalogstatedir)/database\" \
+ 	-DSYSTEMD_CGROUP_AGENT_PATH=\"$(rootlibexecdir)/systemd-cgroups-agent\" \
+ 	-DSYSTEMD_BINARY_PATH=\"$(rootlibexecdir)/systemd\" \
++	-DSYSTEMD_FSCK_PATH=\"$(rootlibexecdir)/systemd-fsck\" \
+ 	-DSYSTEMD_SHUTDOWN_BINARY_PATH=\"$(rootlibexecdir)/systemd-shutdown\" \
+ 	-DSYSTEMD_SLEEP_BINARY_PATH=\"$(rootlibexecdir)/systemd-sleep\" \
+ 	-DSYSTEMCTL_BINARY_PATH=\"$(rootbindir)/systemctl\" \
+diff --git a/src/shared/generator.c b/src/shared/generator.c
+index 148a0b077b..3af84a325c 100644
+--- a/src/shared/generator.c
++++ b/src/shared/generator.c
+@@ -61,7 +61,7 @@ static int write_fsck_sysroot_service(const char *dir, const char *what) {
+                 "[Service]\n"
+                 "Type=oneshot\n"
+                 "RemainAfterExit=yes\n"
+-                "ExecStart=/usr/lib/systemd/systemd-fsck %2$s\n"
++                "ExecStart=" SYSTEMD_FSCK_PATH " %2$s\n"
+                 "TimeoutSec=0\n",
+                 program_invocation_short_name,
+                 what,

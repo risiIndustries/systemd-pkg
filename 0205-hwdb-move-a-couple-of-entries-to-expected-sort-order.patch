@@ -1,0 +1,59 @@
+From e643225fe59028b8163d24984543edb35676cfb6 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 23 Jun 2015 15:51:02 +1000
+Subject: [PATCH] hwdb: move a couple of entries to expected sort order
+
+(cherry picked from commit 1cbcfd3ee0d4b70967f5b5b9e54001c7d473383d)
+---
+ hwdb/70-mouse.hwdb | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/hwdb/70-mouse.hwdb b/hwdb/70-mouse.hwdb
+index f2ed2f12ae..021e13146e 100644
+--- a/hwdb/70-mouse.hwdb
++++ b/hwdb/70-mouse.hwdb
+@@ -177,6 +177,10 @@ mouse:usb:v046dpc401:name:Logitech USB-PS/2 Trackball:
+ mouse:usb:v04b3p310c:name:USB Optical Mouse:
+  MOUSE_DPI=400@142
+ 
++# Logitech M570 trackball
++mouse:usb:v046dp1028:name:Logitech M570:
++ MOUSE_DPI=540@167
++
+ # Logitech USB-PS/2 M-BZ96C
+ mouse:usb:v046dpc045:name:Logitech USB-PS/2 Optical Mouse:
+  MOUSE_DPI=600@125
+@@ -203,18 +207,6 @@ mouse:usb:v046dpc01e:name:Logitech USB-PS/2 Optical Mouse:
+ mouse:usb:v046dpc050:name:Logitech USB-PS/2 Optical Mouse:
+  MOUSE_DPI=800@142
+ 
+-# Logitech G400 (Wired)
+-mouse:usb:v046dpc245:name:Logitech Gaming Mouse G400:
+- MOUSE_DPI=400@1000 *800@1000 1800@1000 3600@1000
+-
+-# Logitech G400s (Wired)
+-mouse:usb:v046dpc24c:name:Logitech G400s Optical Gaming Mouse:
+- MOUSE_DPI=400@1000 *800@1000 2000@1000 4000@1000
+-
+-# Logitech M570 trackball
+-mouse:usb:v046dp1028:name:Logitech M570:
+- MOUSE_DPI=540@167
+-
+ # Logitech Wireless Mouse M185
+ mouse:usb:v046dp4008:name:Logitech M185:
+ mouse:usb:v046dpc52b:name:Logitech Unifying Device. Wireless PID:4008:
+@@ -233,6 +225,14 @@ mouse:usb:v046dpc049:name:Logitech USB Gaming Mouse:
+ mouse:usb:v046dpc24e:name:Logitech G500s Laser Gaming Mouse:
+  MOUSE_DPI=400@500 *800@500 2000@500
+ 
++# Logitech G400 (Wired)
++mouse:usb:v046dpc245:name:Logitech Gaming Mouse G400:
++ MOUSE_DPI=400@1000 *800@1000 1800@1000 3600@1000
++
++# Logitech G400s (Wired)
++mouse:usb:v046dpc24c:name:Logitech G400s Optical Gaming Mouse:
++ MOUSE_DPI=400@1000 *800@1000 2000@1000 4000@1000
++
+ # Logitech B605 Wireless Mouse (also M505)
+ mouse:usb:v046dp101d:name:Logitech B605:
+ mouse:usb:v046dp101d:name:Logitech M505:

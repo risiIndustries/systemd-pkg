@@ -1,0 +1,30 @@
+From c5012c6850e1e45876d1e674d0e34eacb349e882 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 21 May 2015 14:22:30 -0400
+Subject: [PATCH] tmpfiles: create /etc/resolv.conf symlink only on boot
+
+We will create the symlink on boot as a fallback to provide name
+resolution. But if the symlink was removed afterwards, it most likely
+should not be recreated. Creating it only on boot also solves the
+issue where it would be created prematurely during installation,
+before the system was actually booted.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1197204
+(cherry picked from commit 6921bf11fac23d93658b4c3f91d7b63a7f5b36c6)
+---
+ tmpfiles.d/etc.conf.m4 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tmpfiles.d/etc.conf.m4 b/tmpfiles.d/etc.conf.m4
+index 9b0e080e6f..a466fa4470 100644
+--- a/tmpfiles.d/etc.conf.m4
++++ b/tmpfiles.d/etc.conf.m4
+@@ -11,7 +11,7 @@ L /etc/os-release - - - - ../usr/lib/os-release
+ L /etc/localtime - - - - ../usr/share/zoneinfo/UTC
+ L+ /etc/mtab - - - - ../proc/self/mounts
+ m4_ifdef(`ENABLE_RESOLVED',
+-L /etc/resolv.conf - - - - ../run/systemd/resolve/resolv.conf
++L! /etc/resolv.conf - - - - ../run/systemd/resolve/resolv.conf
+ )m4_dnl
+ C /etc/nsswitch.conf - - - -
+ C /etc/pam.d - - - -

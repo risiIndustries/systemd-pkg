@@ -188,14 +188,81 @@ Patch0144:      0144-units-set-KillMode-mixed-for-our-daemons-that-fork-w.patch
 Patch0145:      0145-unit-don-t-add-automatic-dependencies-on-device-unit.patch
 Patch0146:      0146-update-done-ignore-nanosecond-file-timestamp-compone.patch
 Patch0147:      0147-sd-daemon-simplify-sd_pid_notify_with_fds.patch
-Patch0148:      0148-core-Fix-assertion-with-empty-Exec-paths.patch
+Patch0148:      0148-timedated-correctly-set-context-on-etc-localtime.patch
+Patch0149:      0149-Revert-timedated-correctly-set-context-on-etc-localt.patch
+Patch0150:      0150-run-synchronously-wait-until-the-scope-unit-we-creat.patch
+Patch0151:      0151-sysv-generator-test-Fix-assertion.patch
+Patch0152:      0152-man-avoid-line-break-in-url.patch
+Patch0153:      0153-Add-VARIANT-as-a-standard-value-for-etc-os-release.patch
+Patch0154:      0154-Fix-permissions-on-run-systemd-nspawn-locks.patch
+Patch0155:      0155-man-document-forwarding-to-syslog-better.patch
+Patch0156:      0156-man-fix-typos-in-previous-comimt.patch
+Patch0157:      0157-generators-rename-add_-root-usr-_mount-to-add_-sysro.patch
+Patch0158:      0158-Generate-systemd-fsck-root.service-in-the-initramfs.patch
+Patch0159:      0159-units-fix-typo-in-systemd-resolved.service.patch
+Patch0160:      0160-core-don-t-consider-umask-for-SocketMode.patch
+Patch0161:      0161-timedate-fix-memory-leak-in-timedated.patch
+Patch0162:      0162-core-Fix-assertion-with-empty-Exec-paths.patch
+Patch0163:      0163-coredump-make-sure-we-vacuum-by-default.patch
+Patch0164:      0164-tmpfiles-don-t-fail-if-we-cannot-create-a-subvolume-.patch
+Patch0165:      0165-zsh-completion-add-missing-completions-for-machinect.patch
+Patch0166:      0166-zsh-completion-update-M-completion-for-systemd-analy.patch
+Patch0167:      0167-zsh-completion-add-missing-completions-for-systemd-n.patch
+Patch0168:      0168-zsh-completion-actually-run-_filter_units_by_propert.patch
+Patch0169:      0169-zsh-completion-actually-complete-template-names-for-.patch
+Patch0170:      0170-zsh-completion-less-forking-in-_systemctl_get_templa.patch
+Patch0171:      0171-zsh-completion-less-forking-in-_systemctl_failed_uni.patch
+Patch0172:      0172-zsh-completion-removing-more-pointless-forks.patch
+Patch0173:      0173-zsh-completion-make-the-arrays-_sys_active_units-_sy.patch
+Patch0174:      0174-resolved-fix-crash-when-shutting-down.patch
+Patch0175:      0175-resolved-allow-DnsAnswer-objects-with-no-space-for-R.patch
+Patch0176:      0176-id128-add-new-sd_id128_is_null-call.patch
+Patch0177:      0177-journalctl-Improve-boot-ID-lookup.patch
+Patch0178:      0178-test-hashmap-fix-an-assert.patch
+Patch0179:      0179-units-make-sure-systemd-nspawn-.slice-instances-are-.patch
+Patch0180:      0180-hwdb-add-Logitech-M570-trackball.patch
+Patch0181:      0181-journald-handle-more-gracefully-when-bind-fails-on-a.patch
+Patch0182:      0182-units-conditionalize-audit-multicast-socket-on-CAP_A.patch
+Patch0183:      0183-hwdb-add-MS-Arc-Touch-Mouse-SE.patch
+Patch0184:      0184-udev-link-config-fix-corruption.patch
+Patch0185:      0185-tmpfiles-create-etc-resolv.conf-symlink-only-on-boot.patch
+Patch0186:      0186-update-hardware-databases.patch
+Patch0187:      0187-udev-net_id-Only-read-the-first-64-bytes-of-PCI-conf.patch
+Patch0188:      0188-shared-generator-correct-path-to-systemd-fsck.patch
+Patch0189:      0189-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0190:      0190-hwdb-update.patch
+Patch0191:      0191-hwdb-add-Apple-MagicMouse-entry.patch
+Patch0192:      0192-logind-Save-the-user-s-state-when-a-session-enters-S.patch
+Patch0193:      0193-small-fix-ru-translation.patch
+Patch0194:      0194-kmod-setup-don-t-warn-when-ipv6-can-t-be-loaded.patch
+Patch0195:      0195-cryptsetup-craft-a-unique-ID-with-the-source-device.patch
+Patch0196:      0196-hwdb-add-Logitech-TrackMan-Marble-Wheel-USB.patch
+Patch0197:      0197-hwdb-update-Logitech-s-unifying-receiver-devices.patch
+Patch0198:      0198-journald-do-not-strip-leading-whitespace-from-messag.patch
+Patch0199:      0199-Partially-revert-ma-setup-simplify.patch
+Patch0200:      0200-ima-setup-write-policy-one-line-at-a-time.patch
+Patch0201:      0201-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0202:      0202-logind-save-run-systemd-users-UID-before-starting-us.patch
+Patch0203:      0203-hwdb-update-databases-from-upstream.patch
+Patch0204:      0204-hwdb-add-Logitech-MX-Revolution.patch
+Patch0205:      0205-hwdb-move-a-couple-of-entries-to-expected-sort-order.patch
+Patch0206:      0206-ata_id-unbotch-format-specifier.patch
+Patch0207:      0207-install-explicitly-return-0-on-success.patch
+Patch0208:      0208-systemd.service.xml-document-that-systemd-removes-th.patch
+Patch0209:      0209-core-handle-log-target-null-when-calling-systemd-shu.patch
+Patch0210:      0210-man-ProtectHome-protects-root-as-well.patch
+Patch0211:      0211-timedatectl-trim-non-local-RTC-warning-to-80-chars-w.patch
+Patch0212:      0212-escape-fix-exit-code.patch
+Patch0213:      0213-man-information-about-available-properties.patch
+Patch0214:      0214-journal-in-persistent-mode-create-var-log-journal-wi.patch
+Patch0215:      0215-hwdb-update.patch
+Patch0216:      0216-sysv-generator-fix-wrong-Overwriting-existing-symlin.patch
+Patch0217:      0217-mount-don-t-claim-a-device-is-gone-from-proc-self-mo.patch
+Patch0218:      0218-mount-properly-check-for-mounts-currently-in-proc-se.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
-Patch1001:      fedora-disable-resolv.conf-symlink.patch
-# Add support for petera disk encryption
-Patch1002:      cryptsetup-craft-a-unique-ID-with-the-source-device.patch
 
 %global num_patches %{lua: c=0; for i,p in ipairs(patches) do c=c+1; end; print(c);}
 
@@ -1034,7 +1101,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 
 %changelog
 * Tue Jul  7 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@laptop> - 219-19
-- Make /etc/udev/hwdb.d part of the rpm (#1226379)
+- Fixes for #1226379, #1227060, #1226948, #1226528
+- Some zsh completion updates
+- Man page clarifications
+- Hardware database updates
 
 * Tue Jun 09 2015 Harald Hoyer <harald@redhat.com> 219-18
 - add support for network disk encryption

@@ -1,0 +1,27 @@
+From 4972755296cebaf3d00658112364491a6e5c7029 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 8 May 2015 11:56:45 +1000
+Subject: [PATCH] hwdb: add Logitech M570 trackball
+
+http://www.logitech.com/en-us/product/wireless-trackball-m570#specs
+https://bugzilla.redhat.com/show_bug.cgi?id=1217881
+(cherry picked from commit 25069faab2e2fe311c76a05d4ca85757b4d5e8b9)
+---
+ hwdb/70-mouse.hwdb | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hwdb/70-mouse.hwdb b/hwdb/70-mouse.hwdb
+index 6f06e17091..49e9ae2e9d 100644
+--- a/hwdb/70-mouse.hwdb
++++ b/hwdb/70-mouse.hwdb
+@@ -198,6 +198,10 @@ mouse:usb:v046dpc245:name:Logitech Gaming Mouse G400:
+ mouse:usb:v046dpc24c:name:Logitech G400s Optical Gaming Mouse:
+  MOUSE_DPI=400@1000 *800@1000 2000@1000 4000@1000
+ 
++# Logitech M570 trackball
++mouse:usb:v046dp1028:name:Logitech M570:
++ MOUSE_DPI=540@167
++
+ # Logitech Wireless Mouse M185
+ mouse:usb:v046dpc52b:name:Logitech Unifying Device. Wireless PID:4008:
+ # Logitech M705 (marathon mouse)

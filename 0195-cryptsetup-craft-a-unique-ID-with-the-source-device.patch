@@ -1,7 +1,7 @@
-From f6373b7dd7a2b8a8e38c289f289728d289382f29 Mon Sep 17 00:00:00 2001
+From 76094ce840bee44a0e914fca142f9c0a1e99c7bf Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Mon, 1 Jun 2015 17:26:27 +0200
-Subject: [PATCH 4/4] cryptsetup: craft a unique ID with the source device
+Subject: [PATCH] cryptsetup: craft a unique ID with the source device
 
 If cryptsetup is called with a source device as argv[3], then craft the
 ID for the password agent with a unique device path.
@@ -18,15 +18,17 @@ With this patch the ID of the ask.XXX ini file looks like this:
 ID=cryptsetup:/dev/block/<maj>:<min>
 
 [1] https://github.com/npmccallum/petera
+
+(cherry picked from commit e51b9486d1b59e72c293028fed1384f4e4ef09aa)
 ---
  src/cryptsetup/cryptsetup.c | 90 +++++++++++++++++++++++++++++----------------
  1 file changed, 58 insertions(+), 32 deletions(-)
 
 diff --git a/src/cryptsetup/cryptsetup.c b/src/cryptsetup/cryptsetup.c
-index a5018f1..5c6c7c0 100644
+index 3f613d9b65..5dedb073e4 100644
 --- a/src/cryptsetup/cryptsetup.c
 +++ b/src/cryptsetup/cryptsetup.c
-@@ -238,6 +238,23 @@ static void log_glue(int level, const char *msg, void *usrptr) {
+@@ -217,6 +217,23 @@ static void log_glue(int level, const char *msg, void *usrptr) {
          log_debug("%s", msg);
  }
  
@@ -50,7 +52,7 @@ index a5018f1..5c6c7c0 100644
  static char* disk_description(const char *path) {
  
          static const char name_fields[] =
-@@ -295,20 +312,55 @@ static char *disk_mount_point(const char *label) {
+@@ -278,20 +295,55 @@ static char *disk_mount_point(const char *label) {
          return NULL;
  }
  
@@ -110,7 +112,7 @@ index a5018f1..5c6c7c0 100644
          if (!escaped_name)
                  return log_oom();
  
-@@ -552,8 +604,7 @@ int main(int argc, char *argv[]) {
+@@ -532,8 +584,7 @@ int main(int argc, char *argv[]) {
                  unsigned tries;
                  usec_t until;
                  crypt_status_info status;
@@ -120,7 +122,7 @@ index a5018f1..5c6c7c0 100644
  
                  /* Arguments: systemd-cryptsetup attach VOLUME SOURCE-DEVICE [PASSWORD] [OPTIONS] */
  
-@@ -581,31 +632,6 @@ int main(int argc, char *argv[]) {
+@@ -561,31 +612,6 @@ int main(int argc, char *argv[]) {
                  /* A delicious drop of snake oil */
                  mlockall(MCL_FUTURE);
  
@@ -152,7 +154,7 @@ index a5018f1..5c6c7c0 100644
                  if (arg_header) {
                          log_debug("LUKS header: %s", arg_header);
                          k = crypt_init(&cd, arg_header);
-@@ -652,7 +678,7 @@ int main(int argc, char *argv[]) {
+@@ -632,7 +658,7 @@ int main(int argc, char *argv[]) {
                          _cleanup_strv_free_ char **passwords = NULL;
  
                          if (!key_file) {
@@ -161,6 +163,3 @@ index a5018f1..5c6c7c0 100644
                                  if (k == -EAGAIN)
                                          continue;
                                  else if (k < 0)
--- 
-2.4.1
-
