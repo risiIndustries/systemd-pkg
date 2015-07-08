@@ -1107,7 +1107,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 
 %changelog
 * Tue Jul  7 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@laptop> - 219-19
-- Fixes for #1226379, #1227060, #1226948, #1226528
+- Fixes for #1226379, #1227060, #1226948, #1226528, #1228277
 - Some zsh completion updates
 - Man page clarifications
 - Hardware database updates
