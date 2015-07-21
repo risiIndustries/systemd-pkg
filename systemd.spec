@@ -1106,8 +1106,8 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
-* Tue Jul  7 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@laptop> - 219-19
-- Fixes for #1226379, #1227060, #1226948, #1226528, #1228277
+* Tue Jul  7 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 219-19
+- Fixes for #1226379, #1227060, #1226948, #1226528, #1228277, #1214305
 - Some zsh completion updates
 - Man page clarifications
 - Hardware database updates
