@@ -38,6 +38,8 @@ Source6:        sysctl.conf.README
 Source7:        systemd-journal-remote.xml
 Source8:        systemd-journal-gatewayd.xml
 
+Source9:        https://raw.githubusercontent.com/systemd/systemd/master/tmpfiles.d/systemd.conf.m4
+
 # Patch series is available from http://cgit.freedesktop.org/systemd/systemd-stable/log/?h=v219-stable
 # GIT_DIR=~/src/systemd/.git git format-patch-ab -M -N --no-signature v219..v219-stable
 # i=1; for p in 0*patch;do printf "Patch%04d:      %s\n" $i $p; ((i++));done
@@ -274,7 +276,7 @@ Patch0230:      0230-hwdb-add-Logitech-MX-Master-DPI-settings.patch
 Patch0231:      0231-ata_id-unreverse-WWN-identifier.patch
 Patch0232:      0232-ata_id-rules-temporarily-restore-botched-wwn-stable-.patch
 Patch0233:      0233-units-order-networkd-after-sysctl.patch
-Patch0234:      0234-tmpfiles-don-t-recursively-descend-into-journal-dire.patch
+#Patch0234:      0234-tmpfiles-don-t-recursively-descend-into-journal-dire.patch
 Patch0235:      0235-exit-status-add-a-missing-string-for-EXIT_SMACK_PROC.patch
 Patch0236:      0236-udev-fix-parameter-process.patch
 
@@ -459,6 +461,10 @@ systemd-journal-gatewayd serves journal events over the network using HTTP.
 
 %prep
 %setup -q %{?gitcommit:-n %{name}-git%{gitcommit}}
+
+# This should have been part of the tarball, but is not for some reason
+cp %{SOURCE9} tmpfiles.d/
+rm tmpfiles.d/systemd.conf
 
 %if %{num_patches}
     git init
