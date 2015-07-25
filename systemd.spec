@@ -204,6 +204,7 @@ Obsoletes:      systemd-sysv < 206
 Provides:       systemd-sysv = 206
 Conflicts:      initscripts < 9.56.1
 Conflicts:      fedora-release < 23-0.12
+# https://bugzilla.redhat.com/show_bug.cgi?id=1226908
 Conflicts:      chkconfig < 1.5
 
 %description
