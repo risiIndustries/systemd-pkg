@@ -1,0 +1,65 @@
+From fb09240aed2dc24b0d6e130e47318344d8790576 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Tue, 19 May 2015 17:47:19 +0200
+Subject: [PATCH] dhcp-identifier: fix for unaligned write
+
+Reported by Michael Olbrich.
+
+(cherry picked from commit 9ee18af3a036074c4021c82ae2e67f5ccaa9ea9d)
+---
+ src/libsystemd-network/dhcp-identifier.c | 9 +++++----
+ src/libsystemd-network/dhcp-identifier.h | 3 ++-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/src/libsystemd-network/dhcp-identifier.c b/src/libsystemd-network/dhcp-identifier.c
+index 419a450436..4203d7a952 100644
+--- a/src/libsystemd-network/dhcp-identifier.c
++++ b/src/libsystemd-network/dhcp-identifier.c
+@@ -48,8 +48,9 @@ int dhcp_identifier_set_duid_en(struct duid *duid, size_t *len) {
+         if (r < 0)
+                 return r;
+ 
+-        duid->type = htobe16(DHCP6_DUID_EN);
+-        duid->en.pen = htobe32(SYSTEMD_PEN);
++        unaligned_write_be16(&duid->type, DHCP6_DUID_EN);
++        unaligned_write_be32(&duid->en.pen, SYSTEMD_PEN);
++
+         *len = sizeof(duid->type) + sizeof(duid->en);
+ 
+         /* a bit of snake-oil perhaps, but no need to expose the machine-id
+@@ -60,7 +61,7 @@ int dhcp_identifier_set_duid_en(struct duid *duid, size_t *len) {
+ }
+ 
+ 
+-int dhcp_identifier_set_iaid(int ifindex, uint8_t *mac, size_t mac_len, uint32_t *_id) {
++int dhcp_identifier_set_iaid(int ifindex, uint8_t *mac, size_t mac_len, void *_id) {
+         /* name is a pointer to memory in the udev_device struct, so must
+            have the same scope */
+         _cleanup_udev_device_unref_ struct udev_device *device = NULL;
+@@ -94,7 +95,7 @@ int dhcp_identifier_set_iaid(int ifindex, uint8_t *mac, size_t mac_len, uint32_t
+                 siphash24((uint8_t*)&id, mac, mac_len, HASH_KEY.bytes);
+ 
+         /* fold into 32 bits */
+-        *_id = (id & 0xffffffff) ^ (id >> 32);
++        unaligned_write_be32(_id, (id & 0xffffffff) ^ (id >> 32));
+ 
+         return 0;
+ }
+diff --git a/src/libsystemd-network/dhcp-identifier.h b/src/libsystemd-network/dhcp-identifier.h
+index 7f44d25499..a5a89f5223 100644
+--- a/src/libsystemd-network/dhcp-identifier.h
++++ b/src/libsystemd-network/dhcp-identifier.h
+@@ -25,6 +25,7 @@
+ 
+ #include "macro.h"
+ #include "sparse-endian.h"
++#include "unaligned.h"
+ #include "sd-id128.h"
+ 
+ /* RFC 3315 section 9.1:
+@@ -62,4 +63,4 @@ struct duid {
+ } _packed_;
+ 
+ int dhcp_identifier_set_duid_en(struct duid *duid, size_t *len);
+-int dhcp_identifier_set_iaid(int ifindex, uint8_t *mac, size_t mac_len, uint32_t *_id);
++int dhcp_identifier_set_iaid(int ifindex, uint8_t *mac, size_t mac_len, void *_id);

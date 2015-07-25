@@ -1,0 +1,40 @@
+From 39f29e7302f77d2a127b1204a3264f67596f89d1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 22 Jul 2015 00:35:14 -0400
+Subject: [PATCH] ata_id,rules: temporarily restore botched wwn "stable"
+ identifier
+
+The identifier with broken format string and word ordering was added
+in systemd-219. Keep the link around for the lifetime of F22.
+---
+ rules/60-persistent-storage.rules | 3 +++
+ src/udev/ata_id/ata_id.c          | 2 ++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/rules/60-persistent-storage.rules b/rules/60-persistent-storage.rules
+index 25b44a55cb..1551b3220d 100644
+--- a/rules/60-persistent-storage.rules
++++ b/rules/60-persistent-storage.rules
+@@ -79,6 +79,9 @@ ENV{ID_FS_USAGE}=="filesystem|other", ENV{ID_FS_LABEL_ENC}=="?*", SYMLINK+="disk
+ # by-id (World Wide Name)
+ ENV{DEVTYPE}=="disk", ENV{ID_WWN_WITH_EXTENSION}=="?*", SYMLINK+="disk/by-id/wwn-$env{ID_WWN_WITH_EXTENSION}"
+ ENV{DEVTYPE}=="partition", ENV{ID_WWN_WITH_EXTENSION}=="?*", SYMLINK+="disk/by-id/wwn-$env{ID_WWN_WITH_EXTENSION}-part%n"
++# Temporary compatibility rules for https://bugzilla.redhat.com/show_bug.cgi?id=1227503
++ENV{DEVTYPE}=="disk", ENV{ID_WWN_WITH_EXTENSION_REVERSED_DO_NOT_USE}=="?*", SYMLINK+="disk/by-id/wwn-$env{ID_WWN_WITH_EXTENSION_REVERSED_DO_NOT_USE}"
++ENV{DEVTYPE}=="partition", ENV{ID_WWN_WITH_EXTENSION_REVERSED_DO_NOT_USE}=="?*", SYMLINK+="disk/by-id/wwn-$env{ID_WWN_WITH_EXTENSION_REVERSED_DO_NOT_USE}-part%n"
+ 
+ # by-partlabel/by-partuuid links (partition metadata)
+ ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_ENTRY_UUID}=="?*", SYMLINK+="disk/by-partuuid/$env{ID_PART_ENTRY_UUID}"
+diff --git a/src/udev/ata_id/ata_id.c b/src/udev/ata_id/ata_id.c
+index 4adec44960..265dc0ae55 100644
+--- a/src/udev/ata_id/ata_id.c
++++ b/src/udev/ata_id/ata_id.c
+@@ -651,6 +651,8 @@ int main(int argc, char *argv[])
+                         printf("ID_WWN=0x%1$" PRIx64 "\n"
+                                "ID_WWN_WITH_EXTENSION=0x%1$" PRIx64 "\n",
+                                wwwn);
++                        printf("ID_WWN_WITH_EXTENSION_REVERSED_DO_NOT_USE=0x%" PRIu64 "x\n",
++                               identify.octa[108/4]);
+                 }
+ 
+                 /* from Linux's include/linux/ata.h */

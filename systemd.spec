@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        19%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        20%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -262,6 +262,24 @@ Patch0215:      0215-hwdb-update.patch
 Patch0216:      0216-sysv-generator-fix-wrong-Overwriting-existing-symlin.patch
 Patch0217:      0217-mount-don-t-claim-a-device-is-gone-from-proc-self-mo.patch
 Patch0218:      0218-mount-properly-check-for-mounts-currently-in-proc-se.patch
+Patch0219:      0219-dhcp-identifier-fix-for-unaligned-write.patch
+Patch0220:      0220-lldp-set-correct-state-for-processing.patch
+Patch0221:      0221-resolved-fix-marshalling-of-RRSIG-records.patch
+Patch0222:      0222-Reload-manager-defaults-at-daemon-reload.patch
+Patch0223:      0223-basic-util.c-fopen_temporary-close-fd-if-failed.patch
+Patch0224:      0224-units-emergency.service-wait-for-plymouth-to-shut-do.patch
+Patch0225:      0225-basic-util-fix-errorhandling-in-unhexmem.patch
+Patch0226:      0226-sd-dhcp-lease-fix-handling-of-multiple-routers.patch
+Patch0227:      0227-logind-prefer-new-sessions-over-older-ones-on-VT-swi.patch
+Patch0228:      0228-logind-never-select-closing-sessions-for-a-VT.patch
+Patch0229:      0229-bootchart-fix-negative-timeleft-condition.patch
+Patch0230:      0230-hwdb-add-Logitech-MX-Master-DPI-settings.patch
+Patch0231:      0231-ata_id-unreverse-WWN-identifier.patch
+Patch0232:      0232-ata_id-rules-temporarily-restore-botched-wwn-stable-.patch
+Patch0233:      0233-units-order-networkd-after-sysctl.patch
+Patch0234:      0234-tmpfiles-don-t-recursively-descend-into-journal-dire.patch
+Patch0235:      0235-exit-status-add-a-missing-string-for-EXIT_SMACK_PROC.patch
+Patch0236:      0236-udev-fix-parameter-process.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1106,6 +1124,13 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Sat Jul 25 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 219-20
+- Fix /dev/disk/by-id/wwn-* links (#1227503)
+  For backwards compatibility with previous releases of systemd in F22,
+  both the original link and the botched link will be provided.
+- A few patches for bugs reported upstream
+- Small hardware database update
+
 * Tue Jul  7 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 219-19
 - Fixes for #1226379, #1227060, #1226948, #1226528, #1228277, #1214305
 - Some zsh completion updates

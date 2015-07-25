@@ -1,0 +1,25 @@
+From 831e0805973e9ea5e532fc446ac487f4079c6177 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 14 Jul 2015 07:34:19 +1000
+Subject: [PATCH] hwdb: add Logitech MX Master DPI settings
+
+(cherry picked from commit cc00a2d191183283dc5baf9837b3f3e6710987e2)
+---
+ hwdb/70-mouse.hwdb | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hwdb/70-mouse.hwdb b/hwdb/70-mouse.hwdb
+index 021e13146e..eef2683227 100644
+--- a/hwdb/70-mouse.hwdb
++++ b/hwdb/70-mouse.hwdb
+@@ -247,6 +247,10 @@ mouse:usb:v046dpc05a:name:Logitech USB Optical Mouse:
+ mouse:usb:v046dpc065:name:Logitech USB Laser Mouse:
+  MOUSE_DPI=1000@125
+ 
++# Logitech MX Master
++mouse:usb:v046dp4041:name:Logitech MX Master:
++ MOUSE_DPI=1000@166
++
+ # Logitech MK260 Wireless Combo Receiver aka M-R0011
+ mouse:usb:v046dpc52e:name:Logitech USB Receiver:
+  MOUSE_DPI=1000@200

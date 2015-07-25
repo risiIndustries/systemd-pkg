@@ -1,0 +1,23 @@
+From a20c2f35ee19375ff4b1e0f00ec3cd0da5696b78 Mon Sep 17 00:00:00 2001
+From: Lidong Zhong <lzhong@suse.com>
+Date: Fri, 24 Jul 2015 16:37:17 +0800
+Subject: [PATCH] udev: fix parameter process
+
+(cherry picked from commit e14b6f211cefd00aed2cb9f069941f5c13776457)
+---
+ src/udev/udevd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/udev/udevd.c b/src/udev/udevd.c
+index 87a3f69e90..e501ab8fe2 100644
+--- a/src/udev/udevd.c
++++ b/src/udev/udevd.c
+@@ -1046,7 +1046,7 @@ static int parse_argv(int argc, char *argv[]) {
+         assert(argc >= 0);
+         assert(argv);
+ 
+-        while ((c = getopt_long(argc, argv, "c:de:DtN:hV", options, NULL)) >= 0) {
++        while ((c = getopt_long(argc, argv, "c:de:Dt:N:hV", options, NULL)) >= 0) {
+                 int r;
+ 
+                 switch (c) {

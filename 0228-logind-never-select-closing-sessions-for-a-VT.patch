@@ -1,0 +1,28 @@
+From 73815c184cb4cf782984c613ce2e0a00192f9e98 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Thu, 16 Jul 2015 18:46:12 +0200
+Subject: [PATCH] logind: never select closing sessions for a VT
+
+If a session is in closing state (and already got rid of its VT), then
+never re-select it for that VT. There is no reason why we should grant
+something to a session that is already going away *AND* already got rid
+of exactly that.
+
+(cherry picked from commit 281033284352ed7651e84d228dad780dc2ef299f)
+---
+ src/login/logind-seat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/logind-seat.c b/src/login/logind-seat.c
+index 6877dcd807..f1882c5934 100644
+--- a/src/login/logind-seat.c
++++ b/src/login/logind-seat.c
+@@ -489,7 +489,7 @@ void seat_evict_position(Seat *s, Session *session) {
+                  * position (eg., during gdm->session transition), so lets look
+                  * for it and set it on the free slot. */
+                 LIST_FOREACH(sessions_by_seat, iter, s->sessions) {
+-                        if (iter->pos == pos) {
++                        if (iter->pos == pos && session_get_state(iter) != SESSION_CLOSING) {
+                                 s->positions[pos] = iter;
+                                 break;
+                         }

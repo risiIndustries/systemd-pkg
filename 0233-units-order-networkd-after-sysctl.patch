@@ -1,0 +1,28 @@
+From 8171c9e20b594916f1d8e5336f0590ccb077e70f Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Thu, 23 Jul 2015 20:58:33 +0200
+Subject: [PATCH] units: order networkd after sysctl
+
+This way networkd will correctly and race-freely inherit the default settings
+applied by sysctl.
+
+Suggested in issue #468.
+
+(cherry picked from commit d2d1e36beec8587f43c93fb0323a41d410ed82e6)
+---
+ units/systemd-networkd.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/units/systemd-networkd.service.in b/units/systemd-networkd.service.in
+index 5a91b8e499..8337840cf3 100644
+--- a/units/systemd-networkd.service.in
++++ b/units/systemd-networkd.service.in
+@@ -12,7 +12,7 @@ ConditionCapability=CAP_NET_ADMIN
+ DefaultDependencies=no
+ # dbus.service can be dropped once on kdbus, and systemd-udevd.service can be
+ # dropped once tuntap is moved to netlink
+-After=systemd-udevd.service dbus.service network-pre.target systemd-sysusers.service
++After=systemd-udevd.service dbus.service network-pre.target systemd-sysusers.service systemd-sysctl.service
+ Before=network.target multi-user.target shutdown.target
+ Conflicts=shutdown.target
+ Wants=network.target

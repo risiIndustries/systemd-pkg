@@ -1,0 +1,211 @@
+From 5e345bb5e1fd1f7dd744651f9d4a707ad59fbc0d Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Sat, 11 Jul 2015 19:14:52 +0200
+Subject: [PATCH] basic: util - fix errorhandling in unhexmem()
+
+We were ignoring failures from unhexchar, which meant that invalid
+hex characters were being turned into garbage rather than the string
+rejected.
+
+Fix this by making unhexmem return an error code, also change the API
+slightly, to return the size of the returned memory, reflecting the
+fact that the memory is a binary blob,and not a string.
+
+For convenience, still append a trailing NULL byte to the returned
+memory (not included in the returned size), allowing callers to
+treat it as a string without doing a second copy.
+
+(cherry picked from commit 30494563f235b21c6583f7476b8ee35e9f5f8048)
+---
+ src/libsystemd-network/sd-dhcp-lease.c |  9 ++++-----
+ src/libsystemd/sd-bus/bus-socket.c     | 20 ++++++++++++--------
+ src/shared/util.c                      | 24 ++++++++++++++++++------
+ src/shared/util.h                      |  2 +-
+ src/test/test-util.c                   | 25 +++++++++++++++++++++++++
+ 5 files changed, 60 insertions(+), 20 deletions(-)
+
+diff --git a/src/libsystemd-network/sd-dhcp-lease.c b/src/libsystemd-network/sd-dhcp-lease.c
+index 34aa36c6e6..3c632b6774 100644
+--- a/src/libsystemd-network/sd-dhcp-lease.c
++++ b/src/libsystemd-network/sd-dhcp-lease.c
+@@ -808,13 +808,12 @@ int sd_dhcp_lease_load(sd_dhcp_lease **ret, const char *lease_file) {
+         }
+ 
+         if (client_id_hex) {
+-                if (strlen (client_id_hex) % 2)
++                if (strlen(client_id_hex) % 2)
+                         return -EINVAL;
+ 
+-                lease->client_id = unhexmem (client_id_hex, strlen (client_id_hex));
+-                if (!lease->client_id)
+-                        return -ENOMEM;
+-                lease->client_id_len = strlen (client_id_hex) / 2;
++                r = unhexmem(client_id_hex, strlen(client_id_hex), (void**) &lease->client_id, &lease->client_id_len);
++                if (r < 0)
++                        return r;
+         }
+ 
+         *ret = lease;
+diff --git a/src/libsystemd/sd-bus/bus-socket.c b/src/libsystemd/sd-bus/bus-socket.c
+index 52883fa8cd..725152d954 100644
+--- a/src/libsystemd/sd-bus/bus-socket.c
++++ b/src/libsystemd/sd-bus/bus-socket.c
+@@ -265,6 +265,8 @@ static bool line_begins(const char *s, size_t m, const char *word) {
+ 
+ static int verify_anonymous_token(sd_bus *b, const char *p, size_t l) {
+         _cleanup_free_ char *token = NULL;
++        size_t len;
++        int r;
+ 
+         if (!b->anonymous_auth)
+                 return 0;
+@@ -277,11 +279,12 @@ static int verify_anonymous_token(sd_bus *b, const char *p, size_t l) {
+ 
+         if (l % 2 != 0)
+                 return 0;
+-        token = unhexmem(p, l);
+-        if (!token)
+-                return -ENOMEM;
+ 
+-        if (memchr(token, 0, l/2))
++        r = unhexmem(p, l, (void **) &token, &len);
++        if (r < 0)
++                return 0;
++
++        if (memchr(token, 0, len))
+                 return 0;
+ 
+         return !!utf8_is_valid(token);
+@@ -289,6 +292,7 @@ static int verify_anonymous_token(sd_bus *b, const char *p, size_t l) {
+ 
+ static int verify_external_token(sd_bus *b, const char *p, size_t l) {
+         _cleanup_free_ char *token = NULL;
++        size_t len;
+         uid_t u;
+         int r;
+ 
+@@ -308,11 +312,11 @@ static int verify_external_token(sd_bus *b, const char *p, size_t l) {
+         if (l % 2 != 0)
+                 return 0;
+ 
+-        token = unhexmem(p, l);
+-        if (!token)
+-                return -ENOMEM;
++        r = unhexmem(p, l, (void**) &token, &len);
++        if (r < 0)
++                return 0;
+ 
+-        if (memchr(token, 0, l/2))
++        if (memchr(token, 0, len))
+                 return 0;
+ 
+         r = parse_uid(token, &u);
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 78e5b0e2cb..99b8b1735a 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -1273,30 +1273,42 @@ char *hexmem(const void *p, size_t l) {
+         return r;
+ }
+ 
+-void *unhexmem(const char *p, size_t l) {
+-        uint8_t *r, *z;
++int unhexmem(const char *p, size_t l, void **mem, size_t *len) {
++        _cleanup_free_ uint8_t *r = NULL;
++        uint8_t *z;
+         const char *x;
+ 
++        assert(mem);
++        assert(len);
+         assert(p);
+ 
+         z = r = malloc((l + 1) / 2 + 1);
+         if (!r)
+-                return NULL;
++                return -ENOMEM;
+ 
+         for (x = p; x < p + l; x += 2) {
+                 int a, b;
+ 
+                 a = unhexchar(x[0]);
+-                if (x+1 < p + l)
++                if (a < 0)
++                        return a;
++                else if (x+1 < p + l) {
+                         b = unhexchar(x[1]);
+-                else
++                        if (b < 0)
++                                return b;
++                } else
+                         b = 0;
+ 
+                 *(z++) = (uint8_t) a << 4 | (uint8_t) b;
+         }
+ 
+         *z = 0;
+-        return r;
++
++        *mem = r;
++        r = NULL;
++        *len = (l + 1) / 2;
++
++        return 0;
+ }
+ 
+ char octchar(int x) {
+diff --git a/src/shared/util.h b/src/shared/util.h
+index a83b588221..60e0791f15 100644
+--- a/src/shared/util.h
++++ b/src/shared/util.h
+@@ -797,7 +797,7 @@ static inline void *mempset(void *s, int c, size_t n) {
+ }
+ 
+ char *hexmem(const void *p, size_t l);
+-void *unhexmem(const char *p, size_t l);
++int unhexmem(const char *p, size_t l, void **mem, size_t *len);
+ 
+ char *strextend(char **x, ...) _sentinel_;
+ char *strrep(const char *s, unsigned n);
+diff --git a/src/test/test-util.c b/src/test/test-util.c
+index 9515a8cbf1..4365f75ba7 100644
+--- a/src/test/test-util.c
++++ b/src/test/test-util.c
+@@ -406,6 +406,30 @@ static void test_undecchar(void) {
+         assert_se(undecchar('9') == 9);
+ }
+ 
++static void test_unhexmem(void) {
++        const char *hex = "efa214921";
++        const char *hex_invalid = "efa214921o";
++        _cleanup_free_ char *hex2 = NULL;
++        _cleanup_free_ void *mem = NULL;
++        size_t len;
++
++        assert_se(unhexmem(hex, strlen(hex), &mem, &len) == 0);
++        assert_se(unhexmem(hex, strlen(hex) + 1, &mem, &len) == -EINVAL);
++        assert_se(unhexmem(hex_invalid, strlen(hex_invalid), &mem, &len) == -EINVAL);
++
++        assert_se((hex2 = hexmem(mem, len)));
++
++        free(mem);
++
++        assert_se(memcmp(hex, hex2, strlen(hex)) == 0);
++
++        free(hex2);
++
++        assert_se(unhexmem(hex, strlen(hex) - 1, &mem, &len) == 0);
++        assert_se((hex2 = hexmem(mem, len)));
++        assert_se(memcmp(hex, hex2, strlen(hex) - 1) == 0);
++}
++
+ static void test_cescape(void) {
+         _cleanup_free_ char *escaped;
+ 
+@@ -1539,6 +1563,7 @@ int main(int argc, char *argv[]) {
+         test_unoctchar();
+         test_decchar();
+         test_undecchar();
++        test_unhexmem();
+         test_cescape();
+         test_cunescape();
+         test_foreach_word();

@@ -1,0 +1,22 @@
+From 08b6edb9ae5f173a76010af20ef2afdc0592b9cb Mon Sep 17 00:00:00 2001
+From: cee1 <fykcee1@gmail.com>
+Date: Thu, 9 Jul 2015 13:52:16 +0800
+Subject: [PATCH] basic/util.c fopen_temporary(): close fd if failed
+
+(cherry picked from commit ac5213569cd670131e2120f6f244108080818d6b)
+---
+ src/shared/util.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 649344d88f..78e5b0e2cb 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -4383,6 +4383,7 @@ int fopen_temporary(const char *path, FILE **_f, char **_temp_path) {
+         if (!f) {
+                 unlink(t);
+                 free(t);
++                safe_close(fd);
+                 return -errno;
+         }
+ 
