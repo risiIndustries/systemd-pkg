@@ -38,9 +38,6 @@ Source6:        sysctl.conf.README
 Source7:        systemd-journal-remote.xml
 Source8:        systemd-journal-gatewayd.xml
 
-# temporary fix for broken kernel headers
-Source99:       in.h
-
 # Patch series is available from http://cgit.freedesktop.org/systemd/systemd-stable/log/?h=v219-stable
 # GIT_DIR=~/src/systemd/.git git format-patch-ab -M -N --no-signature v219..v219-stable
 # i=1; for p in 0*patch;do printf "Patch%04d:      %s\n" $i $p; ((i++));done
@@ -515,9 +512,6 @@ systemd-journal-gatewayd serves journal events over the network using HTTP.
 # Disable link warnings, somehow they cause the link to fail.
 sed -r -i 's/\blibsystemd-(login|journal|id128|daemon).c \\/\\/' Makefile.am
 %endif
-
-# temporary fix for broken kernel headers
-install -Dm0644 %{SOURCE99} src/shared/linux
 
 %build
 %if %{defined gitcommit}
