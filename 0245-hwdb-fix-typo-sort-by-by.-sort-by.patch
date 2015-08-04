@@ -1,0 +1,37 @@
+From 4d92df7bf56a2173702dc933e6accfcbd38ac324 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 23 Apr 2015 11:10:04 +1000
+Subject: [PATCH] hwdb: fix typo - "sort by by..." -> "sort by..."
+
+(cherry picked from commit 47d36b7c851f9145def609e4f9d8feb6d3d33740)
+---
+ hwdb/60-evdev.hwdb | 2 +-
+ hwdb/70-mouse.hwdb | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index 464d6bd068..815ac24511 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -37,7 +37,7 @@
+ # be present. e.g. ::45 sets the resolution to 45 units/mm.
+ 
+ #
+-# Sort by by brand, model
++# Sort by brand, model
+ 
+ #########################################
+ # Apple
+diff --git a/hwdb/70-mouse.hwdb b/hwdb/70-mouse.hwdb
+index eef2683227..3ba8ccad70 100644
+--- a/hwdb/70-mouse.hwdb
++++ b/hwdb/70-mouse.hwdb
+@@ -98,7 +98,7 @@
+ #
+ 
+ #
+-# Sort by by brand, type (usb, bluetooth), DPI, frequency.
++# Sort by brand, type (usb, bluetooth), DPI, frequency.
+ # For mice with switchable resolution, sort by the starred entry.
+ 
+ ##########################################

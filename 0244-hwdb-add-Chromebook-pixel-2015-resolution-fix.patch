@@ -1,0 +1,38 @@
+From d1b8b6f6e9e735190b5d8276c72a10f9cba94c1b Mon Sep 17 00:00:00 2001
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date: Mon, 20 Apr 2015 18:01:53 -0400
+Subject: [PATCH] hwdb: add Chromebook pixel (2015) resolution fix
+
+The atmel driver sets a default resolution of 20 for each touchpads it
+creates. On this model, 10 is more appropriate.
+
+The resolution is not set for the touchscreen by the kernel, so match
+the name to both touchpad and touchscreen.
+
+(cherry picked from commit 696f1dbfe193cb12e20703b96034ceed1bd8b4d4)
+---
+ hwdb/60-evdev.hwdb | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index 0533f1b90b..464d6bd068 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -84,6 +84,17 @@ evdev:input:b0003v05ACp025b*
+  EVDEV_ABS_36=::92
+ 
+ #########################################
++# Google
++#########################################
++
++# Chromebook Pixel (2015) - Samus
++evdev:name:Atmel maXTouch Touch*:dmi:bvn*:bvr*:bd*:svnGOOGLE:pnSamus*
++ EVDEV_ABS_00=::10
++ EVDEV_ABS_01=::10
++ EVDEV_ABS_35=::10
++ EVDEV_ABS_36=::10
++
++#########################################
+ # Lenovo
+ #########################################
+ 

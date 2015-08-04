@@ -1,0 +1,27 @@
+From f45bb7225a4d88f3792e62d0965d43f4debe6fd2 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Wed, 29 Jul 2015 01:34:35 +0200
+Subject: [PATCH] networkd-wait-online: fix race
+
+We must consider 'pending' links as if they may be managed by networkd, as this
+is the state we enter before deciding wether networkd should manage the link
+or not, so we better wait for this decision being made.
+
+(cherry picked from commit 79ac8ba9735b53fb805bdc3f6f9edeccf3985a43)
+---
+ src/network/networkd-wait-online-manager.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/network/networkd-wait-online-manager.c b/src/network/networkd-wait-online-manager.c
+index cafe110e50..d9a6c0ee99 100644
+--- a/src/network/networkd-wait-online-manager.c
++++ b/src/network/networkd-wait-online-manager.c
+@@ -78,7 +78,7 @@ bool manager_all_configured(Manager *m) {
+                         return false;
+                 }
+ 
+-                if (streq(l->state, "configuring")) {
++                if (STR_IN_SET(l->state, "configuring", "pending")) {
+                         log_debug("link %s is being processed by networkd",
+                                   l->ifname);
+                         return false;

@@ -1,0 +1,26 @@
+From b6941d319641733849d9c13376aacc531b09e8d0 Mon Sep 17 00:00:00 2001
+From: Daniel Mack <daniel@zonque.org>
+Date: Tue, 28 Jul 2015 14:38:31 +0200
+Subject: [PATCH] udev: Fix udev_builtin_run_once()
+
+Honour the boolean return value type.
+This was an oversight in f89d10ae4.
+
+(cherry picked from commit 4e18de3d27dc66d2675ab6cbd6a35d36c94e1157)
+---
+ src/udev/udev-builtin.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/udev/udev-builtin.c b/src/udev/udev-builtin.c
+index faa6fd04ba..13eb084dbb 100644
+--- a/src/udev/udev-builtin.c
++++ b/src/udev/udev-builtin.c
+@@ -101,7 +101,7 @@ const char *udev_builtin_name(enum udev_builtin_cmd cmd) {
+ 
+ bool udev_builtin_run_once(enum udev_builtin_cmd cmd) {
+         if (!builtins[cmd])
+-                return -EOPNOTSUPP;
++                return false;
+ 
+         return builtins[cmd]->run_once;
+ }

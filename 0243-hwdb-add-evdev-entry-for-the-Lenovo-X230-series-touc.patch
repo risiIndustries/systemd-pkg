@@ -1,0 +1,45 @@
+From d3f55153f48ca18144839c9a0e7505fc0c741e2e Mon Sep 17 00:00:00 2001
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date: Mon, 20 Apr 2015 18:01:52 -0400
+Subject: [PATCH] hwdb: add evdev entry for the Lenovo X230 series touchpad
+
+The Lenovo X230 advertize a vertical resolution of 136, which gives a true
+size of 31 mm. The actual physical size of the touchpad is 40 mm, so
+override the resolution to 100.
+
+(cherry picked from commit a58223dc373ff89600088016bee85705fa382bab)
+---
+ hwdb/60-evdev.hwdb | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index ae483aaf51..0533f1b90b 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -36,6 +36,13 @@
+ # If a field is missing the field will be left as-is. Not all fields need to
+ # be present. e.g. ::45 sets the resolution to 45 units/mm.
+ 
++#
++# Sort by by brand, model
++
++#########################################
++# Apple
++#########################################
++
+ # Macbook5,1 (unibody), aka wellspring3
+ evdev:input:b0003v05ACp0236*
+ evdev:input:b0003v05ACp0237*
+@@ -75,3 +82,12 @@ evdev:input:b0003v05ACp025b*
+  EVDEV_ABS_01=::92
+  EVDEV_ABS_35=::94
+  EVDEV_ABS_36=::92
++
++#########################################
++# Lenovo
++#########################################
++
++# Lenovo X230 series
++evdev:name:SynPS/2 Synaptics TouchPad:dmi:*svnLENOVO*:pn*ThinkPad*X230*
++ EVDEV_ABS_01=::100
++ EVDEV_ABS_36=::100

@@ -1,0 +1,33 @@
+From f970b537ee3b81cacdc2dc25dfe4cd486ab8d294 Mon Sep 17 00:00:00 2001
+From: Andreas Kempf <aakempf@gmail.com>
+Date: Fri, 31 Jul 2015 10:17:19 +0200
+Subject: [PATCH] hwdb: Update info for potential contributors.
+
+Update the location of the bug tracker and mention that pull requests
+are preferred.
+
+(cherry picked from commit 8601a85cb4906e81e08948971d3d5e971c2bc386)
+---
+ hwdb/70-mouse.hwdb | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/hwdb/70-mouse.hwdb b/hwdb/70-mouse.hwdb
+index 87aef79717..4c84f0a897 100644
+--- a/hwdb/70-mouse.hwdb
++++ b/hwdb/70-mouse.hwdb
+@@ -36,10 +36,11 @@
+ # where /dev/input/eventXX is the mouse in question. If in
+ # doubt, simply use /dev/input/event* to reload all input rules.
+ #
+-# If your changes are generally applicable, open a bug report on
+-#   http://bugs.freedesktop.org/enter_bug.cgi?product=systemd
+-# and include your new rules, a description of the device, and the
+-# output of
++# If your changes are generally applicable, preferably send them as a pull
++# request to
++#   https://github.com/systemd/
++# or create a bug report on the issue tracker located there and include your
++# new rules, a description of the device, and the output of
+ #   udevadm info /dev/input/eventXX
+ # (or /dev/input/event*).
+ #

@@ -1,0 +1,25 @@
+From 7fd792efcce28f83d401715d9ba99c49530c6bca Mon Sep 17 00:00:00 2001
+From: Herman Fries <hfries@beuth-hochschule.de>
+Date: Wed, 29 Jul 2015 17:45:40 +0200
+Subject: [PATCH] man: unit: fix StartTimeoutSec
+
+should be TimeoutStartSec
+
+(cherry picked from commit 21d113020730daafe2f54ccd2c73600187a73b51)
+---
+ man/systemd.unit.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/systemd.unit.xml b/man/systemd.unit.xml
+index c2e374a94e..0a2e34c087 100644
+--- a/man/systemd.unit.xml
++++ b/man/systemd.unit.xml
+@@ -737,7 +737,7 @@
+         to 0 (job timeouts disabled), except for device units. NB:
+         this timeout is independent from any unit-specific timeout
+         (for example, the timeout set with
+-        <varname>StartTimeoutSec=</varname> in service units) as the
++        <varname>TimeoutStartSec=</varname> in service units) as the
+         job timeout has no effect on the unit itself, only on the job
+         that might be pending for it. Or in other words: unit-specific
+         timeouts are useful to abort unit state changes, and revert

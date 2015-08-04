@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        20%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        21%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -279,6 +279,44 @@ Patch0233:      0233-units-order-networkd-after-sysctl.patch
 #Patch0234:      0234-tmpfiles-don-t-recursively-descend-into-journal-dire.patch
 Patch0235:      0235-exit-status-add-a-missing-string-for-EXIT_SMACK_PROC.patch
 Patch0236:      0236-udev-fix-parameter-process.patch
+Patch0237:      0237-udev-builtin-keyboard-move-fetching-the-device-node-.patch
+Patch0238:      0238-udev-builtin-keyboard-immediately-EVIOCSKEYCODE-when.patch
+Patch0239:      0239-udev-builtin-keyboard-move-actual-key-mapping-to-a-h.patch
+Patch0240:      0240-udev-builtin-keyboard-invert-a-condition.patch
+Patch0241:      0241-udev-builtin-keyboard-add-support-for-EVDEV_ABS_.patch
+Patch0242:      0242-hwdb-set-the-resolution-for-a-couple-of-bcm5974-touc.patch
+Patch0243:      0243-hwdb-add-evdev-entry-for-the-Lenovo-X230-series-touc.patch
+Patch0244:      0244-hwdb-add-Chromebook-pixel-2015-resolution-fix.patch
+Patch0245:      0245-hwdb-fix-typo-sort-by-by.-sort-by.patch
+Patch0246:      0246-networkd-wait-online-fix-i-argument.patch
+Patch0247:      0247-selinux-fix-missing-SELinux-unit-access-check.patch
+Patch0248:      0248-install-make-unit_file_get_list-aware-of-UNIT_FILE_I.patch
+Patch0249:      0249-udev-avoid-coredump-when-initializing-udev-builtins.patch
+Patch0250:      0250-udev-check-more-builtins-pointers-before-dereferenci.patch
+Patch0251:      0251-udev-Fix-udev_builtin_run_once.patch
+Patch0252:      0252-hwdb-add-HP-USB-1000dpi-Laser-Mouse.patch
+Patch0253:      0253-man-unit-fix-StartTimeoutSec.patch
+Patch0254:      0254-networkd-wait-online-fix-race.patch
+Patch0255:      0255-hwdb-add-resolution-values-for-Asus-K52JT-touchpad.patch
+Patch0256:      0256-hwdb-add-min-max-resolution-override-for-Appletouch-.patch
+Patch0257:      0257-man-fix-typo-in-man-systemd-machine-id-commit.patch
+Patch0258:      0258-hwdb-Update-info-for-potential-contributors.patch
+Patch0259:      0259-hwdb-Add-mouse-DPI-info-for-Logitech-G402.patch
+Patch0260:      0260-basic-fix-error-memleak-in-socket-util.patch
+Patch0261:      0261-timesyncd-remove-RLIMIT_NPROC.patch
+Patch0262:      0262-hwdb-update.patch
+Patch0263:      0263-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0264:      0264-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0265:      0265-hwdb-add-resolution-information-for-Dell-Vostro-1510.patch
+Patch0266:      0266-man-fix-typo-in-systemd-fsck.patch
+Patch0267:      0267-timesyncd-enable-timesyncd-in-virtual-machines.patch
+Patch0268:      0268-journal-reword-msg-about-enforced-size-limits-a-bit.patch
+Patch0269:      0269-journal-verify-don-t-hit-SIGFPE-when-determining-pro.patch
+Patch0270:      0270-journal-avoid-mapping-empty-data-and-field-hash-tabl.patch
+Patch0271:      0271-journal-when-verifying-journal-files-handle-empty-on.patch
+Patch0272:      0272-journal-explain-the-error-when-we-find-a-non-DATA-ob.patch
+Patch0273:      0273-journalctl-properly-detect-empty-journal-files.patch
+Patch0274:      0274-journal-uppercase-first-character-in-verify-error-me.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1124,6 +1162,14 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Aug  4 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@foobar.org> - 219-21
+- Backport of touchpad hwdb from systemd 220
+- Backport of journal fixes for verification of empty journal files (#1244958)
+- Update of other parts of the hwdb to the latest version from upstream
+- Typo fixes and clarifications in the documentation
+- timesyncd will be started on non-container virtual machines (#1249419)
+- SELinux check is also applied on units which were not loaded previously
+
 * Sat Jul 25 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 219-20
 - Fix /dev/disk/by-id/wwn-* links (#1227503)
   For backwards compatibility with previous releases of systemd in F22,

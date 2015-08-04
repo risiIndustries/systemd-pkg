@@ -1,0 +1,30 @@
+From cb3d6261d4ca71c4a21c8bd575e977565ed72fea Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 28 Jul 2015 08:17:04 +1000
+Subject: [PATCH] hwdb: add min/max/resolution override for Appletouch
+ one-button touchpads
+
+Macbook2,1, late 2006 model.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1246651
+(cherry picked from commit 47b84eac21fd9e1a9e317df28d862927a7e814d5)
+---
+ hwdb/60-evdev.hwdb | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index c6942bab8f..ca82f8a512 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -43,6 +43,11 @@
+ # Apple
+ #########################################
+ 
++#  Macbook2,1 (late 2006), single-button touchpad
++evdev:input:b0003v05ACp021B*
++ EVDEV_ABS_00=256:1471:12
++ EVDEV_ABS_01=256:831:12
++
+ # Macbook5,1 (unibody), aka wellspring3
+ evdev:input:b0003v05ACp0236*
+ evdev:input:b0003v05ACp0237*

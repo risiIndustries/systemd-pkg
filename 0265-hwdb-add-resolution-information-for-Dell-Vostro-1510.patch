@@ -1,0 +1,32 @@
+From fc432393a695311ebe9c784eb2877dd07c852af5 Mon Sep 17 00:00:00 2001
+From: Alastair Hughes <hobbitalastair@gmail.com>
+Date: Sat, 1 Aug 2015 20:03:51 +1200
+Subject: [PATCH] hwdb: add resolution information for Dell Vostro 1510
+ touchpad
+
+Dell Vostro 1510, AlpsPS/2 ALPS GlidePoint touchpad.
+
+Relevant issue: #763
+
+(cherry picked from commit 8d51633304cc460eddf617d9404da7f4f9fadd73)
+---
+ hwdb/60-evdev.hwdb | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index ca82f8a512..ea7e6fee54 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -117,3 +117,12 @@ evdev:name:Atmel maXTouch Touch*:dmi:bvn*:bvr*:bd*:svnGOOGLE:pnSamus*
+ evdev:name:SynPS/2 Synaptics TouchPad:dmi:*svnLENOVO*:pn*ThinkPad*X230*
+  EVDEV_ABS_01=::100
+  EVDEV_ABS_36=::100
++
++#########################################
++# Dell
++#########################################
++
++# Dell Vostro 1510
++evdev:name:AlpsPS/2 ALPS GlidePoint*:dmi:bvn*:bvr*:bd*:svnDellInc.:pnVostro1510*
++ EVDEV_ABS_00=::14
++ EVDEV_ABS_01=::18

@@ -1,0 +1,67 @@
+From 60b5bfa646c1fdc8ab4478c7a29bd2e6aadf0cdc Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 23 Mar 2015 10:18:42 +1000
+Subject: [PATCH] hwdb: set the resolution for a couple of bcm5974 touchpads
+
+Verified for the 5,1 Macbook, the others are guesses based on the list of
+supported devices of the moshi trackpad protector.
+http://www.moshi.com/trackpad-protector-trackguard-macbook-pro#silver
+
+Resolution calculated based on the min/max settings set in the kernel driver,
+divided by the physical size. This is probably slightly off, but still better
+than no resolution at all.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 3ebc2dc49837e38288e1bcaa0f1632cc6c897232)
+---
+ hwdb/60-evdev.hwdb | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index ad2d09e721..ae483aaf51 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -35,3 +35,43 @@
+ # fields of the struct input_absinfo as listed in linux/input.h.
+ # If a field is missing the field will be left as-is. Not all fields need to
+ # be present. e.g. ::45 sets the resolution to 45 units/mm.
++
++# Macbook5,1 (unibody), aka wellspring3
++evdev:input:b0003v05ACp0236*
++evdev:input:b0003v05ACp0237*
++evdev:input:b0003v05ACp0238*
++ EVDEV_ABS_00=::92
++ EVDEV_ABS_01=::90
++ EVDEV_ABS_35=::92
++ EVDEV_ABS_36=::90
++
++# Macbook8 (unibody, March 2011)
++evdev:input:b0003v05ACp0245*
++evdev:input:b0003v05ACp0246*
++evdev:input:b0003v05ACp0247*
++ EVDEV_ABS_00=::92
++ EVDEV_ABS_01=::91
++ EVDEV_ABS_35=::92
++ EVDEV_ABS_36=::91
++
++# Macbook8,2 (unibody)
++evdev:input:b0003v05ACp0252*
++evdev:input:b0003v05ACp0253*
++evdev:input:b0003v05ACp0254*
++ EVDEV_ABS_00=::94
++ EVDEV_ABS_01=::92
++ EVDEV_ABS_35=::94
++ EVDEV_ABS_36=::92
++
++# MacbookPro10,1 (unibody, June 2012)
++evdev:input:b0003v05ACp0259*
++evdev:input:b0003v05ACp025a*
++evdev:input:b0003v05ACp025b*
++# MacbookPro10,2 (unibody, October 2012)
++evdev:input:b0003v05ACp0259*
++evdev:input:b0003v05ACp025a*
++evdev:input:b0003v05ACp025b*
++ EVDEV_ABS_00=::94
++ EVDEV_ABS_01=::92
++ EVDEV_ABS_35=::94
++ EVDEV_ABS_36=::92

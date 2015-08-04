@@ -1,0 +1,44 @@
+From 0d8f03f356e482f20f872895f0fc272cb966b1de Mon Sep 17 00:00:00 2001
+From: Daniel Mack <daniel@zonque.org>
+Date: Tue, 28 Jul 2015 13:58:40 +0200
+Subject: [PATCH] udev: check more builtins[] pointers before dereferencing
+
+Fix some more locations where pointers from builtins[] are dereferenced
+before checking. Related to 8cacf69b1.
+
+(cherry picked from commit f89d10ae45107c675adbe02e2b1878ee0f5af5ee)
+---
+ src/udev/udev-builtin.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/udev/udev-builtin.c b/src/udev/udev-builtin.c
+index 66a699db94..faa6fd04ba 100644
+--- a/src/udev/udev-builtin.c
++++ b/src/udev/udev-builtin.c
+@@ -93,10 +93,16 @@ void udev_builtin_list(struct udev *udev) {
+ }
+ 
+ const char *udev_builtin_name(enum udev_builtin_cmd cmd) {
++        if (!builtins[cmd])
++                return NULL;
++
+         return builtins[cmd]->name;
+ }
+ 
+ bool udev_builtin_run_once(enum udev_builtin_cmd cmd) {
++        if (!builtins[cmd])
++                return -EOPNOTSUPP;
++
+         return builtins[cmd]->run_once;
+ }
+ 
+@@ -120,6 +126,9 @@ int udev_builtin_run(struct udev_device *dev, enum udev_builtin_cmd cmd, const c
+         int argc;
+         char *argv[128];
+ 
++        if (!builtins[cmd])
++                return -EOPNOTSUPP;
++
+         /* we need '0' here to reset the internal state */
+         optind = 0;
+         strscpy(arg, sizeof(arg), command);

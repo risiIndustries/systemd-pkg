@@ -1,0 +1,84 @@
+From aed2e647a3ad0af9538d6062d63498f453e3e9a9 Mon Sep 17 00:00:00 2001
+From: Marcel Holtmann <marcel@holtmann.org>
+Date: Tue, 7 Jul 2015 19:22:10 +0200
+Subject: [PATCH] hwdb: Update database of Bluetooth company identifiers
+
+(cherry picked from commit 680198d6a1ec08938fff1676cc5476125a0e9581)
+---
+ hwdb/20-bluetooth-vendor-product.hwdb | 66 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
+
+diff --git a/hwdb/20-bluetooth-vendor-product.hwdb b/hwdb/20-bluetooth-vendor-product.hwdb
+index b737e6b308..dccced77da 100644
+--- a/hwdb/20-bluetooth-vendor-product.hwdb
++++ b/hwdb/20-bluetooth-vendor-product.hwdb
+@@ -1706,3 +1706,69 @@ bluetooth:v0235*
+ 
+ bluetooth:v0236*
+  ID_VENDOR_FROM_DATABASE=Pitpatpet Ltd
++
++bluetooth:v0237*
++ ID_VENDOR_FROM_DATABASE=MSHeli s.r.l.
++
++bluetooth:v0238*
++ ID_VENDOR_FROM_DATABASE=Trakm8 Ltd
++
++bluetooth:v0239*
++ ID_VENDOR_FROM_DATABASE=JIN CO, Ltd
++
++bluetooth:v023A*
++ ID_VENDOR_FROM_DATABASE=Alatech Technology
++
++bluetooth:v023B*
++ ID_VENDOR_FROM_DATABASE=Beijing CarePulse Electronic Technology Co, Ltd
++
++bluetooth:v023C*
++ ID_VENDOR_FROM_DATABASE=Awarepoint
++
++bluetooth:v023D*
++ ID_VENDOR_FROM_DATABASE=ViCentra B.V.
++
++bluetooth:v023E*
++ ID_VENDOR_FROM_DATABASE=Raven Industries
++
++bluetooth:v023F*
++ ID_VENDOR_FROM_DATABASE=WaveWare Technologies
++
++bluetooth:v0240*
++ ID_VENDOR_FROM_DATABASE=Argenox Technologies
++
++bluetooth:v0241*
++ ID_VENDOR_FROM_DATABASE=Bragi GmbH
++
++bluetooth:v0242*
++ ID_VENDOR_FROM_DATABASE=16Lab Inc
++
++bluetooth:v0243*
++ ID_VENDOR_FROM_DATABASE=Masimo Corp
++
++bluetooth:v0244*
++ ID_VENDOR_FROM_DATABASE=Iotera Inc.
++
++bluetooth:v0245*
++ ID_VENDOR_FROM_DATABASE=Endress+Hauser
++
++bluetooth:v0246*
++ ID_VENDOR_FROM_DATABASE=ACKme Networks, Inc.
++
++bluetooth:v0247*
++ ID_VENDOR_FROM_DATABASE=FiftyThree Inc.
++
++bluetooth:v0248*
++ ID_VENDOR_FROM_DATABASE=Parker Hannifin Corp
++
++bluetooth:v0249*
++ ID_VENDOR_FROM_DATABASE=Transcranial Ltd
++
++bluetooth:v024A*
++ ID_VENDOR_FROM_DATABASE=Uwatec AG
++
++bluetooth:v024B*
++ ID_VENDOR_FROM_DATABASE=Orlan LLC
++
++bluetooth:v024C*
++ ID_VENDOR_FROM_DATABASE=Blue Clover Devices

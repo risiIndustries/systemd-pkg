@@ -1,0 +1,30 @@
+From dc9c3af13150c6fb21a196a26dc250cfcc26bf0f Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 23 Jul 2015 02:04:19 +0200
+Subject: [PATCH] journal: reword msg about enforced size limits a bit
+
+http://lists.freedesktop.org/archives/systemd-devel/2015-July/033574.html
+(cherry picked from commit da2e288bbc4d8cebaa1d38a80f6eec8cde3e9cce)
+---
+ src/journal/journald-server.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index 903ce10cf6..365a72b348 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -174,9 +174,11 @@ static uint64_t available_space(Server *s, bool verbose) {
+                         fb4[FORMAT_BYTES_MAX], fb5[FORMAT_BYTES_MAX];
+ 
+                 server_driver_message(s, SD_MESSAGE_JOURNAL_USAGE,
+-                                      "%s journal is using %s (max allowed %s, "
+-                                      "trying to leave %s free of %s available → current limit %s).",
+-                                      s->system_journal ? "Permanent" : "Runtime",
++                                      "%s is currently using %s.\n"
++                                      "Maximum allowed usage is set to %s.\n"
++                                      "Leaving at least %s free (of currently available %s of space).\n"
++                                      "Enforced usage limit is thus %s.",
++                                      s->system_journal ? "Permanent journal (/var/log/journal/)" : "Runtime journal (/run/log/journal/)",
+                                       format_bytes(fb1, sizeof(fb1), sum),
+                                       format_bytes(fb2, sizeof(fb2), m->max_use),
+                                       format_bytes(fb3, sizeof(fb3), m->keep_free),

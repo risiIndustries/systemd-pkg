@@ -1,0 +1,26 @@
+From 7176a84cb69e40a132bbcad0ddfbeef7cb3b8c16 Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martin.pitt@ubuntu.com>
+Date: Sun, 26 Jul 2015 15:37:42 +0200
+Subject: [PATCH] networkd-wait-online: fix -i argument
+
+-i (aka --interface) takes an argument. Tell getopt_long() that, so that optarg
+isn't NULL.
+
+(cherry picked from commit baee30afce50b611724e6c6a4ca61a4469b11d9d)
+---
+ src/network/networkd-wait-online.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/network/networkd-wait-online.c b/src/network/networkd-wait-online.c
+index f0ca6def87..c5af348a18 100644
+--- a/src/network/networkd-wait-online.c
++++ b/src/network/networkd-wait-online.c
+@@ -67,7 +67,7 @@ static int parse_argv(int argc, char *argv[]) {
+         assert(argc >= 0);
+         assert(argv);
+ 
+-        while ((c = getopt_long(argc, argv, "+hiq", options, NULL)) >= 0)
++        while ((c = getopt_long(argc, argv, "+hi:q", options, NULL)) >= 0)
+ 
+                 switch (c) {
+ 

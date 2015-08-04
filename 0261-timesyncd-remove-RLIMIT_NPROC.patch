@@ -1,0 +1,28 @@
+From 075954e049dbadc9c4d6b0dfad0418fabb3bc829 Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Fri, 31 Jul 2015 15:33:49 +0200
+Subject: [PATCH] timesyncd: remove RLIMIT_NPROC
+
+NSS plugins might create additional threads. Remove the limit, we cannot
+really make any assumptions here.
+
+(cherry picked from commit b506d3141b97d0a3fbda461f4b8d9d64f46408d1)
+---
+ src/timesync/timesyncd.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/timesync/timesyncd.c b/src/timesync/timesyncd.c
+index 2a73dac033..f7e089fc0c 100644
+--- a/src/timesync/timesyncd.c
++++ b/src/timesync/timesyncd.c
+@@ -113,10 +113,6 @@ int main(int argc, char *argv[]) {
+         if (r < 0)
+                 goto finish;
+ 
+-        /* We need one process for ourselves, plus one thread for the asynchronous resolver */
+-        if (setrlimit(RLIMIT_NPROC, &RLIMIT_MAKE_CONST(2)) < 0)
+-                log_warning_errno(errno, "Failed to lower RLIMIT_NPROC to 2: %m");
+-
+         assert_se(sigprocmask_many(SIG_BLOCK, SIGTERM, SIGINT, -1) == 0);
+ 
+         r = manager_new(&m);

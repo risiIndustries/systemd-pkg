@@ -1,0 +1,23 @@
+From 5818ab38b66b8043b153162ab01c91c53a1ffe44 Mon Sep 17 00:00:00 2001
+From: Michael Biebl <biebl@debian.org>
+Date: Sun, 2 Aug 2015 22:22:15 +0200
+Subject: [PATCH] man: fix typo in systemd-fsck@
+
+(cherry picked from commit 349ca6e68b3fdef41f8372bd1b8528736809a123)
+---
+ man/systemd-fsck@.service.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/systemd-fsck@.service.xml b/man/systemd-fsck@.service.xml
+index 88e11e89d4..c3ba0dbdc2 100644
+--- a/man/systemd-fsck@.service.xml
++++ b/man/systemd-fsck@.service.xml
+@@ -61,7 +61,7 @@
+     responsible for file system checks. They are instantiated for each
+     device that is configured for file system checking.
+     <filename>systemd-fsck-root.service</filename> is responsible for
+-    file system checks on the root file system, but in only if the
++    file system checks on the root file system, but only if the
+     root filesystem wasn't checked in the initramfs.
+     <filename>systemd-fsck@.service</filename> is used for all other
+     file systems and for the root file system in the initramfs.</para>
