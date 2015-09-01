@@ -318,6 +318,7 @@ Patch0272:      0272-journal-explain-the-error-when-we-find-a-non-DATA-ob.patch
 Patch0273:      0273-journalctl-properly-detect-empty-journal-files.patch
 Patch0274:      0274-journal-uppercase-first-character-in-verify-error-me.patch
 Patch0275:      0275-logind-rework-display-counting-when-detecting-whethe.patch
+Patch0276:      0276-systemctl-fix-edit-when-EDITOR-contains-arguments.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1165,6 +1166,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Tue Sep  1 2015 Jan Synáček <jsynacek@redhat.com> - 219-22
 - Fix: Laptop sometimes doesn't suspend when the lid is closed (#1249822)
+- Fix: systemctl edit falls back to 'nano' when EDITOR contains spaces (#1231949)
 
 * Tue Aug  4 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@foobar.org> - 219-21
 - Backport of touchpad hwdb from systemd 220

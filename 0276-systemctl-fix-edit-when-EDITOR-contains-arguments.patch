@@ -1,0 +1,69 @@
+From b2e3750ac0154c1549270bae36de8575949dd1a8 Mon Sep 17 00:00:00 2001
+From: Fedora systemd team <systemd-maint@redhat.com>
+Date: Tue, 1 Sep 2015 08:44:54 +0200
+Subject: [PATCH] systemctl: fix edit when EDITOR contains arguments
+
+Correctly support cases when the EDITOR environment variable and friends
+also contain arguments. For example, to run emacs in terminal only, one
+can say:
+
+EDITOR="emacs -nw" systemctl edit myservice
+
+(commit cherry-picked from 9ef5d8f2cb1ea25eb83d741dfd8a9d393757b6db)
+---
+ src/systemctl/systemctl.c | 29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 089c25f..6251eb5 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -5869,9 +5869,9 @@ static int run_editor(char **paths) {
+         if (pid == 0) {
+                 const char **args;
+                 char **backup_editors = STRV_MAKE("nano", "vim", "vi");
+-                char *editor;
++                char *editor, **editor_args = NULL;
+                 char **tmp_path, **original_path, **p;
+-                unsigned i = 1;
++                unsigned n_editor_args = 0, i = 1;
+                 size_t argc;
+ 
+                 argc = strv_length(paths)/2 + 1;
+@@ -5895,10 +5895,31 @@ static int run_editor(char **paths) {
+                         editor = getenv("VISUAL");
+ 
+                 if (!isempty(editor)) {
+-                        args[0] = editor;
+-                        execvp(editor, (char* const*) args);
++                        editor_args = strv_split(editor, WHITESPACE);
++                        if (!editor_args) {
++                                (void) log_oom();
++                                _exit(EXIT_FAILURE);
++                        }
++                        n_editor_args = strv_length(editor_args);
++                        argc += n_editor_args - 1;
++                }
++                args = newa(const char*, argc + 1);
++
++                if (n_editor_args > 0) {
++                        args[0] = editor_args[0];
++                        for (; i < n_editor_args; i++)
++                                args[i] = editor_args[i];
+                 }
+ 
++                STRV_FOREACH_PAIR(original_path, tmp_path, paths) {
++                        args[i] = *tmp_path;
++                        i++;
++                }
++                args[i] = NULL;
++
++                if (n_editor_args > 0)
++                        execvp(args[0], (char* const*) args);
++
+                 STRV_FOREACH(p, backup_editors) {
+                         args[0] = *p;
+                         execvp(*p, (char* const*) args);
+-- 
+2.4.3
+
