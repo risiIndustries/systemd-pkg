@@ -1,0 +1,34 @@
+From 4d46bbf889fb920747a5559445e27bc1dbed98a3 Mon Sep 17 00:00:00 2001
+From: Fedora systemd team <systemd-maint@redhat.com>
+Date: Tue, 1 Sep 2015 08:56:58 +0200
+Subject: [PATCH] sysctl: bump loglevel and reword
+
+bump loglevel when attempting to write invalid values
+
+Let's make this less dramatic, in order to not confuse people too much
+making them think that this was something to actually fix.
+
+Backported from 9bcfdd74fc414f48a3c12d16c17c3e31102a0f62 and
+384c5b44fe9bc95333af2e6bdbe86bd5d58d046b.
+---
+ src/sysctl/sysctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/sysctl/sysctl.c b/src/sysctl/sysctl.c
+index 98b146a..b201c79 100644
+--- a/src/sysctl/sysctl.c
++++ b/src/sysctl/sysctl.c
+@@ -80,8 +80,8 @@ static int apply_sysctl(const char *property, const char *value) {
+ 
+         k = write_string_file(p, value);
+         if (k < 0) {
+-                log_full(k == -ENOENT ? LOG_DEBUG : LOG_WARNING,
+-                         "Failed to write '%s' to '%s': %s", value, p, strerror(-k));
++                log_full(k == -ENOENT ? LOG_INFO : LOG_WARNING,
++                         "Couldn't write '%s' to '%s', ignoring: %m", value, property);
+ 
+                 if (k != -ENOENT && r == 0)
+                         r = k;
+-- 
+2.4.3
+
