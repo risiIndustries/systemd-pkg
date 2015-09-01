@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        21%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        22%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -317,6 +317,7 @@ Patch0271:      0271-journal-when-verifying-journal-files-handle-empty-on.patch
 Patch0272:      0272-journal-explain-the-error-when-we-find-a-non-DATA-ob.patch
 Patch0273:      0273-journalctl-properly-detect-empty-journal-files.patch
 Patch0274:      0274-journal-uppercase-first-character-in-verify-error-me.patch
+Patch0275:      0275-logind-rework-display-counting-when-detecting-whethe.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1162,6 +1163,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Sep  1 2015 Jan Synáček <jsynacek@redhat.com> - 219-22
+- Fix: Laptop sometimes doesn't suspend when the lid is closed (#1249822)
+
 * Tue Aug  4 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@foobar.org> - 219-21
 - Backport of touchpad hwdb from systemd 220
 - Backport of journal fixes for verification of empty journal files (#1244958)
