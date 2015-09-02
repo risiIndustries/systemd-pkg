@@ -1,0 +1,27 @@
+From 2ef555d69a6a6c19897344dd11d7cd3a7c46af64 Mon Sep 17 00:00:00 2001
+From: Jan Synacek <jsynacek@redhat.com>
+Date: Tue, 1 Sep 2015 14:21:37 +0200
+Subject: [PATCH] man: *.d conf directories: add note about initrd regeneration
+
+---
+ man/standard-conf.xml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/man/standard-conf.xml b/man/standard-conf.xml
+index 004f53f..ffc6f76 100644
+--- a/man/standard-conf.xml
++++ b/man/standard-conf.xml
+@@ -30,7 +30,9 @@
+     the vendor, the recommended way is to place a symlink to
+     <filename>/dev/null</filename> in the configuration directory in
+     <filename>/etc/</filename>, with the same filename as the vendor
+-    configuration file.</para>
++    configuration file. If the vendor configuration file is included in
++    the initrd image, the image has to be regenerated.</para>
++
+   </refsection>
+ 
+   <refsection id='main-conf'>
+-- 
+2.4.3
+

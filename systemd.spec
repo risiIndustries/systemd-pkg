@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        22%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        23%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -321,6 +321,7 @@ Patch0275:      0275-logind-rework-display-counting-when-detecting-whethe.patch
 Patch0276:      0276-systemctl-fix-edit-when-EDITOR-contains-arguments.patch
 Patch0277:      0277-sysctl-bump-loglevel-and-reword.patch
 Patch0278:      0278-journalctl-make-sure-journalctl-f-t-unmatched-blocks.patch
+Patch0279:      0279-man-.d-conf-directories-add-note-about-initrd-regene.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1166,6 +1167,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Wed Sep  2 2015 Jan Synáček <jsynacek@redhat.com> - 219-23
+- Fix: Document the need to regenerate initrd in order to mask files under /usr (#1256966)
+
 * Tue Sep  1 2015 Jan Synáček <jsynacek@redhat.com> - 219-22
 - Fix: Laptop sometimes doesn't suspend when the lid is closed (#1249822)
 - Fix: systemctl edit falls back to 'nano' when EDITOR contains spaces (#1231949)
