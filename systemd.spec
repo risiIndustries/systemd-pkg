@@ -322,6 +322,7 @@ Patch0276:      0276-systemctl-fix-edit-when-EDITOR-contains-arguments.patch
 Patch0277:      0277-sysctl-bump-loglevel-and-reword.patch
 Patch0278:      0278-journalctl-make-sure-journalctl-f-t-unmatched-blocks.patch
 Patch0279:      0279-man-.d-conf-directories-add-note-about-initrd-regene.patch
+Patch0280:      0280-keymap-Add-Corsair-K70.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1169,6 +1170,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Mon Sep 14 2015 Jan Synáček <jsynacek@redhat.com> - 219-24
 - Fix: "systemctl edit some.service" is broken (#1262328)
+- Fix: Corsair K70 keyboard 'pipe' key not functioning correctly (#1262132)
 
 * Wed Sep  2 2015 Jan Synáček <jsynacek@redhat.com> - 219-23
 - Fix: Document the need to regenerate initrd in order to mask files under /usr (#1256966)
