@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        23%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        24%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -1167,6 +1167,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon Sep 14 2015 Jan Synáček <jsynacek@redhat.com> - 219-24
+- Fix: "systemctl edit some.service" is broken (#1262328)
+
 * Wed Sep  2 2015 Jan Synáček <jsynacek@redhat.com> - 219-23
 - Fix: Document the need to regenerate initrd in order to mask files under /usr (#1256966)
 
