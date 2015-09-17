@@ -1,0 +1,45 @@
+From ad75a97f7d86ddbc1b8521ae084862013c1713b0 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 22 Jul 2015 22:02:14 +0200
+Subject: [PATCH] tmpfiles: downgrade errors when a file system does not
+ support file attributes
+
+This downgrades errors from setting file attributes via tmpfiles to
+warnings and makes them non-fatal.
+
+Also, as a special case, if a file system does not support file
+attributes at all, then the message is downgraded to debug, so that it
+is not seen at all.
+
+With this change reiserfs should not see any messages at all anymore
+(since it apparently does not implement file attributes at all), but XFS
+will still get a warning but no failure. The warning is something the
+XFS kernel folks should fix though, by adjusting their file attributes
+behaviour to be identical to ext234's.
+
+Fixes #560.
+---
+ src/tmpfiles/tmpfiles.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/tmpfiles/tmpfiles.c b/src/tmpfiles/tmpfiles.c
+index 42f757c..271984b 100644
+--- a/src/tmpfiles/tmpfiles.c
++++ b/src/tmpfiles/tmpfiles.c
+@@ -955,9 +955,10 @@ static int path_set_attribute(Item *item, const char *path) {
+ 
+         r = chattr_fd(fd, f, item->attribute_mask);
+         if (r < 0)
+-                return log_error_errno(r,
+-                        "Cannot set file attribute for '%s', value=0x%08x, mask=0x%08x: %m",
+-                        path, item->attribute_value, item->attribute_mask);
++                log_full_errno(r == -ENOTTY ? LOG_DEBUG : LOG_WARNING,
++                               r,
++                               "Cannot set file attribute for '%s', value=0x%08x, mask=0x%08x: %m",
++                               path, item->attribute_value, item->attribute_mask);
+ 
+         return 0;
+ }
+-- 
+2.4.3
+

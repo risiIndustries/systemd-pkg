@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        2%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        3%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -35,6 +35,7 @@ Source9:        20-yama-ptrace.conf
 # Patch series is available from http://cgit.freedesktop.org/systemd/systemd-stable/log/?h=v220-stable
 # GIT_DIR=~/src/systemd/.git git format-patch-ab -M -N --no-signature v220..v220-stable
 # i=1; for p in 0*patch;do printf "Patch%04d:      %s\n" $i $p; ((i++));done
+Patch0001:      0001-tmpfiles-downgrade-errors-when-a-file-system-does-no.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -767,6 +768,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Sep 17 2015 Jan Synáček <jsynacek@redhat.com> - 222-3
+- Fix: systemd-tmpfiles-setup.service fails on 23 Alpha RC1 Server (#1250737)
+
 * Thu Jul  9 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 222-2
 - Remove python subpackages (python-systemd in now standalone)
 
