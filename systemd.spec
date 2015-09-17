@@ -38,6 +38,7 @@ Source9:        20-yama-ptrace.conf
 Patch0001:      0001-tmpfiles-downgrade-errors-when-a-file-system-does-no.patch
 Patch0002:      0002-load-fragment-fix-segv-on-parse-error.patch
 Patch0003:      0003-man-clarify-that-unknown-escapes-must-be-escaped.patch
+Patch0004:      0004-keymap-Add-Corsair-K70.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -773,6 +774,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 * Thu Sep 17 2015 Jan Synáček <jsynacek@redhat.com> - 222-3
 - Fix: systemd-tmpfiles-setup.service fails on 23 Alpha RC1 Server (#1250737)
 - Fix: Upgrading from 22 to 23 by fedup fails (#1251334)
+- Fix: Corsair K70 keyboard 'pipe' key not functioning correctly (#1262132)
 
 * Thu Jul  9 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 222-2
 - Remove python subpackages (python-systemd in now standalone)
