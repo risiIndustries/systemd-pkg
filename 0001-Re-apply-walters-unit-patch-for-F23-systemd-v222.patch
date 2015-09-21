@@ -1,0 +1,45 @@
+From c40bef16bf3e63a42718260b4633cb2d682984d8 Mon Sep 17 00:00:00 2001
+From: Adam Miller <admiller@redhat.com>
+Date: Fri, 18 Sep 2015 17:57:35 -0500
+Subject: [PATCH 2/2] Re-apply walters' unit patch for F23/systemd-v222
+
+Originally in the f22 fedpkg/distgit branch with commit id:
+    9bbe0e92dc59d5a42258c729b105a7d9901eb35e
+
+[PATCH] unit: When stopping due to BindsTo=, log which unit caused it
+
+I'm trying to track down a relatively recent change in systemd
+which broke OSTree; see
+https://bugzilla.gnome.org/show_bug.cgi?id=743891
+
+Systemd started to stop sysroot.mount, and this patch should help
+me debug why at least.
+---
+ src/core/unit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index fac017c..0a66a6a 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1641,7 +1641,7 @@ static void unit_check_unneeded(Unit *u) {
+ 
+ static void unit_check_binds_to(Unit *u) {
+         bool stop = false;
+-        Unit *other;
++        Unit *other = NULL;
+         Iterator i;
+         int r;
+ 
+@@ -1676,7 +1676,7 @@ static void unit_check_binds_to(Unit *u) {
+         }
+ 
+         assert(other);
+-        log_unit_info(u, "Unit is bound to inactive unit %s. Stopping, too.", other->id);
++        log_unit_info(u->id, "Unit %s is bound to inactive unit %s. Stopping, too.", u->id, other->id);
+ 
+         /* A unit we need to run is gone. Sniff. Let's stop this. */
+         r = manager_add_job(u->manager, JOB_STOP, u, JOB_FAIL, true, NULL, NULL);
+-- 
+2.4.3
+

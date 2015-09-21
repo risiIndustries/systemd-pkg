@@ -1,0 +1,27 @@
+From eade863e97e0a09daefd844728c7f5a25a914924 Mon Sep 17 00:00:00 2001
+From: Adam Miller <admiller@redhat.com>
+Date: Fri, 18 Sep 2015 17:55:19 -0500
+Subject: [PATCH 1/2] Revert "core/mount: add dependencies to dynamically
+ mounted mounts too"
+
+This reverts commit 06e97888883e2cc12eb6514e80c7f0014295f59b.
+---
+ src/core/mount.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 851b413..87c4088 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -304,7 +304,7 @@ static int mount_add_device_links(Mount *m) {
+ 
+         assert(m);
+ 
+-        p = get_mount_parameters(m);
++        p = get_mount_parameters_fragment(m);
+         if (!p)
+                 return 0;
+ 
+-- 
+2.4.3
+

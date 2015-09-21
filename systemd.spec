@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        4%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        5%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -39,6 +39,9 @@ Patch0001:      0001-tmpfiles-downgrade-errors-when-a-file-system-does-no.patch
 Patch0002:      0002-load-fragment-fix-segv-on-parse-error.patch
 Patch0003:      0003-man-clarify-that-unknown-escapes-must-be-escaped.patch
 Patch0004:      0004-keymap-Add-Corsair-K70.patch
+
+Patch998: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
+Patch999: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -771,6 +774,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Fri Sep 18 2015 Adam Miller <maxamillion@fedoraproject.org> - 222-5
+- Re-revert patch from walters that breaks Atomic/OSTree (#1195761)
+
 * Fri Sep 18 2015 Jan Synáček <jsynacek@redhat.com> - 222-4
 - Fix: user systemd-journal-upload should be in systemd-journal group (#1262743)
 
