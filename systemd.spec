@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        5%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        6%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -823,6 +823,12 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Fri Sep 25 2015 Michal Sekletar <msekleta@redhat.com> - 222-6
+- Scope units will not get killed immediately during shutdown (#1170765)
+- Fix comparison function for priority queue (#1202598)
+- Conflict with chkconfig < 1.5 (#1226908)
+- Assorted bugfixes
+
 * Fri Sep 18 2015 Adam Miller <maxamillion@fedoraproject.org> - 222-5
 - Re-revert patch from walters that breaks Atomic/OSTree (#1195761)
 
