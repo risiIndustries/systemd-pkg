@@ -123,6 +123,7 @@ Obsoletes:      systemd-sysv < 206
 Provides:       systemd-sysv = 206
 Conflicts:      initscripts < 9.56.1
 Conflicts:      fedora-release < 23-0.12
+Conflicts:      chkconfig < 1.5
 
 %description
 systemd is a system and service manager for Linux, compatible with
