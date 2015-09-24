@@ -1,0 +1,33 @@
+From 612d18e4b329cb362d494ddf28553ae82406f01d Mon Sep 17 00:00:00 2001
+From: "Owen W. Taylor" <otaylor@fishsoup.net>
+Date: Tue, 18 Aug 2015 14:41:24 -0400
+Subject: [PATCH 31/47] logind: use open_terminal() instead of open()
+
+The open_terminal() function adds retries in case a terminal
+is in the process of being closed when we open it, and should
+generally be used to open a terminal. We especially need it
+for code that a subsequent commit adds that reopens the terminal
+at session shut-down time; such races would be more likely in
+that case.
+
+Found by Ray Strode.
+---
+ src/login/logind-session.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index 6a450b0..a8e667b 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -975,7 +975,7 @@ static int session_open_vt(Session *s) {
+                 return s->vtfd;
+ 
+         sprintf(path, "/dev/tty%u", s->vtnr);
+-        s->vtfd = open(path, O_RDWR | O_CLOEXEC | O_NONBLOCK | O_NOCTTY);
++        s->vtfd = open_terminal(path, O_RDWR | O_CLOEXEC | O_NONBLOCK | O_NOCTTY);
+         if (s->vtfd < 0)
+                 return log_error_errno(errno, "cannot open VT %s of session %s: %m", path, s->id);
+ 
+-- 
+2.5.0
+

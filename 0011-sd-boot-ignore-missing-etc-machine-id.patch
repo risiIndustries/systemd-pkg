@@ -1,0 +1,28 @@
+From 633a012f7db23425b55f2d4154a0a710b6079f9a Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Wed, 15 Jul 2015 11:58:03 +0200
+Subject: [PATCH 11/47] sd-boot: ignore missing /etc/machine-id
+
+If /etc/machine-id is missing (eg., gold images), we should not fail
+installing sd-boot. This is a perfectly fine use-case and we should simply
+skip installing the default loader config in that case.
+---
+ src/boot/bootctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/boot/bootctl.c b/src/boot/bootctl.c
+index ed69fb0..faab82d 100644
+--- a/src/boot/bootctl.c
++++ b/src/boot/bootctl.c
+@@ -888,7 +888,7 @@ static int install_loader_config(const char *esp_path) {
+ 
+         f = fopen("/etc/machine-id", "re");
+         if (!f)
+-                return -errno;
++                return errno == ENOENT ? 0 : -errno;
+ 
+         if (fgets(line, sizeof(line), f) != NULL) {
+                 char *s;
+-- 
+2.5.0
+

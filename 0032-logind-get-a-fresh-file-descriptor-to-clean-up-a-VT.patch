@@ -1,0 +1,44 @@
+From 89a1609edd48f08e4227baa2890b96a936cfadb8 Mon Sep 17 00:00:00 2001
+From: "Owen W. Taylor" <otaylor@fishsoup.net>
+Date: Tue, 18 Aug 2015 15:19:05 -0400
+Subject: [PATCH 32/47] logind: get a fresh file descriptor to clean up a VT
+
+When the controlling process exits, any existing file descriptors
+for that FD will be marked as hung-up and ioctls on them will
+file with EIO. To work around this, open a new file descriptor
+for the VT we want to clean up.
+
+Thanks to Ray Strode for help in sorting out the problem and
+coming up with a fix!
+
+https://github.com/systemd/systemd/issues/989
+---
+ src/login/logind-session.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index a8e667b..9abdf62 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -1039,7 +1039,18 @@ void session_restore_vt(Session *s) {
+         int vt, kb = K_XLATE;
+         struct vt_mode mode = { 0 };
+ 
++        /* We need to get a fresh handle to the virtual terminal,
++         * since the old file-descriptor is potentially in a hung-up
++         * state after the controlling process exited; we do a
++         * little dance to avoid having the terminal be available
++         * for reuse before we've cleaned it up.
++         */
++        int old_fd = s->vtfd;
++        s->vtfd = -1;
++
+         vt = session_open_vt(s);
++        safe_close(old_fd);
++
+         if (vt < 0)
+                 return;
+ 
+-- 
+2.5.0
+

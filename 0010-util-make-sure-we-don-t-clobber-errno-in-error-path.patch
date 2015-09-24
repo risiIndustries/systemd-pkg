@@ -1,0 +1,25 @@
+From 6e01dc69d385df006933c4023fae61536cd7793d Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 11 Jul 2015 14:19:36 -0300
+Subject: [PATCH 10/47] util: make sure we don't clobber errno in error path
+
+---
+ src/basic/util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/basic/util.c b/src/basic/util.c
+index 100facb..dffb4a2 100644
+--- a/src/basic/util.c
++++ b/src/basic/util.c
+@@ -2533,7 +2533,7 @@ int fopen_temporary(const char *path, FILE **_f, char **_temp_path) {
+ 
+         f = fdopen(fd, "we");
+         if (!f) {
+-                unlink(t);
++                unlink_noerrno(t);
+                 free(t);
+                 safe_close(fd);
+                 return -errno;
+-- 
+2.5.0
+

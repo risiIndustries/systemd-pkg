@@ -1,0 +1,35 @@
+From 3be473032ef69c211b56bcfb9a558837d4ad8334 Mon Sep 17 00:00:00 2001
+From: Daniel Mack <daniel@zonque.org>
+Date: Tue, 18 Aug 2015 16:26:11 +0200
+Subject: [PATCH 30/47] journal: fix json output of unicode characters
+
+---
+ src/shared/logs-show.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/shared/logs-show.c b/src/shared/logs-show.c
+index 068da46..8550f10 100644
+--- a/src/shared/logs-show.c
++++ b/src/shared/logs-show.c
+@@ -575,7 +575,6 @@ void json_escape(
+         assert(p);
+ 
+         if (!(flags & OUTPUT_SHOW_ALL) && l >= JSON_THRESHOLD)
+-
+                 fputs("null", f);
+ 
+         else if (!utf8_is_printable(p, l)) {
+@@ -605,8 +604,8 @@ void json_escape(
+                                 fputc(*p, f);
+                         } else if (*p == '\n')
+                                 fputs("\\n", f);
+-                        else if (*p < ' ')
+-                                fprintf(f, "\\u%04x", *p);
++                        else if ((uint8_t) *p < ' ')
++                                fprintf(f, "\\u%04x", (uint8_t) *p);
+                         else
+                                 fputc(*p, f);
+ 
+-- 
+2.5.0
+

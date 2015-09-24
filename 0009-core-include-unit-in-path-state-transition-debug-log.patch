@@ -1,0 +1,26 @@
+From d0bf853933a390b2152444a4d449442e696e5990 Mon Sep 17 00:00:00 2001
+From: Vito Caputo <vito.caputo@coreos.com>
+Date: Fri, 10 Jul 2015 16:40:46 -0700
+Subject: [PATCH 09/47] core: include unit in path state transition debug
+ logging.
+
+---
+ src/core/path.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/path.c b/src/core/path.c
+index 6d26d89..20995d9 100644
+--- a/src/core/path.c
++++ b/src/core/path.c
+@@ -426,7 +426,7 @@ static void path_set_state(Path *p, PathState state) {
+                 path_unwatch(p);
+ 
+         if (state != old_state)
+-                log_debug("Changed %s -> %s", path_state_to_string(old_state), path_state_to_string(state));
++                log_unit_debug(UNIT(p), "Changed %s -> %s", path_state_to_string(old_state), path_state_to_string(state));
+ 
+         unit_notify(UNIT(p), state_translation_table[old_state], state_translation_table[state], true);
+ }
+-- 
+2.5.0
+

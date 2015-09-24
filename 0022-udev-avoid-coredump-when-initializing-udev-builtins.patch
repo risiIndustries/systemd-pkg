@@ -1,0 +1,64 @@
+From 7af9382c2dcadebd7633ed858bd6baf211f3d9c0 Mon Sep 17 00:00:00 2001
+From: Lidong Zhong <lzhong@suse.com>
+Date: Tue, 28 Jul 2015 19:07:05 +0800
+Subject: [PATCH 22/47] udev: avoid coredump when initializing udev builtins
+
+If one of the macros(HAVE_BLKID/HAVE_KMOD/HAVE_ACL) is not
+defined, there will be a coredump
+---
+ src/udev/udev-builtin.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/src/udev/udev-builtin.c b/src/udev/udev-builtin.c
+index fabc653..88d1acf 100644
+--- a/src/udev/udev-builtin.c
++++ b/src/udev/udev-builtin.c
+@@ -52,7 +52,7 @@ void udev_builtin_init(struct udev *udev) {
+                 return;
+ 
+         for (i = 0; i < ELEMENTSOF(builtins); i++)
+-                if (builtins[i]->init)
++                if (builtins[i] && builtins[i]->init)
+                         builtins[i]->init(udev);
+ 
+         initialized = true;
+@@ -65,7 +65,7 @@ void udev_builtin_exit(struct udev *udev) {
+                 return;
+ 
+         for (i = 0; i < ELEMENTSOF(builtins); i++)
+-                if (builtins[i]->exit)
++                if (builtins[i] && builtins[i]->exit)
+                         builtins[i]->exit(udev);
+ 
+         initialized = false;
+@@ -75,7 +75,7 @@ bool udev_builtin_validate(struct udev *udev) {
+         unsigned int i;
+ 
+         for (i = 0; i < ELEMENTSOF(builtins); i++)
+-                if (builtins[i]->validate && builtins[i]->validate(udev))
++                if (builtins[i] && builtins[i]->validate && builtins[i]->validate(udev))
+                         return true;
+         return false;
+ }
+@@ -84,7 +84,8 @@ void udev_builtin_list(struct udev *udev) {
+         unsigned int i;
+ 
+         for (i = 0; i < ELEMENTSOF(builtins); i++)
+-                fprintf(stderr, "  %-14s  %s\n", builtins[i]->name, builtins[i]->help);
++                if (builtins[i])
++                        fprintf(stderr, "  %-14s  %s\n", builtins[i]->name, builtins[i]->help);
+ }
+ 
+ const char *udev_builtin_name(enum udev_builtin_cmd cmd) {
+@@ -105,7 +106,7 @@ enum udev_builtin_cmd udev_builtin_lookup(const char *command) {
+         if (pos)
+                 pos[0] = '\0';
+         for (i = 0; i < ELEMENTSOF(builtins); i++)
+-                if (streq(builtins[i]->name, name))
++                if (builtins[i] && streq(builtins[i]->name, name))
+                         return i;
+         return UDEV_BUILTIN_MAX;
+ }
+-- 
+2.5.0
+

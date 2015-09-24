@@ -1,0 +1,46 @@
+From 9a73a3023c5934c88ba1da694c41af4e1c08ff44 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 24 Aug 2015 21:09:49 +0200
+Subject: [PATCH 36/47] systemctl: properly handle empty control group paths in
+ "status"
+
+When showing the status of the "-.slice" slice root unit (whose reported
+cgroup path is ""), we suppressed the cgroup tree so far, because
+skipped it for all unit with an empty cgroup path. Let's fix that, and
+properly handle the empty cgroup path.
+---
+ src/systemctl/systemctl.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 6db4d65..3ee8f20 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -3609,7 +3609,14 @@ static int status_property(const char *name, sd_bus_message *m, UnitStatusInfo *
+                 if (r < 0)
+                         return bus_log_parse_error(r);
+ 
+-                if (!isempty(s)) {
++                if (streq(name, "ControlGroup"))
++                        i->control_group = s;
++                else if (!isempty(s)) {
++                        /* For all but the cgroup path (see above) we
++                         * consider the empty string as unset. For the
++                         * cgroup path the empty string refers to the
++                         * root of the cgroup tree. */
++
+                         if (streq(name, "Id"))
+                                 i->id = s;
+                         else if (streq(name, "LoadState"))
+@@ -3632,8 +3639,6 @@ static int status_property(const char *name, sd_bus_message *m, UnitStatusInfo *
+                                         i->control_group = e;
+                         }
+ #endif
+-                        else if (streq(name, "ControlGroup"))
+-                                i->control_group = s;
+                         else if (streq(name, "StatusText"))
+                                 i->status_text = s;
+                         else if (streq(name, "PIDFile"))
+-- 
+2.5.0
+

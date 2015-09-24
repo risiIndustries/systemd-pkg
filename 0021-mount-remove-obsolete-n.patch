@@ -1,0 +1,55 @@
+From 3b2e469ea0e551f2cf7dd4f1bd597b7277ccbef0 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Tue, 28 Jul 2015 11:31:45 +0200
+Subject: [PATCH 21/47] mount: remove obsolete -n
+
+It seems that systemd still uses legacy -n option. The option has been
+originally designed to avoid write to /etc/mtab during boot when root
+FS is not ready or read-only.
+
+This is not necessary for long time, because /etc/mtab is not a real
+file (it's symlink) and write to the file is impossible. All utils
+should be able to detect the symlink and ignore mtab. This concept is
+supported for very long time before systemd.
+
+The userspase mount options are currently maintained by libmount
+(mount(8) and mount.nfs) in /run/mount) which is tmpfs initialized
+during early boot.
+---
+ src/core/mount.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 87c4088..6a40417 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -834,8 +834,6 @@ static void mount_enter_unmounting(Mount *m) {
+         m->control_command = m->exec_command + MOUNT_EXEC_UNMOUNT;
+ 
+         r = exec_command_set(m->control_command, UMOUNT_PATH, m->where, NULL);
+-        if (r >= 0 && UNIT(m)->manager->running_as == MANAGER_SYSTEM)
+-                r = exec_command_append(m->control_command, "-n", NULL);
+         if (r < 0)
+                 goto fail;
+ 
+@@ -886,8 +884,6 @@ static void mount_enter_mounting(Mount *m) {
+ 
+                 r = exec_command_set(m->control_command, MOUNT_PATH,
+                                      m->parameters_fragment.what, m->where, NULL);
+-                if (r >= 0 && UNIT(m)->manager->running_as == MANAGER_SYSTEM)
+-                        r = exec_command_append(m->control_command, "-n", NULL);
+                 if (r >= 0 && m->sloppy_options)
+                         r = exec_command_append(m->control_command, "-s", NULL);
+                 if (r >= 0 && m->parameters_fragment.fstype)
+@@ -934,8 +930,6 @@ static void mount_enter_remounting(Mount *m) {
+                 r = exec_command_set(m->control_command, MOUNT_PATH,
+                                      m->parameters_fragment.what, m->where,
+                                      "-o", o, NULL);
+-                if (r >= 0 && UNIT(m)->manager->running_as == MANAGER_SYSTEM)
+-                        r = exec_command_append(m->control_command, "-n", NULL);
+                 if (r >= 0 && m->sloppy_options)
+                         r = exec_command_append(m->control_command, "-s", NULL);
+                 if (r >= 0 && m->parameters_fragment.fstype)
+-- 
+2.5.0
+

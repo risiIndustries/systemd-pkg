@@ -1,0 +1,58 @@
+From 3838f0fac7c2ea7b778b70ce64d449f8b9d1667a Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Thu, 25 Jun 2015 16:44:22 +0200
+Subject: [PATCH 02/47] install: make unit_file_get_list aware of
+ UNIT_FILE_INDIRECT
+
+Commit aedd401 introduced new unit file state, UNIT_FILE_INDIRECT. Unit file is
+said to have indirect state if it contains [Install] section which has only
+Also= directive. Thus, if enable of such unit file is requested then some other
+unit file gets enabled.
+
+Whether or not unit file is in indirect state can be determined by calling
+unit_file_can_install. Function unit_file_get_list populates list of unit files
+present in given lookup location. So far it did call unit_file_can_install in a
+way that would prevent finding out about unit files in indirect state. Such unit
+file would be incorrectly marked as static.
+
+Fixes following assertion in test-install,
+
+Assertion 'p->state == s' failed at src/test/test-install.c:59, function main(). Aborting.
+[1]    26868 abort (core dumped)  ./test-install
+---
+ src/shared/install.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/shared/install.c b/src/shared/install.c
+index c37cf19..3d2b5ae 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -2190,6 +2190,7 @@ int unit_file_get_list(
+                         _cleanup_(unit_file_list_free_onep) UnitFileList *f = NULL;
+                         struct dirent *de;
+                         _cleanup_free_ char *path = NULL;
++                        bool also = false;
+ 
+                         errno = 0;
+                         de = readdir(d);
+@@ -2243,7 +2244,7 @@ int unit_file_get_list(
+                         if (!path)
+                                 return -ENOMEM;
+ 
+-                        r = unit_file_can_install(&paths, root_dir, path, true, NULL);
++                        r = unit_file_can_install(&paths, root_dir, path, true, &also);
+                         if (r == -EINVAL ||  /* Invalid setting? */
+                             r == -EBADMSG || /* Invalid format? */
+                             r == -ENOENT     /* Included file not found? */)
+@@ -2253,7 +2254,7 @@ int unit_file_get_list(
+                         else if (r > 0)
+                                 f->state = UNIT_FILE_DISABLED;
+                         else
+-                                f->state = UNIT_FILE_STATIC;
++                                f->state = also ? UNIT_FILE_INDIRECT : UNIT_FILE_STATIC;
+ 
+                 found:
+                         r = hashmap_put(h, basename(f->path), f);
+-- 
+2.5.0
+

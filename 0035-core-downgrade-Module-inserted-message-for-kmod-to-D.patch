@@ -1,0 +1,27 @@
+From f58e843b388f10748e686ff5b7491d912bf3ecd0 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 21 Aug 2015 15:28:01 +0200
+Subject: [PATCH 35/47] core: downgrade "Module inserted" message for kmod to
+ DEBUG
+
+Closes #919.
+---
+ src/core/kmod-setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/kmod-setup.c b/src/core/kmod-setup.c
+index fc6d2f4..2068ffd 100644
+--- a/src/core/kmod-setup.c
++++ b/src/core/kmod-setup.c
+@@ -112,7 +112,7 @@ int kmod_setup(void) {
+ 
+                 r = kmod_module_probe_insert_module(mod, KMOD_PROBE_APPLY_BLACKLIST, NULL, NULL, NULL, NULL);
+                 if (r == 0)
+-                        log_info("Inserted module '%s'", kmod_module_get_name(mod));
++                        log_debug("Inserted module '%s'", kmod_module_get_name(mod));
+                 else if (r == KMOD_PROBE_APPLY_BLACKLIST)
+                         log_info("Module '%s' is blacklisted", kmod_module_get_name(mod));
+                 else {
+-- 
+2.5.0
+

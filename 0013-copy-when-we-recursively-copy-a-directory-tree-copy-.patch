@@ -1,0 +1,43 @@
+From 559f85ce2cb5bc2f92c9c231ab1703dde817313d Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 23 Jul 2015 21:41:22 +0200
+Subject: [PATCH 13/47] copy: when we recursively copy a directory tree, copy
+ everything
+
+Don't ignore hidden files and directories.
+
+Fixes #386
+---
+ src/basic/copy.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/basic/copy.c b/src/basic/copy.c
+index 230e7e4..e2d356d 100644
+--- a/src/basic/copy.c
++++ b/src/basic/copy.c
+@@ -24,6 +24,7 @@
+ 
+ #include "util.h"
+ #include "btrfs-util.h"
++#include "strv.h"
+ #include "copy.h"
+ 
+ #define COPY_BUFFER_SIZE (16*1024)
+@@ -262,10 +263,13 @@ static int fd_copy_directory(
+                 (void) copy_xattr(dirfd(d), fdt);
+         }
+ 
+-        FOREACH_DIRENT(de, d, return -errno) {
++        FOREACH_DIRENT_ALL(de, d, return -errno) {
+                 struct stat buf;
+                 int q;
+ 
++                if (STR_IN_SET(de->d_name, ".", ".."))
++                        continue;
++
+                 if (fstatat(dirfd(d), de->d_name, &buf, AT_SYMLINK_NOFOLLOW) < 0) {
+                         r = -errno;
+                         continue;
+-- 
+2.5.0
+

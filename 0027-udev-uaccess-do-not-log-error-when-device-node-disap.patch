@@ -1,0 +1,36 @@
+From 33def8a0cd165ba77d6d88134c198ad4bbb44944 Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Wed, 5 Aug 2015 20:33:48 +0200
+Subject: [PATCH 27/47] udev: uaccess - do not log error when device node
+ disappears
+
+https://github.com/systemd/systemd/issues/875
+---
+ src/udev/udev-builtin-uaccess.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/udev/udev-builtin-uaccess.c b/src/udev/udev-builtin-uaccess.c
+index 99bb91a..43bab8a 100644
+--- a/src/udev/udev-builtin-uaccess.c
++++ b/src/udev/udev-builtin-uaccess.c
+@@ -56,7 +56,7 @@ static int builtin_uaccess(struct udev_device *dev, int argc, char *argv[], bool
+ 
+         r = devnode_acl(path, true, false, 0, true, uid);
+         if (r < 0) {
+-                log_error_errno(r, "Failed to apply ACL on %s: %m", path);
++                log_full_errno(errno == ENOENT ? LOG_DEBUG : LOG_ERR, r, "Failed to apply ACL on %s: %m", path);
+                 goto finish;
+         }
+ 
+@@ -70,7 +70,7 @@ finish:
+                 /* Better be safe than sorry and reset ACL */
+                 k = devnode_acl(path, true, false, 0, false, 0);
+                 if (k < 0) {
+-                        log_error_errno(k, "Failed to apply ACL on %s: %m", path);
++                        log_full_errno(errno == ENOENT ? LOG_DEBUG : LOG_ERR, k, "Failed to apply ACL on %s: %m", path);
+                         if (r >= 0)
+                                 r = k;
+                 }
+-- 
+2.5.0
+

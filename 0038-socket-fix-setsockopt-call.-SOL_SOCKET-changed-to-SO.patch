@@ -1,0 +1,26 @@
+From 04e4cc1c948ed6309219e302a35ac617649fea7c Mon Sep 17 00:00:00 2001
+From: Robin Hack <rhack@redhat.com>
+Date: Mon, 31 Aug 2015 11:45:09 +0200
+Subject: [PATCH 38/47] socket: fix setsockopt call. SOL_SOCKET changed to
+ SOL_TCP.
+
+---
+ src/core/socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/socket.c b/src/core/socket.c
+index 693cbc6..70518bd 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -839,7 +839,7 @@ static void socket_apply_socket_options(Socket *s, int fd) {
+ 
+         if (s->keep_alive_cnt) {
+                 int value = s->keep_alive_cnt;
+-                if (setsockopt(fd, SOL_SOCKET, TCP_KEEPCNT, &value, sizeof(value)) < 0)
++                if (setsockopt(fd, SOL_TCP, TCP_KEEPCNT, &value, sizeof(value)) < 0)
+                         log_unit_warning_errno(UNIT(s), errno, "TCP_KEEPCNT failed: %m");
+         }
+ 
+-- 
+2.5.0
+

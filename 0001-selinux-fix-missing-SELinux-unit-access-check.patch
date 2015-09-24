@@ -1,0 +1,40 @@
+From df676a819f84b230f4aa3eb600083fe357c674c8 Mon Sep 17 00:00:00 2001
+From: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+Date: Wed, 24 Jun 2015 12:01:26 +0900
+Subject: [PATCH 01/47] selinux: fix missing SELinux unit access check
+
+Currently, SELinux unit access check is not performed if a given unit
+file has not been registered in a hash table. This is because function
+manager_get_unit() only tries to pick up a Unit object from a Unit
+hash table. Instead, we use function manager_load_unit() searching
+Unit file pathes for the given Unit file.
+---
+ src/core/selinux-access.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/core/selinux-access.c b/src/core/selinux-access.c
+index e9a9a02..50a90b0 100644
+--- a/src/core/selinux-access.c
++++ b/src/core/selinux-access.c
+@@ -302,12 +302,12 @@ int mac_selinux_unit_access_check_strv(
+         int r;
+ 
+         STRV_FOREACH(i, units) {
+-                u = manager_get_unit(m, *i);
+-                if (u) {
+-                        r = mac_selinux_unit_access_check(u, message, permission, error);
+-                        if (r < 0)
+-                                return r;
+-                }
++                r = manager_load_unit(m, *i, NULL, error, &u);
++                if (r < 0)
++                        return r;
++                r = mac_selinux_unit_access_check(u, message, permission, error);
++                if (r < 0)
++                        return r;
+         }
+ #endif
+         return 0;
+-- 
+2.5.0
+

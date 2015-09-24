@@ -1,0 +1,26 @@
+From cf0b36ff2d70b7fd4f64ce95517bdcebdb4dbf93 Mon Sep 17 00:00:00 2001
+From: Fedora systemd team <systemd-maint@redhat.com>
+Date: Thu, 24 Sep 2015 23:28:14 +0200
+Subject: [PATCH 47/47] Pass pointer to unit object instead of unit id
+
+Related: #1195761
+---
+ src/core/unit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index db0fca0..5dbbef7 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1676,7 +1676,7 @@ static void unit_check_binds_to(Unit *u) {
+         }
+ 
+         assert(other);
+-        log_unit_info(u->id, "Unit %s is bound to inactive unit %s. Stopping, too.", u->id, other->id);
++        log_unit_info(u, "Unit %s is bound to inactive unit %s. Stopping, too.", u->id, other->id);
+ 
+         /* A unit we need to run is gone. Sniff. Let's stop this. */
+         r = manager_add_job(u->manager, JOB_STOP, u, JOB_FAIL, true, NULL, NULL);
+-- 
+2.5.0
+

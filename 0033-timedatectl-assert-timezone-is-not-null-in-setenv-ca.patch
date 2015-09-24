@@ -1,0 +1,36 @@
+From 52f69bd986957e875883760a240983ab0925de87 Mon Sep 17 00:00:00 2001
+From: Dimitri John Ledkov <dimitri.j.ledkov@intel.com>
+Date: Wed, 19 Aug 2015 10:03:58 +0000
+Subject: [PATCH 33/47] timedatectl: assert timezone is not null in setenv()
+ call.
+
+setenv is declared as:
+
+extern int setenv (const char *__name, const char *__value, int __replace)
+     __THROW __nonnull ((2));
+
+And i->timezone can be NULL, if for example /etc/localtime is
+missing. Previously that worked, but now result in a libc dumping
+core, as seen with gcc 2.22, due to:
+
+https://sourceware.org/ml/glibc-cvs/2015-q2/msg00075.html
+---
+ src/timedate/timedatectl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/timedate/timedatectl.c b/src/timedate/timedatectl.c
+index 240578b..8ec6adb 100644
+--- a/src/timedate/timedatectl.c
++++ b/src/timedate/timedatectl.c
+@@ -96,7 +96,7 @@ static void print_status_info(const StatusInfo *i) {
+                 old_tz = strdupa(tz);
+ 
+         /* Set the new $TZ */
+-        if (setenv("TZ", i->timezone, true) < 0)
++        if (i->timezone && setenv("TZ", i->timezone, true) < 0)
+                 log_warning_errno(errno, "Failed to set TZ environment variable, ignoring: %m");
+         else
+                 tzset();
+-- 
+2.5.0
+

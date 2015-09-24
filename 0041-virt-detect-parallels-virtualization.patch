@@ -1,0 +1,68 @@
+From 04c428f42c40f1689041d9e6e8de3f06744acf3f Mon Sep 17 00:00:00 2001
+From: Evgeny Vereshchagin <evvers@ya.ru>
+Date: Wed, 2 Sep 2015 01:43:32 +0000
+Subject: [PATCH 41/47] virt: detect parallels virtualization
+
+inspired by http://people.redhat.com/~rjones/virt-what/
+
+see:
+* http://git.annexia.org/?p=virt-what.git;a=blob;f=virt-what.in;h=a5ed33ef3e4bfa3281c9589eccac4d92dff1babe;hb=HEAD#l200
+* http://git.annexia.org/?p=virt-what.git;a=blob;f=virt-what.in;h=a5ed33ef3e4bfa3281c9589eccac4d92dff1babe;hb=HEAD#l253
+---
+ man/systemd-detect-virt.xml | 7 ++++++-
+ src/basic/virt.c            | 6 ++++--
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/man/systemd-detect-virt.xml b/man/systemd-detect-virt.xml
+index 40755a2..9ea9141 100644
+--- a/man/systemd-detect-virt.xml
++++ b/man/systemd-detect-virt.xml
+@@ -88,7 +88,7 @@
+         </thead>
+         <tbody>
+           <row>
+-      <entry morerows="8">VM</entry>
++      <entry morerows="9">VM</entry>
+       <entry><varname>qemu</varname></entry>
+       <entry>QEMU software virtualization</entry>
+           </row>
+@@ -134,6 +134,11 @@
+           </row>
+ 
+           <row>
++      <entry><varname>parallels</varname></entry>
++      <entry>Parallels Desktop, Parallels Server</entry>
++          </row>
++
++          <row>
+       <entry morerows="5">container</entry>
+       <entry><varname>openvz</varname></entry>
+       <entry>OpenVZ/Virtuozzo</entry>
+diff --git a/src/basic/virt.c b/src/basic/virt.c
+index a8d2671..4a4bebd 100644
+--- a/src/basic/virt.c
++++ b/src/basic/virt.c
+@@ -156,7 +156,8 @@ static int detect_vm_dmi(const char **_id) {
+                 "VMW\0"                   "vmware\0"
+                 "innotek GmbH\0"          "oracle\0"
+                 "Xen\0"                   "xen\0"
+-                "Bochs\0"                 "bochs\0";
++                "Bochs\0"                 "bochs\0"
++                "Parallels\0"             "parallels\0";
+         unsigned i;
+ 
+         for (i = 0; i < ELEMENTSOF(dmi_vendors); i++) {
+@@ -244,8 +245,9 @@ int detect_vm(const char **id) {
+         r = detect_vm_dmi(&_id);
+ 
+         /* kvm with and without Virtualbox */
++        /* Parallels exports KVMKVMKVM leaf */
+         if (streq_ptr(_id_cpuid, "kvm")) {
+-                if (r > 0 && streq(_id, "oracle"))
++                if (r > 0 && (streq(_id, "oracle") || streq(_id, "parallels")))
+                         goto finish;
+ 
+                 _id = _id_cpuid;
+-- 
+2.5.0
+

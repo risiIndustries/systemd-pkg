@@ -1,0 +1,29 @@
+From 9f334e7740a00e91f05b4b91c20f2bc152db3ea2 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 31 Aug 2015 13:07:24 +0200
+Subject: [PATCH 39/47] sd-event: improve debug message when we fail to remove
+ and fd from an epoll
+
+Let's help users to debug issues with epoll fd removal by printing the
+name of the event source.
+---
+ src/libsystemd/sd-event/sd-event.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/libsystemd/sd-event/sd-event.c b/src/libsystemd/sd-event/sd-event.c
+index 76964aa..3459f50 100644
+--- a/src/libsystemd/sd-event/sd-event.c
++++ b/src/libsystemd/sd-event/sd-event.c
+@@ -481,7 +481,8 @@ static void source_io_unregister(sd_event_source *s) {
+                 return;
+ 
+         r = epoll_ctl(s->event->epoll_fd, EPOLL_CTL_DEL, s->io.fd, NULL);
+-        assert_log(r >= 0);
++        if (r < 0)
++                log_debug_errno(errno, "Failed to remove source %s from epoll: %m", strna(s->description));
+ 
+         s->io.registered = false;
+ }
+-- 
+2.5.0
+

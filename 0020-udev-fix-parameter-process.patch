@@ -1,0 +1,25 @@
+From 0e19c2116c7bdd2f2dddc1dd2cdf9a4c350665c7 Mon Sep 17 00:00:00 2001
+From: Lidong Zhong <lzhong@suse.com>
+Date: Fri, 24 Jul 2015 16:37:17 +0800
+Subject: [PATCH 20/47] udev: fix parameter process
+
+---
+ src/udev/udevd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/udev/udevd.c b/src/udev/udevd.c
+index e27fb1f..0553f20 100644
+--- a/src/udev/udevd.c
++++ b/src/udev/udevd.c
+@@ -1432,7 +1432,7 @@ static int parse_argv(int argc, char *argv[]) {
+         assert(argc >= 0);
+         assert(argv);
+ 
+-        while ((c = getopt_long(argc, argv, "c:de:DtN:hV", options, NULL)) >= 0) {
++        while ((c = getopt_long(argc, argv, "c:de:Dt:N:hV", options, NULL)) >= 0) {
+                 int r;
+ 
+                 switch (c) {
+-- 
+2.5.0
+

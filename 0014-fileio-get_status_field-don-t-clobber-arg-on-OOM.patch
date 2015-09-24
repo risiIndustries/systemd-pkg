@@ -1,0 +1,40 @@
+From fd17710ad438a0d6228e807936119ed451eb843a Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 23 Jul 2015 23:36:34 +0200
+Subject: [PATCH 14/47] fileio: get_status_field() don't clobber arg on OOM
+
+According to our coding style guidelines we shouldn't clobber
+pass-by-ref arguments on failure, hence don't do so here either.
+---
+ src/basic/fileio.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/basic/fileio.c b/src/basic/fileio.c
+index 00fb6f8..eb6f3ce 100644
+--- a/src/basic/fileio.c
++++ b/src/basic/fileio.c
+@@ -786,7 +786,7 @@ int executable_is_script(const char *path, char **interpreter) {
+  */
+ int get_status_field(const char *filename, const char *pattern, char **field) {
+         _cleanup_free_ char *status = NULL;
+-        char *t;
++        char *t, *f;
+         size_t len;
+         int r;
+ 
+@@ -820,9 +820,10 @@ int get_status_field(const char *filename, const char *pattern, char **field) {
+ 
+         len = strcspn(t, WHITESPACE);
+ 
+-        *field = strndup(t, len);
+-        if (!*field)
++        f = strndup(t, len);
++        if (!f)
+                 return -ENOMEM;
+ 
++        *field = f;
+         return 0;
+ }
+-- 
+2.5.0
+

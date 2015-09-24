@@ -1,0 +1,36 @@
+From cd12ff2291f5bd529a8d83bb76726194d3daaf13 Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Thu, 24 Sep 2015 22:25:43 +0200
+Subject: [PATCH 46/47] Revert "core: one step back again, for nspawn we
+ actually can't wait for cgroups running empty since systemd will get exactly
+ zero notifications about it"
+
+This reverts commit 743970d2ea6d08aa7c7bff8220f6b7702f2b1db7.
+---
+ src/core/unit.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 0a66a6a..db0fca0 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -3557,15 +3557,7 @@ int unit_kill_context(
+                                 log_unit_warning_errno(u, r, "Failed to kill control group: %m");
+                 } else if (r > 0) {
+ 
+-                        /* FIXME: For now, we will not wait for the
+-                         * cgroup members to die, simply because
+-                         * cgroup notification is unreliable. It
+-                         * doesn't work at all in containers, and
+-                         * outside of containers it can be confused
+-                         * easily by leaving directories in the
+-                         * cgroup. */
+-
+-                        /* wait_for_exit = true; */
++                        wait_for_exit = true;
+ 
+                         if (c->send_sighup && k != KILL_KILL) {
+                                 set_free(pid_set);
+-- 
+2.5.0
+

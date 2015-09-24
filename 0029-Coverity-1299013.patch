@@ -1,0 +1,32 @@
+From 7693e8f755ba38797f659b32108375b1314f0dec Mon Sep 17 00:00:00 2001
+From: reverendhomer <mk.43.ecko@gmail.com>
+Date: Sat, 8 Aug 2015 09:54:10 +0300
+Subject: [PATCH 29/47] Coverity #1299013
+
+event cannot be NULL due to assert
+---
+ src/import/pull-tar.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/src/import/pull-tar.c b/src/import/pull-tar.c
+index a6605d2..71b8908 100644
+--- a/src/import/pull-tar.c
++++ b/src/import/pull-tar.c
+@@ -127,13 +127,7 @@ int tar_pull_new(
+ 
+         i->grow_machine_directory = path_startswith(i->image_root, "/var/lib/machines");
+ 
+-        if (event)
+-                i->event = sd_event_ref(event);
+-        else {
+-                r = sd_event_default(&i->event);
+-                if (r < 0)
+-                        return r;
+-        }
++        i->event = sd_event_ref(event);
+ 
+         r = curl_glue_new(&i->glue, i->event);
+         if (r < 0)
+-- 
+2.5.0
+
