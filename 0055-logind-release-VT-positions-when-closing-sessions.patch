@@ -1,0 +1,42 @@
+From 10189fd6be0f547d75bc857860f3ecbbdbc447a6 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Fri, 31 Jul 2015 16:52:29 +0200
+Subject: [PATCH 261/261] logind: release VT-positions when closing sessions
+
+Make sure we release VT-positions when a session is closed. Otherwise,
+lingering sessions will occupy VTs and prevent next logins from
+succeeding.
+
+Note that we already release session-devices when closing a session, so
+there cannot be anyone using the VT anymore.
+---
+ src/login/logind-session.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index 2537d02..9a2da79 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -636,6 +636,9 @@ int session_stop(Session *s, bool force) {
+ 
+         s->timer_event_source = sd_event_source_unref(s->timer_event_source);
+ 
++        if (s->seat)
++                seat_evict_position(s->seat, s);
++
+         /* We are going down, don't care about FIFOs anymore */
+         session_remove_fifo(s);
+ 
+@@ -672,6 +675,9 @@ int session_finalize(Session *s) {
+ 
+         s->timer_event_source = sd_event_source_unref(s->timer_event_source);
+ 
++        if (s->seat)
++                seat_evict_position(s->seat, s);
++
+         /* Kill session devices */
+         while ((sd = hashmap_first(s->devices)))
+                 session_device_free(sd);
+-- 
+2.4.3
+

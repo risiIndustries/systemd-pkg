@@ -1,0 +1,141 @@
+From e6494a07cbbfa93dd83782fa1f8554aa4d2353bd Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Fri, 10 Jul 2015 15:08:24 +0200
+Subject: [PATCH 034/261] logind: rename 'pos' to 'position'
+
+Spell out the proper name. Use 'pos' over 'position', and also update the
+logind state file to do the same. Note that this breaks live updates.
+However, we only save 'POSITION' on non-seat0, so this shouldn't bother
+anyone for real. If you run multi-seat setups, you better restart a
+machine on updates, anyway.
+---
+ src/login/logind-seat.c    | 18 +++++++++---------
+ src/login/logind-session.c | 10 +++++-----
+ src/login/logind-session.h |  2 +-
+ 3 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/src/login/logind-seat.c b/src/login/logind-seat.c
+index fb5d076..9d5287a 100644
+--- a/src/login/logind-seat.c
++++ b/src/login/logind-seat.c
+@@ -290,8 +290,8 @@ int seat_switch_to_next(Seat *s) {
+                 return -EINVAL;
+ 
+         start = 1;
+-        if (s->active && s->active->pos > 0)
+-                start = s->active->pos;
++        if (s->active && s->active->position > 0)
++                start = s->active->position;
+ 
+         for (i = start + 1; i < s->position_count; ++i)
+                 if (s->positions[i])
+@@ -311,8 +311,8 @@ int seat_switch_to_previous(Seat *s) {
+                 return -EINVAL;
+ 
+         start = 1;
+-        if (s->active && s->active->pos > 0)
+-                start = s->active->pos;
++        if (s->active && s->active->position > 0)
++                start = s->active->position;
+ 
+         for (i = start - 1; i > 0; --i)
+                 if (s->positions[i])
+@@ -472,9 +472,9 @@ int seat_stop_sessions(Seat *s, bool force) {
+ 
+ void seat_evict_position(Seat *s, Session *session) {
+         Session *iter;
+-        unsigned int pos = session->pos;
++        unsigned int pos = session->position;
+ 
+-        session->pos = 0;
++        session->position = 0;
+ 
+         if (pos == 0)
+                 return;
+@@ -486,7 +486,7 @@ void seat_evict_position(Seat *s, Session *session) {
+                  * position (eg., during gdm->session transition), so let's look
+                  * for it and set it on the free slot. */
+                 LIST_FOREACH(sessions_by_seat, iter, s->sessions) {
+-                        if (iter->pos == pos) {
++                        if (iter->position == pos) {
+                                 s->positions[pos] = iter;
+                                 break;
+                         }
+@@ -504,7 +504,7 @@ void seat_claim_position(Seat *s, Session *session, unsigned int pos) {
+ 
+         seat_evict_position(s, session);
+ 
+-        session->pos = pos;
++        session->position = pos;
+         if (pos > 0 && !s->positions[pos])
+                 s->positions[pos] = session;
+ }
+@@ -512,7 +512,7 @@ void seat_claim_position(Seat *s, Session *session, unsigned int pos) {
+ static void seat_assign_position(Seat *s, Session *session) {
+         unsigned int pos;
+ 
+-        if (session->pos > 0)
++        if (session->position > 0)
+                 return;
+ 
+         for (pos = 1; pos < s->position_count; ++pos)
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index 6a450b0..45f4c09 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -264,7 +264,7 @@ int session_save(Session *s) {
+                 fprintf(f, "VTNR=%u\n", s->vtnr);
+ 
+         if (!s->vtnr)
+-                fprintf(f, "POS=%u\n", s->pos);
++                fprintf(f, "POSITION=%u\n", s->position);
+ 
+         if (s->leader > 0)
+                 fprintf(f, "LEADER="PID_FMT"\n", s->leader);
+@@ -302,7 +302,7 @@ int session_load(Session *s) {
+                 *seat = NULL,
+                 *vtnr = NULL,
+                 *state = NULL,
+-                *pos = NULL,
++                *position = NULL,
+                 *leader = NULL,
+                 *type = NULL,
+                 *class = NULL,
+@@ -329,7 +329,7 @@ int session_load(Session *s) {
+                            "DESKTOP",        &s->desktop,
+                            "VTNR",           &vtnr,
+                            "STATE",          &state,
+-                           "POS",            &pos,
++                           "POSITION",       &position,
+                            "LEADER",         &leader,
+                            "TYPE",           &type,
+                            "CLASS",          &class,
+@@ -388,10 +388,10 @@ int session_load(Session *s) {
+         if (!s->seat || !seat_has_vts(s->seat))
+                 s->vtnr = 0;
+ 
+-        if (pos && s->seat) {
++        if (position && s->seat) {
+                 unsigned int npos;
+ 
+-                safe_atou(pos, &npos);
++                safe_atou(position, &npos);
+                 seat_claim_position(s->seat, s, npos);
+         }
+ 
+diff --git a/src/login/logind-session.h b/src/login/logind-session.h
+index 4bf739a..b8565eb 100644
+--- a/src/login/logind-session.h
++++ b/src/login/logind-session.h
+@@ -70,7 +70,7 @@ struct Session {
+         Manager *manager;
+ 
+         const char *id;
+-        unsigned int pos;
++        unsigned int position;
+         SessionType type;
+         SessionClass class;
+ 
+-- 
+2.4.3
+

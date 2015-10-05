@@ -1,0 +1,164 @@
+From 559b5cc2734bdd968c1c56ad1dc6fff08b8b30ba Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 11 Jul 2015 17:00:26 -0300
+Subject: [PATCH 043/261] logind: bring bus policy up-to-date
+
+A while back we opened up all of logind's bus calls to unprivileged
+users, via PK. However, the dbus1 policy wasn't updated accordingly.
+
+With this change, the dbus1 policy is opened up for all bus calls that
+should be available to unprivileged clients.
+
+(also rearranges some calls in the vtable, to make more sense, and be in
+line with the order in the bus policy file)
+
+Fixes #471.
+---
+ src/login/logind-dbus.c               |  4 +-
+ src/login/org.freedesktop.login1.conf | 72 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 74 insertions(+), 2 deletions(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index ca435df..049e33e 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -2449,8 +2449,6 @@ const sd_bus_vtable manager_vtable[] = {
+         SD_BUS_METHOD("PowerOff", "b", NULL, method_poweroff, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("Reboot", "b", NULL, method_reboot, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("Suspend", "b", NULL, method_suspend, SD_BUS_VTABLE_UNPRIVILEGED),
+-        SD_BUS_METHOD("ScheduleShutdown", "st", NULL, method_schedule_shutdown, SD_BUS_VTABLE_UNPRIVILEGED),
+-        SD_BUS_METHOD("CancelScheduledShutdown", NULL, "b", method_cancel_scheduled_shutdown, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("Hibernate", "b", NULL, method_hibernate, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("HybridSleep", "b", NULL, method_hybrid_sleep, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("CanPowerOff", NULL, "s", method_can_poweroff, SD_BUS_VTABLE_UNPRIVILEGED),
+@@ -2458,6 +2456,8 @@ const sd_bus_vtable manager_vtable[] = {
+         SD_BUS_METHOD("CanSuspend", NULL, "s", method_can_suspend, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("CanHibernate", NULL, "s", method_can_hibernate, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("CanHybridSleep", NULL, "s", method_can_hybrid_sleep, SD_BUS_VTABLE_UNPRIVILEGED),
++        SD_BUS_METHOD("ScheduleShutdown", "st", NULL, method_schedule_shutdown, SD_BUS_VTABLE_UNPRIVILEGED),
++        SD_BUS_METHOD("CancelScheduledShutdown", NULL, "b", method_cancel_scheduled_shutdown, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("Inhibit", "ssss", "h", method_inhibit, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("CanRebootToFirmwareSetup", NULL, "s", method_can_reboot_to_firmware_setup, SD_BUS_VTABLE_UNPRIVILEGED),
+         SD_BUS_METHOD("SetRebootToFirmwareSetup", "b", NULL, method_set_reboot_to_firmware_setup, SD_BUS_VTABLE_UNPRIVILEGED),
+diff --git a/src/login/org.freedesktop.login1.conf b/src/login/org.freedesktop.login1.conf
+index 0ad7880..d8deb7b 100644
+--- a/src/login/org.freedesktop.login1.conf
++++ b/src/login/org.freedesktop.login1.conf
+@@ -90,6 +90,42 @@
+ 
+                 <allow send_destination="org.freedesktop.login1"
+                        send_interface="org.freedesktop.login1.Manager"
++                       send_member="LockSession"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="UnlockSession"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="LockSessions"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="UnlockSessions"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="KillSession"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="KillUser"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="TerminateSession"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="TerminateUser"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="TerminateSeat"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
+                        send_member="PowerOff"/>
+ 
+                 <allow send_destination="org.freedesktop.login1"
+@@ -130,6 +166,14 @@
+ 
+                 <allow send_destination="org.freedesktop.login1"
+                        send_interface="org.freedesktop.login1.Manager"
++                       send_member="ScheduleShutdown"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
++                       send_member="CancelScheduledShutdown"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Manager"
+                        send_member="CanRebootToFirmwareSetup"/>
+ 
+                 <allow send_destination="org.freedesktop.login1"
+@@ -146,6 +190,10 @@
+ 
+                 <allow send_destination="org.freedesktop.login1"
+                        send_interface="org.freedesktop.login1.Seat"
++                       send_member="Terminate"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Seat"
+                        send_member="ActivateSession"/>
+ 
+                 <allow send_destination="org.freedesktop.login1"
+@@ -162,14 +210,30 @@
+ 
+                 <allow send_destination="org.freedesktop.login1"
+                        send_interface="org.freedesktop.login1.Session"
++                       send_member="Terminate"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Session"
+                        send_member="Activate"/>
+ 
+                 <allow send_destination="org.freedesktop.login1"
+                        send_interface="org.freedesktop.login1.Session"
++                       send_member="Lock"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Session"
++                       send_member="Unlock"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Session"
+                        send_member="SetIdleHint"/>
+ 
+                 <allow send_destination="org.freedesktop.login1"
+                        send_interface="org.freedesktop.login1.Session"
++                       send_member="Kill"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.Session"
+                        send_member="TakeControl"/>
+ 
+                 <allow send_destination="org.freedesktop.login1"
+@@ -188,6 +252,14 @@
+                        send_interface="org.freedesktop.login1.Session"
+                        send_member="PauseDeviceComplete"/>
+ 
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.User"
++                       send_member="Terminate"/>
++
++                <allow send_destination="org.freedesktop.login1"
++                       send_interface="org.freedesktop.login1.User"
++                       send_member="Kill"/>
++
+                 <allow receive_sender="org.freedesktop.login1"/>
+         </policy>
+ 
+-- 
+2.4.3
+

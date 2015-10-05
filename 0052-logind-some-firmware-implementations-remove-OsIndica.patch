@@ -1,0 +1,41 @@
+From 6b62bbbc7b53bee11778d27d18e9506d9b42d4ba Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 11 Jul 2015 17:29:48 -0300
+Subject: [PATCH 044/261] logind: some firmware implementations remove
+ OsIndications if it is unset
+
+We shouldn't fall over that, and just assume it is 0 in this case.
+
+Fixes #499.
+---
+ src/shared/efivars.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/efivars.c b/src/shared/efivars.c
+index 0d6ecf5..347cd30 100644
+--- a/src/shared/efivars.c
++++ b/src/shared/efivars.c
+@@ -125,7 +125,19 @@ static int get_os_indications(uint64_t *os_indication) {
+                 return r;
+ 
+         r = efi_get_variable(EFI_VENDOR_GLOBAL, "OsIndications", NULL, &v, &s);
+-        if (r < 0)
++        if (r == -ENOENT) {
++                /* Some firmware implementations that do support
++                 * OsIndications and report that with
++                 * OsIndicationsSupported will remove the
++                 * OsIndications variable when it is unset. Let's
++                 * pretend it's 0 then, to hide this implementation
++                 * detail. Note that this call will return -ENOENT
++                 * then only if the support for OsIndications is
++                 * missing entirely, as determined by
++                 * efi_reboot_to_firmware_supported() above. */
++                *os_indication = 0;
++                return 0;
++        } else if (r < 0)
+                 return r;
+         else if (s != sizeof(uint64_t))
+                 return -EINVAL;
+-- 
+2.4.3
+

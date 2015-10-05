@@ -85,6 +85,13 @@ Patch0048:      0044-units-run-ldconfig-also-when-cache-is-unpopulated.patch
 Patch0049:      0045-sd-event-fix-prepare-priority-queue-comparison-funct.patch
 Patch0050:      0046-Revert-core-one-step-back-again-for-nspawn-we-actual.patch
 Patch0051:      0048-core-report-root-cgroup-as-over-the-bus.patch
+Patch0052:      0049-logind-allow-greeters-to-take-over-VTs.patch
+Patch0053:      0050-logind-rename-pos-to-position.patch
+Patch0054:      0051-logind-bring-bus-policy-up-to-date.patch
+Patch0055:      0052-logind-some-firmware-implementations-remove-OsIndica.patch
+Patch0056:      0053-logind-prefer-new-sessions-over-older-ones-on-VT-swi.patch
+Patch0057:      0054-logind-never-select-closing-sessions-for-a-VT.patch
+Patch0059:      0055-logind-release-VT-positions-when-closing-sessions.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -825,6 +832,8 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Mon Oct  5 2015 Jan Synáček <jsynacek@redhat.com> - 222-7
 - systemctl shows the full cgroup hierarchy when doing status of a disabled or non-existing unit (#1268601)
+- it's not possible to log in again shortly after log out (#1263208)
+  + related logind bugfixes
 
 * Fri Sep 25 2015 Michal Sekletar <msekleta@redhat.com> - 222-6
 - Scope units will not get killed immediately during shutdown (#1170765)
