@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        6%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        7%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -74,7 +74,6 @@ Patch0036:      0032-logind-get-a-fresh-file-descriptor-to-clean-up-a-VT.patch
 Patch0037:      0033-timedatectl-assert-timezone-is-not-null-in-setenv-ca.patch
 Patch0038:      0034-timedatectl-when-no-timezone-is-set-consider-UTC-the.patch
 Patch0039:      0035-core-downgrade-Module-inserted-message-for-kmod-to-D.patch
-Patch0040:      0036-systemctl-properly-handle-empty-control-group-paths-.patch
 Patch0041:      0037-selinux-fix-regression-of-systemctl-subcommands-when.patch
 Patch0042:      0038-socket-fix-setsockopt-call.-SOL_SOCKET-changed-to-SO.patch
 Patch0043:      0039-sd-event-improve-debug-message-when-we-fail-to-remov.patch
@@ -85,6 +84,7 @@ Patch0047:      0043-Fixup-WWN-bytes-for-big-endian-systems.patch
 Patch0048:      0044-units-run-ldconfig-also-when-cache-is-unpopulated.patch
 Patch0049:      0045-sd-event-fix-prepare-priority-queue-comparison-funct.patch
 Patch0050:      0046-Revert-core-one-step-back-again-for-nspawn-we-actual.patch
+Patch0051:      0048-core-report-root-cgroup-as-over-the-bus.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -823,6 +823,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon Oct  5 2015 Jan Synáček <jsynacek@redhat.com> - 222-7
+- systemctl shows the full cgroup hierarchy when doing status of a disabled or non-existing unit (#1268601)
+
 * Fri Sep 25 2015 Michal Sekletar <msekleta@redhat.com> - 222-6
 - Scope units will not get killed immediately during shutdown (#1170765)
 - Fix comparison function for priority queue (#1202598)
