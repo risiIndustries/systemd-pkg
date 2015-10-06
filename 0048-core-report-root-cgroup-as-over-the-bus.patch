@@ -1,0 +1,66 @@
+From 98bac6058c919071ba6b7860b925decacafdc822 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 25 Aug 2015 20:42:50 +0200
+Subject: [PATCH] core: report root cgroup as "/" over the bus
+
+Internally, the root cgroup is stored as the empty string in
+Unit.cgroup_path, and "no cgroup" as NULL. Unfortunately, D-Bus does not
+know a NULL concept, hence when reporting the cgroup to clients we
+should turn the root cgroup into "/", and leave the empty string for the
+"no cgroup" case.
+
+This should make sure that "systemctl status -- -.slice" works correctly
+and shows the entire cgroup tree.
+---
+ src/core/dbus-unit.c | 32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/dbus-unit.c b/src/core/dbus-unit.c
+index 1892725..0a9effd 100644
+--- a/src/core/dbus-unit.c
++++ b/src/core/dbus-unit.c
+@@ -697,10 +697,40 @@ static int property_get_cpu_usage(
+         return sd_bus_message_append(reply, "t", ns);
+ }
+ 
++static int property_get_cgroup(
++                sd_bus *bus,
++                const char *path,
++                const char *interface,
++                const char *property,
++                sd_bus_message *reply,
++                void *userdata,
++                sd_bus_error *error) {
++
++        Unit *u = userdata;
++        const char *t;
++
++        assert(bus);
++        assert(reply);
++        assert(u);
++
++        /* Three cases: a) u->cgroup_path is NULL, in which case the
++         * unit has no control group, which we report as the empty
++         * string. b) u->cgroup_path is the empty string, which
++         * indicates the root cgroup, which we report as "/". c) all
++         * other cases we report as-is. */
++
++        if (u->cgroup_path)
++                t = isempty(u->cgroup_path) ? "/" : u->cgroup_path;
++        else
++                t = "";
++
++        return sd_bus_message_append(reply, "s", t);
++}
++
+ const sd_bus_vtable bus_unit_cgroup_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Slice", "s", property_get_slice, 0, 0),
+-        SD_BUS_PROPERTY("ControlGroup", "s", NULL, offsetof(Unit, cgroup_path), 0),
++        SD_BUS_PROPERTY("ControlGroup", "s", property_get_cgroup, 0, 0),
+         SD_BUS_PROPERTY("MemoryCurrent", "t", property_get_current_memory, 0, 0),
+         SD_BUS_PROPERTY("CPUUsageNSec", "t", property_get_cpu_usage, 0, 0),
+         SD_BUS_VTABLE_END
+-- 
+2.4.3
+
