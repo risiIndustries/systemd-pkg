@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        7%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        8%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -38,7 +38,6 @@ Source9:        20-yama-ptrace.conf
 Patch0001:      0001-tmpfiles-downgrade-errors-when-a-file-system-does-no.patch
 Patch0002:      0002-load-fragment-fix-segv-on-parse-error.patch
 Patch0003:      0003-man-clarify-that-unknown-escapes-must-be-escaped.patch
-Patch0004:      0004-keymap-Add-Corsair-K70.patch
 Patch0005:      0001-selinux-fix-missing-SELinux-unit-access-check.patch
 Patch0006:      0002-install-make-unit_file_get_list-aware-of-UNIT_FILE_I.patch
 Patch0007:      0003-journal-gatewayd-fix-tmpfile-logic.patch
@@ -830,6 +829,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon Oct 19 2015 Jan Synáček <jsynacek@redhat.com> - 222-8
+- remove the fix for Corsair K70 Keyboard introduced in 222-3 (#1267225)
+
 * Mon Oct  5 2015 Jan Synáček <jsynacek@redhat.com> - 222-7
 - systemctl shows the full cgroup hierarchy when doing status of a disabled or non-existing unit (#1268601)
 - it's not possible to log in again shortly after log out (#1263208)
