@@ -929,7 +929,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %dir %{_datadir}/pkgconfig
 %dir %{_datadir}/zsh
 %dir %{_datadir}/zsh/site-functions
-%dir %attr(2755,root,systemd-journal) %{_localstatedir}/log/journal
+%dir %attr(2755,root,systemd-journal) %verify(not mode) %{_localstatedir}/log/journal
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
 %ghost %dir %{_localstatedir}/lib/systemd/coredump
@@ -1170,6 +1170,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Mar 15 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@bupkis> - 219-29
+- Ignore the access mode on /var/log/journal (#1317570)
+
 * Thu Feb 11 2016 Jan Synáček <jsynacek@redhat.com> - 219-28
 - various fixes in kernel-install (#1244057)
 
