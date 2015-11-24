@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        25%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        26%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -322,6 +322,7 @@ Patch0276:      0276-systemctl-fix-edit-when-EDITOR-contains-arguments.patch
 Patch0277:      0277-sysctl-bump-loglevel-and-reword.patch
 Patch0278:      0278-journalctl-make-sure-journalctl-f-t-unmatched-blocks.patch
 Patch0279:      0279-man-.d-conf-directories-add-note-about-initrd-regene.patch
+Patch0280:      0280-Revert-core-one-step-back-again-for-nspawn-we-actual.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1167,6 +1168,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Nov 24 2015 Jan Synáček <jsynacek@redhat.com> - 219-26
+- Fix: all processes in scopes (including user sessions) SIGKILLed immediately on shutdown (#1274537)
+
 * Mon Oct 19 2015 Jan Synáček <jsynacek@redhat.com> - 219-25
 - remove the fix for Corsair K70 Keyboard introduced in 219-24 (#1267225)
 
