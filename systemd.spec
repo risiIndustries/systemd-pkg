@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        9%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        10%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -469,8 +469,10 @@ ln -s /usr/lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service
 
 # Remove spurious /etc/fstab entries from very old installations
 # https://bugzilla.redhat.com/show_bug.cgi?id=1009023
-grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
-    sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
+if [ -e /etc/fstab ]; then
+    grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
+        sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
+fi
 
 # Replace obsolete keymaps
 # https://bugzilla.redhat.com/show_bug.cgi?id=1151958
@@ -839,6 +841,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon Dec 14 2015 Jan Synáček <jsynacek@redhat.com> - 222-10
+- do not assume fstab is present (#1281606)
+
 * Mon Dec 14 2015 Jan Synáček <jsynacek@redhat.com> - 222-9
 - udev: fix NULL deref when executing rules (#1283971)
 - libudev: simplify udev_device_ensure_usec_initialized a (#1283971)
