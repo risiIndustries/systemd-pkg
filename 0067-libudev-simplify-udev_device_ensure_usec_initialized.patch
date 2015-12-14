@@ -1,0 +1,37 @@
+From 8e32c9b7b26ff6f33e7bcec5f7a036e4133da6b8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 7 Dec 2015 00:09:12 -0500
+Subject: [PATCH 11/12] libudev: simplify udev_device_ensure_usec_initialized a
+ bit
+
+(cherry picked from commit 90b33a2746ef9a409e5b70ea6ef363941c671c1d)
+
+Resolves: #1283971
+---
+ src/libudev/libudev-device-private.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/src/libudev/libudev-device-private.c b/src/libudev/libudev-device-private.c
+index 4b9c053..fa9bd9e 100644
+--- a/src/libudev/libudev-device-private.c
++++ b/src/libudev/libudev-device-private.c
+@@ -137,14 +137,10 @@ gid_t udev_device_get_devnode_gid(struct udev_device *udev_device) {
+ }
+ 
+ void udev_device_ensure_usec_initialized(struct udev_device *udev_device, struct udev_device *udev_device_old) {
+-        sd_device *device_old = NULL;
+-
+         assert(udev_device);
+ 
+-        if (udev_device_old)
+-                device_old = udev_device_old->device;
+-
+-        device_ensure_usec_initialized(udev_device->device, device_old);
++        device_ensure_usec_initialized(udev_device->device,
++                                       udev_device_old ? udev_device_old->device : NULL);
+ }
+ 
+ char **udev_device_get_properties_envp(struct udev_device *udev_device) {
+-- 
+2.5.0
+

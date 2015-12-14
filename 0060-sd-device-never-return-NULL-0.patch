@@ -1,0 +1,57 @@
+From f88ff4551822931baf9f6b03f59e49d69c950885 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Wed, 15 Jul 2015 12:30:08 +0200
+Subject: [PATCH 04/12] sd-device: never return NULL+0
+
+It is highly confusing if a getter function returns 0, but the value is
+set to NULL. This, right now, triggers assertions as code relies on the
+returned values to be non-NULL.
+
+Like with sd-bus-creds and friends, return 0 only if a value is actually
+available.
+
+Discussed with Tom, and actually fixes real bugs as in #512.
+
+(cherry picked from commit bf4c113e179650c07a8f95a14d71f365dbfe66e4)
+
+Resolves: #1238285
+---
+ src/libsystemd/sd-device/sd-device.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/libsystemd/sd-device/sd-device.c b/src/libsystemd/sd-device/sd-device.c
+index b274f71..7cea5a0 100644
+--- a/src/libsystemd/sd-device/sd-device.c
++++ b/src/libsystemd/sd-device/sd-device.c
+@@ -791,6 +791,9 @@ _public_ int sd_device_get_subsystem(sd_device *device, const char **ret) {
+                 device->subsystem_set = true;
+         }
+ 
++        if (!device->subsystem)
++                return -ENOENT;
++
+         *ret = device->subsystem;
+ 
+         return 0;
+@@ -908,6 +911,9 @@ _public_ int sd_device_get_driver(sd_device *device, const char **ret) {
+                         return log_debug_errno(r, "sd-device: could not set driver for %s: %m", device->devpath);
+         }
+ 
++        if (!device->driver)
++                return -ENOENT;
++
+         *ret = device->driver;
+ 
+         return 0;
+@@ -1002,6 +1008,8 @@ _public_ int sd_device_get_sysname(sd_device *device, const char **ret) {
+                         return r;
+         }
+ 
++        assert_return(device->sysname, -ENOENT);
++
+         *ret = device->sysname;
+ 
+         return 0;
+-- 
+2.5.0
+

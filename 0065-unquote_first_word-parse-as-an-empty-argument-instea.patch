@@ -1,0 +1,67 @@
+From 3fd5f2d43442105cd5208c46e3e91e33553ae80d Mon Sep 17 00:00:00 2001
+From: Richard Maw <richard.maw@codethink.co.uk>
+Date: Fri, 24 Jul 2015 09:29:46 +0000
+Subject: [PATCH 09/12] unquote_first_word: parse ` '' ` as an empty argument
+ instead of no argument
+
+(cherry picked from commit 14e685c29d5b317b815e3e9f056648027852b07e)
+
+Resolves: #1278475
+---
+ src/basic/util.c     | 14 ++++++++++----
+ src/test/test-util.c | 11 +++++++++++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/src/basic/util.c b/src/basic/util.c
+index dffb4a2..d6ab781 100644
+--- a/src/basic/util.c
++++ b/src/basic/util.c
+@@ -5193,13 +5193,19 @@ int unquote_first_word(const char **p, char **ret, UnquoteFlags flags) {
+                 case VALUE:
+                         if (c == 0)
+                                 goto finish;
+-                        else if (c == '\'')
++                        else if (c == '\'') {
++                                if (!GREEDY_REALLOC(s, allocated, sz+1))
++                                        return -ENOMEM;
++
+                                 state = SINGLE_QUOTE;
+-                        else if (c == '\\')
++                        } else if (c == '\\')
+                                 state = VALUE_ESCAPE;
+-                        else if (c == '\"')
++                        else if (c == '\"') {
++                                if (!GREEDY_REALLOC(s, allocated, sz+1))
++                                        return -ENOMEM;
++
+                                 state = DOUBLE_QUOTE;
+-                        else if (strchr(WHITESPACE, c))
++                        } else if (strchr(WHITESPACE, c))
+                                 state = SPACE;
+                         else {
+                                 if (!GREEDY_REALLOC(s, allocated, sz+2))
+diff --git a/src/test/test-util.c b/src/test/test-util.c
+index ad9ea3b..41eaa49 100644
+--- a/src/test/test-util.c
++++ b/src/test/test-util.c
+@@ -1398,6 +1398,17 @@ static void test_unquote_first_word(void) {
+         assert_se(streq(t, "\\w+\b"));
+         free(t);
+         assert_se(p == original + 5);
++
++        p = original = "-N ''";
++        assert_se(unquote_first_word(&p, &t, UNQUOTE_CUNESCAPE) > 0);
++        assert_se(streq(t, "-N"));
++        free(t);
++        assert_se(p == original + 3);
++
++        assert_se(unquote_first_word(&p, &t, UNQUOTE_CUNESCAPE) > 0);
++        assert_se(streq(t, ""));
++        free(t);
++        assert_se(p == original + 5);
+ }
+ 
+ static void test_unquote_first_word_and_warn(void) {
+-- 
+2.5.0
+

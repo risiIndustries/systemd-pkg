@@ -1,0 +1,44 @@
+From 87c3c33f022344d007d181e62267671a09605f84 Mon Sep 17 00:00:00 2001
+From: Jan Synacek <jsynacek@redhat.com>
+Date: Tue, 10 Nov 2015 13:05:48 +0100
+Subject: [PATCH 03/12] man/journalctl: mention systemd.time(7) where
+ appropriate
+
+Original bug report: https://bugzilla.redhat.com/show_bug.cgi?id=1182661
+
+(cherry picked from commit 20b2aec031f79018d290b8f42ab6c3e1116f2d89)
+
+Resolves: #1182661
+---
+ man/journalctl.xml | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/man/journalctl.xml b/man/journalctl.xml
+index ca93364..a49c87d 100644
+--- a/man/journalctl.xml
++++ b/man/journalctl.xml
+@@ -554,7 +554,10 @@
+         respectively. <literal>now</literal> refers to the current
+         time. Finally, relative times may be specified, prefixed with
+         <literal>-</literal> or <literal>+</literal>, referring to
+-        times before or after the current time, respectively.</para>
++        times before or after the current time, respectively. For complete
++        time and date specification, see
++        <citerefentry><refentrytitle>systemd.time</refentrytitle><manvolnum>7</manvolnum></citerefentry>.
++        </para>
+         </listitem>
+       </varlistentry>
+ 
+@@ -836,7 +839,8 @@
+       <citerefentry><refentrytitle>systemctl</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+       <citerefentry><refentrytitle>coredumpctl</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+       <citerefentry><refentrytitle>systemd.journal-fields</refentrytitle><manvolnum>7</manvolnum></citerefentry>,
+-      <citerefentry><refentrytitle>journald.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>
++      <citerefentry><refentrytitle>journald.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
++      <citerefentry><refentrytitle>systemd.time</refentrytitle><manvolnum>7</manvolnum></citerefentry>
+     </para>
+   </refsect1>
+ </refentry>
+-- 
+2.5.0
+

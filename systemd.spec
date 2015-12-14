@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        8%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        9%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -89,8 +89,18 @@ Patch0053:      0050-logind-rename-pos-to-position.patch
 Patch0054:      0051-logind-bring-bus-policy-up-to-date.patch
 Patch0055:      0052-logind-some-firmware-implementations-remove-OsIndica.patch
 Patch0056:      0053-logind-prefer-new-sessions-over-older-ones-on-VT-swi.patch
-Patch0057:      0054-logind-never-select-closing-sessions-for-a-VT.patch
-Patch0059:      0055-logind-release-VT-positions-when-closing-sessions.patch
+Patch0057:      0057-user-sessions-make-sure-run-nologin-has-correct-SELi.patch
+Patch0058:      0058-login-make-sure-run-nologin-has-correct-SELinux-labe.patch
+Patch0059:      0059-man-journalctl-mention-systemd.time-7-where-appropri.patch
+Patch0060:      0060-sd-device-never-return-NULL-0.patch
+Patch0061:      0061-journalctl-properly-detect-empty-journal-files.patch
+Patch0062:      0062-import-hash-URL-in-paths-if-they-are-too-long.patch
+Patch0063:      0063-nspawn-fix-image-when-nspawn-is-run-as-service.patch
+Patch0064:      0064-units-also-whitelist-blkext-block-devices-for-nspawn.patch
+Patch0065:      0065-unquote_first_word-parse-as-an-empty-argument-instea.patch
+Patch0066:      0066-login-fix-NULL-deref-on-wall_message.patch
+Patch0067:      0067-libudev-simplify-udev_device_ensure_usec_initialized.patch
+Patch0068:      0068-udev-fix-NULL-deref-when-executing-rules.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -829,6 +839,20 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon Dec 14 2015 Jan Synáček <jsynacek@redhat.com> - 222-9
+- udev: fix NULL deref when executing rules (#1283971)
+- libudev: simplify udev_device_ensure_usec_initialized a (#1283971)
+- login: fix NULL-deref on wall_message (#1279156)
+- unquote_first_word: parse ` '' ` as an empty argument (#1278475)
+- units: also whitelist "blkext" block devices for nspawn (#1266776)
+- nspawn: fix --image= when nspawn is run as service (#1266776)
+- import: hash URL in paths if they are too long (#1266775)
+- journalctl: properly detect empty journal files (#1255619)
+- sd-device: never return NULL+0 (#1238285)
+- man/journalctl: mention systemd.time(7) where (#1182661)
+- login: make sure /run/nologin has correct SELinux label (#1287592)
+- user-sessions: make sure /run/nologin has correct (#1287592)
+
 * Mon Oct 19 2015 Jan Synáček <jsynacek@redhat.com> - 222-8
 - remove the fix for Corsair K70 Keyboard introduced in 222-3 (#1267225)
 

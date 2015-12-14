@@ -1,0 +1,33 @@
+From c99a4a60f5ef8a46d8d0841c2e3b72d73611c602 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 22 Oct 2015 00:39:57 +0200
+Subject: [PATCH 08/12] units: also whitelist "blkext" block devices for nspawn
+ service
+
+/dev/loop*p* block devices are of the "blkext" subsystem, not of loop,
+hence whitelist this too.
+
+Fixes #1446
+
+(cherry picked from commit a2c90f05f11c01a9f9faf3efb3ec0e05acebd75f)
+
+Resolves: #1266776
+---
+ units/systemd-nspawn@.service.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/units/systemd-nspawn@.service.in b/units/systemd-nspawn@.service.in
+index 110f1a6..60f0014 100644
+--- a/units/systemd-nspawn@.service.in
++++ b/units/systemd-nspawn@.service.in
+@@ -39,6 +39,7 @@ DeviceAllow=char-pts rw
+ # implement the --image= option. Add these here, too.
+ DeviceAllow=/dev/loop-control rw
+ DeviceAllow=block-loop rw
++DeviceAllow=block-blkext rw
+ 
+ [Install]
+ WantedBy=machines.target
+-- 
+2.5.0
+

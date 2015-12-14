@@ -1,0 +1,35 @@
+From 2c4f4e407fad772552e82129399173adef1e8e53 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 3 Oct 2015 11:23:52 +0200
+Subject: [PATCH 07/12] nspawn: fix --image= when nspawn is run as service
+
+nspawn needs access to /dev/loop to implement --image=, hence grant that
+in the service file.
+
+Fixes #1446.
+
+(cherry picked from commit 988a47964283b6a72f5ce117f287ebeb12e26d2d)
+
+Resolves: #1266776
+---
+ units/systemd-nspawn@.service.in | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/units/systemd-nspawn@.service.in b/units/systemd-nspawn@.service.in
+index 074b916..110f1a6 100644
+--- a/units/systemd-nspawn@.service.in
++++ b/units/systemd-nspawn@.service.in
+@@ -35,5 +35,10 @@ DeviceAllow=/dev/net/tun rwm
+ DeviceAllow=/dev/pts/ptmx rw
+ DeviceAllow=char-pts rw
+ 
++# nspawn itself needs access to /dev/loop-control and /dev/loop, to
++# implement the --image= option. Add these here, too.
++DeviceAllow=/dev/loop-control rw
++DeviceAllow=block-loop rw
++
+ [Install]
+ WantedBy=machines.target
+-- 
+2.5.0
+

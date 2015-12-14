@@ -1,0 +1,56 @@
+From fa5147fc7c5fcc26d742f87f63a6216bd88ea091 Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Fri, 4 Dec 2015 21:33:42 +0100
+Subject: [PATCH 01/12] user-sessions: make sure /run/nologin has correct
+ SELinux label
+
+(cherry picked from commit ea4e6292af593b3b631560ac5139ad1f7442d881)
+
+Resolves: #1287592
+---
+ src/user-sessions/user-sessions.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/user-sessions/user-sessions.c b/src/user-sessions/user-sessions.c
+index 1c31769..dc27723 100644
+--- a/src/user-sessions/user-sessions.c
++++ b/src/user-sessions/user-sessions.c
+@@ -22,7 +22,9 @@
+ #include <unistd.h>
+ #include <errno.h>
+ 
++#include "fileio-label.h"
+ #include "log.h"
++#include "selinux-util.h"
+ #include "util.h"
+ #include "fileio.h"
+ 
+@@ -39,6 +41,8 @@ int main(int argc, char*argv[]) {
+ 
+         umask(0022);
+ 
++        mac_selinux_init(NULL);
++
+         if (streq(argv[1], "start")) {
+                 int r = 0;
+ 
+@@ -65,7 +69,7 @@ int main(int argc, char*argv[]) {
+         } else if (streq(argv[1], "stop")) {
+                 int r;
+ 
+-                r = write_string_file_atomic("/run/nologin", "System is going down.");
++                r = write_string_file_atomic_label("/run/nologin", "System is going down.");
+                 if (r < 0) {
+                         log_error_errno(r, "Failed to create /run/nologin: %m");
+                         return EXIT_FAILURE;
+@@ -76,5 +80,7 @@ int main(int argc, char*argv[]) {
+                 return EXIT_FAILURE;
+         }
+ 
++        mac_selinux_finish();
++
+         return EXIT_SUCCESS;
+ }
+-- 
+2.5.0
+

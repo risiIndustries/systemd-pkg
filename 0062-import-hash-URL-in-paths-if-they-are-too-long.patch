@@ -1,0 +1,95 @@
+From a814fa3f3a2067a17a6698d2fcb6230774d0f981 Mon Sep 17 00:00:00 2001
+From: Jan Synacek <jsynacek@redhat.com>
+Date: Fri, 2 Oct 2015 11:00:19 +0200
+Subject: [PATCH 06/12] import: hash URL in paths if they are too long
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1266775
+(cherry picked from commit 9818005de6cc6f525be8aa62a2b8593a7c72e798)
+
+Resolves: #1266775
+---
+ src/import/pull-common.c | 44 ++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 6 deletions(-)
+
+diff --git a/src/import/pull-common.c b/src/import/pull-common.c
+index 652277e..84611cb 100644
+--- a/src/import/pull-common.c
++++ b/src/import/pull-common.c
+@@ -31,8 +31,10 @@
+ #include "pull-common.h"
+ #include "process-util.h"
+ #include "signal-util.h"
++#include "siphash24.h"
+ 
+ #define FILENAME_ESCAPE "/.#\"\'"
++#define HASH_URL_THRESHOLD_LENGTH (_POSIX_PATH_MAX - 16)
+ 
+ int pull_find_old_etags(const char *url, const char *image_root, int dt, const char *prefix, const char *suffix, char ***etags) {
+         _cleanup_free_ char *escaped_url = NULL;
+@@ -142,8 +144,21 @@ int pull_make_local_copy(const char *final, const char *image_root, const char *
+         return 0;
+ }
+ 
++static int hash_url(const char *url, char **ret) {
++        uint64_t h;
++        static const sd_id128_t k = SD_ID128_ARRAY(df,89,16,87,01,cc,42,30,98,ab,4a,19,a6,a5,63,4f);
++
++        assert(url);
++
++        siphash24((uint8_t *) &h, url, strlen(url), k.bytes);
++        if (asprintf(ret, "%"PRIx64, h) < 0)
++                return -ENOMEM;
++
++        return 0;
++}
++
+ int pull_make_path(const char *url, const char *etag, const char *image_root, const char *prefix, const char *suffix, char **ret) {
+-        _cleanup_free_ char *escaped_url = NULL;
++        _cleanup_free_ char *escaped_url = NULL, *escaped_etag = NULL;
+         char *path;
+ 
+         assert(url);
+@@ -157,18 +172,35 @@ int pull_make_path(const char *url, const char *etag, const char *image_root, co
+                 return -ENOMEM;
+ 
+         if (etag) {
+-                _cleanup_free_ char *escaped_etag = NULL;
+-
+                 escaped_etag = xescape(etag, FILENAME_ESCAPE);
+                 if (!escaped_etag)
+                         return -ENOMEM;
++        }
+ 
+-                path = strjoin(image_root, "/", strempty(prefix), escaped_url, ".", escaped_etag, strempty(suffix), NULL);
+-        } else
+-                path = strjoin(image_root, "/", strempty(prefix), escaped_url, strempty(suffix), NULL);
++        path = strjoin(image_root, "/", strempty(prefix), escaped_url, escaped_etag ? "." : "",
++                       strempty(escaped_etag), strempty(suffix), NULL);
+         if (!path)
+                 return -ENOMEM;
+ 
++        /* URLs might make the path longer than the maximum allowed length for a file name.
++         * When that happens, a URL hash is used instead. Paths returned by this function
++         * can be later used with tempfn_random() which adds 16 bytes to the resulting name. */
++        if (strlen(path) >= HASH_URL_THRESHOLD_LENGTH) {
++                _cleanup_free_ char *hash = NULL;
++                int r;
++
++                free(path);
++
++                r = hash_url(url, &hash);
++                if (r < 0)
++                        return r;
++
++                path = strjoin(image_root, "/", strempty(prefix), hash, escaped_etag ? "." : "",
++                               strempty(escaped_etag), strempty(suffix), NULL);
++                if (!path)
++                        return -ENOMEM;
++        }
++
+         *ret = path;
+         return 0;
+ }
+-- 
+2.5.0
+

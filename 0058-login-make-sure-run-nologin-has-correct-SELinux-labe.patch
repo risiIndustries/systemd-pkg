@@ -1,0 +1,28 @@
+From f8e8050017326f83fc2be3a8e7a344e795b1430d Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Fri, 4 Dec 2015 22:29:38 +0100
+Subject: [PATCH 02/12] login: make sure /run/nologin has correct SELinux label
+
+(cherry picked from commit 716cff4b459017028ddb4460cdfdcd09acb36dff)
+
+Resolves: #1287592
+---
+ src/login/logind-dbus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index 291f307..1c1011c 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -1774,7 +1774,7 @@ static int nologin_timeout_handler(
+ 
+         log_info("Creating /run/nologin, blocking further logins...");
+ 
+-        r = write_string_file_atomic("/run/nologin", "System is going down.");
++        r = write_string_file_atomic_label("/run/nologin", "System is going down.");
+         if (r < 0)
+                 log_error_errno(r, "Failed to create /run/nologin: %m");
+         else
+-- 
+2.5.0
+
