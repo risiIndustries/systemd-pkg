@@ -1,0 +1,42 @@
+From f56439ec3647962da92d130580c24b3d51c26019 Mon Sep 17 00:00:00 2001
+From: Mike Gilbert <floppym@gentoo.org>
+Date: Wed, 22 Jul 2015 22:34:57 -0400
+Subject: [PATCH 1/4] nspawn: Don't pass uid mount option for devpts
+
+Mounting devpts with a uid breaks pty allocation with recent glibc
+versions, which expect that the kernel will set the correct owner for
+user-allocated ptys.
+
+The kernel seems to be smart enough to use the correct uid for root when
+we switch to a user namespace.
+
+This resolves #337.
+---
+ src/nspawn/nspawn.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index 198de30..9c8ffac 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -1785,15 +1785,13 @@ static int setup_pts(const char *dest) {
+ #ifdef HAVE_SELINUX
+         if (arg_selinux_apifs_context)
+                 (void) asprintf(&options,
+-                                "newinstance,ptmxmode=0666,mode=620,uid=" UID_FMT ",gid=" GID_FMT ",context=\"%s\"",
+-                                arg_uid_shift,
++                                "newinstance,ptmxmode=0666,mode=620,gid=" GID_FMT ",context=\"%s\"",
+                                 arg_uid_shift + TTY_GID,
+                                 arg_selinux_apifs_context);
+         else
+ #endif
+                 (void) asprintf(&options,
+-                                "newinstance,ptmxmode=0666,mode=620,uid=" UID_FMT ",gid=" GID_FMT,
+-                                arg_uid_shift,
++                                "newinstance,ptmxmode=0666,mode=620,gid=" GID_FMT,
+                                 arg_uid_shift + TTY_GID);
+ 
+         if (!options)
+-- 
+2.5.0
+

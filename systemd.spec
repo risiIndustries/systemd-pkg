@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        11%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        12%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -103,6 +103,7 @@ Patch0067:      0067-libudev-simplify-udev_device_ensure_usec_initialized.patch
 Patch0068:      0068-udev-fix-NULL-deref-when-executing-rules.patch
 Patch0069:      0054-logind-never-select-closing-sessions-for-a-VT.patch
 Patch0070:      0055-logind-release-VT-positions-when-closing-sessions.patch
+Patch0071:      0071-nspawn-Don-t-pass-uid-mount-option-for-devpts.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -843,6 +844,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Jan  7 2016 Jan Synáček <jsynacek@redhat.com> - 222-12
+- Terminal multiplexers (tmux, screen) are broken in systemd-nspawn containers (#1282626)
+
 * Tue Jan  5 2016 Jan Synáček <jsynacek@redhat.com> - 222-11
 - re-apply patches that were removed by mistake (#1263208)
 
