@@ -1,0 +1,50 @@
+From 63ff6add2fa596572e24fc4181a47042e37144c1 Mon Sep 17 00:00:00 2001
+From: Krzysztof Kotlenga <k.kotlenga@sims.pl>
+Date: Thu, 24 Sep 2015 00:34:51 +0200
+Subject: [PATCH 1/2] sd-event: fix prepare priority queue comparison function
+
+Otherwise a disabled event source can get swapped with an enabled one
+and cause a severe sd-event malfunction.
+
+http://lists.freedesktop.org/archives/systemd-devel/2015-September/034356.html
+
+(cherry-picked from commit 099dea28e2e4baa2c767ad367b4ae4609a955735)
+
+Resolves: #1290249
+---
+ src/libsystemd/sd-event/sd-event.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/libsystemd/sd-event/sd-event.c b/src/libsystemd/sd-event/sd-event.c
+index c6350be..1f1e6fe 100644
+--- a/src/libsystemd/sd-event/sd-event.c
++++ b/src/libsystemd/sd-event/sd-event.c
+@@ -231,6 +231,12 @@ static int prepare_prioq_compare(const void *a, const void *b) {
+         assert(x->prepare);
+         assert(y->prepare);
+ 
++        /* Enabled ones first */
++        if (x->enabled != SD_EVENT_OFF && y->enabled == SD_EVENT_OFF)
++                return -1;
++        if (x->enabled == SD_EVENT_OFF && y->enabled != SD_EVENT_OFF)
++                return 1;
++
+         /* Move most recently prepared ones last, so that we can stop
+          * preparing as soon as we hit one that has already been
+          * prepared in the current iteration */
+@@ -239,12 +245,6 @@ static int prepare_prioq_compare(const void *a, const void *b) {
+         if (x->prepare_iteration > y->prepare_iteration)
+                 return 1;
+ 
+-        /* Enabled ones first */
+-        if (x->enabled != SD_EVENT_OFF && y->enabled == SD_EVENT_OFF)
+-                return -1;
+-        if (x->enabled == SD_EVENT_OFF && y->enabled != SD_EVENT_OFF)
+-                return 1;
+-
+         /* Lower priority values first */
+         if (x->priority < y->priority)
+                 return -1;
+-- 
+2.5.0
+

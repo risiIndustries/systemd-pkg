@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        26%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        27%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -323,6 +323,7 @@ Patch0277:      0277-sysctl-bump-loglevel-and-reword.patch
 Patch0278:      0278-journalctl-make-sure-journalctl-f-t-unmatched-blocks.patch
 Patch0279:      0279-man-.d-conf-directories-add-note-about-initrd-regene.patch
 Patch0280:      0280-Revert-core-one-step-back-again-for-nspawn-we-actual.patch
+Patch0281:      0281-sd-event-fix-prepare-priority-queue-comparison-funct.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1168,6 +1169,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Jan  7 2016 Jan Synáček <jsynacek@redhat.com> - 219-27
+- sd-event malfunction can cause an event loop breakage, systemctl hang/reboot needed (#1290249)
+
 * Tue Nov 24 2015 Jan Synáček <jsynacek@redhat.com> - 219-26
 - Fix: all processes in scopes (including user sessions) SIGKILLed immediately on shutdown (#1274537)
 
