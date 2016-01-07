@@ -1,0 +1,33 @@
+From 320efe0f5228605f21758784a914716e65050fe5 Mon Sep 17 00:00:00 2001
+From: Thomas Blume <Thomas.Blume@suse.com>
+Date: Wed, 12 Aug 2015 08:11:15 +0200
+Subject: [PATCH 2/2] support reboot -f for kexec kernel
+
+Fix error message:
+
+-->--
+Code should not be reached 'Unknown action.' at
+src/systemctl/systemctl.c:6382, function halt_now(). Aborting.
+Aborted
+--<--
+
+when executing 'reboot -f' from a system running a kexec kernel.
+---
+ src/systemctl/systemctl.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 0d39af7..df33bd0 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -7335,6 +7335,7 @@ static int halt_now(enum action a) {
+                 reboot(RB_POWER_OFF);
+                 return -errno;
+ 
++        case ACTION_KEXEC:
+         case ACTION_REBOOT: {
+                 _cleanup_free_ char *param = NULL;
+ 
+-- 
+2.5.0
+

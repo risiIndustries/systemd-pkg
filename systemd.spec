@@ -324,6 +324,7 @@ Patch0278:      0278-journalctl-make-sure-journalctl-f-t-unmatched-blocks.patch
 Patch0279:      0279-man-.d-conf-directories-add-note-about-initrd-regene.patch
 Patch0280:      0280-Revert-core-one-step-back-again-for-nspawn-we-actual.patch
 Patch0281:      0281-sd-event-fix-prepare-priority-queue-comparison-funct.patch
+Patch0282:      0282-support-reboot-f-for-kexec-kernel.patch
 
 
 # kernel-install patch for grubby, drop if grubby is obsolete
@@ -1171,6 +1172,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Thu Jan  7 2016 Jan Synáček <jsynacek@redhat.com> - 219-27
 - sd-event malfunction can cause an event loop breakage, systemctl hang/reboot needed (#1290249)
+- kexec -l followed by reboot hangs machine (#1277735)
 
 * Tue Nov 24 2015 Jan Synáček <jsynacek@redhat.com> - 219-26
 - Fix: all processes in scopes (including user sessions) SIGKILLed immediately on shutdown (#1274537)
