@@ -1,0 +1,54 @@
+From f33ab8bf8d6bfd6de8da3dc305ca61be8e1d6747 Mon Sep 17 00:00:00 2001
+From: Maxim Mikityanskiy <maxtram95@gmail.com>
+Date: Sat, 22 Aug 2015 11:33:32 +0300
+Subject: [PATCH 4/4] sd-device: fix enumeration of devices without subsystem
+
+Prior to commit c32eb440bab953a0169cd207dfef5cad16dfb340, libudev's
+function udev_enumerate_scan_devices() had behaved differently. If
+parent match was added with udev_enumerate_add_match_parent(),
+udev_enumerate_scan_devices() did not return error if some child devices
+had no subsystem symlink in sysfs. An example of such devices is USB
+endpoints /sys/bus/usb/devices/*/ep_*. If there was a parent match
+against USB device, old implementation of udev_enumerate_scan_devices()
+did not treat ep_* device directories without subsystem symlink as error
+and just ignored them, but new implementation returns -ENOENT (also
+ignoring these devices) though correctly enumerates all other matching
+devices.
+
+To compare, you could look at 96df036fe3d25525a44f5efdb2fc8560e82e6cfd,
+in src/libudev/libudev-enumerate.c, function parent_add_child():
+
+    if (!match_subsystem(enumerate, udev_device_get_subsystem(dev)))
+            goto nomatch;
+
+udev_device_get_subsystem() was returning NULL, match_subsystem() was
+returning false, and USB endpoint device was ignored.
+
+New parent_add_child() from src/libsystemd/sd-device/device-enumerator.c
+checks return value of sd_device_get_subsystem() and fails if subsystem
+was not found. Absence of subsystem symlink should not be really treated
+as error because all enumerations of children of USB devices will fail
+with -ENOENT. This new behavior also breaks system-config-printer.
+
+So restore old behavior and treat absence of subsystem symlink as no
+match.
+---
+ src/libsystemd/sd-device/device-enumerator.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libsystemd/sd-device/device-enumerator.c b/src/libsystemd/sd-device/device-enumerator.c
+index 7fd77e9..5eb37e1 100644
+--- a/src/libsystemd/sd-device/device-enumerator.c
++++ b/src/libsystemd/sd-device/device-enumerator.c
+@@ -719,6 +719,8 @@ static int parent_add_child(sd_device_enumerator *enumerator, const char *path)
+                 return r;
+ 
+         r = sd_device_get_subsystem(device, &subsystem);
++        if (r == -ENOENT)
++                return 0;
+         if (r < 0)
+                 return r;
+ 
+-- 
+2.5.0
+
