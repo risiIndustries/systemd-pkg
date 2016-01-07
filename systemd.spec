@@ -104,6 +104,7 @@ Patch0068:      0068-udev-fix-NULL-deref-when-executing-rules.patch
 Patch0069:      0054-logind-never-select-closing-sessions-for-a-VT.patch
 Patch0070:      0055-logind-release-VT-positions-when-closing-sessions.patch
 Patch0071:      0071-nspawn-Don-t-pass-uid-mount-option-for-devpts.patch
+Patch0072:      0072-journalctl-make-sure-journalctl-f-t-unmatched-blocks.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -846,6 +847,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Thu Jan  7 2016 Jan Synáček <jsynacek@redhat.com> - 222-12
 - Terminal multiplexers (tmux, screen) are broken in systemd-nspawn containers (#1282626)
+- Regression: journalctl -f broken (again) with initially empty filter result (#1292805)
 
 * Tue Jan  5 2016 Jan Synáček <jsynacek@redhat.com> - 222-11
 - re-apply patches that were removed by mistake (#1263208)

@@ -1,0 +1,48 @@
+From c025384103a9852f852d075337d1e2066253889f Mon Sep 17 00:00:00 2001
+From: Stef Walter <stefw@redhat.com>
+Date: Fri, 14 Aug 2015 16:38:41 +0200
+Subject: [PATCH 2/4] journalctl: make sure 'journalctl -f -t unmatched' blocks
+
+Previously the following command:
+
+$ journalctl -f -t unmatchedtag12345
+
+... would block when called with criteria that did not match any
+journal lines. Once log lines appeared that matched the criteria
+they were displayed.
+
+Commit 02ab86c732576a71179ce12e97d44c289833236d broke this
+behavior and the journal was not followed, but the command
+exits with '-- No entries --' displayed.
+
+This commit fixes the issue.
+
+More information downstream:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1253649
+---
+ src/journal/journalctl.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index 073cc77..5c058dd 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -2067,8 +2067,12 @@ int main(int argc, char *argv[]) {
+                 goto finish;
+         }
+         if (r == 0) {
+-                printf("-- No entries --\n");
+-                goto finish;
++                if (arg_follow)
++                        need_seek = true;
++                else {
++                        printf("-- No entries --\n");
++                        goto finish;
++                }
+         }
+ 
+         if (!arg_follow)
+-- 
+2.5.0
+
