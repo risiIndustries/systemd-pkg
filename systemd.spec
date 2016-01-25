@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        12%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -107,6 +107,7 @@ Patch0071:      0071-nspawn-Don-t-pass-uid-mount-option-for-devpts.patch
 Patch0072:      0072-journalctl-make-sure-journalctl-f-t-unmatched-blocks.patch
 Patch0073:      0073-journalctl-don-t-print-No-entries-in-quiet-mode.patch
 Patch0074:      0074-sd-device-fix-enumeration-of-devices-without-subsyst.patch
+Patch0075:      0075-units-increase-watchdog-timeout-to-3min-for-all-our-.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -847,6 +848,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon Jan 25 2016 Jan Synáček <jsynacek@redhat.com> - 222-13
+- units: increase watchdog timeout to 3min for all our services
+  + Mitigates the problem described in #1300212.
+
 * Thu Jan  7 2016 Jan Synáček <jsynacek@redhat.com> - 222-12
 - Terminal multiplexers (tmux, screen) are broken in systemd-nspawn containers (#1282626)
 - Regression: journalctl -f broken (again) with initially empty filter result (#1292805)
