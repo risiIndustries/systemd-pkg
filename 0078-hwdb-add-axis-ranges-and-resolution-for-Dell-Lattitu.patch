@@ -1,0 +1,61 @@
+From 2060f971a96f70c8608595ba3e91d1b0e6f728ac Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 4 Jan 2016 13:54:11 +1000
+Subject: [PATCH 4/5] hwdb: add axis ranges and resolution for Dell Lattitude
+ E6220
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1293576
+(cherry picked from commit 75e60eea5853620fbb32efb5e7b7982aef374357)
+
+Resolves: #1293576
+---
+ hwdb/60-evdev.hwdb | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index 815ac24..fb4675a 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -84,6 +84,39 @@ evdev:input:b0003v05ACp025b*
+  EVDEV_ABS_36=::92
+ 
+ #########################################
++# ASUS
++#########################################
++# Asus K52JT
++evdev:name:ETPS/2 Elantech Touchpad:dmi:bvn*:bvr*:bd*:svnASUSTeKComputerInc.:pnK52JT:*
++ EVDEV_ABS_00=::18
++ EVDEV_ABS_01=::16
++ EVDEV_ABS_35=::18
++ EVDEV_ABS_36=::16
++
++#########################################
++# Dell
++#########################################
++
++# Dell Vostro 1510
++evdev:name:AlpsPS/2 ALPS GlidePoint*:dmi:bvn*:bvr*:bd*:svnDellInc.:pnVostro1510*
++ EVDEV_ABS_00=::14
++ EVDEV_ABS_01=::18
++
++# Dell Inspiron N5040
++evdev:name:AlpsPS/2 ALPS DualPoint TouchPad:dmi:bvn*:bvr*:bd*:svnDellInc.:pnInspironN5040*
++ EVDEV_ABS_00=25:2000:22
++ EVDEV_ABS_01=0:1351:28
++ EVDEV_ABS_35=25:2000:22
++ EVDEV_ABS_36=0:1351:28
++
++# Dell Latitude E6220
++evdev:name:AlpsPS/2 ALPS DualPoint TouchPad:dmi:bvn*:bvr*:bd*:svnDellInc.:pnLatitudeE6220*
++ EVDEV_ABS_00=76:1815:22
++ EVDEV_ABS_01=131:1330:30
++ EVDEV_ABS_35=76:1815:22
++ EVDEV_ABS_36=131:1330:30
++
++#########################################
+ # Google
+ #########################################
+ 
+-- 
+2.5.0
+
