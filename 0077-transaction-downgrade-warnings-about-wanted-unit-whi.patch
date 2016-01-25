@@ -1,0 +1,44 @@
+From 93bd765797dab24b98d06a8043e297d6aaa171d4 Mon Sep 17 00:00:00 2001
+From: Franck Bui <fbui@suse.com>
+Date: Thu, 14 Jan 2016 09:25:18 +0100
+Subject: [PATCH 3/5] transaction: downgrade warnings about wanted unit which
+ are not found
+
+If a unit was pulled by a Wants= dependency but its unit file was not
+present then we logged this as an error.
+
+However Wants= might be used to configure a soft/optional dependency
+on another unit, ie. start an optional service only if it's installed
+otherwise simply skip it. In this case emitting an error doesn't look
+appropriate.
+
+But it's still an error if the optional dependency exists but its
+activation fails for any reasons.
+
+(cherry picked from commit f14637fc19c449502af0209d1862e4f829c5cb47)
+
+Resolves: #1278264
+---
+ src/core/transaction.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/core/transaction.c b/src/core/transaction.c
+index 38836ef..e5cfb9a 100644
+--- a/src/core/transaction.c
++++ b/src/core/transaction.c
+@@ -963,9 +963,10 @@ int transaction_add_job_and_dependencies(
+                         SET_FOREACH(dep, ret->unit->dependencies[UNIT_WANTS], i) {
+                                 r = transaction_add_job_and_dependencies(tr, JOB_START, dep, ret, false, false, false, false, ignore_order, e);
+                                 if (r < 0) {
++                                        /* unit masked and unit not found are not considered as errors. */
+                                         log_unit_full(dep,
+-                                                      r == -EBADR /* unit masked */ ? LOG_DEBUG : LOG_WARNING, r,
+-                                                      "Cannot add dependency job, ignoring: %s",
++                                                      r == -EBADR || r == -ENOENT ? LOG_DEBUG : LOG_WARNING,
++                                                      r, "Cannot add dependency job, ignoring: %s",
+                                                       bus_error_message(e, r));
+                                         sd_bus_error_free(e);
+                                 }
+-- 
+2.5.0
+
