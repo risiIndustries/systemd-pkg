@@ -1,0 +1,208 @@
+From f19e9a19f5e59869673609fde8deba80e48f42bc Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 6 Aug 2015 16:50:54 +0300
+Subject: [PATCH 5/5] machined: rework state tracking logic for machines
+
+This splits up the stopping logic for machines into two steps: first on
+machine_stop() we begin with the shutdown of a machine by queuing the
+stop method call for it. Then, in machine_finalize() we actually remove
+the rest of its runtime context. This mimics closely how sessions are
+handled in logind.
+
+This also reworks the GC logic to strictly check the current state of
+the machine unit, rather than shortcutting a few cases, like for example
+assuming that UnitRemoved really means a machine is gone (which it isn't
+since Reloading might trigger it, see #376).
+
+Fixes #376.
+
+(cherry picked from commit 49f3fffd94591bdf2bd6c2233a9300daeab79566)
+
+Resolves: #1297225
+---
+ src/machine/machine.c       | 32 +++++++++++++++++++++-----------
+ src/machine/machine.h       |  2 ++
+ src/machine/machined-dbus.c | 39 ++++-----------------------------------
+ src/machine/machined.c      | 10 +++++++++-
+ 4 files changed, 36 insertions(+), 47 deletions(-)
+
+diff --git a/src/machine/machine.c b/src/machine/machine.c
+index 05fc4f8..7c449ff 100644
+--- a/src/machine/machine.c
++++ b/src/machine/machine.c
+@@ -421,7 +421,19 @@ static int machine_stop_scope(Machine *m) {
+ }
+ 
+ int machine_stop(Machine *m) {
+-        int r = 0, k;
++        int r;
++        assert(m);
++
++        r = machine_stop_scope(m);
++
++        m->stopping = true;
++
++        machine_save(m);
++
++        return r;
++}
++
++int machine_finalize(Machine *m) {
+         assert(m);
+ 
+         if (m->started)
+@@ -432,20 +444,15 @@ int machine_stop(Machine *m) {
+                            LOG_MESSAGE("Machine %s terminated.", m->name),
+                            NULL);
+ 
+-        /* Kill cgroup */
+-        k = machine_stop_scope(m);
+-        if (k < 0)
+-                r = k;
+-
+         machine_unlink(m);
+         machine_add_to_gc_queue(m);
+ 
+-        if (m->started)
++        if (m->started) {
+                 machine_send_signal(m, false);
++                m->started = false;
++        }
+ 
+-        m->started = false;
+-
+-        return r;
++        return 0;
+ }
+ 
+ bool machine_check_gc(Machine *m, bool drop_not_started) {
+@@ -476,8 +483,11 @@ void machine_add_to_gc_queue(Machine *m) {
+ MachineState machine_get_state(Machine *s) {
+         assert(s);
+ 
++        if (s->stopping)
++                return MACHINE_CLOSING;
++
+         if (s->scope_job)
+-                return s->started ? MACHINE_OPENING : MACHINE_CLOSING;
++                return MACHINE_OPENING;
+ 
+         return MACHINE_RUNNING;
+ }
+diff --git a/src/machine/machine.h b/src/machine/machine.h
+index bbe5217..74a311c 100644
+--- a/src/machine/machine.h
++++ b/src/machine/machine.h
+@@ -83,6 +83,7 @@ struct Machine {
+ 
+         bool in_gc_queue:1;
+         bool started:1;
++        bool stopping:1;
+ 
+         sd_bus_message *create_message;
+ 
+@@ -101,6 +102,7 @@ bool machine_check_gc(Machine *m, bool drop_not_started);
+ void machine_add_to_gc_queue(Machine *m);
+ int machine_start(Machine *m, sd_bus_message *properties, sd_bus_error *error);
+ int machine_stop(Machine *m);
++int machine_finalize(Machine *m);
+ int machine_save(Machine *m);
+ int machine_load(Machine *m);
+ int machine_kill(Machine *m, KillWho who, int signo);
+diff --git a/src/machine/machined-dbus.c b/src/machine/machined-dbus.c
+index 0e971a6..755c218 100644
+--- a/src/machine/machined-dbus.c
++++ b/src/machine/machined-dbus.c
+@@ -908,8 +908,9 @@ int match_job_removed(sd_bus_message *message, void *userdata, sd_bus_error *err
+ 
+                                 machine_send_create_reply(machine, &e);
+                         }
+-                } else
+-                        machine_save(machine);
++                }
++
++                machine_save(machine);
+         }
+ 
+         machine_add_to_gc_queue(machine);
+@@ -918,7 +919,7 @@ int match_job_removed(sd_bus_message *message, void *userdata, sd_bus_error *err
+ 
+ int match_properties_changed(sd_bus_message *message, void *userdata, sd_bus_error *error) {
+         _cleanup_free_ char *unit = NULL;
+-        const char *path, *interface;
++        const char *path;
+         Manager *m = userdata;
+         Machine *machine;
+         int r;
+@@ -942,36 +943,6 @@ int match_properties_changed(sd_bus_message *message, void *userdata, sd_bus_err
+         if (!machine)
+                 return 0;
+ 
+-        r = sd_bus_message_read(message, "s", &interface);
+-        if (r < 0) {
+-                bus_log_parse_error(r);
+-                return 0;
+-        }
+-
+-        if (streq(interface, "org.freedesktop.systemd1.Unit")) {
+-                struct properties {
+-                        char *active_state;
+-                        char *sub_state;
+-                } properties = {};
+-
+-                const struct bus_properties_map map[] = {
+-                        { "ActiveState", "s", NULL, offsetof(struct properties, active_state) },
+-                        { "SubState",    "s", NULL, offsetof(struct properties, sub_state)    },
+-                        {}
+-                };
+-
+-                r = bus_message_map_properties_changed(message, map, &properties);
+-                if (r < 0)
+-                        bus_log_parse_error(r);
+-                else if (streq_ptr(properties.active_state, "inactive") ||
+-                         streq_ptr(properties.active_state, "failed") ||
+-                         streq_ptr(properties.sub_state, "auto-restart"))
+-                        machine_release_unit(machine);
+-
+-                free(properties.active_state);
+-                free(properties.sub_state);
+-        }
+-
+         machine_add_to_gc_queue(machine);
+         return 0;
+ }
+@@ -995,9 +966,7 @@ int match_unit_removed(sd_bus_message *message, void *userdata, sd_bus_error *er
+         if (!machine)
+                 return 0;
+ 
+-        machine_release_unit(machine);
+         machine_add_to_gc_queue(machine);
+-
+         return 0;
+ }
+ 
+diff --git a/src/machine/machined.c b/src/machine/machined.c
+index 9bfe2ad..1eeeaf1 100644
+--- a/src/machine/machined.c
++++ b/src/machine/machined.c
+@@ -247,8 +247,16 @@ void manager_gc(Manager *m, bool drop_not_started) {
+                 LIST_REMOVE(gc_queue, m->machine_gc_queue, machine);
+                 machine->in_gc_queue = false;
+ 
+-                if (!machine_check_gc(machine, drop_not_started)) {
++                /* First, if we are not closing yet, initiate stopping */
++                if (!machine_check_gc(machine, drop_not_started) &&
++                    machine_get_state(machine) != MACHINE_CLOSING)
+                         machine_stop(machine);
++
++                /* Now, the stop stop probably made this referenced
++                 * again, but if it didn't, then it's time to let it
++                 * go entirely. */
++                if (!machine_check_gc(machine, drop_not_started)) {
++                        machine_finalize(machine);
+                         machine_free(machine);
+                 }
+         }
+-- 
+2.5.0
+
