@@ -1,0 +1,163 @@
+From 523abe6fb5160861889858319ccd97fba5bae9a7 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 26 Jan 2016 20:25:10 +0100
+Subject: [PATCH 2/6] basic: don't append suffixes to unit name glob
+ expressions
+
+When the user specifies "foo*" as unit name glob expression, we shouldn't turn this into "foo*.service". Hence: only
+append a suffix if the specified string isn't a glob expression.
+
+Fixes: #2397
+(cherry picked from commit 2aaafcf57048983b2b76d6325f333e50aca4a3a3)
+
+Resolves: #1288851
+---
+ src/basic/unit-name.c     | 44 +++++++++++++++++++++++++++++++++-----------
+ src/test/test-unit-name.c | 32 +++++++++++++++++++-------------
+ 2 files changed, 52 insertions(+), 24 deletions(-)
+
+diff --git a/src/basic/unit-name.c b/src/basic/unit-name.c
+index bf52463..70db7a3 100644
+--- a/src/basic/unit-name.c
++++ b/src/basic/unit-name.c
+@@ -29,10 +29,22 @@
+ #include "def.h"
+ #include "strv.h"
+ 
++/* Characters valid in a unit name. */
+ #define VALID_CHARS                             \
+-        DIGITS LETTERS                          \
++        DIGITS                                  \
++        LETTERS                                 \
+         ":-_.\\"
+ 
++/* The same, but also permits the single @ character that may appear */
++#define VALID_CHARS_WITH_AT                     \
++        "@"                                     \
++        VALID_CHARS
++
++/* All chars valid in a unit name glob */
++#define VALID_CHARS_GLOB                        \
++        VALID_CHARS_WITH_AT                     \
++        "[]!-*?"
++
+ bool unit_name_is_valid(const char *n, UnitNameFlags flags) {
+         const char *e, *i, *at;
+ 
+@@ -596,7 +608,7 @@ static char *do_escape_mangle(const char *f, UnitNameMangle allow_globs, char *t
+         /* We'll only escape the obvious characters here, to play
+          * safe. */
+ 
+-        valid_chars = allow_globs == UNIT_NAME_GLOB ? "@" VALID_CHARS "[]!-*?" : "@" VALID_CHARS;
++        valid_chars = allow_globs == UNIT_NAME_GLOB ? VALID_CHARS_GLOB : VALID_CHARS_WITH_AT;
+ 
+         for (; *f; f++) {
+                 if (*f == '/')
+@@ -631,15 +643,15 @@ int unit_name_mangle_with_suffix(const char *name, UnitNameMangle allow_globs, c
+         if (!unit_suffix_is_valid(suffix))
+                 return -EINVAL;
+ 
+-        if (unit_name_is_valid(name, UNIT_NAME_ANY)) {
+-                /* No mangling necessary... */
+-                s = strdup(name);
+-                if (!s)
+-                        return -ENOMEM;
++        /* Already a fully valid unit name? If so, no mangling is necessary... */
++        if (unit_name_is_valid(name, UNIT_NAME_ANY))
++                goto good;
+ 
+-                *ret = s;
+-                return 0;
+-        }
++        /* Already a fully valid globbing expression? If so, no mangling is necessary either... */
++        if (allow_globs == UNIT_NAME_GLOB &&
++            string_is_glob(name) &&
++            in_charset(name, VALID_CHARS_GLOB))
++                goto good;
+ 
+         if (is_device_path(name)) {
+                 r = unit_name_from_path(name, ".device", ret);
+@@ -664,11 +676,21 @@ int unit_name_mangle_with_suffix(const char *name, UnitNameMangle allow_globs, c
+         t = do_escape_mangle(name, allow_globs, s);
+         *t = 0;
+ 
+-        if (unit_name_to_type(s) < 0)
++        /* Append a suffix if it doesn't have any, but only if this is not a glob, so that we can allow "foo.*" as a
++         * valid glob. */
++        if ((allow_globs != UNIT_NAME_GLOB || !string_is_glob(s)) && unit_name_to_type(s) < 0)
+                 strcpy(t, suffix);
+ 
+         *ret = s;
+         return 1;
++
++good:
++        s = strdup(name);
++        if (!s)
++                return -ENOMEM;
++
++        *ret = s;
++        return 0;
+ }
+ 
+ int slice_build_parent_slice(const char *slice, char **ret) {
+diff --git a/src/test/test-unit-name.c b/src/test/test-unit-name.c
+index 399d519..31870ed 100644
+--- a/src/test/test-unit-name.c
++++ b/src/test/test-unit-name.c
+@@ -156,34 +156,40 @@ static void test_unit_name_to_path(void) {
+         test_unit_name_to_path_one("home/foo", NULL, -EINVAL);
+ }
+ 
+-static void test_unit_name_mangle_one(const char *pattern, const char *expect, int ret) {
++static void test_unit_name_mangle_one(UnitNameMangle allow_globs, const char *pattern, const char *expect, int ret) {
+         _cleanup_free_ char *t = NULL;
+ 
+-        assert_se(unit_name_mangle(pattern, UNIT_NAME_NOGLOB, &t) == ret);
++        assert_se(unit_name_mangle(pattern, allow_globs, &t) == ret);
+         puts(strna(t));
+         assert_se(streq_ptr(t, expect));
+ 
+         if (t) {
+                 _cleanup_free_ char *k = NULL;
+ 
+-                assert_se(unit_name_is_valid(t, UNIT_NAME_ANY));
++                assert_se(unit_name_is_valid(t, UNIT_NAME_ANY) ||
++                          (allow_globs == UNIT_NAME_GLOB && string_is_glob(t)));
+ 
+-                assert_se(unit_name_mangle(t, UNIT_NAME_NOGLOB, &k) == 0);
++                assert_se(unit_name_mangle(t, allow_globs, &k) == 0);
+                 assert_se(streq_ptr(t, k));
+         }
+ }
+ 
+ static void test_unit_name_mangle(void) {
+         puts("-------------------------------------------------");
+-        test_unit_name_mangle_one("foo.service", "foo.service", 0);
+-        test_unit_name_mangle_one("/home", "home.mount", 1);
+-        test_unit_name_mangle_one("/dev/sda", "dev-sda.device", 1);
+-        test_unit_name_mangle_one("üxknürz.service", "\\xc3\\xbcxkn\\xc3\\xbcrz.service", 1);
+-        test_unit_name_mangle_one("foobar-meh...waldi.service", "foobar-meh...waldi.service", 0);
+-        test_unit_name_mangle_one("_____####----.....service", "_____\\x23\\x23\\x23\\x23----.....service", 1);
+-        test_unit_name_mangle_one("_____##@;;;,,,##----.....service", "_____\\x23\\x23@\\x3b\\x3b\\x3b\\x2c\\x2c\\x2c\\x23\\x23----.....service", 1);
+-        test_unit_name_mangle_one("xxx@@@@/////\\\\\\\\\\yyy.service", "xxx@@@@-----\\\\\\\\\\yyy.service", 1);
+-        test_unit_name_mangle_one("", NULL, -EINVAL);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "foo.service", "foo.service", 0);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "/home", "home.mount", 1);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "/dev/sda", "dev-sda.device", 1);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "üxknürz.service", "\\xc3\\xbcxkn\\xc3\\xbcrz.service", 1);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "foobar-meh...waldi.service", "foobar-meh...waldi.service", 0);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "_____####----.....service", "_____\\x23\\x23\\x23\\x23----.....service", 1);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "_____##@;;;,,,##----.....service", "_____\\x23\\x23@\\x3b\\x3b\\x3b\\x2c\\x2c\\x2c\\x23\\x23----.....service", 1);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "xxx@@@@/////\\\\\\\\\\yyy.service", "xxx@@@@-----\\\\\\\\\\yyy.service", 1);
++        test_unit_name_mangle_one(UNIT_NAME_NOGLOB, "", NULL, -EINVAL);
++
++        test_unit_name_mangle_one(UNIT_NAME_GLOB, "foo.service", "foo.service", 0);
++        test_unit_name_mangle_one(UNIT_NAME_GLOB, "foo", "foo.service", 1);
++        test_unit_name_mangle_one(UNIT_NAME_GLOB, "foo*", "foo*", 0);
++        test_unit_name_mangle_one(UNIT_NAME_GLOB, "ü*", "\\xc3\\xbc*", 1);
+ }
+ 
+ static int test_unit_printf(void) {
+-- 
+2.5.0
+

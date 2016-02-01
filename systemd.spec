@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -112,6 +112,9 @@ Patch0076:      0076-core-do-not-warn-about-Wants-depencencies-on-masked-.patch
 Patch0077:      0077-transaction-downgrade-warnings-about-wanted-unit-whi.patch
 Patch0078:      0078-hwdb-add-axis-ranges-and-resolution-for-Dell-Lattitu.patch
 Patch0079:      0079-machined-rework-state-tracking-logic-for-machines.patch
+Patch0080:      0080-tests-don-t-abbreviate-function-names-needlessly.patch
+Patch0081:      0081-basic-don-t-append-suffixes-to-unit-name-glob-expres.patch
+Patch0082:      0082-man-document-that-unit-file-globbing-only-operates-o.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -852,6 +855,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon Feb  1 2016 Jan Synáček <jsynacek@redhat.com> - 222-14
+- Stopping services using glob patterns does not work as stated in man page (#1288851)
+
 * Mon Jan 25 2016 Jan Synáček <jsynacek@redhat.com> - 222-13
 - units: increase watchdog timeout to 3min for all our services
   + Mitigates the problem described in #1300212.
