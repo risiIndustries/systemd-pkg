@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -858,6 +858,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Feb 11 2016 Jan Synáček <jsynacek@redhat.com> - 222-15
+- various fixes in kernel-install (#1244057)
+
 * Mon Feb  1 2016 Jan Synáček <jsynacek@redhat.com> - 222-14
 - Stopping services using glob patterns does not work as stated in man page (#1288851)
 - systemd asking for password on boot: ask_password_tty() prints multiple asterisks when typing special characters (#1301984)
