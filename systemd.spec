@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        219
-Release:        27%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        28%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -1170,6 +1170,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Feb 11 2016 Jan Synáček <jsynacek@redhat.com> - 219-28
+- various fixes in kernel-install (#1244057)
+
 * Thu Jan  7 2016 Jan Synáček <jsynacek@redhat.com> - 219-27
 - sd-event malfunction can cause an event loop breakage, systemctl hang/reboot needed (#1290249)
 - kexec -l followed by reboot hangs machine (#1277735)
