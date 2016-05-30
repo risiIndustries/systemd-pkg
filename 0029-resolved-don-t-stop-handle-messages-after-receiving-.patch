@@ -1,0 +1,54 @@
+From b9da815deb890443e80e11c73b5084dcfb75ad4f Mon Sep 17 00:00:00 2001
+From: Evgeny Vereshchagin <evvers@ya.ru>
+Date: Mon, 23 May 2016 11:19:14 +0300
+Subject: [PATCH] resolved: don't stop handle messages after receiving a zero
+ length UDP packet (#3323)
+
+Fixes:
+
+-bash-4.3# ss --udp -l -p
+State      Recv-Q Send-Q Local Address:Port                 Peer Address:Port
+UNCONN     0      0          *:5355                     *:* users:(("systemd-resolve",pid=601,fd=12))
+UNCONN     0      0         :::5355                    :::* users:(("systemd-resolve",pid=601,fd=14))
+
+-bash-4.3# nping --udp -p 5355 --data-length 0 -c 1 localhost
+
+-bash-4.3# journalctl -u systemd-resolved -b --no-hostname
+...
+May 21 14:59:22 systemd-resolved[601]: Event source llmnr-ipv4-udp (type io) returned error, disabling: Input/output error
+...
+
+-bash-4.3# nping --udp -p 5355 --data-length 1000 -c 1 localhost
+
+-bash-4.3# ss --udp -l
+State      Recv-Q Send-Q Local Address:Port                 Peer Address:Port
+UNCONN     2304   0          *:5355                     *:*
+UNCONN     0      0         :::5355                    :::*
+(cherry picked from commit f134289ac59560946e6559d9487e60c7690396ba)
+---
+ src/resolve/resolved-manager.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/resolve/resolved-manager.c b/src/resolve/resolved-manager.c
+index 7f9073448a..aeb2b78523 100644
+--- a/src/resolve/resolved-manager.c
++++ b/src/resolve/resolved-manager.c
+@@ -643,6 +643,8 @@ int manager_recv(Manager *m, int fd, DnsProtocol protocol, DnsPacket **ret) {
+         mh.msg_controllen = sizeof(control);
+ 
+         l = recvmsg(fd, &mh, 0);
++        if (l == 0)
++                return 0;
+         if (l < 0) {
+                 if (errno == EAGAIN || errno == EINTR)
+                         return 0;
+@@ -650,9 +652,6 @@ int manager_recv(Manager *m, int fd, DnsProtocol protocol, DnsPacket **ret) {
+                 return -errno;
+         }
+ 
+-        if (l <= 0)
+-                return -EIO;
+-
+         assert(!(mh.msg_flags & MSG_CTRUNC));
+         assert(!(mh.msg_flags & MSG_TRUNC));
+ 

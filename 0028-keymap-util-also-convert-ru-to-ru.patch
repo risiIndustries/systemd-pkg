@@ -1,0 +1,59 @@
+From e8acb2eb8186d0c46059c0a18d328839886ccd36 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 29 May 2016 23:36:44 -0400
+Subject: [PATCH] keymap-util: also "convert" 'ru' to 'ru'
+
+As discovered by Adam Williamson in
+https://bugzilla.redhat.com/show_bug.cgi?id=1333998#c32, after the changes in
+81fd105a5f9 we would only match compound layouts, i.e. a comma would be
+required after 'ru' to match. This seems wrong, and we should match single
+layouts like too. So 'ru', 'ru,us' now both match.
+
+startswith_comma is changed to not require a comma, i.e. check that the prefix
+matches until a comma or the end of the string. Note that startswith_comma is
+called twice. At the first site, we check that strings are not equal
+beforehand, so this change to startswith_comma has no effect. At the second
+site, it does have an effect, as described above.
+
+(This commit is cherry-picked from
+https://github.com/systemd/systemd/pull/3384.)
+---
+ src/locale/localed.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/src/locale/localed.c b/src/locale/localed.c
+index a2fc6af4c9..62f8341cb9 100644
+--- a/src/locale/localed.c
++++ b/src/locale/localed.c
+@@ -101,9 +101,11 @@ static const char* nonempty(const char *s) {
+ }
+ 
+ static bool startswith_comma(const char *s, const char *prefix) {
+-        const char *t;
++        s = startswith(s, prefix);
++        if (!s)
++                return false;
+ 
+-        return s && (t = startswith(s, prefix)) && (*t == ',');
++        return *s == ',' || *s == '\0';
+ }
+ 
+ static void context_free_x11(Context *c) {
+@@ -681,6 +683,8 @@ static int find_legacy_keymap(Context *c, char **new_keymap) {
+         unsigned best_matching = 0;
+         int r;
+ 
++        assert(c->x11_layout);
++
+         f = fopen(SYSTEMD_KBD_MODEL_MAP, "re");
+         if (!f)
+                 return -errno;
+@@ -696,7 +700,7 @@ static int find_legacy_keymap(Context *c, char **new_keymap) {
+                         break;
+ 
+                 /* Determine how well matching this entry is */
+-                if (streq_ptr(c->x11_layout, a[1]))
++                if (streq(c->x11_layout, a[1]))
+                         /* If we got an exact match, this is best */
+                         matching = 10;
+                 else {

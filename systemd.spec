@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        7%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        8%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -53,10 +53,20 @@ Patch0016:      0016-hashmap-use-void-and-uint8_t-for-generic-pointers.patch
 Patch0017:      0017-resolved-fix-notification-iteration-logic-when-trans.patch
 Patch0018:      0018-selinux-always-try-to-load-the-full-selinux-db.patch
 Patch0019:      0019-selinux-use-raw-variants-of-security_compute_create-.patch
-Patch0020:      0020-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-Patch0021:      0021-test-compress-benchmark-skip-loop-iteration-if-size-.patch
+Patch0020:      0020-test-compress-benchmark-skip-loop-iteration-if-size-.patch
+Patch0021:      0021-time-util-fall-back-to-CLOCK_MONOTONIC-if-CLOCK_BOOT.patch
+Patch0022:      0022-headers-use-__inline__-instead-of-inline.patch
+Patch0023:      0023-dev-console-must-be-labeled-with-SELinux-label.patch
+Patch0024:      0024-fstab-generator-fix-automount-option-and-don-t-start.patch
+Patch0025:      0025-shared-add-a-temporary-work-around-for-kernel-header.patch
+Patch0026:      0026-Make-the-fix-for-net-if.h-fuckup-even-worse-3287.patch
+Patch0027:      0027-check-for-valid-resume-in-order-to-allow-a-hibernate.patch
+Patch0028:      0028-keymap-util-also-convert-ru-to-ru.patch
+Patch0029:      0029-resolved-don-t-stop-handle-messages-after-receiving-.patch
+Patch0030:      0030-sd-device-udev-db-handle-properties-with-empty-value.patch
+Patch0031:      0031-core-fix-the-reversed-sanity-check-when-setting-Star.patch
 
-Patch0999:      0999-Add-a-workaround-for-linux-net-if.h-conflict.patch
+Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -936,6 +946,11 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Mon May 30 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@bupkis> - 229-8
+- Patches for #1316964, #1317928, #1338823
+- Make localed convert X11 'ru' layout to 'ru' console keymap (#1333998)
+- Don't advertise hibernation if resume= is not specified (#1206936)
+
 * Tue Mar 22 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-7
 - Add myhostname to /etc/nsswitch.conf (#1318303)
 

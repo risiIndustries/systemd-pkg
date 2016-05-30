@@ -1,0 +1,45 @@
+From 8becf310b0b72abe8e0bd9707fc8064636609e30 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 20 May 2016 09:12:42 -0400
+Subject: [PATCH] Make the fix for net/if.h fuckup even worse (#3287)
+
+The original conflict is fixed in the kernel in v4.6-rc7-40-g4a91cb61bb,
+but now our work-around causes a compilation failure.
+Keep the workaround to support 4.5 kernels for now, and layer
+more ugliness on top.
+
+Tested with:
+kernel-headers-4.6.0-1.fc25.x86_64
+glibc-devel-2.23.90-18.fc25.x86_64
+
+kernel-headers-4.5.4-300.fc24.x86_64
+glibc-devel-2.23.1-7.fc24.x86_64
+
+kernel-headers-4.4.9-300.fc23.x86_64
+glibc-devel-2.22-16.fc23.x86_64
+
+kernel-headers-4.1.13-100.fc21.x86_64
+glibc-devel-2.20-8.fc21.x86_64
+---
+ src/shared/firewall-util.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/shared/firewall-util.c b/src/shared/firewall-util.c
+index ade2de7727..efcde9563d 100644
+--- a/src/shared/firewall-util.c
++++ b/src/shared/firewall-util.c
+@@ -29,12 +29,10 @@
+ #include <string.h>
+ #include <sys/socket.h>
+ #include <net/if.h>
+-#include <linux/if.h>
+ #ifndef IFNAMSIZ
+-#undef _NET_IF_H
+-/* Let's make sure to include this one, too, if IFNAMSIZ isn't defined yet, as it is for kernels <= 4.2 */
+-#include <net/if.h>
++#define IFNAMSIZ 16
+ #endif
++#include <linux/if.h>
+ #include <linux/netfilter_ipv4/ip_tables.h>
+ #include <linux/netfilter/nf_nat.h>
+ #include <linux/netfilter/xt_addrtype.h>
