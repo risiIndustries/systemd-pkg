@@ -1,0 +1,176 @@
+From 8cb2654db12ef043c3e93bae21d421de420a064d Mon Sep 17 00:00:00 2001
+From: Susant Sahani <ssahani@users.noreply.github.com>
+Date: Thu, 21 Apr 2016 06:04:13 +0530
+Subject: [PATCH 1/2] networkd: bump MTU to 1280 for interfaces which have IPv6
+ enabled (#3077)
+
+IPv6 protocol requires a minimum MTU of 1280 bytes on the interface.
+This fixes #3046.
+
+Introduce helper link_ipv6_enabled() to figure out whether IPV6 is enabled.
+Introduce network_has_static_ipv6_addresses() to find out if any static
+ipv6 address configured.
+If IPv6 is not configured on any interface that is SLAAC, DHCPv6 and static
+IPv6 addresses not configured, then IPv6 will be automatically disabled for that
+interface, that is we write "1" to /proc/sys/net/ipv6/conf//disable_ipv6.
+(cherry picked from commit 439689c6ec48faba67565562d75701d5736567e7)
+Related: #1352378
+---
+ man/systemd.network.xml        |  2 ++
+ src/basic/missing.h            |  4 ++++
+ src/network/networkd-link.c    | 50 +++++++++++++++++++++++++++++++++++++++++-
+ src/network/networkd-network.c | 13 +++++++++++
+ src/network/networkd-network.h |  2 ++
+ 5 files changed, 70 insertions(+), 1 deletion(-)
+
+diff --git a/man/systemd.network.xml b/man/systemd.network.xml
+index f88751b..e3df1b3 100644
+--- a/man/systemd.network.xml
++++ b/man/systemd.network.xml
+@@ -202,6 +202,8 @@
+           <para>The maximum transmission unit in bytes to set for the
+           device. The usual suffixes K, M, G, are supported and are
+           understood to the base of 1024.</para>
++          <para>Note that if IPv6 is enabled on the interface, and the MTU is chosen
++          below 1280 (the minimum MTU for IPv6) it will automatically be increased to this value.</para>
+         </listitem>
+       </varlistentry>
+     </variablelist>
+diff --git a/src/basic/missing.h b/src/basic/missing.h
+index 36b0604..048b3fb 100644
+--- a/src/basic/missing.h
++++ b/src/basic/missing.h
+@@ -912,6 +912,10 @@ static inline int setns(int fd, int nstype) {
+ #define IPV6_UNICAST_IF 76
+ #endif
+ 
++#ifndef IPV6_MIN_MTU
++#define IPV6_MIN_MTU 1280
++#endif
++
+ #ifndef IFF_MULTI_QUEUE
+ #define IFF_MULTI_QUEUE 0x100
+ #endif
+diff --git a/src/network/networkd-link.c b/src/network/networkd-link.c
+index 692c0bf..a6039dd 100644
+--- a/src/network/networkd-link.c
++++ b/src/network/networkd-link.c
+@@ -88,6 +88,15 @@ bool link_ipv6ll_enabled(Link *link) {
+         return link->network->link_local & ADDRESS_FAMILY_IPV6;
+ }
+ 
++static bool link_ipv6_enabled(Link *link) {
++        assert(link);
++
++        if (!socket_ipv6_is_supported())
++                return false;
++
++        return link_dhcp6_enabled(link) || link_ipv6ll_enabled(link) || network_has_static_ipv6_addresses(link->network);
++}
++
+ bool link_lldp_enabled(Link *link) {
+         if (link->flags & IFF_LOOPBACK)
+                 return false;
+@@ -167,6 +176,31 @@ static IPv6PrivacyExtensions link_ipv6_privacy_extensions(Link *link) {
+         return link->network->ipv6_privacy_extensions;
+ }
+ 
++static int link_enable_ipv6(Link *link) {
++        const char *p = NULL;
++        bool disabled;
++        int r;
++
++        if (link->flags & IFF_LOOPBACK)
++                return 0;
++
++        disabled = !link_ipv6_enabled(link);
++
++        p = strjoina("/proc/sys/net/ipv6/conf/", link->ifname, "/disable_ipv6");
++
++        r = write_string_file(p, one_zero(disabled), WRITE_STRING_FILE_VERIFY_ON_FAILURE);
++        if (r < 0)
++                log_link_warning_errno(link, r, "Cannot %s IPv6 for interface %s: %m", disabled ? "disable" : "enable", link->ifname);
++        else {
++                if (disabled)
++                        log_link_info(link, "IPv6 disabled for interface: %m");
++                else
++                        log_link_info(link, "IPv6 enabled for interface: %m");
++        }
++
++        return 0;
++}
++
+ void link_update_operstate(Link *link) {
+         LinkOperationalState operstate;
+         assert(link);
+@@ -1382,7 +1416,21 @@ static int link_up(Link *link) {
+                         return log_link_error_errno(link, r, "Could not set MAC address: %m");
+         }
+ 
++        /* If IPv6 not configured (no static IPv6 address and neither DHCPv6 nor IPv6LL is enabled)
++           for this interface then disable IPv6 else enable it. */
++        (void) link_enable_ipv6(link);
++
+         if (link->network->mtu) {
++                /* IPv6 protocol requires a minimum MTU of IPV6_MTU_MIN(1280) bytes
++                   on the interface. Bump up MTU bytes to IPV6_MTU_MIN. */
++                if (link_ipv6_enabled(link) && link->network->mtu < IPV6_MIN_MTU) {
++
++                        log_link_warning(link, "Bumping MTU to " STRINGIFY(IPV6_MIN_MTU) ", as "
++                                         "IPv6 is requested and requires a minimum MTU of " STRINGIFY(IPV6_MIN_MTU) " bytes: %m");
++
++                        link->network->mtu = IPV6_MIN_MTU;
++                }
++
+                 r = sd_netlink_message_append_u32(req, IFLA_MTU, link->network->mtu);
+                 if (r < 0)
+                         return log_link_error_errno(link, r, "Could not set MTU: %m");
+@@ -1392,7 +1440,7 @@ static int link_up(Link *link) {
+         if (r < 0)
+                 return log_link_error_errno(link, r, "Could not open IFLA_AF_SPEC container: %m");
+ 
+-        if (socket_ipv6_is_supported()) {
++        if (link_ipv6_enabled(link)) {
+                 /* if the kernel lacks ipv6 support setting IFF_UP fails if any ipv6 options are passed */
+                 r = sd_netlink_message_open_container(req, AF_INET6);
+                 if (r < 0)
+diff --git a/src/network/networkd-network.c b/src/network/networkd-network.c
+index 54f76fe..9f2cbce 100644
+--- a/src/network/networkd-network.c
++++ b/src/network/networkd-network.c
+@@ -394,6 +394,19 @@ int network_apply(Manager *manager, Network *network, Link *link) {
+         return 0;
+ }
+ 
++bool network_has_static_ipv6_addresses(Network *network) {
++        Address *address;
++
++        assert(network);
++
++        LIST_FOREACH(addresses, address, network->static_addresses) {
++                if (address->family == AF_INET6)
++                        return true;
++        }
++
++        return false;
++}
++
+ int config_parse_netdev(const char *unit,
+                 const char *filename,
+                 unsigned line,
+diff --git a/src/network/networkd-network.h b/src/network/networkd-network.h
+index 03c3f20..16533a7 100644
+--- a/src/network/networkd-network.h
++++ b/src/network/networkd-network.h
+@@ -168,6 +168,8 @@ int network_get_by_name(Manager *manager, const char *name, Network **ret);
+ int network_get(Manager *manager, struct udev_device *device, const char *ifname, const struct ether_addr *mac, Network **ret);
+ int network_apply(Manager *manager, Network *network, Link *link);
+ 
++bool network_has_static_ipv6_addresses(Network *network);
++
+ int config_parse_netdev(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_domains(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_tunnel(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+-- 
+2.7.4
+

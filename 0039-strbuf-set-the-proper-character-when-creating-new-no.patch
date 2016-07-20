@@ -1,0 +1,64 @@
+From c8db0d7662af5aa4d43c4e61fb09715b8436bdab Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Tue, 3 May 2016 22:15:49 +0200
+Subject: [PATCH 8/8] strbuf: set the proper character when creating new nodes
+
+Commit 82501b3fc added an early break when a terminal node is found to
+incorrect place -- before setting c. This caused trie to be built that
+does not correspond to what it points to in buffer, causing incorrect
+deduplications:
+
+  # cat /etc/udev/rules.d/99-bug.rules
+  ENV{FOO}=="0"
+  ENV{xx0}=="BAR"
+  ENV{BAZ}=="00"
+
+  # udevadm test
+  * RULE /etc/udev/rules.d/99-bug.rules:1, token: 0, count: 2, label: ''
+  M ENV match 'FOO' '0'(plain)
+  * RULE /etc/udev/rules.d/99-bug.rules:2, token: 2, count: 2, label: ''
+  M ENV match 'xx0' 'BAR'(plain)
+  * RULE /etc/udev/rules.d/99-bug.rules:3, token: 4, count: 2, label: ''
+  M ENV match 'BAZ' 'x0'(plain)
+  * END
+
+The addition of "xx0" following "0" will cause a trie like this to be
+created:
+
+  c=\0
+    c=0 "0"
+      c=0 "xx0"  <-- note the c is incorrect here, causing "00" to be
+    c=O "FOO"        deduplicated to it
+    c=R "BAR"
+
+This in effect caused the usb_modeswitch rule for Huawei modems to never
+match and this never be switched to serial mode from mass storage.
+
+(cherry picked from commit c45606eb95a7171b0dc801e91d35034957ad5e9e)
+Resolves: #1357822
+---
+ src/basic/strbuf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/basic/strbuf.c b/src/basic/strbuf.c
+index dac2881..79eef6c 100644
+--- a/src/basic/strbuf.c
++++ b/src/basic/strbuf.c
+@@ -156,12 +156,13 @@ ssize_t strbuf_add_string(struct strbuf *str, const char *s, size_t len) {
+                         return off;
+                 }
+ 
++                c = s[len - 1 - depth];
++
+                 /* bsearch is not allowed on a NULL sequence */
+                 if (node->children_count == 0)
+                         break;
+ 
+                 /* lookup child node */
+-                c = s[len - 1 - depth];
+                 search.c = c;
+                 child = bsearch(&search, node->children, node->children_count,
+                                 sizeof(struct strbuf_child_entry),
+-- 
+2.7.4
+

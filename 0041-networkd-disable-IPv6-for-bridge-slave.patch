@@ -1,0 +1,44 @@
+From e6fa5ce26d67724cf94addbf14aa100965b78a05 Mon Sep 17 00:00:00 2001
+From: Tom Yan <tom.ty89@gmail.com>
+Date: Sat, 28 May 2016 13:35:01 +0800
+Subject: [PATCH 2/2] networkd: disable IPv6 for bridge slave
+
+If an interface is managed as a bridge slave, we don't want any IP configuration for it. Therefore, disable IPv6 in such case.
+
+(cherry picked from commit 2b00a4e03dc375465de7f60f3a6937cbe8ffdf31)
+Resolves: #1352378
+---
+ src/network/networkd-link.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/src/network/networkd-link.c b/src/network/networkd-link.c
+index a6039dd..13f9e89 100644
+--- a/src/network/networkd-link.c
++++ b/src/network/networkd-link.c
+@@ -94,7 +94,11 @@ static bool link_ipv6_enabled(Link *link) {
+         if (!socket_ipv6_is_supported())
+                 return false;
+ 
+-        return link_dhcp6_enabled(link) || link_ipv6ll_enabled(link) || network_has_static_ipv6_addresses(link->network);
++        if (link->network->bridge)
++                return false;
++
++        /* DHCPv6 client will not be started if no IPv6 link-local address is configured. */
++        return link_ipv6ll_enabled(link) || network_has_static_ipv6_addresses(link->network);
+ }
+ 
+ bool link_lldp_enabled(Link *link) {
+@@ -1416,8 +1420,8 @@ static int link_up(Link *link) {
+                         return log_link_error_errno(link, r, "Could not set MAC address: %m");
+         }
+ 
+-        /* If IPv6 not configured (no static IPv6 address and neither DHCPv6 nor IPv6LL is enabled)
+-           for this interface then disable IPv6 else enable it. */
++        /* If IPv6 not configured (no static IPv6 address and IPv6LL autoconfiguration is disabled)
++           for this interface, or if it is a bridge slave, then disable IPv6 else enable it. */
+         (void) link_enable_ipv6(link);
+ 
+         if (link->network->mtu) {
+-- 
+2.7.4
+

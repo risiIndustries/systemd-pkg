@@ -1,0 +1,159 @@
+From e62432d67c5a4c1a9315179aa92119cf15f4210a Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 16 Jun 2016 15:29:16 +0200
+Subject: [PATCH 6/8] systemctl: make sure we terminate the bus connection
+ first, and then close the pager (#3550)
+
+If "systemctl -H" is used, let's make sure we first terminate the bus
+connection, and only then close the pager. If done in this order ssh will get
+an EOF on stdin (as we speak D-Bus through ssh's stdin/stdout), and then
+terminate. This makes sure the standard error we were invoked on is released by
+ssh, and only that makes sure we don't deadlock on the pager which waits for
+all clients closing its input pipe.
+
+(Similar fixes for the various other xyzctl tools that support both pagers and
+-H)
+
+Fixes: #3543
+(cherry picked from commit cf647b69baee4c478d3909c327e3d917e1563f44)
+Resolves: #1341179
+---
+ src/libsystemd/sd-bus/busctl.c | 3 ++-
+ src/locale/localectl.c         | 3 ++-
+ src/login/loginctl.c           | 4 +++-
+ src/machine/machinectl.c       | 3 ++-
+ src/systemctl/systemctl.c      | 4 ++--
+ src/timedate/timedatectl.c     | 3 ++-
+ 6 files changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/src/libsystemd/sd-bus/busctl.c b/src/libsystemd/sd-bus/busctl.c
+index 35fabf0..c806d6f 100644
+--- a/src/libsystemd/sd-bus/busctl.c
++++ b/src/libsystemd/sd-bus/busctl.c
+@@ -1974,7 +1974,7 @@ static int busctl_main(sd_bus *bus, int argc, char *argv[]) {
+ }
+ 
+ int main(int argc, char *argv[]) {
+-        _cleanup_(sd_bus_flush_close_unrefp) sd_bus *bus = NULL;
++        sd_bus *bus = NULL;
+         int r;
+ 
+         log_parse_environment();
+@@ -2065,6 +2065,7 @@ int main(int argc, char *argv[]) {
+         r = busctl_main(bus, argc, argv);
+ 
+ finish:
++        sd_bus_flush_close_unref(bus);
+         pager_close();
+ 
+         strv_free(arg_matches);
+diff --git a/src/locale/localectl.c b/src/locale/localectl.c
+index 365c79a..45404f1 100644
+--- a/src/locale/localectl.c
++++ b/src/locale/localectl.c
+@@ -664,7 +664,7 @@ static int localectl_main(sd_bus *bus, int argc, char *argv[]) {
+ }
+ 
+ int main(int argc, char*argv[]) {
+-        _cleanup_(sd_bus_flush_close_unrefp) sd_bus *bus = NULL;
++        sd_bus *bus = NULL;
+         int r;
+ 
+         setlocale(LC_ALL, "");
+@@ -684,6 +684,7 @@ int main(int argc, char*argv[]) {
+         r = localectl_main(bus, argc, argv);
+ 
+ finish:
++        sd_bus_flush_close_unref(bus);
+         pager_close();
+ 
+         return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+diff --git a/src/login/loginctl.c b/src/login/loginctl.c
+index 6ad3d08..601d180 100644
+--- a/src/login/loginctl.c
++++ b/src/login/loginctl.c
+@@ -1532,7 +1532,7 @@ static int loginctl_main(int argc, char *argv[], sd_bus *bus) {
+ }
+ 
+ int main(int argc, char *argv[]) {
+-        _cleanup_(sd_bus_flush_close_unrefp) sd_bus *bus = NULL;
++        sd_bus *bus = NULL;
+         int r;
+ 
+         setlocale(LC_ALL, "");
+@@ -1554,6 +1554,8 @@ int main(int argc, char *argv[]) {
+         r = loginctl_main(argc, argv, bus);
+ 
+ finish:
++        sd_bus_flush_close_unref(bus);
++
+         pager_close();
+         polkit_agent_close();
+ 
+diff --git a/src/machine/machinectl.c b/src/machine/machinectl.c
+index 4853139..4798228 100644
+--- a/src/machine/machinectl.c
++++ b/src/machine/machinectl.c
+@@ -2646,7 +2646,7 @@ static int machinectl_main(int argc, char *argv[], sd_bus *bus) {
+ }
+ 
+ int main(int argc, char*argv[]) {
+-        _cleanup_(sd_bus_flush_close_unrefp) sd_bus *bus = NULL;
++        sd_bus *bus = NULL;
+         int r;
+ 
+         setlocale(LC_ALL, "");
+@@ -2668,6 +2668,7 @@ int main(int argc, char*argv[]) {
+         r = machinectl_main(argc, argv, bus);
+ 
+ finish:
++        sd_bus_flush_close_unref(bus);
+         pager_close();
+         polkit_agent_close();
+ 
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index b4581fe..0996920 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -7684,6 +7684,8 @@ int main(int argc, char*argv[]) {
+         }
+ 
+ finish:
++        release_busses();
++
+         pager_close();
+         ask_password_agent_close();
+         polkit_agent_close();
+@@ -7695,8 +7697,6 @@ finish:
+         strv_free(arg_wall);
+         free(arg_root);
+ 
+-        release_busses();
+-
+         /* Note that we return r here, not EXIT_SUCCESS, so that we can implement the LSB-like return codes */
+ 
+         return r < 0 ? EXIT_FAILURE : r;
+diff --git a/src/timedate/timedatectl.c b/src/timedate/timedatectl.c
+index 097963b..7e88fd1 100644
+--- a/src/timedate/timedatectl.c
++++ b/src/timedate/timedatectl.c
+@@ -488,7 +488,7 @@ static int timedatectl_main(sd_bus *bus, int argc, char *argv[]) {
+ }
+ 
+ int main(int argc, char *argv[]) {
+-        _cleanup_(sd_bus_flush_close_unrefp) sd_bus *bus = NULL;
++        sd_bus *bus = NULL;
+         int r;
+ 
+         setlocale(LC_ALL, "");
+@@ -508,6 +508,7 @@ int main(int argc, char *argv[]) {
+         r = timedatectl_main(bus, argc, argv);
+ 
+ finish:
++        sd_bus_flush_close_unref(bus);
+         pager_close();
+ 
+         return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+-- 
+2.7.4
+

@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        8%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        9%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -65,6 +65,16 @@ Patch0028:      0028-keymap-util-also-convert-ru-to-ru.patch
 Patch0029:      0029-resolved-don-t-stop-handle-messages-after-receiving-.patch
 Patch0030:      0030-sd-device-udev-db-handle-properties-with-empty-value.patch
 Patch0031:      0031-core-fix-the-reversed-sanity-check-when-setting-Star.patch
+Patch0032:      0032-core-make-sure-to-close-connection-fd-when-we-fail-t.patch
+Patch0033:      0033-device-Ensure-we-have-sysfs-path-before-comparing.patch
+Patch0034:      0034-networkctl-split-out-system-status-stuff-into-its-ow.patch
+Patch0035:      0035-systemd-user-call-pam_loginuid-when-creating-user-.s.patch
+Patch0036:      0036-systemctl-suppress-no-Install-hint-when-quiet-is-use.patch
+Patch0037:      0037-systemctl-make-sure-we-terminate-the-bus-connection-.patch
+Patch0038:      0038-core-move-start-ratelimiting-check-after-condition-c.patch
+Patch0039:      0039-strbuf-set-the-proper-character-when-creating-new-no.patch
+Patch0040:      0040-networkd-bump-MTU-to-1280-for-interfaces-which-have-.patch
+Patch0041:      0041-networkd-disable-IPv6-for-bridge-slave.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -949,6 +959,19 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Wed Jul 20 2016 Jan Synáček <jsynacek@redhat.com> - 229-9
+- core: make sure to close connection fd when we fail to activate a per-connection service (#1310608)
+- device: Ensure we have sysfs path before comparing. (#1321392)
+- networkctl: split out system status stuff into its own function (#1325462)
+- systemd --user: call pam_loginuid when creating user@.service (#3120) (#1328947)
+- systemctl: suppress no-[Install] hint when --quiet is used (#3295) (#1336960)
+- systemctl: make sure we terminate the bus connection first, and then close the pager (#3550) (#1341179)
+- core: move start ratelimiting check after condition checks (#1350686)
+- strbuf: set the proper character when creating new nodes (#1357822)
+- fix: networkctl status: abort, munmap_chunk(): invalid pointer (#1339131)
+- networkd: bump MTU to 1280 for interfaces which have IPv6 enabled (#3077) (#1352378)
+- networkd: disable IPv6 for bridge slave (#1352378)
+
 * Mon May 30 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@bupkis> - 229-8
 - Patches for #1316964, #1317928, #1338823
 - Make localed convert X11 'ru' layout to 'ru' console keymap (#1333998)
