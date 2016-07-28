@@ -1,0 +1,32 @@
+From de2edc008a612e152f0690d5063d53001c4e13ff Mon Sep 17 00:00:00 2001
+From: Franck Bui <fbui@suse.com>
+Date: Thu, 23 Jun 2016 22:31:01 +0200
+Subject: [PATCH] udev: bump TasksMax to inifinity (#3593)
+
+udevd already limits its number of workers/children: the max number is actually
+twice the number of CPUs the system is using.
+
+(The limit can also be raised with udev.children-max= kernel command line
+option BTW).
+
+On some servers, this limit can easily exceed the maximum number of tasks that
+systemd put on all services, which is 512 by default.
+
+Since udevd has already its limitation logic, simply disable the static
+limitation done by TasksMax.
+---
+ units/systemd-udevd.service.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/units/systemd-udevd.service.in b/units/systemd-udevd.service.in
+index 79f28c87c6..67e4c5fcd7 100644
+--- a/units/systemd-udevd.service.in
++++ b/units/systemd-udevd.service.in
+@@ -24,3 +24,4 @@ ExecStart=@rootlibexecdir@/systemd-udevd
+ MountFlags=slave
+ KillMode=mixed
+ WatchdogSec=3min
++TasksMax=infinity
+-- 
+2.9.0
+

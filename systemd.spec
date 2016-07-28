@@ -1,6 +1,5 @@
 #global gitcommit e35a7876b4ab1d53a7539a905613e31dc6ae50fd
 %global gitcommitshort %(c=%{gitcommit}; echo ${c:0:7})
-%global _hardened_build 1
 
 # We ship a .pc file but don't want to have a dep on pkg-config. We
 # strip the automatically generated dep here and instead co-own the
@@ -13,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        9%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        10%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -75,6 +74,7 @@ Patch0038:      0038-core-move-start-ratelimiting-check-after-condition-c.patch
 Patch0039:      0039-strbuf-set-the-proper-character-when-creating-new-no.patch
 Patch0040:      0040-networkd-bump-MTU-to-1280-for-interfaces-which-have-.patch
 Patch0041:      0041-networkd-disable-IPv6-for-bridge-slave.patch
+Patch0042:      0042-udev-bump-TasksMax-to-inifinity-3593.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -959,6 +959,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Jul 28 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-10
+- Backport patch which prevents udevd from choking on task limits
+
 * Wed Jul 20 2016 Jan Synáček <jsynacek@redhat.com> - 229-9
 - core: make sure to close connection fd when we fail to activate a per-connection service (#1310608)
 - device: Ensure we have sysfs path before comparing. (#1321392)
