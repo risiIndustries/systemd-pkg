@@ -1,0 +1,33 @@
+From 3085120636da344db53ba32d3f3509e0f8a2080d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 9 Aug 2016 10:54:05 -0400
+Subject: [PATCH] coredump: ignore RLIMIT_CORE
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1309172#c21
+---
+ src/coredump/coredump.c | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/src/coredump/coredump.c b/src/coredump/coredump.c
+index 085909c20c..aa07e68627 100644
+--- a/src/coredump/coredump.c
++++ b/src/coredump/coredump.c
+@@ -319,15 +319,6 @@ static int save_external_coredump(
+         if (r < 0)
+                 return log_error_errno(r, "Failed to parse UID: %m");
+ 
+-        r = safe_atou64(context[CONTEXT_RLIMIT], &rlimit);
+-        if (r < 0)
+-                return log_error_errno(r, "Failed to parse resource limit: %s", context[CONTEXT_RLIMIT]);
+-        if (rlimit <= 0) {
+-                /* Is coredumping disabled? Then don't bother saving/processing the coredump */
+-                log_info("Core Dumping has been disabled for process %s (%s).", context[CONTEXT_PID], context[CONTEXT_COMM]);
+-                return -EBADSLT;
+-        }
+-
+         /* Never store more than the process configured, or than we actually shall keep or process */
+         max_size = MIN(rlimit, MAX(arg_process_size_max, arg_external_size_max));
+ 
+-- 
+2.9.0
+

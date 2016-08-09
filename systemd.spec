@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        10%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        11%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -75,6 +75,9 @@ Patch0039:      0039-strbuf-set-the-proper-character-when-creating-new-no.patch
 Patch0040:      0040-networkd-bump-MTU-to-1280-for-interfaces-which-have-.patch
 Patch0041:      0041-networkd-disable-IPv6-for-bridge-slave.patch
 Patch0042:      0042-udev-bump-TasksMax-to-inifinity-3593.patch
+Patch0043:      0043-networkd-disable-IPv6-for-bridge-slave.patch
+Patch0044:      0044-networkd-add-route-expiration-handler-3242.patch
+Patch0045:      0045-coredump-ignore-RLIMIT_CORE.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -959,6 +962,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Aug  9 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-11
+- Ignore RLIMIT_CORE temporarily for F24 (#1309172, see comment 24)
+- Two networkd fixes (#1344661, #1350219)
+
 * Thu Jul 28 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-10
 - Backport patch which prevents udevd from choking on task limits
 
@@ -974,6 +981,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 - fix: networkctl status: abort, munmap_chunk(): invalid pointer (#1339131)
 - networkd: bump MTU to 1280 for interfaces which have IPv6 enabled (#3077) (#1352378)
 - networkd: disable IPv6 for bridge slave (#1352378)
+- machinectl man page is packaged (#1351572)
 
 * Mon May 30 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@bupkis> - 229-8
 - Patches for #1316964, #1317928, #1338823

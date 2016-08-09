@@ -1,0 +1,65 @@
+From 3f1b2afc490a79ca4c9f592bc7615248a5fb7dba Mon Sep 17 00:00:00 2001
+From: Susant Sahani <ssahani@users.noreply.github.com>
+Date: Wed, 18 May 2016 07:06:43 +0530
+Subject: [PATCH] networkd: add route expiration handler (#3242)
+
+Fix for #3232.
+(cherry picked from commit fe7ca21acfb9fcef6cf8ce9f945377667a26a27c)
+---
+ src/network/networkd-route.c | 32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/src/network/networkd-route.c b/src/network/networkd-route.c
+index e065a5a5a9..aa9c71550f 100644
+--- a/src/network/networkd-route.c
++++ b/src/network/networkd-route.c
+@@ -411,15 +411,45 @@ int route_remove(Route *route, Link *link,
+         return 0;
+ }
+ 
++static int route_expire_callback(sd_netlink *rtnl, sd_netlink_message *m, void *userdata) {
++        Link *link = userdata;
++        int r;
++
++        assert(rtnl);
++        assert(m);
++        assert(link);
++        assert(link->ifname);
++        assert(link->link_messages > 0);
++
++        if (IN_SET(link->state, LINK_STATE_FAILED, LINK_STATE_LINGER))
++                return 1;
++
++        link->link_messages--;
++
++        r = sd_netlink_message_get_errno(m);
++        if (r < 0 && r != -EEXIST)
++                log_link_warning_errno(link, r, "could not remove route: %m");
++
++        if (link->link_messages == 0)
++                log_link_debug(link, "route removed");
++
++        return 1;
++}
++
+ int route_expire_handler(sd_event_source *s, uint64_t usec, void *userdata) {
+         Route *route = userdata;
+         int r;
+ 
+         assert(route);
+ 
+-        r = route_remove(route, route->link, NULL);
++        r = route_remove(route, route->link, route_expire_callback);
+         if (r < 0)
+                 log_warning_errno(r, "Could not remove route: %m");
++        else {
++                /* route may not be exist in kernel. If we fail still remove it */
++                route->link->link_messages++;
++                route_free(route);
++        }
+ 
+         return 1;
+ }
+-- 
+2.9.0
+

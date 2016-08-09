@@ -1,0 +1,29 @@
+From 01f57264055f83bbb7f9e1ca6d51e260768d1b5f Mon Sep 17 00:00:00 2001
+From: Tom Yan <tom.ty89@gmail.com>
+Date: Sat, 28 May 2016 13:35:01 +0800
+Subject: [PATCH] networkd: disable IPv6 for bridge slave
+
+If an interface is managed as a bridge slave, we don't want any IP configuration for it. Therefore, disable IPv6 in such case.
+
+(loosely based upon commit 2b00a4e03dc375465de7f60f3a6937cbe8ffdf31)
+---
+ src/network/networkd-link.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/network/networkd-link.c b/src/network/networkd-link.c
+index 692c0bf63d..4fe3b888d2 100644
+--- a/src/network/networkd-link.c
++++ b/src/network/networkd-link.c
+@@ -45,6 +45,9 @@ bool link_dhcp6_enabled(Link *link) {
+         if (!link->network)
+                 return false;
+ 
++        if (link->network->bridge)
++                return false;
++
+         return link->network->dhcp & ADDRESS_FAMILY_IPV6;
+ }
+ 
+-- 
+2.9.0
+
