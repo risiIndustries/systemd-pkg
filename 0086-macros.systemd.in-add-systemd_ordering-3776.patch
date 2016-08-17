@@ -1,0 +1,37 @@
+From 2c3f5a607188d876b3dcfb0075dab79eda914803 Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Fri, 22 Jul 2016 15:33:13 +0200
+Subject: [PATCH] macros.systemd.in: add %systemd_ordering (#3776)
+
+To remove the hard dependency on systemd, for packages, which function
+without a running systemd the %systemd_ordering macro can be used to
+ensure ordering in the rpm transaction. %systemd_ordering makes sure,
+the systemd rpm is installed prior to the package, so the %pre/%post
+scripts can execute the systemd parts.
+
+Installing systemd afterwards though, does not result in the same outcome.
+(cherry picked from commit 2424b6bd716f0c1c3bf3406b1fd1a16ba1b6a556)
+---
+ src/core/macros.systemd.in | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/core/macros.systemd.in b/src/core/macros.systemd.in
+index 2cace3d3ba..f3089cbcc9 100644
+--- a/src/core/macros.systemd.in
++++ b/src/core/macros.systemd.in
+@@ -36,6 +36,12 @@ Requires(preun): systemd \
+ Requires(postun): systemd \
+ %{nil}
+ 
++%systemd_ordering \
++OrderWithRequires(post): systemd \
++OrderWithRequires(preun): systemd \
++OrderWithRequires(postun): systemd \
++%{nil}
++
+ %systemd_post() \
+ if [ $1 -eq 1 ] ; then \
+         # Initial installation \
+-- 
+2.9.0
+

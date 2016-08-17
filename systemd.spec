@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        16%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -118,6 +118,7 @@ Patch0082:      0082-man-document-that-unit-file-globbing-only-operates-o.patch
 Patch0083:      0083-ask-password-api-only-emit-a-star-on-valid-unicode-c.patch
 Patch0084:      0084-core-add-new-RandomSec-setting-for-time-units.patch
 Patch0085:      0085-core-rename-Random-to-RandomizedDelay.patch
+Patch0086:      0086-macros.systemd.in-add-systemd_ordering-3776.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
@@ -859,8 +860,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
-* Tue Mar 15 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@bupkis> - 222-16
+* Wed Aug 17 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 222-16
 - Ignore the access mode on /var/log/journal (#1317570)
+- Add %%systemd_ordering macro
 
 * Thu Feb 11 2016 Jan Synáček <jsynacek@redhat.com> - 222-15
 - various fixes in kernel-install (#1244057)
