@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        12%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        13%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -79,6 +79,7 @@ Patch0043:      0043-networkd-disable-IPv6-for-bridge-slave.patch
 Patch0044:      0044-networkd-add-route-expiration-handler-3242.patch
 Patch0045:      0045-coredump-ignore-RLIMIT_CORE.patch
 Patch0046:      0046-networkd-link-fix-handler-typo-for-route_remove-3433.patch
+Patch0047:      0047-macros.systemd.in-add-systemd_ordering-3776.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -963,6 +964,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Wed Aug 17 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-13
+- Add %%systemd_ordering macro
+
 * Wed Aug 10 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-12
 - Fixup for the networkd route fix (#1365915)
 
