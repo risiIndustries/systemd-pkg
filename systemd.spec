@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        222
-Release:        16%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        17%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -119,11 +119,11 @@ Patch0083:      0083-ask-password-api-only-emit-a-star-on-valid-unicode-c.patch
 Patch0084:      0084-core-add-new-RandomSec-setting-for-time-units.patch
 Patch0085:      0085-core-rename-Random-to-RandomizedDelay.patch
 Patch0086:      0086-macros.systemd.in-add-systemd_ordering-3776.patch
+Patch0087:      If-the-notification-message-length-is-0-ignore-the-m.patch
 
 Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
 Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
 Patch999: 0047-Pass-pointer-to-unit-object-instead-of-unit-id.patch
-
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -860,6 +860,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Sep 29 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-17
+- Denial-of-service bug against pid1 (#1380286)
+
 * Wed Aug 17 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 222-16
 - Ignore the access mode on /var/log/journal (#1317570)
 - Add %%systemd_ordering macro

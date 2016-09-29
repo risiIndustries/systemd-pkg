@@ -1,0 +1,48 @@
+From 619c8d786f8441dfe7fd9787533be8dfb9cc8a14 Mon Sep 17 00:00:00 2001
+From: Fedora systemd team <systemd-maint@redhat.com>
+Date: Sat, 1 Oct 2016 11:23:32 -0400
+Subject: [PATCH] Fix notification assert and return value from handler
+
+---
+ src/core/manager.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/core/manager.c b/src/core/manager.c
+index a1f37bbbb3..ea92e7aebf 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -1484,7 +1484,6 @@ static void manager_invoke_notify_message(Manager *m, Unit *u, pid_t pid, char *
+         assert(m);
+         assert(u);
+         assert(buf);
+-        assert(n > 0);
+ 
+         tags = strv_split(buf, "\n\r");
+         if (!tags) {
+@@ -1538,10 +1537,10 @@ static int manager_dispatch_notify_fd(sd_event_source *source, int fd, uint32_t
+ 
+                 n = recvmsg(m->notify_fd, &msghdr, MSG_DONTWAIT|MSG_CMSG_CLOEXEC);
+                 if (n < 0) {
+-                        if (errno == EAGAIN || errno == EINTR)
+-                                break;
++                        if (!IN_SET(errno, EAGAIN, EINTR))
++                                log_error("Failed to receive notification message: %m");
+ 
+-                        return -errno;
++                        return 0;
+                 }
+ 
+                 CMSG_FOREACH(cmsg, &msghdr) {
+@@ -1564,7 +1563,8 @@ static int manager_dispatch_notify_fd(sd_event_source *source, int fd, uint32_t
+                         r = fdset_new_array(&fds, fd_array, n_fds);
+                         if (r < 0) {
+                                 close_many(fd_array, n_fds);
+-                                return log_oom();
++                                log_oom();
++                                return 0;
+                         }
+                 }
+ 
+-- 
+2.9.0
+
