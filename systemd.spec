@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        13%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -80,6 +80,7 @@ Patch0044:      0044-networkd-add-route-expiration-handler-3242.patch
 Patch0045:      0045-coredump-ignore-RLIMIT_CORE.patch
 Patch0046:      0046-networkd-link-fix-handler-typo-for-route_remove-3433.patch
 Patch0047:      0047-macros.systemd.in-add-systemd_ordering-3776.patch
+Patch0048:      If-the-notification-message-length-is-0-ignore-the-m.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -964,6 +965,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu Sep 29 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-14
+- Denial-of-service bug against pid1 (#1380286)
+
 * Wed Aug 17 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-13
 - Add %%systemd_ordering macro
 
