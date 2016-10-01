@@ -119,11 +119,7 @@ Patch0083:      0083-ask-password-api-only-emit-a-star-on-valid-unicode-c.patch
 Patch0084:      0084-core-add-new-RandomSec-setting-for-time-units.patch
 Patch0085:      0085-core-rename-Random-to-RandomizedDelay.patch
 Patch0086:      0086-macros.systemd.in-add-systemd_ordering-3776.patch
-Patch0087:      If-the-notification-message-length-is-0-ignore-the-m.patch
-
-Patch997: 0001-Re-apply-walters-unit-patch-for-F23-systemd-v222.patch
-Patch998: 0001-Revert-core-mount-add-dependencies-to-dynamically-mo-v222.patch
-Patch999: 0047-Pass-pointer-to-unit-object-instead-of-unit-id.patch
+Patch0087:      0087-Fix-notification-assert-and-return-value-from-handle.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
