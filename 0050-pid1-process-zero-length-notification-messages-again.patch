@@ -1,4 +1,4 @@
-From 7597de4208a828e4bdccaf848a00c290fc0ad957 Mon Sep 17 00:00:00 2001
+From 62a4a4bca549ee6020aec90e540ce393a34c5605 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 29 Sep 2016 16:06:02 +0200
 Subject: [PATCH] pid1: process zero-length notification messages again

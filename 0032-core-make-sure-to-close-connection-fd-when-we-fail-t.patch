@@ -1,12 +1,12 @@
-From 68239871c255877a0f0ba9814b399e9adc01d186 Mon Sep 17 00:00:00 2001
+From 17c17ff59518267077632906ac39b7c69bf47f96 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 28 Apr 2016 17:09:50 +0200
-Subject: [PATCH 1/8] core: make sure to close connection fd when we fail to
+Subject: [PATCH] core: make sure to close connection fd when we fail to
  activate a per-connection service
 
 Fixes: #2993 #2691
 (cherry picked from commit 3e7a1f50e473a374e1657d2051237e2db04c4db2)
-Resolves: #1310608
+Resolves: rhbug#1310608
 ---
  src/core/service.c | 2 +-
  src/core/service.h | 1 +
@@ -14,7 +14,7 @@ Resolves: #1310608
  3 files changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/src/core/service.c b/src/core/service.c
-index ac7e41d..01d6582 100644
+index ac7e41d777..01d6582aec 100644
 --- a/src/core/service.c
 +++ b/src/core/service.c
 @@ -181,7 +181,7 @@ static int service_set_main_pid(Service *s, pid_t pid) {
@@ -27,7 +27,7 @@ index ac7e41d..01d6582 100644
  
          s->socket_fd = asynchronous_close(s->socket_fd);
 diff --git a/src/core/service.h b/src/core/service.h
-index d342e00..20bfd06 100644
+index d342e000bb..20bfd0662b 100644
 --- a/src/core/service.h
 +++ b/src/core/service.h
 @@ -200,6 +200,7 @@ struct Service {
@@ -39,7 +39,7 @@ index d342e00..20bfd06 100644
  const char* service_restart_to_string(ServiceRestart i) _const_;
  ServiceRestart service_restart_from_string(const char *s) _pure_;
 diff --git a/src/core/socket.c b/src/core/socket.c
-index 976687a..60906b1 100644
+index 976687af41..60906b196c 100644
 --- a/src/core/socket.c
 +++ b/src/core/socket.c
 @@ -1994,8 +1994,12 @@ static void socket_enter_running(Socket *s, int cfd) {
@@ -56,6 +56,3 @@ index 976687a..60906b1 100644
  
                  /* Notify clients about changed counters */
                  unit_add_to_dbus_queue(UNIT(s));
--- 
-2.7.4
-

@@ -1,4 +1,4 @@
-From 2c3f5a607188d876b3dcfb0075dab79eda914803 Mon Sep 17 00:00:00 2001
+From d485b5cd7153f146d7efd18c24ca09b5ddfe15e5 Mon Sep 17 00:00:00 2001
 From: Harald Hoyer <harald@redhat.com>
 Date: Fri, 22 Jul 2016 15:33:13 +0200
 Subject: [PATCH] macros.systemd.in: add %systemd_ordering (#3776)
@@ -32,6 +32,3 @@ index 2cace3d3ba..f3089cbcc9 100644
  %systemd_post() \
  if [ $1 -eq 1 ] ; then \
          # Initial installation \
--- 
-2.9.0
-

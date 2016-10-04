@@ -1,7 +1,7 @@
-From 7b175c402c0da5a8cc6fdbfc005ec43c0f5d00d4 Mon Sep 17 00:00:00 2001
+From 53f2649652c3e0ec756e3a4545a88f6bda24cbce Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Mon, 14 Mar 2016 09:42:07 +0000
-Subject: [PATCH 2/8] device: Ensure we have sysfs path before comparing.
+Subject: [PATCH] device: Ensure we have sysfs path before comparing.
 
 In some cases we do not have a udev device when setting up a unit
 (certainly the code gracefully handles this). However, we do
@@ -13,13 +13,13 @@ See https://bugs.mageia.org/show_bug.cgi?id=17766
 Not sure if this is the correct fix, but it avoids the crash
 
 (cherry picked from commit 5e1558f4a09e596561c9168384f2258e7c0718a1)
-Resolves: #1321392
+Resolves: rhbug#1321392
 ---
  src/core/device.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/core/device.c b/src/core/device.c
-index d201dc5..c64e01c 100644
+index d201dc5e4b..c64e01c2aa 100644
 --- a/src/core/device.c
 +++ b/src/core/device.c
 @@ -318,7 +318,7 @@ static int device_setup_unit(Manager *m, struct udev_device *dev, const char *pa
@@ -31,6 +31,3 @@ index d201dc5..c64e01c 100644
                  /* This unit is in plugged state: we're sure it's
                   * attached to a device. */
                  if (!path_equal(DEVICE(u)->sysfs, sysfs)) {
--- 
-2.7.4
-

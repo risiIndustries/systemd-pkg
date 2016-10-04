@@ -1,4 +1,4 @@
-From de2edc008a612e152f0690d5063d53001c4e13ff Mon Sep 17 00:00:00 2001
+From 8f01e7ac78e51c8fd2e2a285cb16cbec72006c3b Mon Sep 17 00:00:00 2001
 From: Franck Bui <fbui@suse.com>
 Date: Thu, 23 Jun 2016 22:31:01 +0200
 Subject: [PATCH] udev: bump TasksMax to inifinity (#3593)
@@ -27,6 +27,3 @@ index 79f28c87c6..67e4c5fcd7 100644
  KillMode=mixed
  WatchdogSec=3min
 +TasksMax=infinity
--- 
-2.9.0
-

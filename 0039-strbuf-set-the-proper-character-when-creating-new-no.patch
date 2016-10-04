@@ -1,7 +1,7 @@
-From c8db0d7662af5aa4d43c4e61fb09715b8436bdab Mon Sep 17 00:00:00 2001
+From 43ea6d88a06f32dd714eacdcaf0a4656ffb02d30 Mon Sep 17 00:00:00 2001
 From: Lubomir Rintel <lkundrak@v3.sk>
 Date: Tue, 3 May 2016 22:15:49 +0200
-Subject: [PATCH 8/8] strbuf: set the proper character when creating new nodes
+Subject: [PATCH] strbuf: set the proper character when creating new nodes
 
 Commit 82501b3fc added an early break when a terminal node is found to
 incorrect place -- before setting c. This caused trie to be built that
@@ -35,13 +35,13 @@ This in effect caused the usb_modeswitch rule for Huawei modems to never
 match and this never be switched to serial mode from mass storage.
 
 (cherry picked from commit c45606eb95a7171b0dc801e91d35034957ad5e9e)
-Resolves: #1357822
+Resolves: rhbug#1357822
 ---
  src/basic/strbuf.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/src/basic/strbuf.c b/src/basic/strbuf.c
-index dac2881..79eef6c 100644
+index dac2881603..79eef6c05d 100644
 --- a/src/basic/strbuf.c
 +++ b/src/basic/strbuf.c
 @@ -156,12 +156,13 @@ ssize_t strbuf_add_string(struct strbuf *str, const char *s, size_t len) {
@@ -59,6 +59,3 @@ index dac2881..79eef6c 100644
                  search.c = c;
                  child = bsearch(&search, node->children, node->children_count,
                                  sizeof(struct strbuf_child_entry),
--- 
-2.7.4
-

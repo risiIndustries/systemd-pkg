@@ -1,17 +1,17 @@
-From 07a676a01a3157073629692213fcd5e458cf9150 Mon Sep 17 00:00:00 2001
+From c910d4a516c002f68f9d30a6457cbad0f02fed16 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 19 Feb 2016 18:20:40 +0100
-Subject: [PATCH 3/8] networkctl: split out system status stuff into its own
+Subject: [PATCH] networkctl: split out system status stuff into its own
  function
 
 (cherry picked from commit 0070333f26543a319a17aee8b22bdde4071630c4)
-Resolves: #1325462
+Resolves: rhbug#1325462
 ---
  src/network/networkctl.c | 67 ++++++++++++++++++++++++++----------------------
  1 file changed, 36 insertions(+), 31 deletions(-)
 
 diff --git a/src/network/networkctl.c b/src/network/networkctl.c
-index 60724fc..9640e30 100644
+index 60724fce80..9640e30499 100644
 --- a/src/network/networkctl.c
 +++ b/src/network/networkctl.c
 @@ -660,12 +660,46 @@ static int link_status_one(
@@ -101,6 +101,3 @@ index 60724fc..9640e30 100644
  
          if (arg_all) {
                  _cleanup_(sd_netlink_message_unrefp) sd_netlink_message *req = NULL, *reply = NULL;
--- 
-2.7.4
-

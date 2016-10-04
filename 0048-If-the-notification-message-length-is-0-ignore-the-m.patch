@@ -1,4 +1,4 @@
-From 3373cbd0846a89f27e09ae88e31912122f161112 Mon Sep 17 00:00:00 2001
+From 7148c9c26658cefc88e0c17841c2399be36b2361 Mon Sep 17 00:00:00 2001
 From: Jorge Niedbalski <jorge.niedbalski@canonical.com>
 Date: Wed, 28 Sep 2016 18:25:50 -0300
 Subject: [PATCH] If the notification message length is 0, ignore the message

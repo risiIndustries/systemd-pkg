@@ -1,8 +1,7 @@
-From 7f67b70a9ff9ae99beb8175791f2b3e19d2274b9 Mon Sep 17 00:00:00 2001
+From 4322539b5cfe3f5b43d6377dcaa65221744bf4fb Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 26 Apr 2016 20:34:33 +0200
-Subject: [PATCH 7/8] core: move start ratelimiting check after condition
- checks
+Subject: [PATCH] core: move start ratelimiting check after condition checks
 
 With #2564 unit start rate limiting was moved from after the condition checks
 are to before they are made, in an attempt to fix #2467. This however resulted
@@ -12,7 +11,7 @@ start limit can be moved after the condition checks again, thus fixing #2684.
 
 Fixes: #2684
 (cherry picked from commit 7629ec4642b03517742d09b7303c204fddf82108)
-Resolves: #1350686
+Resolves: rhbug#1350686
 ---
  man/systemd.unit.xml                  |  3 ++-
  src/core/load-fragment-gperf.gperf.m4 |  1 +
@@ -20,7 +19,7 @@ Resolves: #1350686
  3 files changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/man/systemd.unit.xml b/man/systemd.unit.xml
-index 5794681..39cb525 100644
+index 5794681963..39cb5250f7 100644
 --- a/man/systemd.unit.xml
 +++ b/man/systemd.unit.xml
 @@ -768,7 +768,8 @@
@@ -34,7 +33,7 @@ index 5794681..39cb525 100644
  
        <varlistentry>
 diff --git a/src/core/load-fragment-gperf.gperf.m4 b/src/core/load-fragment-gperf.gperf.m4
-index 5024fd1..479f5e3 100644
+index 5024fd19a5..479f5e30f3 100644
 --- a/src/core/load-fragment-gperf.gperf.m4
 +++ b/src/core/load-fragment-gperf.gperf.m4
 @@ -220,6 +220,7 @@ Service.TimeoutStartSec,         config_parse_service_timeout,       0,
@@ -46,7 +45,7 @@ index 5024fd1..479f5e3 100644
  Service.StartLimitBurst,         config_parse_unsigned,              0,                             offsetof(Unit, start_limit.burst)
  Service.StartLimitAction,        config_parse_failure_action,        0,                             offsetof(Unit, start_limit_action)
 diff --git a/src/core/unit.c b/src/core/unit.c
-index 3c4f85e..d3d3720 100644
+index 3c4f85e744..d3d372029f 100644
 --- a/src/core/unit.c
 +++ b/src/core/unit.c
 @@ -1472,11 +1472,6 @@ int unit_start(Unit *u) {
@@ -73,6 +72,3 @@ index 3c4f85e..d3d3720 100644
          /* We don't suppress calls to ->start() here when we are
           * already starting, to allow this request to be used as a
           * "hurry up" call, for example when the unit is in some "auto
--- 
-2.7.4
-

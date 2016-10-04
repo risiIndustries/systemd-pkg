@@ -1,4 +1,4 @@
-From b16caba80a926b16a9a3377fbe856125436500df Mon Sep 17 00:00:00 2001
+From c7ba28481495df54477c54ee14bb6e7737ef772b Mon Sep 17 00:00:00 2001
 From: Franck Bui <fbui@suse.com>
 Date: Thu, 29 Sep 2016 19:44:34 +0200
 Subject: [PATCH] pid1: don't return any error in manager_dispatch_notify_fd()

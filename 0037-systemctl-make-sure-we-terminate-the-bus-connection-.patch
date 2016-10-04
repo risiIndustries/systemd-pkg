@@ -1,8 +1,8 @@
-From e62432d67c5a4c1a9315179aa92119cf15f4210a Mon Sep 17 00:00:00 2001
+From 95802bf0349e70d56eb00f7183a5dc4ff4655f09 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 16 Jun 2016 15:29:16 +0200
-Subject: [PATCH 6/8] systemctl: make sure we terminate the bus connection
- first, and then close the pager (#3550)
+Subject: [PATCH] systemctl: make sure we terminate the bus connection first,
+ and then close the pager (#3550)
 
 If "systemctl -H" is used, let's make sure we first terminate the bus
 connection, and only then close the pager. If done in this order ssh will get
@@ -16,7 +16,7 @@ all clients closing its input pipe.
 
 Fixes: #3543
 (cherry picked from commit cf647b69baee4c478d3909c327e3d917e1563f44)
-Resolves: #1341179
+Resolves: rhbug#1341179
 ---
  src/libsystemd/sd-bus/busctl.c | 3 ++-
  src/locale/localectl.c         | 3 ++-
@@ -27,7 +27,7 @@ Resolves: #1341179
  6 files changed, 13 insertions(+), 7 deletions(-)
 
 diff --git a/src/libsystemd/sd-bus/busctl.c b/src/libsystemd/sd-bus/busctl.c
-index 35fabf0..c806d6f 100644
+index 35fabf038c..c806d6fe96 100644
 --- a/src/libsystemd/sd-bus/busctl.c
 +++ b/src/libsystemd/sd-bus/busctl.c
 @@ -1974,7 +1974,7 @@ static int busctl_main(sd_bus *bus, int argc, char *argv[]) {
@@ -48,7 +48,7 @@ index 35fabf0..c806d6f 100644
  
          strv_free(arg_matches);
 diff --git a/src/locale/localectl.c b/src/locale/localectl.c
-index 365c79a..45404f1 100644
+index 365c79aa51..45404f1fa7 100644
 --- a/src/locale/localectl.c
 +++ b/src/locale/localectl.c
 @@ -664,7 +664,7 @@ static int localectl_main(sd_bus *bus, int argc, char *argv[]) {
@@ -69,7 +69,7 @@ index 365c79a..45404f1 100644
  
          return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 diff --git a/src/login/loginctl.c b/src/login/loginctl.c
-index 6ad3d08..601d180 100644
+index 6ad3d089bd..601d18063e 100644
 --- a/src/login/loginctl.c
 +++ b/src/login/loginctl.c
 @@ -1532,7 +1532,7 @@ static int loginctl_main(int argc, char *argv[], sd_bus *bus) {
@@ -91,7 +91,7 @@ index 6ad3d08..601d180 100644
          polkit_agent_close();
  
 diff --git a/src/machine/machinectl.c b/src/machine/machinectl.c
-index 4853139..4798228 100644
+index 4853139321..479822880c 100644
 --- a/src/machine/machinectl.c
 +++ b/src/machine/machinectl.c
 @@ -2646,7 +2646,7 @@ static int machinectl_main(int argc, char *argv[], sd_bus *bus) {
@@ -112,7 +112,7 @@ index 4853139..4798228 100644
          polkit_agent_close();
  
 diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
-index b4581fe..0996920 100644
+index b4581fe542..0996920241 100644
 --- a/src/systemctl/systemctl.c
 +++ b/src/systemctl/systemctl.c
 @@ -7684,6 +7684,8 @@ int main(int argc, char*argv[]) {
@@ -134,7 +134,7 @@ index b4581fe..0996920 100644
  
          return r < 0 ? EXIT_FAILURE : r;
 diff --git a/src/timedate/timedatectl.c b/src/timedate/timedatectl.c
-index 097963b..7e88fd1 100644
+index 097963b41b..7e88fd15c8 100644
 --- a/src/timedate/timedatectl.c
 +++ b/src/timedate/timedatectl.c
 @@ -488,7 +488,7 @@ static int timedatectl_main(sd_bus *bus, int argc, char *argv[]) {
@@ -154,6 +154,3 @@ index 097963b..7e88fd1 100644
          pager_close();
  
          return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
--- 
-2.7.4
-

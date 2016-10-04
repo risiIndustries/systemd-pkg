@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        15%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        16%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -80,9 +80,11 @@ Patch0044:      0044-networkd-add-route-expiration-handler-3242.patch
 Patch0045:      0045-coredump-ignore-RLIMIT_CORE.patch
 Patch0046:      0046-networkd-link-fix-handler-typo-for-route_remove-3433.patch
 Patch0047:      0047-macros.systemd.in-add-systemd_ordering-3776.patch
-Patch0048:      0037-If-the-notification-message-length-is-0-ignore-the-m.patch
-Patch0049:      0038-pid1-don-t-return-any-error-in-manager_dispatch_noti.patch
-Patch0050:      0039-pid1-process-zero-length-notification-messages-again.patch
+Patch0048:      0048-If-the-notification-message-length-is-0-ignore-the-m.patch
+Patch0049:      0049-pid1-don-t-return-any-error-in-manager_dispatch_noti.patch
+Patch0050:      0050-pid1-process-zero-length-notification-messages-again.patch
+Patch0051:      0051-logind-fix-crash-when-shutdown-is-not-issued-from-a-.patch
+Patch0052:      0052-hwdb-add-axis-ranges-for-the-MacBook-4-1-4030.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -612,7 +614,9 @@ udevadm hwdb --update >/dev/null 2>&1 || :
 %systemd_preun systemd-udev-{settle,trigger}.service systemd-udevd-{control,kernel}.socket systemd-udevd.service
 
 %postun udev
-%systemd_postun_with_restart systemd-udev-{settle,trigger}.service systemd-udevd-{control,kernel}.socket systemd-udevd.service
+# Only restart systemd-udev, to run the upgraded dameon.
+# Others are either oneshot services, or sockets, and restarting them causes issues (#1378974)
+%systemd_postun_with_restart systemd-udevd.service
 
 %pre journal-remote
 getent group systemd-journal-gateway >/dev/null 2>&1 || groupadd -r -g 191 systemd-journal-gateway 2>&1 || :
@@ -967,6 +971,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Oct  4 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-16
+- Fixes for #1357990, #1371596, #1378974
+
 * Thu Sep 29 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-15
 - Better fix for #1380286
 

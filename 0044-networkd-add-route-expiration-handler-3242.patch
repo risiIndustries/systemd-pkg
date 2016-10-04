@@ -1,4 +1,4 @@
-From 3f1b2afc490a79ca4c9f592bc7615248a5fb7dba Mon Sep 17 00:00:00 2001
+From 9582dba16dc4fa990b86a915b74a67566c9acf84 Mon Sep 17 00:00:00 2001
 From: Susant Sahani <ssahani@users.noreply.github.com>
 Date: Wed, 18 May 2016 07:06:43 +0530
 Subject: [PATCH] networkd: add route expiration handler (#3242)
@@ -60,6 +60,3 @@ index e065a5a5a9..aa9c71550f 100644
  
          return 1;
  }
--- 
-2.9.0
-

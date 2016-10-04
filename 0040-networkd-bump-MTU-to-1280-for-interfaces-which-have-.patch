@@ -1,7 +1,7 @@
-From 8cb2654db12ef043c3e93bae21d421de420a064d Mon Sep 17 00:00:00 2001
+From 715b55d9253c25bd6c463a2959eb33f12e9ecd1b Mon Sep 17 00:00:00 2001
 From: Susant Sahani <ssahani@users.noreply.github.com>
 Date: Thu, 21 Apr 2016 06:04:13 +0530
-Subject: [PATCH 1/2] networkd: bump MTU to 1280 for interfaces which have IPv6
+Subject: [PATCH] networkd: bump MTU to 1280 for interfaces which have IPv6
  enabled (#3077)
 
 IPv6 protocol requires a minimum MTU of 1280 bytes on the interface.
@@ -14,7 +14,7 @@ If IPv6 is not configured on any interface that is SLAAC, DHCPv6 and static
 IPv6 addresses not configured, then IPv6 will be automatically disabled for that
 interface, that is we write "1" to /proc/sys/net/ipv6/conf//disable_ipv6.
 (cherry picked from commit 439689c6ec48faba67565562d75701d5736567e7)
-Related: #1352378
+Related: rhbug#1352378
 ---
  man/systemd.network.xml        |  2 ++
  src/basic/missing.h            |  4 ++++
@@ -24,7 +24,7 @@ Related: #1352378
  5 files changed, 70 insertions(+), 1 deletion(-)
 
 diff --git a/man/systemd.network.xml b/man/systemd.network.xml
-index f88751b..e3df1b3 100644
+index f88751b672..e3df1b3d14 100644
 --- a/man/systemd.network.xml
 +++ b/man/systemd.network.xml
 @@ -202,6 +202,8 @@
@@ -37,7 +37,7 @@ index f88751b..e3df1b3 100644
        </varlistentry>
      </variablelist>
 diff --git a/src/basic/missing.h b/src/basic/missing.h
-index 36b0604..048b3fb 100644
+index 36b060496a..048b3fbc42 100644
 --- a/src/basic/missing.h
 +++ b/src/basic/missing.h
 @@ -912,6 +912,10 @@ static inline int setns(int fd, int nstype) {
@@ -52,7 +52,7 @@ index 36b0604..048b3fb 100644
  #define IFF_MULTI_QUEUE 0x100
  #endif
 diff --git a/src/network/networkd-link.c b/src/network/networkd-link.c
-index 692c0bf..a6039dd 100644
+index 692c0bf63d..a6039dd3b2 100644
 --- a/src/network/networkd-link.c
 +++ b/src/network/networkd-link.c
 @@ -88,6 +88,15 @@ bool link_ipv6ll_enabled(Link *link) {
@@ -135,7 +135,7 @@ index 692c0bf..a6039dd 100644
                  r = sd_netlink_message_open_container(req, AF_INET6);
                  if (r < 0)
 diff --git a/src/network/networkd-network.c b/src/network/networkd-network.c
-index 54f76fe..9f2cbce 100644
+index 54f76fe206..9f2cbcec30 100644
 --- a/src/network/networkd-network.c
 +++ b/src/network/networkd-network.c
 @@ -394,6 +394,19 @@ int network_apply(Manager *manager, Network *network, Link *link) {
@@ -159,7 +159,7 @@ index 54f76fe..9f2cbce 100644
                  const char *filename,
                  unsigned line,
 diff --git a/src/network/networkd-network.h b/src/network/networkd-network.h
-index 03c3f20..16533a7 100644
+index 03c3f206c3..16533a7ec2 100644
 --- a/src/network/networkd-network.h
 +++ b/src/network/networkd-network.h
 @@ -168,6 +168,8 @@ int network_get_by_name(Manager *manager, const char *name, Network **ret);
@@ -171,6 +171,3 @@ index 03c3f20..16533a7 100644
  int config_parse_netdev(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
  int config_parse_domains(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
  int config_parse_tunnel(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
--- 
-2.7.4
-

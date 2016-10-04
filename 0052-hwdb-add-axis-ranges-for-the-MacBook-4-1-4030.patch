@@ -1,0 +1,24 @@
+From e0801b90cd355b65ee42ebc916293465d7bef4fd Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 24 Aug 2016 20:11:48 +1000
+Subject: [PATCH] hwdb: add axis ranges for the MacBook 4,1 (#4030)
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1357990
+(cherry picked from commit 769c29d5d12532e81c983d9946961ce084609571)
+---
+ hwdb/60-evdev.hwdb | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
+index d060d81f61..c672df2dc4 100644
+--- a/hwdb/60-evdev.hwdb
++++ b/hwdb/60-evdev.hwdb
+@@ -45,6 +45,8 @@
+ 
+ #  Macbook2,1 (late 2006), single-button touchpad
+ evdev:input:b0003v05ACp021B*
++# Macbook4,1
++evdev:input:b0003v05ACp0229*
+  EVDEV_ABS_00=256:1471:12
+  EVDEV_ABS_01=256:831:12
+ 

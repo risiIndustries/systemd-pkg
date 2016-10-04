@@ -1,18 +1,18 @@
-From b01ab427e13e5f780ab7d0af8e9e0f8975b03170 Mon Sep 17 00:00:00 2001
+From 599fc965a46c36b9be06bcfd026e2dadeefbbbf5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 19 May 2016 15:08:41 -0400
-Subject: [PATCH 5/8] systemctl: suppress no-[Install] hint when --quiet is
- used (#3295)
+Subject: [PATCH] systemctl: suppress no-[Install] hint when --quiet is used
+ (#3295)
 
 https://bugzilla.redhat.com/show_bug.cgi?id=1336960
 (cherry picked from commit 35b132e8ad3c50614605e00cf8ff20988094d21c)
-Resolves: #1336960
+Resolves: rhbug#1336960
 ---
  src/systemctl/systemctl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
-index 908ccab..b4581fe 100644
+index 908ccabf8a..b4581fe542 100644
 --- a/src/systemctl/systemctl.c
 +++ b/src/systemctl/systemctl.c
 @@ -5521,7 +5521,7 @@ static int enable_unit(int argc, char *argv[], void *userdata) {
@@ -24,6 +24,3 @@ index 908ccab..b4581fe 100644
                  log_warning("The unit files have no [Install] section. They are not meant to be enabled\n"
                              "using systemctl.\n"
                              "Possible reasons for having this kind of units are:\n"
--- 
-2.7.4
-
