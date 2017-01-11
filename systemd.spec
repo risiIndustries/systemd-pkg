@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        10%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        11%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -925,6 +925,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/zsh/site-functions/_machinectl
 %{_datadir}/zsh/site-functions/_systemd-nspawn
 %{_mandir}/man1/machinectl.*
+%{_mandir}/man1/systemd-nspawn.*
 %{_mandir}/man8/systemd-machined.*
 %{_mandir}/man8/*mymachines.*
 
@@ -948,6 +949,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
+* Wed Jan 11 2017 Jan Synáček <jsynacek@redhat.com> - 231-11
+- Fix: the systemd-nspawn manpage is not installed (#1411269)
+
 * Sun Oct  9 2016 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-10
 - Do not recreate /var/log/journal on upgrades (#1383066)
 - Move nss-myhostname provides to systemd-libs (#1383271)
