@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        11%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        12%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -56,6 +56,7 @@ Patch0016: 0016-If-the-notification-message-length-is-0-ignore-the-m.patch
 Patch0017: 0017-pid1-don-t-return-any-error-in-manager_dispatch_noti.patch
 Patch0018: 0018-pid1-process-zero-length-notification-messages-again.patch
 Patch0019: 0019-shared-install-fix-set-default-with-empty-root-4118.patch
+Patch0020: 0020-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -949,6 +950,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
+* Mon Jan 16 2017 Jan Synacek <jsynacek@redhat.com> - 231-12
+- Fix buildsystem to check for lz4 correctly (#1404406)
+
 * Wed Jan 11 2017 Jan Synáček <jsynacek@redhat.com> - 231-11
 - Fix: the systemd-nspawn manpage is not installed (#1411269)
 
