@@ -1,0 +1,56 @@
+From a28a4f85b63f7d6aa531ee01b01c9dabb01de6e9 Mon Sep 17 00:00:00 2001
+From: Evgeny Vereshchagin <evvers@ya.ru>
+Date: Tue, 7 Jun 2016 20:47:41 +0300
+Subject: [PATCH] hwdb: selinuxify a bit (#3460)
+
+-bash-4.3# rm /etc/udev/hwdb.bin
+-bash-4.3# systemd-hwdb update
+-bash-4.3# ls -Z /etc/udev/hwdb.bin
+system_u:object_r:systemd_hwdb_etc_t:s0 /etc/udev/hwdb.bin
+
+Fixes: #3458
+---
+ src/hwdb/hwdb.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/hwdb/hwdb.c b/src/hwdb/hwdb.c
+index 1160dac..e12cd93 100644
+--- a/src/hwdb/hwdb.c
++++ b/src/hwdb/hwdb.c
+@@ -29,7 +29,9 @@
+ #include "fs-util.h"
+ #include "hwdb-internal.h"
+ #include "hwdb-util.h"
++#include "label.h"
+ #include "mkdir.h"
++#include "selinux-util.h"
+ #include "strbuf.h"
+ #include "string-util.h"
+ #include "strv.h"
+@@ -643,12 +645,12 @@ static int hwdb_update(int argc, char *argv[], void *userdata) {
+         if (!hwdb_bin)
+                 return -ENOMEM;
+ 
+-        mkdir_parents(hwdb_bin, 0755);
++        mkdir_parents_label(hwdb_bin, 0755);
+         r = trie_store(trie, hwdb_bin);
+         if (r < 0)
+                 return log_error_errno(r, "Failure writing database %s: %m", hwdb_bin);
+ 
+-        return 0;
++        return label_fix(hwdb_bin, false, false);
+ }
+ 
+ static void help(void) {
+@@ -732,6 +734,8 @@ int main (int argc, char *argv[]) {
+         if (r <= 0)
+                 goto finish;
+ 
++        mac_selinux_init();
++
+         r = hwdb_main(argc, argv);
+ 
+ finish:
+-- 
+2.9.3
+
