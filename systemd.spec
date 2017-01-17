@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        12%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        13%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -37,26 +37,28 @@ Source8:        systemd-journal-gatewayd.xml
 Source9:        20-yama-ptrace.conf
 Source10:       systemd-udev-trigger-no-reload.conf
 
-Patch0001: 0001-systemctl-be-sure-to-be-quiet-with-systemctl-is-enab.patch
-Patch0002: 0002-logind-0-and-100-should-be-valid-for-UserTasksMax-38.patch
-Patch0003: 0003-systemd-ask-password-make-sure-directory-watch-is-st.patch
-Patch0004: 0004-Revert-logind-really-handle-KeyIgnoreInhibited-optio.patch
-Patch0005: 0005-man-explain-that-KeyIgnoreInhibited-only-apply-to-a-.patch
-Patch0006: 0006-systemctl-fix-preset-all-with-missing-etc-systemd-sy.patch
-Patch0007: 0007-shared-install-remove-unused-paramater-and-add-more-.patch
-Patch0008: 0008-shared-install-ignore-unit-symlinks-when-doing-prese.patch
-Patch0009: 0009-man-describe-what-symlinks-to-unit-do-and-specify-th.patch
-Patch0010: 0010-shared-install-move-root-skipping-into-create_symlin.patch
-Patch0011: 0011-shared-install-when-creating-symlinks-keep-existing-.patch
-Patch0012: 0012-shared-install-properly-report-masked-units-listed-i.patch
-Patch0013: 0013-Revert-pid1-reconnect-to-the-console-before-being-re.patch
-Patch0014: 0014-systemd-ignore-lack-of-tty-when-checking-whether-col.patch
-Patch0015: 0015-shared-install-do-not-enable-masked-instances-4005.patch
-Patch0016: 0016-If-the-notification-message-length-is-0-ignore-the-m.patch
-Patch0017: 0017-pid1-don-t-return-any-error-in-manager_dispatch_noti.patch
-Patch0018: 0018-pid1-process-zero-length-notification-messages-again.patch
-Patch0019: 0019-shared-install-fix-set-default-with-empty-root-4118.patch
-Patch0020: 0020-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
+Patch0001:      0001-systemctl-be-sure-to-be-quiet-with-systemctl-is-enab.patch
+Patch0002:      0002-logind-0-and-100-should-be-valid-for-UserTasksMax-38.patch
+Patch0003:      0003-systemd-ask-password-make-sure-directory-watch-is-st.patch
+Patch0004:      0004-Revert-logind-really-handle-KeyIgnoreInhibited-optio.patch
+Patch0005:      0005-man-explain-that-KeyIgnoreInhibited-only-apply-to-a-.patch
+Patch0006:      0006-systemctl-fix-preset-all-with-missing-etc-systemd-sy.patch
+Patch0007:      0007-shared-install-remove-unused-paramater-and-add-more-.patch
+Patch0008:      0008-shared-install-ignore-unit-symlinks-when-doing-prese.patch
+Patch0009:      0009-man-describe-what-symlinks-to-unit-do-and-specify-th.patch
+Patch0010:      0010-shared-install-move-root-skipping-into-create_symlin.patch
+Patch0011:      0011-shared-install-when-creating-symlinks-keep-existing-.patch
+Patch0012:      0012-shared-install-properly-report-masked-units-listed-i.patch
+Patch0013:      0013-Revert-pid1-reconnect-to-the-console-before-being-re.patch
+Patch0014:      0014-systemd-ignore-lack-of-tty-when-checking-whether-col.patch
+Patch0015:      0015-shared-install-do-not-enable-masked-instances-4005.patch
+Patch0016:      0016-If-the-notification-message-length-is-0-ignore-the-m.patch
+Patch0017:      0017-pid1-don-t-return-any-error-in-manager_dispatch_noti.patch
+Patch0018:      0018-pid1-process-zero-length-notification-messages-again.patch
+Patch0019:      0019-shared-install-fix-set-default-with-empty-root-4118.patch
+Patch0020:      0020-Various-simplifications.patch
+Patch0021:      0021-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
+Patch0022:      0022-pid1-do-not-use-mtime-0-as-sign-of-masking-4388.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -954,7 +956,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
-* Mon Jan 16 2017 Jan Synacek <jsynacek@redhat.com> - 231-12
+* Tue Jan 17 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-13
+- Backport mtime==0 fix (#1384150)
+
+* Mon Jan 16 2017 Jan Synáček <jsynacek@redhat.com> - 231-12
 - Fix buildsystem to check for lz4 correctly (#1404406)
 
 * Wed Jan 11 2017 Jan Synáček <jsynacek@redhat.com> - 231-11
