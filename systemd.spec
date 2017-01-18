@@ -172,10 +172,11 @@ Systemd PAM module registers the session with systemd-logind.
 %package devel
 Summary:        Development headers for systemd
 License:        LGPLv2+ and MIT
-# We need both libsystemd and libsystemd-<compat> libraries
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 Provides:       libudev-devel = %{version}
 Obsoletes:      libudev-devel < 183
+# Fake dependency to make sure systemd-pam is pulled into multilib (#1414153)
+Requires:       %{name}-pam = %{version}-%{release}
 
 %description devel
 Development headers and auxiliary files for developing applications linking
@@ -958,6 +959,8 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Tue Jan 17 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-13
 - Backport mtime==0 fix (#1384150)
+- Add fake dependency on systemd-pam to systemd-devel to ensure systemd-pam
+  is available as multilib (#1414153)
 
 * Mon Jan 16 2017 Jan Synáček <jsynacek@redhat.com> - 231-12
 - Fix buildsystem to check for lz4 correctly (#1404406)
