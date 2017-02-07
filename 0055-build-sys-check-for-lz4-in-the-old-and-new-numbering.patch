@@ -1,4 +1,4 @@
-From 047be3e733cff7717ccd49d6422ea0002bd0c515 Mon Sep 17 00:00:00 2001
+From 053ae195f08ca09e1f37d8368d02fbdb8344d27d Mon Sep 17 00:00:00 2001
 From: Jan Synacek <jsynacek@redhat.com>
 Date: Mon, 16 Jan 2017 13:00:03 +0100
 Subject: [PATCH] build-sys: check for lz4 in the old and new numbering scheme
@@ -23,10 +23,10 @@ Resolves: #1404406
  1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index cf595e6..4a0b269 100644
+index 5fd73c5..1f95f9f 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -602,10 +602,13 @@ AM_CONDITIONAL(HAVE_BZIP2, [test "$have_bzip2" = "yes"])
+@@ -571,10 +571,13 @@ AM_CONDITIONAL(HAVE_BZIP2, [test "$have_bzip2" = "yes"])
  have_lz4=no
  AC_ARG_ENABLE(lz4, AS_HELP_STRING([--disable-lz4], [Disable optional LZ4 support]))
  AS_IF([test "x$enable_lz4" != "xno"], [

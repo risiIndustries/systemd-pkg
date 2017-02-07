@@ -87,7 +87,7 @@ Patch0051:      0051-logind-fix-crash-when-shutdown-is-not-issued-from-a-.patch
 Patch0052:      0052-hwdb-add-axis-ranges-for-the-MacBook-4-1-4030.patch
 Patch0053:      0053-hwdb-selinuxify-a-bit-3460.patch
 Patch0054:      0054-udevadm-explicitly-relabel-etc-udev-hwdb.bin-after-r.patch
-Patch0055:      0004-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
+Patch0055:      0055-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
