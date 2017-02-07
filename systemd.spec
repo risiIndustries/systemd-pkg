@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        18%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        19%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -332,6 +332,10 @@ CONFIGURE_OPTS=(
         --with-ntp-servers='0.%{ntpvendor}.pool.ntp.org 1.%{ntpvendor}.pool.ntp.org 2.%{ntpvendor}.pool.ntp.org 3.%{ntpvendor}.pool.ntp.org'
         --disable-kdbus
         --disable-terminal
+        --enable-lz4
+        --enable-xz
+        --enable-zlib
+        --enable-bzip
 )
 
 %configure \
@@ -974,6 +978,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+
+* Tue Feb 07 2017 Susant Sahani <susant@redhat.com> - 229-19
+- Make sure we have our compressions libs ready (#1404406)
+
 * Tue Feb 07 2017 Michal Sekletar <msekleta@redhat.com> - 229-18
 - fix buildsystem to check for lz4 correctly (#1419912)
 
