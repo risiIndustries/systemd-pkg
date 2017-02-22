@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        13%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -59,6 +59,7 @@ Patch0019:      0019-shared-install-fix-set-default-with-empty-root-4118.patch
 Patch0020:      0020-Various-simplifications.patch
 Patch0021:      0021-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
 Patch0022:      0022-pid1-do-not-use-mtime-0-as-sign-of-masking-4388.patch
+Patch0023:      0023-udev-net_id-add-support-for-phys_port_name-attribute.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -957,6 +958,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
+* Wed Feb 22 2017 Michal Sekletar <msekleta@redhat.com> - 231-14
+- Backport support for phys_port_name to net_id (#1425737)
+
 * Tue Jan 17 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-13
 - Backport mtime==0 fix (#1384150)
 - Add fake dependency on systemd-pam to systemd-devel to ensure systemd-pam
