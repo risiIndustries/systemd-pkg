@@ -1,0 +1,38 @@
+From f1d2c31949a501d919a17e09b0d2a093d93837b4 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 2 Nov 2016 12:02:53 -0600
+Subject: [PATCH] core: don't hit an assert when printing status messages about
+ units with overly long description strings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This essentially reverts one part of d054f0a4d451120c26494263fc4dc175bfd405b1.
+
+(We might also choose to use proper ellipsation here, but I wasn't sure the
+memory allocation this requires wouöld be a good idea here...)
+
+Fixes: #4534
+(cherry picked from commit 07ecca0dc9d2d8f3b3abd73ab32f254f339fd903)
+---
+ src/core/job.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/job.c b/src/core/job.c
+index 7557874..4efcfb8 100644
+--- a/src/core/job.c
++++ b/src/core/job.c
+@@ -767,8 +767,9 @@ static void job_log_status_message(Unit *u, JobType t, JobResult result) {
+         if (!format)
+                 return;
+ 
++        /* The description might be longer than the buffer, but that's OK, we'll just truncate it here */
+         DISABLE_WARNING_FORMAT_NONLITERAL;
+-        xsprintf(buf, format, unit_description(u));
++        snprintf(buf, sizeof(buf), format, unit_description(u));
+         REENABLE_WARNING;
+ 
+         switch (t) {
+-- 
+2.9.3
+

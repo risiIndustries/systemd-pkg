@@ -1,0 +1,27 @@
+From 293bb90e89dfdfdad1423d0d1a8e1487a95fec46 Mon Sep 17 00:00:00 2001
+From: Yu Watanabe <watanabe.yu+github@gmail.com>
+Date: Wed, 19 Oct 2016 20:50:47 +0900
+Subject: [PATCH] boot: fix `bootctl install` segfault (#4404)
+
+(cherry picked from commit 9ee051b9c7623e148bf0d768cc2677aecf283fc8)
+---
+ src/boot/bootctl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/boot/bootctl.c b/src/boot/bootctl.c
+index 37fa049..115fe93 100644
+--- a/src/boot/bootctl.c
++++ b/src/boot/bootctl.c
+@@ -550,7 +550,8 @@ static const char *efi_subdirs[] = {
+         "EFI/systemd",
+         "EFI/BOOT",
+         "loader",
+-        "loader/entries"
++        "loader/entries",
++        NULL
+ };
+ 
+ static int create_dirs(const char *esp_path) {
+-- 
+2.9.3
+

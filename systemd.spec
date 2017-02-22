@@ -60,6 +60,23 @@ Patch0020:      0020-Various-simplifications.patch
 Patch0021:      0021-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
 Patch0022:      0022-pid1-do-not-use-mtime-0-as-sign-of-masking-4388.patch
 Patch0023:      0023-udev-net_id-add-support-for-phys_port_name-attribute.patch
+Patch0024:      0024-logind-don-t-hit-assert-when-we-try-to-free-NULL-man.patch
+Patch0025:      0025-core-if-the-start-command-vanishes-during-runtime-do.patch
+Patch0026:      0026-core-don-t-hit-an-assert-when-printing-status-messag.patch
+Patch0027:      0027-device-Avoid-calling-unit_free-NULL-in-device-setup-.patch
+Patch0028:      0028-sd-network-fix-memleak-in-dhcp6_option_parse_domainn.patch
+Patch0029:      0029-sd-network-fix-memleak-in-dhcp6_lease_set_domains-51.patch
+Patch0030:      0030-sd-event-when-exiting-no-signal-event-are-pending-is.patch
+Patch0031:      0031-journal-gatewayd-fix-segfault-with-certain-request-3.patch
+Patch0032:      0032-boot-fix-bootctl-install-segfault-4404.patch
+Patch0033:      0033-sysusers-fix-memleak-4430.patch
+Patch0034:      0034-sysusers-fix-memleak-4443.patch
+Patch0035:      0035-journalctl-fix-memleak.patch
+Patch0036:      0036-acl-util-fix-memleak.patch
+Patch0037:      0037-core-fix-memleak-in-bus_exec_context_set_transient_p.patch
+Patch0038:      0038-core-dbus-fix-two-strv-memleaks.patch
+Patch0039:      0039-resolve-fix-strv-memleak.patch
+Patch0040:      0040-sd-device-replace-lstat-open-with-open-O_NOFOLLOW.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -960,6 +977,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Wed Feb 22 2017 Michal Sekletar <msekleta@redhat.com> - 231-14
 - Backport support for phys_port_name to net_id (#1425737)
+- Backport bunch of bugfixes (asserts, segv, memleaks) from upstream
 
 * Tue Jan 17 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-13
 - Backport mtime==0 fix (#1384150)

@@ -1,0 +1,47 @@
+From a402c90c369f083d37c65a8ba830e7b123b4278b Mon Sep 17 00:00:00 2001
+From: Evgeny Vereshchagin <evvers@ya.ru>
+Date: Wed, 25 Jan 2017 05:53:50 +0300
+Subject: [PATCH] core: fix memleak in bus_exec_context_set_transient_property
+ (#5143)
+
+Fixes:
+```sh
+systemd-run --property EnvironmentFile=/some/environment/file /bin/sleep 30
+```
+```
+ 23 bytes in 1 blocks are definitely lost in loss record 1 of 7
+    at 0x4C2DB9D: malloc (vg_replace_malloc.c:299)
+    by 0x4E85488: malloc_multiply (alloc-util.h:70)
+    by 0x4E85F19: strjoin_real (string-util.c:252)
+    by 0x1AF741: bus_exec_context_set_transient_property (dbus-execute.c:1418)
+    by 0x1A907C: bus_service_set_property (dbus-service.c:330)
+    by 0x1A66DD: bus_unit_set_properties (dbus-unit.c:1456)
+    by 0x19CF93: transient_unit_from_message (dbus-manager.c:892)
+    by 0x19D388: method_start_transient_unit (dbus-manager.c:980)
+    by 0x4F60544: method_callbacks_run (bus-objects.c:418)
+    by 0x4F62D9D: object_find_and_run (bus-objects.c:1255)
+    by 0x4F633CE: bus_process_object (bus-objects.c:1371)
+    by 0x4F2CE1D: process_message (sd-bus.c:2563)
+```
+Closes: #5142
+(cherry picked from commit 9b531f04fb16e072100b10b93613abe846140305)
+---
+ src/core/dbus-execute.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/dbus-execute.c b/src/core/dbus-execute.c
+index 307c3d8..a1d5523 100644
+--- a/src/core/dbus-execute.c
++++ b/src/core/dbus-execute.c
+@@ -1224,7 +1224,7 @@ int bus_exec_context_set_transient_property(
+ 
+                 _cleanup_free_ char *joined = NULL;
+                 _cleanup_fclose_ FILE *f = NULL;
+-                _cleanup_free_ char **l = NULL;
++                _cleanup_strv_free_ char **l = NULL;
+                 size_t size = 0;
+                 char **i;
+ 
+-- 
+2.9.3
+

@@ -1,0 +1,29 @@
+From 264148da88b25a0800178f0c33e2b6ae292de455 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 20 Oct 2016 19:19:46 +0200
+Subject: [PATCH] logind: don't hit assert when we try to free NULL manager
+ object
+
+Fixes: #4431
+(cherry picked from commit 84a4e6608dbda38c724ab196a226db209a50b224)
+---
+ src/login/logind.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/logind.c b/src/login/logind.c
+index 5ce36d2..e5854db 100644
+--- a/src/login/logind.c
++++ b/src/login/logind.c
+@@ -125,7 +125,8 @@ static void manager_free(Manager *m) {
+         Inhibitor *i;
+         Button *b;
+ 
+-        assert(m);
++        if (!m)
++                return;
+ 
+         while ((session = hashmap_first(m->sessions)))
+                 session_free(session);
+-- 
+2.9.3
+

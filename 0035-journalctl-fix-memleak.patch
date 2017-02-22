@@ -1,0 +1,43 @@
+From 01ad377a1d4029efb083c6a512793ca7b2a58048 Mon Sep 17 00:00:00 2001
+From: Evgeny Vereshchagin <evvers@ya.ru>
+Date: Thu, 3 Nov 2016 21:23:22 +0000
+Subject: [PATCH] journalctl: fix memleak
+
+bash-4.3# journalctl --no-hostname >/dev/null
+
+=================================================================
+==288==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 48492 byte(s) in 2694 object(s) allocated from:
+    #0 0x7fb4aba13e60 in malloc (/lib64/libasan.so.3+0xc6e60)
+    #1 0x7fb4ab5b2cc4 in malloc_multiply src/basic/alloc-util.h:70
+    #2 0x7fb4ab5b3194 in parse_field src/shared/logs-show.c:98
+    #3 0x7fb4ab5b4918 in output_short src/shared/logs-show.c:347
+    #4 0x7fb4ab5b7cb7 in output_journal src/shared/logs-show.c:977
+    #5 0x5650e29cd83d in main src/journal/journalctl.c:2581
+    #6 0x7fb4aabdb730 in __libc_start_main (/lib64/libc.so.6+0x20730)
+
+SUMMARY: AddressSanitizer: 48492 byte(s) leaked in 2694 allocation(s).
+
+Closes: #4568
+(cherry picked from commit 12104159ed88324fa95505a6a8b333dd92a80368)
+---
+ src/shared/logs-show.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shared/logs-show.c b/src/shared/logs-show.c
+index d04728f..f347cee 100644
+--- a/src/shared/logs-show.c
++++ b/src/shared/logs-show.c
+@@ -378,7 +378,7 @@ static int output_short(
+ 
+         if (hostname && (flags & OUTPUT_NO_HOSTNAME)) {
+                 /* Suppress display of the hostname if this is requested. */
+-                hostname = NULL;
++                hostname = mfree(hostname);
+                 hostname_len = 0;
+         }
+ 
+-- 
+2.9.3
+

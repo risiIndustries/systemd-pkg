@@ -1,0 +1,57 @@
+From b3f8184653e03409669e24c4e42b2aff4ecf00b7 Mon Sep 17 00:00:00 2001
+From: Franck Bui <fbui@suse.com>
+Date: Wed, 8 Feb 2017 20:56:22 +0100
+Subject: [PATCH] sd-event: "when exiting no signal event are pending" is a
+ wrong assertion (#5271)
+
+The code make the following assertion: when freeing a event loop object
+(usually it's done after exiting from the main event loop), no signal events
+are still queued and are pending.
+
+This assertion can be found in event_unmask_signal_data() with
+"assert(!d->current);" assertion.
+
+It appears that this assertion can be wrong at least in a specific case
+described below.
+
+Consider the following example which is inspired from udev: a process defines 3
+source events: 2 are created by sd_event_add_signal() and 1 is created by
+sd_event_add_post().
+
+ 1. the process receives the 2 signals consecutively so that signal 'A' source
+     event is queued and pending. Consequently the post source event is also
+     queued and pending. This is done by sd_event_wait().
+
+ 2. The callback for signal 'A' is called by sd_event_dispatch().
+
+ 3. The next call to sd_event_wait() will queue signal 'B' source event.
+
+ 4. The callback for the post source event is called and calls sd_event_exit().
+
+ 5. the event loop is exited.
+
+ 6. freeing the event loop object will lead to the assertion failure in
+     event_unmask_signal_data().
+
+This patch simply removes this assertion as it doesn't seem to be a
+bug if the signal data still reference a signal source at this point.
+(cherry picked from commit 4470860388e12a5dda1d65773e411a349221a3e9)
+---
+ src/libsystemd/sd-event/sd-event.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/libsystemd/sd-event/sd-event.c b/src/libsystemd/sd-event/sd-event.c
+index 9857f8b..41ce91f 100644
+--- a/src/libsystemd/sd-event/sd-event.c
++++ b/src/libsystemd/sd-event/sd-event.c
+@@ -730,7 +730,6 @@ static void event_unmask_signal_data(sd_event *e, struct signal_data *d, int sig
+ 
+                 /* If all the mask is all-zero we can get rid of the structure */
+                 hashmap_remove(e->signal_data, &d->priority);
+-                assert(!d->current);
+                 safe_close(d->fd);
+                 free(d);
+                 return;
+-- 
+2.9.3
+

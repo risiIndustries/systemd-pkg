@@ -1,0 +1,59 @@
+From 02fc17d4db1f2bc215f7915f4394ea7f4d8d0602 Mon Sep 17 00:00:00 2001
+From: Evgeny Vereshchagin <evvers@ya.ru>
+Date: Thu, 3 Nov 2016 22:04:40 +0000
+Subject: [PATCH] acl-util: fix memleak
+
+Fixes:
+$ ./libtool --mode execute valgrind --leak-check=full ./journalctl >/dev/null
+==22309== Memcheck, a memory error detector
+==22309== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==22309== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==22309== Command: /home/vagrant/systemd/.libs/lt-journalctl
+==22309==
+Hint: You are currently not seeing messages from other users and the system.
+      Users in groups 'adm', 'systemd-journal', 'wheel' can see all messages.
+      Pass -q to turn off this notice.
+==22309==
+==22309== HEAP SUMMARY:
+==22309==     in use at exit: 8,680 bytes in 4 blocks
+==22309==   total heap usage: 5,543 allocs, 5,539 frees, 9,045,618 bytes allocated
+==22309==
+==22309== 488 (56 direct, 432 indirect) bytes in 1 blocks are definitely lost in loss record 2 of 4
+==22309==    at 0x4C2BBAD: malloc (vg_replace_malloc.c:299)
+==22309==    by 0x6F37A0A: __new_var_obj_p (__libobj.c:36)
+==22309==    by 0x6F362F7: __acl_init_obj (acl_init.c:28)
+==22309==    by 0x6F37731: __acl_from_xattr (__acl_from_xattr.c:54)
+==22309==    by 0x6F36087: acl_get_file (acl_get_file.c:69)
+==22309==    by 0x4F15752: acl_search_groups (acl-util.c:172)
+==22309==    by 0x113A1E: access_check_var_log_journal (journalctl.c:1836)
+==22309==    by 0x113D8D: access_check (journalctl.c:1889)
+==22309==    by 0x115681: main (journalctl.c:2236)
+==22309==
+==22309== LEAK SUMMARY:
+==22309==    definitely lost: 56 bytes in 1 blocks
+==22309==    indirectly lost: 432 bytes in 1 blocks
+==22309==      possibly lost: 0 bytes in 0 blocks
+==22309==    still reachable: 8,192 bytes in 2 blocks
+==22309==         suppressed: 0 bytes in 0 blocks
+
+(cherry picked from commit 29d87223d54fc13e16f444677f0a94ed0755bd88)
+---
+ src/shared/acl-util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shared/acl-util.c b/src/shared/acl-util.c
+index 2aa951f..79a3b95 100644
+--- a/src/shared/acl-util.c
++++ b/src/shared/acl-util.c
+@@ -162,7 +162,7 @@ int add_base_acls_if_needed(acl_t *acl_p, const char *path) {
+ 
+ int acl_search_groups(const char *path, char ***ret_groups) {
+         _cleanup_strv_free_ char **g = NULL;
+-        _cleanup_(acl_free) acl_t acl = NULL;
++        _cleanup_(acl_freep) acl_t acl = NULL;
+         bool ret = false;
+         acl_entry_t entry;
+         int r;
+-- 
+2.9.3
+
