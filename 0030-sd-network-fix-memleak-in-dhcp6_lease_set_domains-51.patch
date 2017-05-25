@@ -1,4 +1,4 @@
-From c0f1299f8dda31ca91e5b7c8a098fad633156960 Mon Sep 17 00:00:00 2001
+From e40c3001ab4ec57c78b0a0093c165cf850f5540a Mon Sep 17 00:00:00 2001
 From: Evgeny Vereshchagin <evvers@ya.ru>
 Date: Tue, 24 Jan 2017 05:12:58 +0300
 Subject: [PATCH] sd-network: fix memleak in dhcp6_lease_set_domains (#5113)
@@ -35,13 +35,14 @@ Direct leak of 10 byte(s) in 1 object(s) allocated from:
 
 SUMMARY: AddressSanitizer: 10 byte(s) leaked in 1 allocation(s).
 ```
+
 (cherry picked from commit 0b75a95ace6e1d82772f6b5f1809f4839b810628)
 ---
  src/libsystemd-network/sd-dhcp6-lease.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/libsystemd-network/sd-dhcp6-lease.c b/src/libsystemd-network/sd-dhcp6-lease.c
-index 5c10a63..681384b 100644
+index 5c10a6326a..681384b3ff 100644
 --- a/src/libsystemd-network/sd-dhcp6-lease.c
 +++ b/src/libsystemd-network/sd-dhcp6-lease.c
 @@ -226,7 +226,7 @@ int dhcp6_lease_set_domains(sd_dhcp6_lease *lease, uint8_t *optval,
@@ -53,6 +54,3 @@ index 5c10a63..681384b 100644
          lease->domains = domains;
          lease->domains_count = r;
  
--- 
-2.9.3
-

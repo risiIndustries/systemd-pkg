@@ -1,4 +1,4 @@
-From 8f88b3ca7697acfe79a97d6c7094c277744fd6b2 Mon Sep 17 00:00:00 2001
+From 18de263b7581d2b222027143e9f90e2ebcaefe72 Mon Sep 17 00:00:00 2001
 From: Evgeny Vereshchagin <evvers@ya.ru>
 Date: Thu, 20 Oct 2016 21:23:32 +0300
 Subject: [PATCH] sysusers: fix memleak (#4430)
@@ -16,13 +16,14 @@ Fixes:
 ==28075==    by 0x111EB8: main (sysusers.c:1773)
 ==28075==
 ```
+
 (cherry picked from commit d9b8ea5448ba1e61d681a206d770a4eac39b9936)
 ---
  src/sysusers/sysusers.c | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/src/sysusers/sysusers.c b/src/sysusers/sysusers.c
-index 787d68a..a39a580 100644
+index 787d68a009..a39a580e6a 100644
 --- a/src/sysusers/sysusers.c
 +++ b/src/sysusers/sysusers.c
 @@ -1189,6 +1189,7 @@ static void item_free(Item *i) {
@@ -33,6 +34,3 @@ index 787d68a..a39a580 100644
          free(i);
  }
  
--- 
-2.9.3
-

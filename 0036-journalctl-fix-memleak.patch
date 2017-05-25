@@ -1,4 +1,4 @@
-From 01ad377a1d4029efb083c6a512793ca7b2a58048 Mon Sep 17 00:00:00 2001
+From c36c799dafadcf5c5447698da97a8d7bd36c9ea4 Mon Sep 17 00:00:00 2001
 From: Evgeny Vereshchagin <evvers@ya.ru>
 Date: Thu, 3 Nov 2016 21:23:22 +0000
 Subject: [PATCH] journalctl: fix memleak
@@ -26,7 +26,7 @@ Closes: #4568
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/shared/logs-show.c b/src/shared/logs-show.c
-index d04728f..f347cee 100644
+index d04728f505..f347ceed11 100644
 --- a/src/shared/logs-show.c
 +++ b/src/shared/logs-show.c
 @@ -378,7 +378,7 @@ static int output_short(
@@ -38,6 +38,3 @@ index d04728f..f347cee 100644
                  hostname_len = 0;
          }
  
--- 
-2.9.3
-

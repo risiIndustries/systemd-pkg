@@ -1,4 +1,4 @@
-From 3081adc053a862e8ccbccd97cd45168c0af052aa Mon Sep 17 00:00:00 2001
+From 59fab93ac7960c28bcd7f7646dff07f57073df7d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ji=C5=99=C3=AD=20P=C3=ADrko?= <jiri@resnulli.us>
 Date: Wed, 2 Nov 2016 03:46:01 +0100
 Subject: [PATCH] udev: net_id: add support for phys_port_name attribute
@@ -14,7 +14,7 @@ Signed-off-by: Jiri Pirko <jiri@mellanox.com>
  1 file changed, 22 insertions(+), 8 deletions(-)
 
 diff --git a/src/udev/udev-builtin-net_id.c b/src/udev/udev-builtin-net_id.c
-index a7be2a4..0eb2500 100644
+index a7be2a4eed..0eb2500dd2 100644
 --- a/src/udev/udev-builtin-net_id.c
 +++ b/src/udev/udev-builtin-net_id.c
 @@ -35,10 +35,12 @@
@@ -100,6 +100,3 @@ index a7be2a4..0eb2500 100644
                          l = strpcpyf(&s, l, "d%d", dev_port);
                  if (l == 0)
                          names->pci_slot[0] = '\0';
--- 
-2.9.3
-

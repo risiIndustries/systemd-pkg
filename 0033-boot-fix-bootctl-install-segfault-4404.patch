@@ -1,4 +1,4 @@
-From 293bb90e89dfdfdad1423d0d1a8e1487a95fec46 Mon Sep 17 00:00:00 2001
+From abdafca5183be5593275033e0514f62fae579aba Mon Sep 17 00:00:00 2001
 From: Yu Watanabe <watanabe.yu+github@gmail.com>
 Date: Wed, 19 Oct 2016 20:50:47 +0900
 Subject: [PATCH] boot: fix `bootctl install` segfault (#4404)
@@ -9,7 +9,7 @@ Subject: [PATCH] boot: fix `bootctl install` segfault (#4404)
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/src/boot/bootctl.c b/src/boot/bootctl.c
-index 37fa049..115fe93 100644
+index 37fa049ecf..115fe9338c 100644
 --- a/src/boot/bootctl.c
 +++ b/src/boot/bootctl.c
 @@ -550,7 +550,8 @@ static const char *efi_subdirs[] = {
@@ -22,6 +22,3 @@ index 37fa049..115fe93 100644
  };
  
  static int create_dirs(const char *esp_path) {
--- 
-2.9.3
-

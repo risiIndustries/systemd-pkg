@@ -1,4 +1,4 @@
-From 827038487456a5ad249529cb643ec30bcd1dac62 Mon Sep 17 00:00:00 2001
+From c9906ce0e0a74d5fe9c04bcb1bbc0de75402b8ea Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 24 Jan 2017 22:21:16 -0500
 Subject: [PATCH] core/dbus: fix two strv memleaks
@@ -12,7 +12,7 @@ strv_free.
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/core/dbus.c b/src/core/dbus.c
-index 3422a02..5d87bca 100644
+index 3422a02d68..5d87bca8b1 100644
 --- a/src/core/dbus.c
 +++ b/src/core/dbus.c
 @@ -477,7 +477,7 @@ static int bus_kill_context_find(sd_bus *bus, const char *path, const char *inte
@@ -33,6 +33,3 @@ index 3422a02..5d87bca 100644
          Manager *m = userdata;
          unsigned k = 0;
          Iterator i;
--- 
-2.9.3
-

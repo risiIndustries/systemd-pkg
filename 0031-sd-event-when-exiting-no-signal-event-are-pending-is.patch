@@ -1,4 +1,4 @@
-From b3f8184653e03409669e24c4e42b2aff4ecf00b7 Mon Sep 17 00:00:00 2001
+From e72c338a9fe72a45e6687174fddf1a1725b5949b Mon Sep 17 00:00:00 2001
 From: Franck Bui <fbui@suse.com>
 Date: Wed, 8 Feb 2017 20:56:22 +0100
 Subject: [PATCH] sd-event: "when exiting no signal event are pending" is a
@@ -35,13 +35,14 @@ sd_event_add_post().
 
 This patch simply removes this assertion as it doesn't seem to be a
 bug if the signal data still reference a signal source at this point.
+
 (cherry picked from commit 4470860388e12a5dda1d65773e411a349221a3e9)
 ---
  src/libsystemd/sd-event/sd-event.c | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/src/libsystemd/sd-event/sd-event.c b/src/libsystemd/sd-event/sd-event.c
-index 9857f8b..41ce91f 100644
+index 9857f8b1fc..41ce91fa79 100644
 --- a/src/libsystemd/sd-event/sd-event.c
 +++ b/src/libsystemd/sd-event/sd-event.c
 @@ -730,7 +730,6 @@ static void event_unmask_signal_data(sd_event *e, struct signal_data *d, int sig
@@ -52,6 +53,3 @@ index 9857f8b..41ce91f 100644
                  safe_close(d->fd);
                  free(d);
                  return;
--- 
-2.9.3
-

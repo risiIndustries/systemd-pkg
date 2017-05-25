@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        14%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        15%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -59,24 +59,25 @@ Patch0019:      0019-shared-install-fix-set-default-with-empty-root-4118.patch
 Patch0020:      0020-Various-simplifications.patch
 Patch0021:      0021-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
 Patch0022:      0022-pid1-do-not-use-mtime-0-as-sign-of-masking-4388.patch
-Patch0023:      0023-udev-net_id-add-support-for-phys_port_name-attribute.patch
-Patch0024:      0024-logind-don-t-hit-assert-when-we-try-to-free-NULL-man.patch
-Patch0025:      0025-core-if-the-start-command-vanishes-during-runtime-do.patch
-Patch0026:      0026-core-don-t-hit-an-assert-when-printing-status-messag.patch
-Patch0027:      0027-device-Avoid-calling-unit_free-NULL-in-device-setup-.patch
-Patch0028:      0028-sd-network-fix-memleak-in-dhcp6_option_parse_domainn.patch
-Patch0029:      0029-sd-network-fix-memleak-in-dhcp6_lease_set_domains-51.patch
-Patch0030:      0030-sd-event-when-exiting-no-signal-event-are-pending-is.patch
-Patch0031:      0031-journal-gatewayd-fix-segfault-with-certain-request-3.patch
-Patch0032:      0032-boot-fix-bootctl-install-segfault-4404.patch
-Patch0033:      0033-sysusers-fix-memleak-4430.patch
-Patch0034:      0034-sysusers-fix-memleak-4443.patch
-Patch0035:      0035-journalctl-fix-memleak.patch
-Patch0036:      0036-acl-util-fix-memleak.patch
-Patch0037:      0037-core-fix-memleak-in-bus_exec_context_set_transient_p.patch
-Patch0038:      0038-core-dbus-fix-two-strv-memleaks.patch
-Patch0039:      0039-resolve-fix-strv-memleak.patch
-Patch0040:      0040-sd-device-replace-lstat-open-with-open-O_NOFOLLOW.patch
+Patch0023:      0023-resolved-bugfix-of-null-pointer-p-question-dereferen.patch
+Patch0024:      0024-udev-net_id-add-support-for-phys_port_name-attribute.patch
+Patch0025:      0025-logind-don-t-hit-assert-when-we-try-to-free-NULL-man.patch
+Patch0026:      0026-core-if-the-start-command-vanishes-during-runtime-do.patch
+Patch0027:      0027-core-don-t-hit-an-assert-when-printing-status-messag.patch
+Patch0028:      0028-device-Avoid-calling-unit_free-NULL-in-device-setup-.patch
+Patch0029:      0029-sd-network-fix-memleak-in-dhcp6_option_parse_domainn.patch
+Patch0030:      0030-sd-network-fix-memleak-in-dhcp6_lease_set_domains-51.patch
+Patch0031:      0031-sd-event-when-exiting-no-signal-event-are-pending-is.patch
+Patch0032:      0032-journal-gatewayd-fix-segfault-with-certain-request-3.patch
+Patch0033:      0033-boot-fix-bootctl-install-segfault-4404.patch
+Patch0034:      0034-sysusers-fix-memleak-4430.patch
+Patch0035:      0035-sysusers-fix-memleak-4443.patch
+Patch0036:      0036-journalctl-fix-memleak.patch
+Patch0037:      0037-acl-util-fix-memleak.patch
+Patch0038:      0038-core-fix-memleak-in-bus_exec_context_set_transient_p.patch
+Patch0039:      0039-core-dbus-fix-two-strv-memleaks.patch
+Patch0040:      0040-resolve-fix-strv-memleak.patch
+Patch0041:      0041-sd-device-replace-lstat-open-with-open-O_NOFOLLOW.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -975,6 +976,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
+* Thu May 25 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-15
+- Fix systemd-resolved crash on crafted DNS packet (CVE-2017-9217, #1455493)
+
 * Wed Feb 22 2017 Michal Sekletar <msekleta@redhat.com> - 231-14
 - Backport support for phys_port_name to net_id (#1425737)
 - Backport bunch of bugfixes (asserts, segv, memleaks) from upstream

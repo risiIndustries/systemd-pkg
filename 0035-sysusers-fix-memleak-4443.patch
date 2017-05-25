@@ -1,4 +1,4 @@
-From fa36e278e78aea1d23aac18239f928e168223f39 Mon Sep 17 00:00:00 2001
+From e67c65061dd9fc540ff9e40d0262641af73e1a4d Mon Sep 17 00:00:00 2001
 From: Evgeny Vereshchagin <evvers@ya.ru>
 Date: Fri, 21 Oct 2016 13:30:45 +0300
 Subject: [PATCH] sysusers: fix memleak (#4443)
@@ -14,13 +14,14 @@ Oct 20 09:10:49 systemd-sysusers[144]:     #5 0x56197c4a1766 in make_backup src/
 Oct 20 09:10:49 systemd-sysusers[144]:     #6 0x56197c4a6335 in write_files src/sysusers/sysusers.c:710
 Oct 20 09:10:49 systemd-sysusers[144]:     #7 0x56197c4ae571 in main src/sysusers/sysusers.c:1817
 Oct 20 09:10:49 systemd-sysusers[144]:     #8 0x7f3564dee730 in __libc_start_main (/lib64/libc.so.6+0x20730)
+
 (cherry picked from commit 0a12bb1eaa097dc83018aa034faef113a91e6014)
 ---
  src/sysusers/sysusers.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/src/sysusers/sysusers.c b/src/sysusers/sysusers.c
-index a39a580..dfb708c 100644
+index a39a580e6a..dfb708c1b9 100644
 --- a/src/sysusers/sysusers.c
 +++ b/src/sysusers/sysusers.c
 @@ -190,7 +190,8 @@ static int load_group_database(void) {
@@ -33,6 +34,3 @@ index a39a580..dfb708c 100644
          struct timespec ts[2];
          struct stat st;
          int r;
--- 
-2.9.3
-

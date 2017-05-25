@@ -1,4 +1,4 @@
-From a30e889de3487c8c478389da0aded6d73f7f4cc7 Mon Sep 17 00:00:00 2001
+From 4185055dfcc4eb549c66c116fd8a7e87e9931ae8 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 21 Oct 2016 12:27:46 +0200
 Subject: [PATCH] core: if the start command vanishes during runtime don't hit
@@ -14,7 +14,7 @@ Fixes: #4444
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/src/core/service.c b/src/core/service.c
-index afb1985..537db62 100644
+index afb198507b..537db62808 100644
 --- a/src/core/service.c
 +++ b/src/core/service.c
 @@ -1706,7 +1706,15 @@ static void service_enter_start(Service *s) {
@@ -34,6 +34,3 @@ index afb1985..537db62 100644
                  service_enter_start_post(s);
                  return;
          }
--- 
-2.9.3
-

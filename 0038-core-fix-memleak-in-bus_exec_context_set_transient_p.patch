@@ -1,4 +1,4 @@
-From a402c90c369f083d37c65a8ba830e7b123b4278b Mon Sep 17 00:00:00 2001
+From 2b0fa6690d559b069612115764e6f80f27699534 Mon Sep 17 00:00:00 2001
 From: Evgeny Vereshchagin <evvers@ya.ru>
 Date: Wed, 25 Jan 2017 05:53:50 +0300
 Subject: [PATCH] core: fix memleak in bus_exec_context_set_transient_property
@@ -24,13 +24,14 @@ systemd-run --property EnvironmentFile=/some/environment/file /bin/sleep 30
     by 0x4F2CE1D: process_message (sd-bus.c:2563)
 ```
 Closes: #5142
+
 (cherry picked from commit 9b531f04fb16e072100b10b93613abe846140305)
 ---
  src/core/dbus-execute.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/core/dbus-execute.c b/src/core/dbus-execute.c
-index 307c3d8..a1d5523 100644
+index 307c3d8e7a..a1d55236fc 100644
 --- a/src/core/dbus-execute.c
 +++ b/src/core/dbus-execute.c
 @@ -1224,7 +1224,7 @@ int bus_exec_context_set_transient_property(
@@ -42,6 +43,3 @@ index 307c3d8..a1d5523 100644
                  size_t size = 0;
                  char **i;
  
--- 
-2.9.3
-
