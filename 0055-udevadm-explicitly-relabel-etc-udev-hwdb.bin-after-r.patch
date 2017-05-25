@@ -1,4 +1,4 @@
-From 0c780236462b3e1b43de9af2339c21377b51b782 Mon Sep 17 00:00:00 2001
+From 1826d028938f0d4042a9704c74c1d6477043eb11 Mon Sep 17 00:00:00 2001
 From: Michal Sekletar <msekletar@users.noreply.github.com>
 Date: Fri, 8 Jul 2016 17:43:05 +0200
 Subject: [PATCH] udevadm: explicitly relabel /etc/udev/hwdb.bin after rename
@@ -7,13 +7,12 @@ Subject: [PATCH] udevadm: explicitly relabel /etc/udev/hwdb.bin after rename
 This is basically the same change as ea68351.
 
 (cherry picked from commit 905c37e60ef653557d0354c2afa94546c31efe50)
-Resolves: #1395211
 ---
  src/udev/udevadm-hwdb.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/src/udev/udevadm-hwdb.c b/src/udev/udevadm-hwdb.c
-index 948ad0f..1bffe8e 100644
+index 948ad0f5a5..1bffe8e8ab 100644
 --- a/src/udev/udevadm-hwdb.c
 +++ b/src/udev/udevadm-hwdb.c
 @@ -28,6 +28,8 @@
@@ -43,6 +42,3 @@ index 948ad0f..1bffe8e 100644
          }
  
          if (test) {
--- 
-2.9.3
-

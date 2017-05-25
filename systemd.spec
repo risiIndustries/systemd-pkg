@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        19%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        20%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -85,9 +85,10 @@ Patch0049:      0049-pid1-don-t-return-any-error-in-manager_dispatch_noti.patch
 Patch0050:      0050-pid1-process-zero-length-notification-messages-again.patch
 Patch0051:      0051-logind-fix-crash-when-shutdown-is-not-issued-from-a-.patch
 Patch0052:      0052-hwdb-add-axis-ranges-for-the-MacBook-4-1-4030.patch
-Patch0053:      0053-hwdb-selinuxify-a-bit-3460.patch
-Patch0054:      0054-udevadm-explicitly-relabel-etc-udev-hwdb.bin-after-r.patch
-Patch0055:      0055-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
+Patch0053:      0053-resolved-bugfix-of-null-pointer-p-question-dereferen.patch
+Patch0054:      0054-hwdb-selinuxify-a-bit-3460.patch
+Patch0055:      0055-udevadm-explicitly-relabel-etc-udev-hwdb.bin-after-r.patch
+Patch0056:      0056-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -978,6 +979,8 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Thu May 25 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-20
+- Fix systemd-resolved crash on crafted DNS packet (CVE-2017-9217, #1455493)
 
 * Tue Feb 07 2017 Susant Sahani <susant@redhat.com> - 229-19
 - Make sure we have our compressions libs ready (#1404406)
