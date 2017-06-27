@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        21%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        22%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -90,6 +90,7 @@ Patch0054:      0054-hwdb-selinuxify-a-bit-3460.patch
 Patch0055:      0055-udevadm-explicitly-relabel-etc-udev-hwdb.bin-after-r.patch
 Patch0056:      0056-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
 Patch0057:      0057-resolved-simplify-alloc-size-calculation.patch
+Patch0058:      0058-resolved-do-not-allocate-packets-with-minimum-size.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -980,6 +981,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-22
+- Tweak the patches a bit
+
 * Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-21
 - Fix an out-of-bounds write in systemd-resolved (CVE-2017-9445)
 
