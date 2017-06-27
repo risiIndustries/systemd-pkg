@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        233
-Release:        5%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        6%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -123,6 +123,8 @@ Patch0074:      0074-core-mount-pass-c-flag-to-bin-umount-6093.patch
 Patch0075:      0075-man-systemd-timesyncd.service-8-6109.patch
 Patch0076:      0076-test-resolved-packet-add-a-simple-test-for-our-alloc.patch
 Patch0077:      0077-resolved-simplify-alloc-size-calculation.patch
+Patch0078:      0078-resolved-do-not-allocate-packets-with-minimum-size.patch
+Patch0079:      0079-resolved-define-various-packet-sizes-as-unsigned.patch
 
 
 Source0990:      hwdb.patch
@@ -1124,10 +1126,13 @@ getent passwd systemd-journal-upload &>/dev/null || useradd -r -l -g systemd-jou
 %{pkgdir}/tests
 
 %changelog
-* Tue Jun 27 2017 zbyszek <zbyszek@in.waw.pl> - 233-5
+* Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 233-6
+- Tweak the patches a bit
+
+* Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 233-5
 - Fix an out-of-bounds write in systemd-resolved (CVE-2017-9445)
 
-* Thu Jun 15 2017 zbyszek <zbyszek@in.waw.pl> - 233-4
+* Thu Jun 15 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 233-4
 - Backport a bunch of small fixes (memleaks, wrong format strings,
   man page clarifications, shell completion)
 - Fix systemd-resolved crash on crafted DNS packet (CVE-2017-9217, #1455493)
