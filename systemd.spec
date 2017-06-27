@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        229
-Release:        20%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        21%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -89,6 +89,7 @@ Patch0053:      0053-resolved-bugfix-of-null-pointer-p-question-dereferen.patch
 Patch0054:      0054-hwdb-selinuxify-a-bit-3460.patch
 Patch0055:      0055-udevadm-explicitly-relabel-etc-udev-hwdb.bin-after-r.patch
 Patch0056:      0056-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
+Patch0057:      0057-resolved-simplify-alloc-size-calculation.patch
 
 Patch0999:      0999-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -979,6 +980,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 /usr/lib/firewalld/services/*
 
 %changelog
+* Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-21
+- Fix an out-of-bounds write in systemd-resolved (CVE-2017-9445)
+
 * Thu May 25 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 229-20
 - Fix systemd-resolved crash on crafted DNS packet (CVE-2017-9217, #1455493)
 
