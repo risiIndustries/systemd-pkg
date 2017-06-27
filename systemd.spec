@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        16%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        17%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -80,6 +80,8 @@ Patch0040:      0040-resolve-fix-strv-memleak.patch
 Patch0041:      0041-sd-device-replace-lstat-open-with-open-O_NOFOLLOW.patch
 Patch0042:      0042-test-resolved-packet-add-a-simple-test-for-our-alloc.patch
 Patch0043:      0043-resolved-simplify-alloc-size-calculation.patch
+Patch0044:      0044-resolved-do-not-allocate-packets-with-minimum-size.patch
+Patch0045:      0045-resolved-define-various-packet-sizes-as-unsigned.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -978,6 +980,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
+* Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-17
+- Tweak the patches a bit
+
 * Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-16
 - Fix an out-of-bounds write in systemd-resolved (CVE-2017-9445)
 

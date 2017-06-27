@@ -1,8 +1,8 @@
-From 3780b8745c505b632e534dead4f0aba8f9b490db Mon Sep 17 00:00:00 2001
+From 976d4b21b85aad15bf359089dd84b39c48347fb2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 18 Jun 2017 15:53:15 -0400
-Subject: [PATCH 42/43] test-resolved-packet: add a simple test for our
- allocation functions
+Subject: [PATCH] test-resolved-packet: add a simple test for our allocation
+ functions
 
 ---
  .gitignore                         |  1 +

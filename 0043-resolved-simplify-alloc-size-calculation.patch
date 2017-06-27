@@ -1,7 +1,7 @@
-From 8b4f4666fa8312eede8107c4690348f9b79b2292 Mon Sep 17 00:00:00 2001
+From e3abee3dee32ae7cd8e937e44ace94ab7f45ede9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 18 Jun 2017 16:07:57 -0400
-Subject: [PATCH 43/43] resolved: simplify alloc size calculation
+Subject: [PATCH] resolved: simplify alloc size calculation
 
 The allocation size was calculated in a complicated way, and for values
 close to the page size we would actually allocate less than requested.
