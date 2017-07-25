@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        17%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        18%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -175,6 +175,7 @@ elaborate transactional dependency-based service control logic.
 %package libs
 Summary:        systemd libraries
 License:        LGPLv2+ and MIT
+Requires(post): grep
 Obsoletes:      libudev < 183
 Obsoletes:      systemd < 185-4
 Conflicts:      systemd < 185-4
@@ -980,6 +981,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
+* Tue Jul 25 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-18
+- Add Requires: grep for libs subpackage (#1474529)
+
 * Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-17
 - Tweak the patches a bit
 
