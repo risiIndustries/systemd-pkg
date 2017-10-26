@@ -1,0 +1,98 @@
+From 672eb11bf702aa194e1c9e40f9b2acc6434540d4 Mon Sep 17 00:00:00 2001
+From: bengal <bengal@users.noreply.github.com>
+Date: Tue, 8 Aug 2017 18:55:31 +0200
+Subject: [PATCH] dhcp-network: adjust sockaddr length for addresses longer
+ than 8 bytes (#6527)
+
+An infiniband hardware address is 20 bytes, but sockaddr_ll.sll_addr is only 8
+bytes. Explicitly ensure that sockaddr_union has enough space for infiniband
+addresses, even if they run over sockaddr_ll and add a macro to compute the
+proper size to pass to kernel.
+
+(cherry picked from commit b1f24b75af135fe8efba9c7264447985e2843511)
+---
+ src/basic/socket-util.h               | 20 ++++++++++++++++++++
+ src/libsystemd-network/dhcp-network.c | 16 +++++++++-------
+ 2 files changed, 29 insertions(+), 7 deletions(-)
+
+diff --git a/src/basic/socket-util.h b/src/basic/socket-util.h
+index 73c3a339fc..43edc05c63 100644
+--- a/src/basic/socket-util.h
++++ b/src/basic/socket-util.h
+@@ -27,6 +27,7 @@
+ #include <sys/types.h>
+ #include <sys/un.h>
+ #include <linux/netlink.h>
++#include <linux/if_infiniband.h>
+ #include <linux/if_packet.h>
+ 
+ #include "macro.h"
+@@ -42,6 +43,8 @@ union sockaddr_union {
+         struct sockaddr_storage storage;
+         struct sockaddr_ll ll;
+         struct sockaddr_vm vm;
++        /* Ensure there is enough space to store Infiniband addresses */
++        uint8_t ll_buffer[offsetof(struct sockaddr_ll, sll_addr) + CONST_MAX(ETH_ALEN, INFINIBAND_ALEN)];
+ };
+ 
+ typedef struct SocketAddress {
+@@ -147,6 +150,23 @@ int flush_accept(int fd);
+ 
+ struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length);
+ 
++/*
++ * Certain hardware address types (e.g Infiniband) do not fit into sll_addr
++ * (8 bytes) and run over the structure. This macro returns the correct size that
++ * must be passed to kernel.
++ */
++#define SOCKADDR_LL_LEN(sa)                                             \
++        ({                                                              \
++                const struct sockaddr_ll *_sa = &(sa);                  \
++                size_t _mac_len = sizeof(_sa->sll_addr);                \
++                assert(_sa->sll_family == AF_PACKET);                   \
++                if (be16toh(_sa->sll_hatype) == ARPHRD_ETHER)           \
++                        _mac_len = MAX(_mac_len, (size_t) ETH_ALEN);    \
++                if (be16toh(_sa->sll_hatype) == ARPHRD_INFINIBAND)      \
++                        _mac_len = MAX(_mac_len, (size_t) INFINIBAND_ALEN); \
++                offsetof(struct sockaddr_ll, sll_addr) + _mac_len;      \
++        })
++
+ /* Covers only file system and abstract AF_UNIX socket addresses, but not unnamed socket addresses. */
+ #define SOCKADDR_UN_LEN(sa)                                             \
+         ({                                                              \
+diff --git a/src/libsystemd-network/dhcp-network.c b/src/libsystemd-network/dhcp-network.c
+index 65405dcce0..a440a20f96 100644
+--- a/src/libsystemd-network/dhcp-network.c
++++ b/src/libsystemd-network/dhcp-network.c
+@@ -108,14 +108,16 @@ static int _bind_raw_socket(int ifindex, union sockaddr_union *link,
+         if (r < 0)
+                 return -errno;
+ 
+-        link->ll.sll_family = AF_PACKET;
+-        link->ll.sll_protocol = htobe16(ETH_P_IP);
+-        link->ll.sll_ifindex = ifindex;
+-        link->ll.sll_hatype = htobe16(arp_type);
+-        link->ll.sll_halen = mac_addr_len;
++        link->ll = (struct sockaddr_ll) {
++                .sll_family = AF_PACKET,
++                .sll_protocol = htobe16(ETH_P_IP),
++                .sll_ifindex = ifindex,
++                .sll_hatype = htobe16(arp_type),
++                .sll_halen = mac_addr_len,
++        };
+         memcpy(link->ll.sll_addr, bcast_addr, mac_addr_len);
+ 
+-        r = bind(s, &link->sa, sizeof(link->ll));
++        r = bind(s, &link->sa, SOCKADDR_LL_LEN(link->ll));
+         if (r < 0)
+                 return -errno;
+ 
+@@ -221,7 +223,7 @@ int dhcp_network_send_raw_socket(int s, const union sockaddr_union *link,
+         assert(packet);
+         assert(len);
+ 
+-        r = sendto(s, packet, len, 0, &link->sa, sizeof(link->ll));
++        r = sendto(s, packet, len, 0, &link->sa, SOCKADDR_LL_LEN(link->ll));
+         if (r < 0)
+                 return -errno;
+ 

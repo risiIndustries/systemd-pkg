@@ -1,0 +1,191 @@
+From a43c13e3cafe4f4499f81014cbbf6bd8a4d4712b Mon Sep 17 00:00:00 2001
+From: Benjamin Berg <bberg@redhat.com>
+Date: Thu, 31 Aug 2017 17:36:37 +0200
+Subject: [PATCH] rfkill: Delay writes until exit (#5768)
+
+On thinkpads there are two rfkill devices for bluetooth. The first is an
+ACPI switch which powers down the USB dongle and the second one is the
+USB dongle itself. So when userspace decides to enable rfkill on all
+devices systemd would randomly save the soft block state of the USB
+dongle. This later causes issue when re-enabling the devie as
+systemd-rfkill would put the USB dongle into soft block state right
+after the ACPI rfkill switch is unblocked by userspace.
+
+The simple way to avoid this is to not store rfkill changes for devices
+that disappear shortly after. That way only the "main" ACPI switch will
+get stored and systemd-rfkill will not end up blocking the device right
+after it is being added back again.
+
+(cherry picked from commit 202cb8c396deb90f841359054ca19f1c47fc8604)
+---
+ src/rfkill/rfkill.c | 104 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 99 insertions(+), 5 deletions(-)
+
+diff --git a/src/rfkill/rfkill.c b/src/rfkill/rfkill.c
+index 3adbd20d8b..c934b70156 100644
+--- a/src/rfkill/rfkill.c
++++ b/src/rfkill/rfkill.c
+@@ -35,9 +35,27 @@
+ #include "string-util.h"
+ #include "udev-util.h"
+ #include "util.h"
++#include "list.h"
+ 
++/* Note that any write is delayed until exit and the rfkill state will not be
++ * stored for rfkill indices that disappear after a change. */
+ #define EXIT_USEC (5 * USEC_PER_SEC)
+ 
++typedef struct write_queue_item {
++        LIST_FIELDS(struct write_queue_item, queue);
++        int rfkill_idx;
++        char *file;
++        int state;
++} write_queue_item;
++
++static void write_queue_item_free(struct write_queue_item *item)
++{
++        assert(item);
++
++        free(item->file);
++        free(item);
++}
++
+ static const char* const rfkill_type_table[NUM_RFKILL_TYPES] = {
+         [RFKILL_TYPE_ALL] = "all",
+         [RFKILL_TYPE_WLAN] = "wlan",
+@@ -259,12 +277,30 @@ static int load_state(
+         return 0;
+ }
+ 
+-static int save_state(
++static void save_state_queue_remove(
++                struct write_queue_item **write_queue,
++                int idx,
++                char *state_file) {
++
++        struct write_queue_item *item, *tmp;
++
++        LIST_FOREACH_SAFE(queue, item, tmp, *write_queue) {
++                if ((state_file && streq(item->file, state_file)) || idx == item->rfkill_idx) {
++                        log_debug("Canceled previous save state of '%s' to %s.", one_zero(item->state), item->file);
++                        LIST_REMOVE(queue, *write_queue, item);
++                        write_queue_item_free(item);
++                }
++        }
++}
++
++static int save_state_queue(
++                struct write_queue_item **write_queue,
+                 int rfkill_fd,
+                 struct udev *udev,
+                 const struct rfkill_event *event) {
+ 
+         _cleanup_free_ char *state_file = NULL;
++        struct write_queue_item *item;
+         int r;
+ 
+         assert(rfkill_fd >= 0);
+@@ -274,16 +310,69 @@ static int save_state(
+         r = determine_state_file(udev, event, &state_file);
+         if (r < 0)
+                 return r;
++        save_state_queue_remove(write_queue, event->idx, state_file);
++
++        item = new0(struct write_queue_item, 1);
++        if (!item)
++                return -ENOMEM;
+ 
+-        r = write_string_file(state_file, one_zero(event->soft), WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
++        item->file = state_file;
++        item->rfkill_idx = event->idx;
++        item->state = event->soft;
++        state_file = NULL;
++
++        LIST_APPEND(queue, *write_queue, item);
++
++        return 0;
++}
++
++static int save_state_cancel(
++                struct write_queue_item **write_queue,
++                int rfkill_fd,
++                struct udev *udev,
++                const struct rfkill_event *event) {
++
++        _cleanup_free_ char *state_file = NULL;
++        int r;
++
++        assert(rfkill_fd >= 0);
++        assert(udev);
++        assert(event);
++
++        r = determine_state_file(udev, event, &state_file);
++        save_state_queue_remove(write_queue, event->idx, state_file);
+         if (r < 0)
+-                return log_error_errno(r, "Failed to write state file %s: %m", state_file);
++                return r;
+ 
+-        log_debug("Saved state '%s' to %s.", one_zero(event->soft), state_file);
+         return 0;
+ }
+ 
++static int save_state_write(struct write_queue_item **write_queue) {
++        struct write_queue_item *item, *tmp;
++        int result = 0;
++        bool error_logged = false;
++        int r;
++
++        LIST_FOREACH_SAFE(queue, item, tmp, *write_queue) {
++                r = write_string_file(item->file, one_zero(item->state), WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
++                if (r < 0) {
++                        result = r;
++                        if (!error_logged) {
++                                log_error_errno(r, "Failed to write state file %s: %m", item->file);
++                                error_logged = true;
++                        } else
++                                log_warning_errno(r, "Failed to write state file %s: %m", item->file);
++                } else
++                        log_debug("Saved state '%s' to %s.", one_zero(item->state), item->file);
++
++                LIST_REMOVE(queue, *write_queue, item);
++                write_queue_item_free(item);
++        }
++        return result;
++}
++
+ int main(int argc, char *argv[]) {
++        LIST_HEAD(write_queue_item, write_queue);
+         _cleanup_udev_unref_ struct udev *udev = NULL;
+         _cleanup_close_ int rfkill_fd = -1;
+         bool ready = false;
+@@ -294,6 +383,8 @@ int main(int argc, char *argv[]) {
+                 return EXIT_FAILURE;
+         }
+ 
++        LIST_HEAD_INIT(write_queue);
++
+         log_set_target(LOG_TARGET_AUTO);
+         log_parse_environment();
+         log_open();
+@@ -403,11 +494,12 @@ int main(int argc, char *argv[]) {
+ 
+                 case RFKILL_OP_DEL:
+                         log_debug("An rfkill device has been removed with index %i and type %s", event.idx, type);
++                        (void) save_state_cancel(&write_queue, rfkill_fd, udev, &event);
+                         break;
+ 
+                 case RFKILL_OP_CHANGE:
+                         log_debug("An rfkill device has changed state with index %i and type %s", event.idx, type);
+-                        (void) save_state(rfkill_fd, udev, &event);
++                        (void) save_state_queue(&write_queue, rfkill_fd, udev, &event);
+                         break;
+ 
+                 default:
+@@ -419,5 +511,7 @@ int main(int argc, char *argv[]) {
+         r = 0;
+ 
+ finish:
++        (void) save_state_write(&write_queue);
++
+         return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+ }

@@ -1,0 +1,36 @@
+From 6aaee522ca978f2982e630508d7e14dc28d74907 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sat, 2 Sep 2017 17:37:08 +0300
+Subject: [PATCH] systemctl: check existence of all units, not just the first
+ one
+
+(cherry picked from commit f8d6cb48a363ddae6fab50636ccc433b5f4dd604)
+---
+ src/systemctl/systemctl.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 83ed9ef9f7..a1b956111b 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -6201,11 +6201,15 @@ static int enable_unit(int argc, char *argv[], void *userdata) {
+                 sd_bus *bus;
+ 
+                 if (STR_IN_SET(verb, "mask", "unmask")) {
+-                        r = unit_exists(*names);
+-                        if (r < 0)
+-                                return r;
+-                        if (r == 0)
+-                                log_notice("Unit %s does not exist, proceeding anyway.", *names);
++                        char **name;
++
++                        STRV_FOREACH(name, names) {
++                                r = unit_exists(*name);
++                                if (r < 0)
++                                        return r;
++                                if (r == 0)
++                                        log_notice("Unit %s does not exist, proceeding anyway.", *names);
++                        }
+                 }
+ 
+                 r = acquire_bus(BUS_MANAGER, &bus);

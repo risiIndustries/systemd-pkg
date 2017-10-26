@@ -1,0 +1,42 @@
+From f365f6b194f4335e77f6c0f54b88b831c99a0f6f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 21 Sep 2017 12:02:49 +0200
+Subject: [PATCH] test-conf-parser: use _cleanup_
+
+(cherry picked from commit a12807aaeaf20ff9507cf2c1e338d5c16d528a1e)
+---
+ src/test/test-conf-parser.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/src/test/test-conf-parser.c b/src/test/test-conf-parser.c
+index 81db9d1bd7..cd538f0d40 100644
+--- a/src/test/test-conf-parser.c
++++ b/src/test/test-conf-parser.c
+@@ -27,12 +27,10 @@
+ #include "util.h"
+ 
+ static void test_config_parse_path_one(const char *rvalue, const char *expected) {
+-        char *path = NULL;
++        _cleanup_free_ char *path = NULL;
+ 
+         assert_se(config_parse_path("unit", "filename", 1, "section", 1, "lvalue", 0, rvalue, &path, NULL) >= 0);
+         assert_se(streq_ptr(expected, path));
+-
+-        free(path);
+ }
+ 
+ static void test_config_parse_log_level_one(const char *rvalue, int expected) {
+@@ -78,12 +76,10 @@ static void test_config_parse_unsigned_one(const char *rvalue, unsigned expected
+ }
+ 
+ static void test_config_parse_strv_one(const char *rvalue, char **expected) {
+-        char **strv = 0;
++        _cleanup_strv_free_ char **strv = NULL;
+ 
+         assert_se(config_parse_strv("unit", "filename", 1, "section", 1, "lvalue", 0, rvalue, &strv, NULL) >= 0);
+         assert_se(strv_equal(expected, strv));
+-
+-        strv_free(strv);
+ }
+ 
+ static void test_config_parse_mode_one(const char *rvalue, mode_t expected) {

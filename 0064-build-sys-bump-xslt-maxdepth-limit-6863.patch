@@ -1,0 +1,25 @@
+From bd69342ded37a30850de4c85cbc709aaecfee396 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 19 Sep 2017 08:04:02 +0200
+Subject: [PATCH] build-sys: bump xslt maxdepth limit (#6863)
+
+With libxslt-1.30, builds were failing on some recursion depth limit
+with systemd.index.xml. Bumping the limit fixes the issue.
+
+(cherry picked from commit f2adcd22d5d5498f1a00fdc303f71e7198b238ab)
+---
+ man/meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/man/meson.build b/man/meson.build
+index 4f2ddad31a..c9fa91589a 100644
+--- a/man/meson.build
++++ b/man/meson.build
+@@ -11,6 +11,7 @@ want_html = want_html != 'false' and xsltproc.found()
+ xsltproc_flags = [
+         '--nonet',
+         '--xinclude',
++        '--maxdepth', '9000',
+         '--stringparam', 'man.output.quietly', '1',
+         '--stringparam', 'funcsynopsis.style', 'ansi',
+         '--stringparam', 'man.authors.section.enabled', '0',

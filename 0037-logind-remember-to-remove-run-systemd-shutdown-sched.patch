@@ -1,0 +1,22 @@
+From af9f32c663c244f9f5f8bf5e0a7ae40b07bda4c7 Mon Sep 17 00:00:00 2001
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+Date: Wed, 23 Aug 2017 15:58:03 +0100
+Subject: [PATCH] logind: remember to remove '/run/systemd/shutdown/scheduled'
+
+(cherry picked from commit cbc373502f1d6e2df01e43538006e31975f555ec)
+---
+ src/login/logind-dbus.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index c9b7d99818..242ad4fb2b 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -1496,6 +1496,7 @@ static void reset_scheduled_shutdown(Manager *m) {
+                 (void) unlink("/run/nologin");
+                 m->unlink_nologin = false;
+         }
++        (void) unlink("/run/systemd/shutdown/scheduled");
+ }
+ 
+ static int execute_shutdown_or_sleep(

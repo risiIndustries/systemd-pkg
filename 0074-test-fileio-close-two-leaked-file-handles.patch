@@ -1,0 +1,32 @@
+From 8873d22603623b4d611b178dfd597ed16081375a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 24 Sep 2017 08:59:49 +0200
+Subject: [PATCH] test-fileio: close two leaked file handles
+
+(cherry picked from commit 9707d55213959bb171ea810d56e9226f5ffa5466)
+---
+ src/test/test-fileio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/test/test-fileio.c b/src/test/test-fileio.c
+index 375b7a8910..eebaa2c155 100644
+--- a/src/test/test-fileio.c
++++ b/src/test/test-fileio.c
+@@ -209,7 +209,7 @@ static void test_parse_multiline_env_file(void) {
+ static void test_merge_env_file(void) {
+         char t[] = "/tmp/test-fileio-XXXXXX";
+         int fd, r;
+-        FILE *f;
++        _cleanup_fclose_ FILE *f = NULL;
+         _cleanup_strv_free_ char **a = NULL;
+         char **i;
+ 
+@@ -278,7 +278,7 @@ static void test_merge_env_file(void) {
+ static void test_merge_env_file_invalid(void) {
+         char t[] = "/tmp/test-fileio-XXXXXX";
+         int fd, r;
+-        FILE *f;
++        _cleanup_fclose_ FILE *f = NULL;
+         _cleanup_strv_free_ char **a = NULL;
+         char **i;
+ 

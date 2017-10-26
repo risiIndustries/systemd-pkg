@@ -1,0 +1,22 @@
+From 63fe668593009a59cc2670d78974fccacb245c61 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 29 Sep 2017 14:36:06 +0200
+Subject: [PATCH] mount-util: add fusectl to list of API VFS
+
+(cherry picked from commit 7941e2189bf0a2118d4ad1fcf5ff2da534c3b67d)
+---
+ src/basic/mount-util.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/basic/mount-util.c b/src/basic/mount-util.c
+index cff44116c8..a13f12096c 100644
+--- a/src/basic/mount-util.c
++++ b/src/basic/mount-util.c
+@@ -564,6 +564,7 @@ bool fstype_is_api_vfs(const char *fstype) {
+                 "devpts\0"
+                 "devtmpfs\0"
+                 "efivarfs\0"
++                "fusectl\0"
+                 "hugetlbfs\0"
+                 "mqueue\0"
+                 "proc\0"

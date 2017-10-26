@@ -1,0 +1,162 @@
+From ca0cebc3f106d89973e0b02dbfc325c37d4c78b3 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 27 Sep 2017 17:30:50 +0200
+Subject: [PATCH] unit: when JobTimeoutSec= is turned off, implicitly turn off
+ JobRunningTimeoutSec= too
+
+We added JobRunningTimeoutSec= late, and Dracut configured only
+JobTimeoutSec= to turn of root device timeouts before. With this change
+we'll propagate a reset of JobTimeoutSec= into JobRunningTimeoutSec=,
+but only if the latter wasn't set explicitly.
+
+This should restore compatibility with older systemd versions.
+
+Fixes: #6402
+(cherry picked from commit eae51da36e8800f6d466580a817eb5877220376d)
+---
+ src/basic/time-util.c                 |  4 ++
+ src/core/load-fragment-gperf.gperf.m4 |  4 +-
+ src/core/load-fragment.c              | 72 +++++++++++++++++++++++++++++++++++
+ src/core/load-fragment.h              |  2 +
+ src/core/unit.h                       |  1 +
+ 5 files changed, 81 insertions(+), 2 deletions(-)
+
+diff --git a/src/basic/time-util.c b/src/basic/time-util.c
+index 68ba86f6a5..9199b6490d 100644
+--- a/src/basic/time-util.c
++++ b/src/basic/time-util.c
+@@ -1010,7 +1010,11 @@ int parse_sec(const char *t, usec_t *usec) {
+ }
+ 
+ int parse_sec_fix_0(const char *t, usec_t *usec) {
++        assert(t);
++        assert(usec);
++
+         t += strspn(t, WHITESPACE);
++
+         if (streq(t, "0")) {
+                 *usec = USEC_INFINITY;
+                 return 0;
+diff --git a/src/core/load-fragment-gperf.gperf.m4 b/src/core/load-fragment-gperf.gperf.m4
+index 7fb39cf948..a32385931e 100644
+--- a/src/core/load-fragment-gperf.gperf.m4
++++ b/src/core/load-fragment-gperf.gperf.m4
+@@ -193,8 +193,8 @@ Unit.OnFailureJobMode,           config_parse_job_mode,              0,
+ Unit.OnFailureIsolate,           config_parse_job_mode_isolate,      0,                             offsetof(Unit, on_failure_job_mode)
+ Unit.IgnoreOnIsolate,            config_parse_bool,                  0,                             offsetof(Unit, ignore_on_isolate)
+ Unit.IgnoreOnSnapshot,           config_parse_warn_compat,           DISABLED_LEGACY,               0
+-Unit.JobTimeoutSec,              config_parse_sec_fix_0,             0,                             offsetof(Unit, job_timeout)
+-Unit.JobRunningTimeoutSec,       config_parse_sec_fix_0,             0,                             offsetof(Unit, job_running_timeout)
++Unit.JobTimeoutSec,              config_parse_job_timeout_sec,       0,                             0
++Unit.JobRunningTimeoutSec,       config_parse_job_running_timeout_sec, 0,                           0
+ Unit.JobTimeoutAction,           config_parse_emergency_action,      0,                             offsetof(Unit, job_timeout_action)
+ Unit.JobTimeoutRebootArgument,   config_parse_unit_string_printf,    0,                             offsetof(Unit, job_timeout_reboot_arg)
+ Unit.StartLimitIntervalSec,      config_parse_sec,                   0,                             offsetof(Unit, start_limit.interval)
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index 9d5c39b3dd..23bca0094c 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -4178,6 +4178,78 @@ int config_parse_protect_system(
+         return 0;
+ }
+ 
++int config_parse_job_timeout_sec(
++                const char* unit,
++                const char *filename,
++                unsigned line,
++                const char *section,
++                unsigned section_line,
++                const char *lvalue,
++                int ltype,
++                const char *rvalue,
++                void *data,
++                void *userdata) {
++
++        Unit *u = data;
++        usec_t usec;
++        int r;
++
++        assert(filename);
++        assert(lvalue);
++        assert(rvalue);
++        assert(u);
++
++        r = parse_sec_fix_0(rvalue, &usec);
++        if (r < 0) {
++                log_syntax(unit, LOG_ERR, filename, line, r, "Failed to parse JobTimeoutSec= parameter, ignoring: %s", rvalue);
++                return 0;
++        }
++
++        /* If the user explicitly changed JobTimeoutSec= also change JobRunningTimeoutSec=, for compatibility with old
++         * versions. If JobRunningTimeoutSec= was explicitly set, avoid this however as whatever the usec picked should
++         * count. */
++
++        if (!u->job_running_timeout_set)
++                u->job_running_timeout = usec;
++
++        u->job_timeout = usec;
++
++        return 0;
++}
++
++int config_parse_job_running_timeout_sec(
++                const char* unit,
++                const char *filename,
++                unsigned line,
++                const char *section,
++                unsigned section_line,
++                const char *lvalue,
++                int ltype,
++                const char *rvalue,
++                void *data,
++                void *userdata) {
++
++        Unit *u = data;
++        usec_t usec;
++        int r;
++
++        assert(filename);
++        assert(lvalue);
++        assert(rvalue);
++        assert(u);
++
++        r = parse_sec_fix_0(rvalue, &usec);
++        if (r < 0) {
++                log_syntax(unit, LOG_ERR, filename, line, r, "Failed to parse JobRunningTimeoutSec= parameter, ignoring: %s", rvalue);
++                return 0;
++        }
++
++        u->job_running_timeout = usec;
++        u->job_running_timeout_set = true;
++
++        return 0;
++}
++
+ #define FOLLOW_MAX 8
+ 
+ static int open_follow(char **filename, FILE **_f, Set *names, char **_final) {
+diff --git a/src/core/load-fragment.h b/src/core/load-fragment.h
+index fc27a07955..5079d4c00c 100644
+--- a/src/core/load-fragment.h
++++ b/src/core/load-fragment.h
+@@ -118,6 +118,8 @@ int config_parse_user_group(const char *unit, const char *filename, unsigned lin
+ int config_parse_user_group_strv(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_restrict_namespaces(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ int config_parse_bind_paths(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
++int config_parse_job_timeout_sec(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
++int config_parse_job_running_timeout_sec(const char *unit, const char *filename, unsigned line, const char *section, unsigned section_line, const char *lvalue, int ltype, const char *rvalue, void *data, void *userdata);
+ 
+ /* gperf prototypes */
+ const struct ConfigPerfItem* load_fragment_gperf_lookup(const char *key, GPERF_LEN_TYPE length);
+diff --git a/src/core/unit.h b/src/core/unit.h
+index cf21b37e22..d70fc970b5 100644
+--- a/src/core/unit.h
++++ b/src/core/unit.h
+@@ -115,6 +115,7 @@ struct Unit {
+         /* Job timeout and action to take */
+         usec_t job_timeout;
+         usec_t job_running_timeout;
++        bool job_running_timeout_set:1;
+         EmergencyAction job_timeout_action;
+         char *job_timeout_reboot_arg;
+ 

@@ -1,0 +1,179 @@
+From 7d9e4212490f7c42d419de4befb438e173380da7 Mon Sep 17 00:00:00 2001
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+Date: Mon, 21 Aug 2017 17:28:35 +0100
+Subject: [PATCH] logind: respect "delay" inhibitors in scheduled shutdowns
+
+There is no justification not to wait an extra (default) 5 seconds, for
+a more graceful shutdown of user programs.  Again, you don't get to ignore
+delay inhibitors for unscheduled shutdowns, short of
+`systemctl poweroff -f`.
+
+It is simplest if we move the test for `m->shutdown_dry_run` into
+manager_scheduled_shutdown_handler().
+
+However we need to not add such delays during a "dry run".  Otherwise, we
+would still have to be considered "in progress" for some seconds after our
+admin has seen the final wall message.  If they go to `poweroff`, we would
+have blocked them with a misleading error message.  Note this `poweroff`
+will still process delay inhibitors as needed.  If the admin planned to
+use a more forceful method... eh.  It's their responsibility to assess
+whether that's safe.
+
+There is an argument that the alternative behaviour could be used (racily!)
+to kludge around them not being able to shutdown to "single user mode".  If
+we cared about that case, we would have easily preserved non-racy support
+for it in `shutdown`.
+
+Additionally, though I think this code does read more easily by reducing
+inconsistencies, we didn't come up with any use case for delay inhibitors
+v.s. shutdown.[1]  The SIGTERM v.s. SIGKILL delay is more general, and we
+allow a whole 90 seconds for it, not just 5.  So I don't think keeping this
+approach bears a risk of significant damage.
+
+[1] https://www.freedesktop.org/wiki/Software/systemd/inhibit/
+
+(cherry picked from commit df75a1a8aa5420335a56093077fa8cfcbfffac78)
+---
+ src/login/logind-dbus.c | 91 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 48 insertions(+), 43 deletions(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index 3f05c86f5c..1fd64d32b7 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -1399,7 +1399,6 @@ static int have_multiple_sessions(
+ 
+ static int bus_manager_log_shutdown(
+                 Manager *m,
+-                InhibitWhat w,
+                 const char *unit_name) {
+ 
+         const char *p, *q;
+@@ -1407,9 +1406,6 @@ static int bus_manager_log_shutdown(
+         assert(m);
+         assert(unit_name);
+ 
+-        if (w != INHIBIT_SHUTDOWN)
+-                return 0;
+-
+         if (streq(unit_name, SPECIAL_POWEROFF_TARGET)) {
+                 p = "MESSAGE=System is powering down";
+                 q = "SHUTDOWN=power-off";
+@@ -1484,21 +1480,6 @@ int manager_set_lid_switch_ignore(Manager *m, usec_t until) {
+         return r;
+ }
+ 
+-static void reset_scheduled_shutdown(Manager *m) {
+-        m->scheduled_shutdown_timeout_source = sd_event_source_unref(m->scheduled_shutdown_timeout_source);
+-        m->wall_message_timeout_source = sd_event_source_unref(m->wall_message_timeout_source);
+-        m->nologin_timeout_source = sd_event_source_unref(m->nologin_timeout_source);
+-        m->scheduled_shutdown_type = mfree(m->scheduled_shutdown_type);
+-        m->scheduled_shutdown_timeout = 0;
+-        m->shutdown_dry_run = false;
+-
+-        if (m->unlink_nologin) {
+-                (void) unlink("/run/nologin");
+-                m->unlink_nologin = false;
+-        }
+-        (void) unlink("/run/systemd/shutdown/scheduled");
+-}
+-
+ static int execute_shutdown_or_sleep(
+                 Manager *m,
+                 InhibitWhat w,
+@@ -1515,32 +1496,28 @@ static int execute_shutdown_or_sleep(
+         assert(w < _INHIBIT_WHAT_MAX);
+         assert(unit_name);
+ 
+-        bus_manager_log_shutdown(m, w, unit_name);
++        if (w == INHIBIT_SHUTDOWN)
++                bus_manager_log_shutdown(m, unit_name);
+ 
+-        if (m->shutdown_dry_run) {
+-                log_info("Running in dry run, suppressing action.");
+-                reset_scheduled_shutdown(m);
+-        } else {
+-                r = sd_bus_call_method(
+-                                m->bus,
+-                                "org.freedesktop.systemd1",
+-                                "/org/freedesktop/systemd1",
+-                                "org.freedesktop.systemd1.Manager",
+-                                "StartUnit",
+-                                error,
+-                                &reply,
+-                                "ss", unit_name, "replace-irreversibly");
+-                if (r < 0)
+-                        return r;
++        r = sd_bus_call_method(
++                        m->bus,
++                        "org.freedesktop.systemd1",
++                        "/org/freedesktop/systemd1",
++                        "org.freedesktop.systemd1.Manager",
++                        "StartUnit",
++                        error,
++                        &reply,
++                        "ss", unit_name, "replace-irreversibly");
++        if (r < 0)
++                return r;
+ 
+-                r = sd_bus_message_read(reply, "o", &p);
+-                if (r < 0)
+-                        return r;
++        r = sd_bus_message_read(reply, "o", &p);
++        if (r < 0)
++                return r;
+ 
+-                c = strdup(p);
+-                if (!c)
+-                        return -ENOMEM;
+-        }
++        c = strdup(p);
++        if (!c)
++                return -ENOMEM;
+ 
+         m->action_unit = unit_name;
+         free(m->action_job);
+@@ -1924,6 +1901,21 @@ fail:
+         return log_error_errno(r, "Failed to write information about scheduled shutdowns: %m");
+ }
+ 
++static void reset_scheduled_shutdown(Manager *m) {
++        m->scheduled_shutdown_timeout_source = sd_event_source_unref(m->scheduled_shutdown_timeout_source);
++        m->wall_message_timeout_source = sd_event_source_unref(m->wall_message_timeout_source);
++        m->nologin_timeout_source = sd_event_source_unref(m->nologin_timeout_source);
++        m->scheduled_shutdown_type = mfree(m->scheduled_shutdown_type);
++        m->scheduled_shutdown_timeout = 0;
++        m->shutdown_dry_run = false;
++
++        if (m->unlink_nologin) {
++                (void) unlink("/run/nologin");
++                m->unlink_nologin = false;
++        }
++        (void) unlink("/run/systemd/shutdown/scheduled");
++}
++
+ static int manager_scheduled_shutdown_handler(
+                         sd_event_source *s,
+                         uint64_t usec,
+@@ -1952,7 +1944,20 @@ static int manager_scheduled_shutdown_handler(
+                 return -EALREADY;
+         }
+ 
+-        r = execute_shutdown_or_sleep(m, INHIBIT_SHUTDOWN, target, &error);
++        if (m->shutdown_dry_run) {
++                /* We do not process delay inhibitors here.  Otherwise, we
++                 * would have to be considered "in progress" (like the check
++                 * above) for some seconds after our admin has seen the final
++                 * wall message. */
++
++                bus_manager_log_shutdown(m, target);
++                log_info("Running in dry run, suppressing action.");
++                reset_scheduled_shutdown(m);
++
++                return 0;
++        }
++
++        r = bus_manager_shutdown_or_sleep_now_or_later(m, target, INHIBIT_SHUTDOWN, &error);
+         if (r < 0)
+                 return log_error_errno(r, "Scheduled shutdown to %s failed: %m", target);
+ 

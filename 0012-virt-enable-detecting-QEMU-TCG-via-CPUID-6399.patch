@@ -1,4 +1,4 @@
-From e48936b0be085f15a2e2ac88b2e50a91a66782ac Mon Sep 17 00:00:00 2001
+From ce0609bc26d33e47b23fbbe1aa7465283a10fb10 Mon Sep 17 00:00:00 2001
 From: Daniel Berrange <berrange@redhat.com>
 Date: Wed, 19 Jul 2017 10:06:07 +0100
 Subject: [PATCH] virt: enable detecting QEMU (TCG) via CPUID (#6399)

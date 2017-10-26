@@ -1,0 +1,31 @@
+From 65f6532eea53d862f7ad51d81f1f7b7c0fb3ac3a Mon Sep 17 00:00:00 2001
+From: Topi Miettinen <topimiettinen@users.noreply.github.com>
+Date: Tue, 29 Aug 2017 15:31:24 +0000
+Subject: [PATCH] namespace: avoid assertion failure (#6649)
+
+If the root image is not decrypted, it must not be relinquished.
+
+(cherry picked from commit 07ce74074da29d8577ccbc98001d57253afd88d2)
+---
+ src/core/namespace.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/namespace.c b/src/core/namespace.c
+index 05175e9552..3e0d786ca5 100644
+--- a/src/core/namespace.c
++++ b/src/core/namespace.c
+@@ -1062,9 +1062,11 @@ int setup_namespace(
+                 if (r < 0)
+                         goto finish;
+ 
+-                r = decrypted_image_relinquish(decrypted_image);
+-                if (r < 0)
+-                        goto finish;
++                if (decrypted_image) {
++                        r = decrypted_image_relinquish(decrypted_image);
++                        if (r < 0)
++                                goto finish;
++                }
+ 
+                 loop_device_relinquish(loop_device);
+ 

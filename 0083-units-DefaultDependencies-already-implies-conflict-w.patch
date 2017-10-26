@@ -1,0 +1,26 @@
+From 0854289230b44c44e2c312f50be24c2c286dc90f Mon Sep 17 00:00:00 2001
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+Date: Mon, 25 Sep 2017 12:46:32 +0100
+Subject: [PATCH] units: DefaultDependencies already implies conflict with
+ shutdown.target
+
+(and system-update.target does not have DefaultDependencies=no)
+
+(cherry picked from commit 2d4b910383c6c14b3720e26cca11c223ad868d9d)
+---
+ units/system-update.target | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/units/system-update.target b/units/system-update.target
+index 3542879706..b95639a876 100644
+--- a/units/system-update.target
++++ b/units/system-update.target
+@@ -10,8 +10,6 @@ Description=Offline System Update
+ Documentation=man:systemd.offline-updates(7)
+ Documentation=man:systemd.special(7) man:systemd-system-update-generator(8)
+ Requires=sysinit.target
+-Conflicts=shutdown.target
+ After=sysinit.target
+-Before=shutdown.target
+ AllowIsolate=yes
+ Wants=system-update-cleanup.service

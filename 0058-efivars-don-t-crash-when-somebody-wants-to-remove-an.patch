@@ -1,0 +1,28 @@
+From ab76f797e85ba755f02db58f18b455c46dfed12a Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 8 Sep 2017 17:34:11 +0200
+Subject: [PATCH] efivars: don't crash when somebody wants to remove an efi
+ variable
+
+This corrects b3c908b4a230c5cca0dcdd7e94d02ec54a298abf by allowing a
+NULL value again for variable deletion.
+
+Fixes: #6753
+(cherry picked from commit e1e26566ec60aa66a3c21682322ebc376df609b2)
+---
+ src/shared/efivars.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shared/efivars.c b/src/shared/efivars.c
+index 8229e6b183..2503346610 100644
+--- a/src/shared/efivars.c
++++ b/src/shared/efivars.c
+@@ -269,7 +269,7 @@ int efi_set_variable(
+         _cleanup_close_ int fd = -1;
+ 
+         assert(name);
+-        assert(value);
++        assert(value || size == 0);
+ 
+         if (asprintf(&p,
+                      "/sys/firmware/efi/efivars/%s-%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",

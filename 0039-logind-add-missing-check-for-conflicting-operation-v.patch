@@ -1,0 +1,55 @@
+From d0968b783128667b1db0e97d6774a0a1f15fa152 Mon Sep 17 00:00:00 2001
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+Date: Mon, 21 Aug 2017 11:49:25 +0100
+Subject: [PATCH] logind: add missing check for conflicting operation v.s.
+ scheduled shutdown
+
+> We don't want to shutdown while a suspend is running, and vice versa.
+> This would be confusing and could lead to data loss in the worst case.
+
+https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1441253/comments/4
+
+According to the above comment, if the conflicting operation is hung,
+we don't want to force things when the admin has not passed a force option.
+
+Similarly if you're not an admin, you probably shouldn't get to sneak
+around this check by using a scheduled shutdown instead of an unscheduled
+one.  (And no-one so far thought it necessary to add such a permission in
+PolKit).
+
+Note that if the conflicting operation was _not_ hung, and we lost the
+race with suspend, the system might not have shut down at the scheduled
+time anyway.  Which is no good if you were scheduling a power outage.
+And scheduling a shutdown for an arbitrary time when the system is resumed,
+does not seem a very useful semantic.  More likely, scheduled shutdowns are
+useful on systems which do not use suspend, such as multi-user servers.
+(In which case even PolKit defaults likely don't let the users trigger
+suspend).
+
+(cherry picked from commit b498d6ea9f72520c579035928d16c527d992bca8)
+---
+ src/login/logind-dbus.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index f0943e56e0..3f05c86f5c 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -1946,9 +1946,15 @@ static int manager_scheduled_shutdown_handler(
+         else
+                 target = SPECIAL_REBOOT_TARGET;
+ 
+-        r = execute_shutdown_or_sleep(m, 0, target, &error);
++        /* Don't allow multiple jobs being executed at the same time */
++        if (m->action_what) {
++                log_error("Scheduled shutdown to %s failed: shutdown or sleep operation already in progress", target);
++                return -EALREADY;
++        }
++
++        r = execute_shutdown_or_sleep(m, INHIBIT_SHUTDOWN, target, &error);
+         if (r < 0)
+-                return log_error_errno(r, "Unable to execute transition to %s: %m", target);
++                return log_error_errno(r, "Scheduled shutdown to %s failed: %m", target);
+ 
+         return 0;
+ }

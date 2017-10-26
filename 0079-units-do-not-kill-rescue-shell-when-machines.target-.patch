@@ -1,0 +1,47 @@
+From a1bf52c278196d4bc8d419afeb6507c48e5fd461 Mon Sep 17 00:00:00 2001
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+Date: Mon, 25 Sep 2017 11:38:08 +0100
+Subject: [PATCH] units: do not kill rescue shell when machines.target is
+ started
+
+The original aim of this commit is that starting machines.target from the
+rescue shell would not kill the rescue shell and lock you out of the
+system.
+
+This is similar to commit 6579a622, for the conflict between
+sysinit.target and the _emergency_ shell.  That particular commit
+introduced an ordering cycle and will need to be reverted and/or
+fixed.  This one does not, because it does not need to introduce any new
+dependencies.
+
+The reason why this commit is allowable also has it's own merit:
+
+machines.target was not marked as AllowIsolate.  Also, the point of
+containers is to not escape them...  I don't think we want to promote
+machines.target as a default target or similar; you would generally want
+some system service to allow you to shut down the machine, for example.  I
+don't see this approach used in CoreOS, nor in Fedora Atomic Host; we are
+missing any positive examples of its utility.
+
+Requires=basic.target / After=basic.target can be removed for the same
+reason.
+
+(cherry picked from commit a3b22cc5962efef2f4cd57d49f59a67e0617e9e0)
+---
+ units/machines.target | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/units/machines.target b/units/machines.target
+index 99618a19f7..e07b0bb6ae 100644
+--- a/units/machines.target
++++ b/units/machines.target
+@@ -8,9 +8,6 @@
+ [Unit]
+ Description=Containers
+ Documentation=man:systemd.special(7)
+-Requires=basic.target
+-Conflicts=rescue.service rescue.target
+-After=basic.target rescue.service rescue.target
+ Before=multi-user.target
+ 
+ [Install]

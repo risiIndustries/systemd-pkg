@@ -1,0 +1,28 @@
+From b2403e6ea4cd04e3624d4ae4f7f2d7dde98f23dd Mon Sep 17 00:00:00 2001
+From: Kai-Heng Feng <kaihengfeng@gmail.com>
+Date: Fri, 8 Sep 2017 20:25:44 +0800
+Subject: [PATCH] journalctl: honor --quiet when vacuuming (#6771)
+
+'journalctl --vacuum-*' does not suppress output message with --quiet.
+
+Let journal_directory_vacuum honors --quiet to fix the problem.
+
+BugLink: https://bugs.launchpad.net/bugs/1692188
+(cherry picked from commit e3695e499a54071aa5fa3b79bdbff0be2c528204)
+---
+ src/journal/journalctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index 2313c8c678..1bb4d89159 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -2170,7 +2170,7 @@ int main(int argc, char *argv[]) {
+                         if (d->is_root)
+                                 continue;
+ 
+-                        q = journal_directory_vacuum(d->path, arg_vacuum_size, arg_vacuum_n_files, arg_vacuum_time, NULL, true);
++                        q = journal_directory_vacuum(d->path, arg_vacuum_size, arg_vacuum_n_files, arg_vacuum_time, NULL, !arg_quiet);
+                         if (q < 0) {
+                                 log_error_errno(q, "Failed to vacuum %s: %m", d->path);
+                                 r = q;

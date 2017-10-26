@@ -1,0 +1,53 @@
+From 773fe149cec50517ff1ed113c802c4e1a047a3e4 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 22 Sep 2017 18:01:32 +0200
+Subject: [PATCH] fileio: rework read_one_line_file() on top of read_line()
+
+(cherry picked from commit f4b51a2d092685c9a080e84130fec2d74c834f5c)
+---
+ src/basic/fileio.c | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
+
+diff --git a/src/basic/fileio.c b/src/basic/fileio.c
+index db5897c360..c66b7b814e 100644
+--- a/src/basic/fileio.c
++++ b/src/basic/fileio.c
+@@ -30,6 +30,7 @@
+ 
+ #include "alloc-util.h"
+ #include "ctype.h"
++#include "def.h"
+ #include "env-util.h"
+ #include "escape.h"
+ #include "fd-util.h"
+@@ -163,7 +164,6 @@ fail:
+ 
+ int read_one_line_file(const char *fn, char **line) {
+         _cleanup_fclose_ FILE *f = NULL;
+-        char t[LINE_MAX], *c;
+ 
+         assert(fn);
+         assert(line);
+@@ -172,21 +172,7 @@ int read_one_line_file(const char *fn, char **line) {
+         if (!f)
+                 return -errno;
+ 
+-        if (!fgets(t, sizeof(t), f)) {
+-
+-                if (ferror(f))
+-                        return errno > 0 ? -errno : -EIO;
+-
+-                t[0] = 0;
+-        }
+-
+-        c = strdup(t);
+-        if (!c)
+-                return -ENOMEM;
+-        truncate_nl(c);
+-
+-        *line = c;
+-        return 0;
++        return read_line(f, LONG_LINE_MAX, line);
+ }
+ 
+ int verify_file(const char *fn, const char *blob, bool accept_extra_nl) {

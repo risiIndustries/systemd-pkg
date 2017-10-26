@@ -1,0 +1,23 @@
+From 000caa49a4ca3c18f38ac8dbb3d8bde39bc7cbbe Mon Sep 17 00:00:00 2001
+From: Yu Watanabe <watanabe.yu+github@gmail.com>
+Date: Thu, 31 Aug 2017 18:31:08 +0900
+Subject: [PATCH] man: fix path for storing random seed
+
+(cherry picked from commit 621a2c804ce91763221799cde9d412423fcf8b51)
+---
+ man/systemd-random-seed.service.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/systemd-random-seed.service.xml b/man/systemd-random-seed.service.xml
+index f3b5a947da..9ec01b6c34 100644
+--- a/man/systemd-random-seed.service.xml
++++ b/man/systemd-random-seed.service.xml
+@@ -48,7 +48,7 @@
+ 
+   <refsynopsisdiv>
+     <para><filename>systemd-random-seed.service</filename></para>
+-    <para><filename>/usr/lib/systemd/systemd-random-seed</filename></para>
++    <para><filename>/usr/lib/systemd/random-seed</filename></para>
+   </refsynopsisdiv>
+ 
+   <refsect1>

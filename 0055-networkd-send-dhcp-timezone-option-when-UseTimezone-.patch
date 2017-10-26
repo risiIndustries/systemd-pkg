@@ -1,0 +1,30 @@
+From 63f2647249e5d55e6ae62c484d70690aedd41a41 Mon Sep 17 00:00:00 2001
+From: juga0 <juga@riseup.net>
+Date: Wed, 6 Sep 2017 08:10:50 +0000
+Subject: [PATCH] networkd: send dhcp timezone option when UseTimezone is true
+ (#6725)
+
+(cherry picked from commit 89573b3728fc14033b99fc69f3f6181be9c8c6be)
+---
+ src/network/networkd-dhcp4.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/network/networkd-dhcp4.c b/src/network/networkd-dhcp4.c
+index 84a25b1a03..546c90b6bb 100644
+--- a/src/network/networkd-dhcp4.c
++++ b/src/network/networkd-dhcp4.c
+@@ -641,9 +641,11 @@ int dhcp4_configure(Link *link) {
+                         return r;
+         }
+ 
+-        r = sd_dhcp_client_set_request_option(link->dhcp_client, SD_DHCP_OPTION_NEW_TZDB_TIMEZONE);
+-        if (r < 0)
+-                return r;
++        if (link->network->dhcp_use_timezone) {
++                r = sd_dhcp_client_set_request_option(link->dhcp_client, SD_DHCP_OPTION_NEW_TZDB_TIMEZONE);
++                if (r < 0)
++                        return r;
++        }
+ 
+         r = dhcp4_set_hostname(link);
+         if (r < 0)
