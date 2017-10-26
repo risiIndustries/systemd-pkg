@@ -1,0 +1,63 @@
+From e603498db86b6f8df5a761ec53711e1ab949b1a5 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 13 Sep 2017 19:08:26 +0200
+Subject: [PATCH] sd-bus: extend D-Bus authentication timeout considerably
+ (#6813)
+
+As it turns out the authentication phase times out too often than is
+good, mostly due to PRNG pools not being populated during boot. Hence,
+let's increase the authentication timeout from 25s to 90s, to cover for
+that.
+
+(Note that we leave the D-Bus method call timeout at 25s, matching the
+reference implementation's value. And if the auth phase managed to
+complete then the pools should be populated enough and mehtod calls
+shouldn't take needlessly long anymore).
+
+Fixes: #6418
+(cherry picked from commit 036d61b32e7e684a532904ec26a6ebaa1b850ab9)
+(cherry picked from commit 7f4b159f88d8d3b932e24646b50e4bdcac885581)
+---
+ src/libsystemd/sd-bus/bus-internal.h | 6 ++++++
+ src/libsystemd/sd-bus/bus-socket.c   | 2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/libsystemd/sd-bus/bus-internal.h b/src/libsystemd/sd-bus/bus-internal.h
+index bb0414c4d6..2417fe66b8 100644
+--- a/src/libsystemd/sd-bus/bus-internal.h
++++ b/src/libsystemd/sd-bus/bus-internal.h
+@@ -27,6 +27,7 @@
+ #include "bus-error.h"
+ #include "bus-kernel.h"
+ #include "bus-match.h"
++#include "def.h"
+ #include "hashmap.h"
+ #include "kdbus.h"
+ #include "list.h"
+@@ -326,8 +327,13 @@ struct sd_bus {
+         LIST_HEAD(sd_bus_track, tracks);
+ };
+ 
++/* For method calls we time-out at 25s, like in the D-Bus reference implementation */
+ #define BUS_DEFAULT_TIMEOUT ((usec_t) (25 * USEC_PER_SEC))
+ 
++/* For the authentication phase we grant 90s, to provide extra room during boot, when RNGs and such are not filled up
++ * with enough entropy yet and might delay the boot */
++#define BUS_AUTH_TIMEOUT ((usec_t) DEFAULT_TIMEOUT_USEC)
++
+ #define BUS_WQUEUE_MAX (192*1024)
+ #define BUS_RQUEUE_MAX (192*1024)
+ 
+diff --git a/src/libsystemd/sd-bus/bus-socket.c b/src/libsystemd/sd-bus/bus-socket.c
+index e6ed15eb71..32a22113e0 100644
+--- a/src/libsystemd/sd-bus/bus-socket.c
++++ b/src/libsystemd/sd-bus/bus-socket.c
+@@ -661,7 +661,7 @@ int bus_socket_start_auth(sd_bus *b) {
+         bus_get_peercred(b);
+ 
+         b->state = BUS_AUTHENTICATING;
+-        b->auth_timeout = now(CLOCK_MONOTONIC) + BUS_DEFAULT_TIMEOUT;
++        b->auth_timeout = now(CLOCK_MONOTONIC) + BUS_AUTH_TIMEOUT;
+ 
+         if (sd_is_socket(b->input_fd, AF_UNIX, 0, 0) <= 0)
+                 b->hello_flags &= ~KDBUS_HELLO_ACCEPT_FD;

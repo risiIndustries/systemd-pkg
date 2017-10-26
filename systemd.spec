@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        233
-Release:        6%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        7%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -43,7 +43,7 @@ Source12:       https://raw.githubusercontent.com/systemd/systemd/1000522a60cead
 %if 0
 GIT_DIR=../../src/systemd/.git git format-patch-ab --no-signature -M -N v233..v233-stable
 i=1; for j in 00*patch; do printf "Patch%04d:      %s\n" $i $j; i=$((i+1));done|xclip
-GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[67]* hwdb/parse_hwdb.py > hwdb.patch
+GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-10-26} -- hwdb/[67]* hwdb/parse_hwdb.py > hwdb.patch
 %endif
 
 Patch0001:      0001-dhcp-server-add-two-missing-OOM-checks.patch
@@ -121,10 +121,29 @@ Patch0072:      0072-zsh-add-completion-for-add-wants-and-add-requires-60.patch
 Patch0073:      0073-udev-stop-freeing-value-after-using-it-for-setting-s.patch
 Patch0074:      0074-core-mount-pass-c-flag-to-bin-umount-6093.patch
 Patch0075:      0075-man-systemd-timesyncd.service-8-6109.patch
-Patch0076:      0076-test-resolved-packet-add-a-simple-test-for-our-alloc.patch
-Patch0077:      0077-resolved-simplify-alloc-size-calculation.patch
-Patch0078:      0078-resolved-do-not-allocate-packets-with-minimum-size.patch
-Patch0079:      0079-resolved-define-various-packet-sizes-as-unsigned.patch
+Patch0076:      0076-fix-includes.patch
+Patch0077:      0077-test-resolved-packet-add-a-simple-test-for-our-alloc.patch
+Patch0078:      0078-resolved-simplify-alloc-size-calculation.patch
+Patch0079:      0079-resolved-do-not-allocate-packets-with-minimum-size.patch
+Patch0080:      0080-resolved-define-various-packet-sizes-as-unsigned.patch
+Patch0081:      0081-virt-enable-detecting-QEMU-TCG-via-CPUID-6399.patch
+Patch0082:      0082-rfkill-fix-erroneous-behavior-when-polling-the-udev-.patch
+Patch0083:      0083-process-util-update-the-end-pointer-of-the-process-n.patch
+Patch0084:      0084-cryptsetup-generator-do-not-bind-to-the-decrypted-de.patch
+Patch0085:      0085-Load-virtio_rng-early-in-the-game-6710.patch
+Patch0086:      0086-sd-bus-extend-D-Bus-authentication-timeout-considera.patch
+Patch0087:      0087-timer-don-t-use-persietent-file-timestamps-from-the-.patch
+Patch0088:      0088-shared-end-string-with-if-one-was-found-at-the-end-o.patch
+Patch0089:      0089-string-util-use-size_t-for-strjoina-macro-6914.patch
+Patch0090:      0090-resolved-fix-loop-on-packets-with-pseudo-dns-types.patch
+Patch0091:      0091-cryptsetup-generator-add-a-helper-utility-to-create-.patch
+Patch0092:      0092-units-order-cryptsetup-pre.target-before-cryptsetup..patch
+Patch0093:      0093-units-add-remote-cryptsetup.target-and-remote-crypts.patch
+Patch0094:      0094-cryptsetup-generator-use-remote-cryptsetup.target-wh.patch
+Patch0095:      0095-units-add-Install-section-to-remote-cryptsetup.targe.patch
+Patch0096:      0096-units-replace-remote-cryptsetup-pre.target-with-remo.patch
+Patch0097:      0097-man-add-a-note-about-_netdev-usage.patch
+Patch0098:      0098-units-make-remote-cryptsetup.target-also-after-crypt.patch
 
 
 Source0990:      hwdb.patch
@@ -1126,6 +1145,16 @@ getent passwd systemd-journal-upload &>/dev/null || useradd -r -l -g systemd-jou
 %{pkgdir}/tests
 
 %changelog
+* Thu Oct 26 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 233-7
+- systemd-detect-virt QEMU CPUID logic update
+- Fix cryptsetup devices disappearing when used for btrfs
+- Fix rfkill on some thinkpads
+- Extend dbus timeouts to handle slow dbus daemon startup
+- Fix systemd-resolved DOS with crafted NSEC packets (LP#1725351)
+- Backport /etc/crypttab _netdev feature from upstream
+  (v2, with crypttab _netdev units using remote-fs-pre.target)
+- Update hwdb
+
 * Tue Jun 27 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 233-6
 - Tweak the patches a bit
 

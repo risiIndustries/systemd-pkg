@@ -1,0 +1,26 @@
+From 977a616317fec7199947de72103f9a9e9f6632d9 Mon Sep 17 00:00:00 2001
+From: Jonathan Lebon <jlebon@users.noreply.github.com>
+Date: Mon, 25 Sep 2017 15:56:57 -0400
+Subject: [PATCH] string-util: use size_t for strjoina macro (#6914)
+
+`strlen` returns a `size_t` and `alloca` expects a `size_t`.
+
+(cherry picked from commit 35207e259ef44f62faf71acc4bbc7d43311a4583)
+(cherry picked from commit 3c2e58887a5d9282670b3e41b6e584367a2bda18)
+---
+ src/basic/string-util.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/basic/string-util.h b/src/basic/string-util.h
+index be44dedff4..f8dde61549 100644
+--- a/src/basic/string-util.h
++++ b/src/basic/string-util.h
+@@ -120,7 +120,7 @@ char *strjoin_real(const char *x, ...) _sentinel_;
+         ({                                                              \
+                 const char *_appendees_[] = { a, __VA_ARGS__ };         \
+                 char *_d_, *_p_;                                        \
+-                int _len_ = 0;                                          \
++                size_t _len_ = 0;                                          \
+                 unsigned _i_;                                           \
+                 for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                         _len_ += strlen(_appendees_[_i_]);              \

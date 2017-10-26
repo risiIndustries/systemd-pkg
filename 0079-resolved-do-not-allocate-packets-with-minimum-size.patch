@@ -1,4 +1,4 @@
-From 626e9ef495474c95e3143ddae1a498d391c2a008 Mon Sep 17 00:00:00 2001
+From b38575cb49041e586b0732d759a06801e587bb90 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 27 Jun 2017 14:20:00 -0400
 Subject: [PATCH] resolved: do not allocate packets with minimum size
@@ -9,12 +9,14 @@ otherwise we have to resize immediately again after appending the first data to
 the packet.
 
 This partially reverts the previous commit.
+
+(cherry picked from commit 88795538726a5bbfd9efc13d441cb05e1d7fc139)
 ---
  src/resolve/resolved-dns-packet.c | 12 +++++++++++-
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/src/resolve/resolved-dns-packet.c b/src/resolve/resolved-dns-packet.c
-index 7262a50eee..c1ee755d9f 100644
+index 821b66e266..d1f0f760a4 100644
 --- a/src/resolve/resolved-dns-packet.c
 +++ b/src/resolve/resolved-dns-packet.c
 @@ -28,6 +28,9 @@
@@ -43,6 +45,3 @@ index 7262a50eee..c1ee755d9f 100644
  
          /* round up to next page size */
          a = PAGE_ALIGN(ALIGN(sizeof(DnsPacket)) + a) - ALIGN(sizeof(DnsPacket));
--- 
-2.13.0
-

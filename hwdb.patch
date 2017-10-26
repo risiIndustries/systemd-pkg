@@ -1,5 +1,5 @@
 diff --git a/hwdb/60-evdev.hwdb b/hwdb/60-evdev.hwdb
-index fd9078393b..82814701b7 100644
+index fd9078393b..f688ef269f 100644
 --- a/hwdb/60-evdev.hwdb
 +++ b/hwdb/60-evdev.hwdb
 @@ -115,6 +115,13 @@ evdev:name:ETPS/2 Elantech Touchpad:dmi:*:svnASUSTeKCOMPUTERINC.:pn?550C?:*
@@ -16,7 +16,21 @@ index fd9078393b..82814701b7 100644
  # Asus UX305
  evdev:name:Elan Touchpad:dmi:*:svnASUSTeKCOMPUTERINC.:pnUX305UA:*
   EVDEV_ABS_00=0:3097:32
-@@ -178,6 +185,15 @@ evdev:name:AlpsPS/2 ALPS GlidePoint:dmi:bvn*:bvr*:bd*:svnDellInc.:pnXPSM1530*
+@@ -152,6 +159,13 @@ evdev:name:AlpsPS/2 ALPS DualPoint TouchPad:dmi:bvn*:bvr*:bd*:svnDellInc.:pnLati
+  EVDEV_ABS_35=79:1841:22
+  EVDEV_ABS_36=140:1325:29
+ 
++# Dell Latitude E7470
++evdev:name:AlpsPS/2 ALPS DualPoint TouchPad:dmi:bvn*:bvr*:bd*:svnDellInc.:pnLatitudeE7470*
++ EVDEV_ABS_00=39:5856:59
++ EVDEV_ABS_01=10:1532:29
++ EVDEV_ABS_35=39:5856:59
++ EVDEV_ABS_36=10:1532:29
++
+ # Dell Precision 5510
+ evdev:name:SynPS/2 Synaptics TouchPad:dmi:bvn*:bvr*:bd*:svnDellInc.:pnPrecision5510*
+  EVDEV_ABS_00=::42
+@@ -178,6 +192,15 @@ evdev:name:AlpsPS/2 ALPS GlidePoint:dmi:bvn*:bvr*:bd*:svnDellInc.:pnXPSM1530*
   EVDEV_ABS_00=85:947:15
   EVDEV_ABS_01=154:726:18
  
@@ -32,7 +46,42 @@ index fd9078393b..82814701b7 100644
  #########################################
  # Google
  #########################################
-@@ -338,6 +354,13 @@ evdev:name:ETPS/2 Elantech Touchpad:dmi:*svnSAMSUNGELECTRONICSCO.,LTD.:pn305V4A/
+@@ -268,6 +291,20 @@ evdev:name:SynPS/2 Synaptics TouchPad:dmi:*svnLENOVO*:pvrThinkPadX1Carbon4th*
+  EVDEV_ABS_35=1262:5679:44
+  EVDEV_ABS_36=1101:4824:65
+ 
++# Lenovo Thinkpad Carbon X1 5th gen.
++evdev:name:SynPS/2 Synaptics TouchPad:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
++ EVDEV_ABS_00=::44
++ EVDEV_ABS_01=::65
++ EVDEV_ABS_35=::44
++ EVDEV_ABS_36=::65
++
++# Lenovo Thinkpad Carbon X1 5th gen. (rmi4)
++evdev:name:Synaptics TM3289-002:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
++ EVDEV_ABS_00=::19
++ EVDEV_ABS_01=::19
++ EVDEV_ABS_35=::19
++ EVDEV_ABS_36=::19
++
+ # Lenovo T460
+ evdev:name:SynPS/2 Synaptics TouchPad:dmi:*svnLENOVO*:pn*ThinkPad*T460*
+  EVDEV_ABS_00=1266:5677:44
+@@ -327,6 +364,13 @@ evdev:name:AlpsPS/2 ALPS GlidePoint:dmi:*svnLENOVO:*pvrLenovoYoga500-14ISK*
+  EVDEV_ABS_35=124:3955:36
+  EVDEV_ABS_36=103:1959:26
+ 
++# Lenovo Flex 3 15-inch
++evdev:name:AlpsPS/2 ALPS GlidePoint*:dmi:bvn*:bvr*:bd*:svnLENOVO*:pvrFlex3-15*
++ EVDEV_ABS_00=::38
++ EVDEV_ABS_01=::28
++ EVDEV_ABS_35=::38
++ EVDEV_ABS_36=::28
++
+ #########################################
+ # Samsung
+ #########################################
+@@ -338,6 +382,24 @@ evdev:name:ETPS/2 Elantech Touchpad:dmi:*svnSAMSUNGELECTRONICSCO.,LTD.:pn305V4A/
   EVDEV_ABS_35=0:2480:28
   EVDEV_ABS_36=0:1116:24
  
@@ -43,13 +92,35 @@ index fd9078393b..82814701b7 100644
 + EVDEV_ABS_35=::30
 + EVDEV_ABS_36=::29
 +
++#########################################
++# System76
++#########################################
++
++# GalagoPro 2 (galp2)
++evdev:name:SynPS/2 Synaptics TouchPad:dmi:*svnSystem76:pnGalagoPro:pvrgalp2:*
++ EVDEV_ABS_00=1238:5747:50
++ EVDEV_ABS_01=901:4900:83
++ EVDEV_ABS_35=1238:5747:50
++ EVDEV_ABS_36=901:4900:83
++
  #########################################
  # Toshiba
  #########################################
-@@ -346,3 +369,12 @@ evdev:name:ETPS/2 Elantech Touchpad:dmi:*svnSAMSUNGELECTRONICSCO.,LTD.:pn305V4A/
+@@ -346,3 +408,23 @@ evdev:name:ETPS/2 Elantech Touchpad:dmi:*svnSAMSUNGELECTRONICSCO.,LTD.:pn305V4A/
  evdev:name:AlpsPS/2 ALPS DualPoint TouchPad:dmi:*svnTOSHIBA:pnTECRAM11*
   EVDEV_ABS_00=90:962:11
   EVDEV_ABS_01=51:681:14
++
++#########################################
++# Razer
++#########################################
++
++# Razer Blade Stealth (2016)
++evdev:name:Synaptics TM2438-005:dmi:*svnRazer:pnBladeStealth*
++ EVDEV_ABS_00=0:4064:29
++ EVDEV_ABS_01=0:2405:37
++ EVDEV_ABS_35=0:4064:29
++ EVDEV_ABS_36=0:2405:37
 +
 +#########################################
 +# Waltop
@@ -60,7 +131,7 @@ index fd9078393b..82814701b7 100644
 + EVDEV_ABS_00=0:10000:400
 + EVDEV_ABS_01=0:6250:400
 diff --git a/hwdb/60-keyboard.hwdb b/hwdb/60-keyboard.hwdb
-index 1aa729f047..e8be567166 100644
+index 1aa729f047..33895ed75e 100644
 --- a/hwdb/60-keyboard.hwdb
 +++ b/hwdb/60-keyboard.hwdb
 @@ -1,7 +1,14 @@
@@ -80,7 +151,7 @@ index 1aa729f047..e8be567166 100644
  #
  # The lookup keys are composed in:
  #   60-evdev.rules
-@@ -40,6 +47,12 @@
+@@ -40,11 +47,19 @@
  #    /sys/class/input/input?/capabilities/ev" and <vendor> is the
  #    firmware-provided string exported by the kernel DMI modalias,
  #    see /sys/class/dmi/id/modalias
@@ -93,7 +164,24 @@ index 1aa729f047..e8be567166 100644
  #
  # Scan codes are specified as:
  #   KEYBOARD_KEY_<hex scan code>=<key code identifier>
-@@ -84,6 +97,7 @@
+ # The scan code should be expressed in hex lowercase. The key codes
+ # are retrieved and normalized from the kernel input API header.
++# Keycodes are either KEY_* defines in lowercase with the key_ prefix
++# optionally removed or BTN_ defines in lowercase with btn_ preserved.
+ #
+ # An '!' as the first character of the key identifier string
+ # will add the scan code to the AT keyboard's list of scan codes
+@@ -67,7 +82,8 @@
+ #   systemd-hwdb update
+ #   udevadm trigger /dev/input/eventXX
+ # where /dev/input/eventXX is the keyboard in question. If in
+-# doubt, simply use /dev/input/event* to reload all input rules.
++# doubt, simply reload all input rules
++#   udevadm trigger --verbose --sysname-match="event*"
+ #
+ # If your changes are generally applicable, preferably send them as a pull
+ # request to
+@@ -84,6 +100,7 @@
  evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pn*
  evdev:atkbd:dmi:bvn*:bvr*:bd*:svnGateway*:pnA0A1*:pvr*
  evdev:atkbd:dmi:bvn*:bvr*:bd*:svneMachines:pneMachines*E725:pvr*
@@ -101,7 +189,7 @@ index 1aa729f047..e8be567166 100644
   KEYBOARD_KEY_a5=help                                   # Fn+F1
   KEYBOARD_KEY_a6=setup                                  # Fn+F2 Acer eSettings
   KEYBOARD_KEY_a7=battery                                # Fn+F3 Power Management
-@@ -105,6 +119,7 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svneMachines:pneMachines*E725:pvr*
+@@ -105,6 +122,7 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svneMachines:pneMachines*E725:pvr*
   KEYBOARD_KEY_f3=prog2                                  # "P2" programmable button
   KEYBOARD_KEY_f4=prog1                                  # "P1" programmable button
   KEYBOARD_KEY_f5=presentation
@@ -109,7 +197,7 @@ index 1aa729f047..e8be567166 100644
   KEYBOARD_KEY_f8=fn
   KEYBOARD_KEY_f9=prog1                                  # Launch NTI shadow
  
-@@ -144,6 +159,10 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pnTravelMate*C3[01]0*:pvr*
+@@ -144,6 +162,10 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pnTravelMate*C3[01]0*:pvr*
   KEYBOARD_KEY_6b=fn
   KEYBOARD_KEY_6c=screenlock                             # FIXME: lock tablet device/buttons
  
@@ -120,7 +208,7 @@ index 1aa729f047..e8be567166 100644
  # on some models this isn't brightnessup
  evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pn*5210*:pvr*
  evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pn*5220*:pvr*
-@@ -158,6 +177,10 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pnAspire*1640:*
+@@ -158,6 +180,10 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pnAspire*1640:*
  evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pnAOA*:pvr*
   KEYBOARD_KEY_a9=!switchvideomode                       # Fn+F5
  
@@ -131,7 +219,7 @@ index 1aa729f047..e8be567166 100644
  ###########################################################
  # Alienware
  ###########################################################
-@@ -222,7 +245,7 @@ evdev:input:b0003v049Fp0051*
+@@ -222,7 +248,7 @@ evdev:input:b0003v049Fp0051*
  ###########################################################
  
  evdev:name:gpio-keys:phys:gpio-keys/input0:ev:3:dmi:bvn*:bvr*:bd*:svncube:pni1-TF:*
@@ -140,7 +228,7 @@ index 1aa729f047..e8be567166 100644
   KEYBOARD_KEY_1=power
  
  ###########################################################
-@@ -291,6 +314,10 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnDell*:pnPrecision*:pvr*
+@@ -291,6 +317,10 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnDell*:pnPrecision*:pvr*
   KEYBOARD_KEY_88=!                                      # wireless switch
   KEYBOARD_KEY_9e=!f21
  
@@ -151,7 +239,16 @@ index 1aa729f047..e8be567166 100644
  # Dell XPS
  evdev:atkbd:dmi:bvn*:bvr*:bd*:svnDell*:pnXPS*:pvr*
   KEYBOARD_KEY_8c=!unknown
-@@ -831,6 +858,7 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnMAXDATA:pnPro*7000*:pvr*
+@@ -679,6 +709,8 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnIBM*:pn18666TU:pvr*
+ 
+ # IdeaPad
+ evdev:name:Ideapad extra buttons:dmi:bvn*:bvr*:bd*:svnLENOVO*:pn*
++ KEYBOARD_KEY_0d=rfkill                                 # airplane mode switch (toggle all wireless devices)
++ KEYBOARD_KEY_08=f20                                    # micmute
+  KEYBOARD_KEY_42=f23
+  KEYBOARD_KEY_43=f22
+ 
+@@ -831,6 +863,7 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnMAXDATA:pnPro*7000*:pvr*
  ###########################################################
  
  # Akoya
@@ -159,7 +256,7 @@ index 1aa729f047..e8be567166 100644
  evdev:atkbd:dmi:bvn*:bvr*:svnMedion*:pnAkoya*:pvr*
   KEYBOARD_KEY_a0=!mute
   KEYBOARD_KEY_ae=!volumedown
-@@ -1274,9 +1302,13 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnDIXONSP:pnDIXON*:pvr*
+@@ -1274,9 +1307,13 @@ evdev:atkbd:dmi:bvn*:bvr*:bd*:svnDIXONSP:pnDIXON*:pvr*
   KEYBOARD_KEY_ae=!                                      # volume down
   KEYBOARD_KEY_b0=!                                      # volume up
  
@@ -176,7 +273,7 @@ index 1aa729f047..e8be567166 100644
  
  # Yubico Yubico Yubikey II"
  evdev:input:b0003v1050p0010*
-@@ -1288,3 +1320,16 @@ evdev:input:b0003v1050p0116*
+@@ -1288,3 +1325,16 @@ evdev:input:b0003v1050p0116*
  evdev:input:b0003v05FEp1010*
   XKB_FIXED_LAYOUT="us"
   XKB_FIXED_VARIANT=""
@@ -194,15 +291,63 @@ index 1aa729f047..e8be567166 100644
 + KEYBOARD_LED_NUMLOCK=0
 + KEYBOARD_LED_CAPSLOCK=0
 diff --git a/hwdb/60-sensor.hwdb b/hwdb/60-sensor.hwdb
-index fcbdcabf30..2436ca7367 100644
+index fcbdcabf30..9dca1dd8d8 100644
 --- a/hwdb/60-sensor.hwdb
 +++ b/hwdb/60-sensor.hwdb
-@@ -47,6 +47,22 @@
- sensor:modalias:acpi:SMO8500*:dmi:*svn*ASUSTeK*:*pn*TP500LB*
-  ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 0
+@@ -41,14 +41,147 @@
+ #
+ # Sort by brand, model
  
++#########################################
++# Acer
++#########################################
++sensor:modalias:acpi:BMA250E*:dmi:*:svnAcer:pnIconiaW1-810:*
++ ACCEL_MOUNT_MATRIX=1, 0, 0; 0, -1, 0; 0, 0, 1
++
+ #########################################
+ # AsusTek
+ #########################################
+-sensor:modalias:acpi:SMO8500*:dmi:*svn*ASUSTeK*:*pn*TP500LB*
+- ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 0
++sensor:modalias:acpi:INVN6500*:dmi:*svnASUSTeK*:*pnT100CHI*
++ ACCEL_MOUNT_MATRIX=-1, 0, 0; 0, 1, 0; 0, 0, 1
++
++sensor:modalias:acpi:INVN6500*:dmi:*svnASUSTeK*:*pnT100TA*
++ ACCEL_MOUNT_MATRIX=1, 0, 0; 0, -1, 0; 0, 0, 1
++
++sensor:modalias:acpi:INVN6500*:dmi:*svn*ASUSTeK*:*pn*TP300LD*
++ ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
++
 +sensor:modalias:acpi:SMO8500*:dmi:*svn*ASUSTeK*:*pn*TP300LJ*
 + ACCEL_MOUNT_MATRIX=0, -1, 0; -1, 0, 0; 0, 0, 1
++
++#########################################
++# Chuwi
++#########################################
++
++# Chuwi Vi8 Plus
++sensor:modalias:acpi:BOSC0200*:dmi:*:svnHampoo:pnD2D3_Vi8A1:*
++ ACCEL_MOUNT_MATRIX=0, -1, 0; -1, 0, 0; 0, 0, 1
++
++# Chuwi Hi8 Pro
++sensor:modalias:acpi:BOSC0200*:dmi:*:svnHampoo:pnX1D3_C806N:*
++ ACCEL_MOUNT_MATRIX=0, -1, 0; -1, 0, 0; 0, 0, 1
++
++# Chuwi Hi13
++sensor:modalias:acpi:KIOX000A*:dmi:svnChuwi*:pnHi13
++ ACCEL_MOUNT_MATRIX=1, 0, 0; 0, -1, 0; 0, 0, 1
++
++#########################################
++# Cube
++#########################################
++
++# Cube iWork8 Air
++sensor:modalias:acpi:KIOX000A*:dmi:*:svncube:pni1-TF:*
++ ACCEL_MOUNT_MATRIX=1, 0, 0; 0, -1, 0; 0, 0, 1
++
++# Cube i7 Stylus
++sensor:modalias:acpi:KIOX000A*:dmi:*:svnCube:pni7Stylus:*
++ ACCEL_MOUNT_MATRIX=-1, 0, 0; 0, 1, 0; 0, 0, 1
 +
 +#########################################
 +# Endless
@@ -211,23 +356,209 @@ index fcbdcabf30..2436ca7367 100644
 + ACCEL_MOUNT_MATRIX=0, 1, 0; 0, 0, -1; -1, 0, 0
 +
 +#########################################
++# GP-electronic
++#########################################
++sensor:modalias:acpi:KIOX000A*:dmi:bvnINSYDECorp.:bvrBYT70A.YNCHENG.WIN.007:*:svnInsyde:pnT701:*
++ ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
++
++#########################################
 +# HP
 +#########################################
 +sensor:modalias:platform:lis3lv02d:dmi:*svn*Hewlett-Packard*:*pn*HPEliteBook8540w*
 +sensor:modalias:platform:lis3lv02d:dmi:*svn*Hewlett-Packard*:*pn*HPEliteBook8560w*
 +  ACCEL_MOUNT_MATRIX=1, 0, 0; 0, 0, -1; 0, 1, 0
 +
++sensor:modalias:acpi:SMO8500*:dmi:*:svnHewlett-Packard:pnHPStream7Tablet:*
++  ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
++
++#########################################
++# I.T.Works
++#########################################
++
++# The I.T.Works TW891 2-in-1's DMI has the product-name field set, but not
++# the sys-vendor field. This makes the DMI data a bit generic, so we match
++# the whole dmi modalias, except for the BIOS version/date
++sensor:modalias:acpi:KIOX000A*:dmi:bvnAmericanMegatrendsInc.:*:svnTobefilledbyO.E.M.:pnTW891:pvrTobefilledbyO.E.M.:rvnTobefilledbyO.E.M.:rnTW891:rvr1.0:cvnToBeFilledByO.E.M.:ct3:cvrToBeFilledByO.E.M.:
++ ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
+ 
  #########################################
- # Winbook
+-# Winbook
++# Jumper
  #########################################
+-sensor:modalias:acpi:BMA250*:dmi:*svn*WinBook*:*pn*TW100*
+- ACCEL_MOUNT_MATRIX=0, -1, 0; -1, 0, 0; 0, 0, 0
++
++# EZpad mini 3
++sensor:modalias:acpi:BOSC0200*:dmi:bvnINSYDECorp.:bvrjumperx.T87.KFBNEE*
++ ACCEL_MOUNT_MATRIX=0, -1, 0; -1, 0, 0; 0, 0, 1
++
++#########################################
++# Lamina
++#########################################
++sensor:modalias:acpi:SMO8500*:dmi:*svnLamina*:*pnT701BR.SE*
++ ACCEL_MOUNT_MATRIX=-1, 0, 0; 0, 1, 0; 0, 0, 1
++
++sensor:modalias:acpi:KIOX000A*:dmi:*svnLAMINA:pnT-1016BNORD*
++ ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
++
++#########################################
++# Lenovo
++#########################################
++sensor:modalias:acpi:NCPE0388*:dmi:*:rnLenovoYOGA510-14IKB:*
++ ACCEL_MOUNT_MATRIX=-1, 0, 0; 0, -1, 0; 0, 0, 1
++
++#########################################
++# Peaq
++#########################################
++sensor:modalias:acpi:SMO8500*:dmi:*:svnPEAQ:pnPEAQPMMC1010MD99187:*
++ ACCEL_MOUNT_MATRIX=-1, 0, 0; 0, 1, 0; 0, 0, 1
++
++#########################################
++# Pipo
++#########################################
++sensor:modalias:acpi:KIOX000A*:dmi:*:svnPIPO:pnW2S:*
++ ACCEL_MOUNT_MATRIX=1, 0, 0; 0, -1, 0; 0, 0, 1
++
++#########################################
++# Ployer
++#########################################
++sensor:modalias:acpi:BMA250E*:dmi:*:svnShenzhenPLOYER*:pnMOMO7W:*
++ ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
++
++#########################################
++# Point of View
++#########################################
++
++# The Point of View TAB-P800W does not have its product name filled, so we
++# match the entire dmi-alias, assuming that the use of a BMA250E +
++# bios-version + bios-date combo is unique
++sensor:modalias:acpi:BMA250E*:dmi:bvnAmericanMegatrendsInc.:bvr3BAIR1013:bd08/22/2014:svnTobefilledbyO.E.M.:pnTobefilledbyO.E.M.:pvrTobefilledbyO.E.M.:rvnAMICorporation:rnAptioCRB:rvrTobefilledbyO.E.M.:cvnToBeFilledByO.E.M.:ct3:cvrToBeFilledByO.E.M.:
++ ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
++
++#########################################
++# Trekstor
++#########################################
++sensor:modalias:acpi:BMA250*:dmi:*:bvrTREK.G.WI71C.JGBMRBA*:*:svnInsyde:pnST70416-6:*
++ ACCEL_MOUNT_MATRIX=0, 1, 0; 1, 0, 0; 0, 0, 1
++
++#########################################
++# Cytrix (Mytrix)
++#########################################
++sensor:modalias:acpi:*KIOX000A*:dmi:*svn*CytrixTechnology:*pn*Complex11t*
++ ACCEL_MOUNT_MATRIX=-1, 0, 0; 0, 1, 0; 0, 0, 1
++
+diff --git a/hwdb/70-joystick.hwdb b/hwdb/70-joystick.hwdb
+new file mode 100644
+index 0000000000..9d5c4fc069
+--- /dev/null
++++ b/hwdb/70-joystick.hwdb
+@@ -0,0 +1,50 @@
++# This file is part of systemd.
++#
++# Database for joystick device information that cannot be queried directly.
++#
++# The lookup keys are composed in:
++#   70-joystick.rules
++#
++# Note: The format of the "joystick:" prefix match key is a
++# contract between the rules file and the hardware data, it might
++# change in later revisions to support more or better matches, it
++# is not necessarily expected to be a stable ABI.
++#
++# Match string format:
++# joystick:<bustype>:v<vid>p<pid>:name:<name>:
++#
++# vid/pid as 4-digit hex lowercase vendor/product
++#
++# To add local entries, create a new file
++#   /etc/udev/hwdb.d/71-joystick-local.hwdb
++# and add your rules there. To load the new rules execute (as root):
++#   systemd-hwdb update
++#   udevadm trigger /dev/input/eventXX
++# where /dev/input/eventXX is the joystick in question. If in
++# doubt, simply use /dev/input/event* to reload all input rules.
++#
++# If your changes are generally applicable, preferably send them as a pull
++# request to
++#   https://github.com/systemd/systemd
++# or create a bug report on https://github.com/systemd/systemd/issues and
++# include your new rules, a description of the device, and the output of
++#   udevadm info /dev/input/eventXX.
++#
++# Permitted keys:
++#   Specify if a joystick is a built-in one or external:
++#   ID_INPUT_JOYSTICK_INTEGRATION=internal|external
++#
++#   If the property is missing, user-space can assume:
++#   ID_INPUT_JOYSTICK_INTEGRATION=external
++
++joystick:bluetooth:*
++ ID_INPUT_JOYSTICK_INTEGRATION=external
++
++###########################################################
++# GPD
++###########################################################
++
++# GPD Win, Classic and XBox 360 compat modes
++joystick:usb:v11c5p5507*
++joystick:usb:v045ep028e*
++ ID_INPUT_JOYSTICK_INTEGRATION=internal
 diff --git a/hwdb/70-mouse.hwdb b/hwdb/70-mouse.hwdb
-index 772534f495..d49c472926 100644
+index 772534f495..bade5e4b05 100644
 --- a/hwdb/70-mouse.hwdb
 +++ b/hwdb/70-mouse.hwdb
-@@ -244,6 +244,14 @@ mouse:usb:v093ap2510:name:PIXART USB OPTICAL MOUSE:
+@@ -198,6 +198,10 @@ mouse:usb:v413cp3012:name:Dell Dell USB Optical Mouse:
+ mouse:usb:v046dpc063:name:DELL DELL USB Laser Mouse:
   MOUSE_DPI=1000@125
  
++# Dell MS116t
++mouse:usb:v413cp301a:name:PixArt Dell MS116 USB Optical Mouse:
++ MOUSE_DPI=1000@125
++
  ##########################################
+ # Dynex
+ #########################################
+@@ -213,6 +217,26 @@ mouse:usb:v0461p4d46:name:USB Optical Mouse:
+ mouse:usb:v0461p4d16:name:USB Optical Mouse:
+  MOUSE_DPI=500@125
+ 
++##########################################
++# Future Technology Devices International
++##########################################
++
++# SNES Mouse plugged into a Retrode 2
++mouse:usb:v0403p97c1:name:Retrode SNES Mouse:
++ MOUSE_DPI=235@126
++
++##########################################
++# Generic
++##########################################
++
++# FM-901 Wireless Mouse
++mouse:usb:v1ea7p000b:name:2.4G RF Mouse:
++ MOUSE_DPI=*800@125 1600@125
++
++# WK-727
++mouse:usb:v04d9p0499:name:*
++ MOUSE_DPI=800@125
++
+ ##########################################
+ # HandShoe Mouse
+ ##########################################
+@@ -239,10 +263,23 @@ mouse:usb:v0458p0133:name:Mouse Laser Mouse:
+  MOUSE_WHEEL_CLICK_ANGLE=15
+ 
+ # HP X1000
++# Dell MS111-T
+ mouse:usb:v093ap2510:name:PixArt USB Optical Mouse:
+ mouse:usb:v093ap2510:name:PIXART USB OPTICAL MOUSE:
+  MOUSE_DPI=1000@125
+ 
++# HP X1200 Optical Mouse
++mouse:usb:v03f0p0641:name:PixArt HP X1200 USB Optical Mouse:
++ MOUSE_DPI=1100@125
++
++##########################################
 +# IBM
 +##########################################
 +
@@ -235,10 +566,57 @@ index 772534f495..d49c472926 100644
 +mouse:usb:v04b3p3107:name:*
 + MOUSE_DPI=800@125
 +
-+##########################################
+ ##########################################
  # Lenovo
  ##########################################
+@@ -291,6 +328,10 @@ mouse:usb:v046dpc03e:name:Logitech USB-PS/2 Optical Mouse:
+ mouse:usb:v046dpc401:name:Logitech USB-PS/2 Trackball:
+  MOUSE_DPI=400@125
  
++# Logitech Cordless MouseMan Optical M-RM63
++mouse:usb:v046dpc501:name:Logitech USB Receiver:
++ MOUSE_DPI=800@63
++
+ # Lenovo USB mouse model MO28UOL
+ mouse:usb:v04b3p310c:name:USB Optical Mouse:
+  MOUSE_DPI=400@142
+@@ -414,6 +455,10 @@ mouse:usb:v046dp4041:name:Logitech MX Master:
+ mouse:usb:v046dpc52e:name:Logitech USB Receiver:
+  MOUSE_DPI=1000@200
+ 
++# Logitech G100s Optical Gaming Mouse
++mouse:usb:v046dpc247:name:Logitech G100s Optical Gaming Mouse:
++ MOUSE_DPI=*1000@500 1750@500 2500@500
++
+ # Logitech G700 Laser Mouse (Wired)
+ mouse:usb:v046dpc06b:name:Logitech G700 Laser Mouse:
+ # Logitech G700 Laser Mouse (Wireless)
+@@ -476,6 +521,10 @@ mouse:usb:v045ep0040:name:Microsoft Microsoft 3-Button Mouse with IntelliEye(TM)
+ mouse:usb:v045ep0745:name:Microsoft Microsoft® 2.4GHz Transceiver v6.0:
+  MOUSE_DPI=800@142
+ 
++# Microsoft Comfort Mouse 4500
++mouse:usb:v045ep076c:name:Microsoft Microsoft® Comfort Mouse 4500:
++ MOUSE_DPI=1000@125
++
+ # Microsoft Wireless Mobile Mouse 4000
+ mouse:usb:v045ep0745:name:Microsoft Microsoft® Nano Transceiver v2.0:
+ # Microsoft Sculpt Ergonomic Mouse
+@@ -523,6 +572,14 @@ mouse:usb:v0e8fp00a7:name:DaKai 2.4G RX:
+ mouse:bluetooth:v056ep0061:name:Laser  BTmouse:
+  MOUSE_DPI=*800@333 1600@333
+ 
++##########################################
++# P-Active
++##########################################
++
++# P-Active Wireless Mouse PA-27K2
++mouse:usb:v0425p0101:name:G-Tech CHINA    USB Wireless Mouse & KeyBoard V1.01  :
++ MOUSE_DPI=800@125
++
+ ##########################################
+ # Razer
+ ##########################################
 diff --git a/hwdb/70-pointingstick.hwdb b/hwdb/70-pointingstick.hwdb
 index 65c87aeac7..f1a86ff20b 100644
 --- a/hwdb/70-pointingstick.hwdb
@@ -278,7 +656,7 @@ index 82a4b7a575..12d97de69b 100644
 + ID_INPUT_TOUCHPAD_INTEGRATION=internal
 + 
 diff --git a/hwdb/parse_hwdb.py b/hwdb/parse_hwdb.py
-index b57e6f75aa..adf8a1963e 100755
+index b57e6f75aa..a25ac8d904 100755
 --- a/hwdb/parse_hwdb.py
 +++ b/hwdb/parse_hwdb.py
 @@ -1,4 +1,4 @@
@@ -287,7 +665,19 @@ index b57e6f75aa..adf8a1963e 100755
  # -*- Mode: python; coding: utf-8; indent-tabs-mode: nil -*- */
  #
  # This file is part of systemd. It is distrubuted under the MIT license, see
-@@ -112,6 +112,8 @@ def property_grammar():
+@@ -66,6 +66,7 @@ UDEV_TAG = Word(string.ascii_uppercase, alphanums + '_')
+ TYPES = {'mouse':    ('usb', 'bluetooth', 'ps2', '*'),
+          'evdev':    ('name', 'atkbd', 'input'),
+          'touchpad': ('i8042', 'rmi', 'bluetooth', 'usb'),
++         'joystick': ('i8042', 'rmi', 'bluetooth', 'usb'),
+          'keyboard': ('name', ),
+          'sensor':   ('modalias', ),
+         }
+@@ -109,9 +110,12 @@ def property_grammar():
+              ('MOUSE_WHEEL_TILT_VERTICAL', Literal('1')),
+              ('POINTINGSTICK_SENSITIVITY', INTEGER),
+              ('POINTINGSTICK_CONST_ACCEL', REAL),
++             ('ID_INPUT_JOYSTICK_INTEGRATION', Or(('internal', 'external'))),
               ('ID_INPUT_TOUCHPAD_INTEGRATION', Or(('internal', 'external'))),
               ('XKB_FIXED_LAYOUT', STRING),
               ('XKB_FIXED_VARIANT', STRING),
@@ -296,3 +686,41 @@ index b57e6f75aa..adf8a1963e 100755
               ('ACCEL_MOUNT_MATRIX', mount_matrix),
              )
      fixed_props = [Literal(name)('NAME') - Suppress('=') - val('VALUE')
+@@ -164,11 +168,27 @@ def check_one_default(prop, settings):
+     if len(defaults) > 1:
+         error('More than one star entry: {!r}', prop)
+ 
++def check_one_mount_matrix(prop, value):
++    numbers = [s for s in value if s not in {';', ','}]
++    if len(numbers) != 9:
++        error('Wrong accel matrix: {!r}', prop)
++    try:
++        numbers = [abs(float(number)) for number in numbers]
++    except ValueError:
++        error('Wrong accel matrix: {!r}', prop)
++    bad_x, bad_y, bad_z = max(numbers[0:3]) == 0, max(numbers[3:6]) == 0, max(numbers[6:9]) == 0
++    if bad_x or bad_y or bad_z:
++        error('Mount matrix is all zero in {} row: {!r}',
++              'x' if bad_x else ('y' if bad_y else 'z'),
++              prop)
++
+ def check_one_keycode(prop, value):
+     if value != '!' and ecodes is not None:
+         key = 'KEY_' + value.upper()
+         if key not in ecodes:
+-            error('Keycode {} unknown', key)
++            key = value.upper()
++            if key not in ecodes:
++                error('Keycode {} unknown', key)
+ 
+ def check_properties(groups):
+     grammar = property_grammar()
+@@ -188,6 +208,8 @@ def check_properties(groups):
+             prop_names.add(parsed.NAME)
+             if parsed.NAME == 'MOUSE_DPI':
+                 check_one_default(prop, parsed.VALUE.SETTINGS)
++            elif parsed.NAME == 'ACCEL_MOUNT_MATRIX':
++                check_one_mount_matrix(prop, parsed.VALUE)
+             elif parsed.NAME.startswith('KEYBOARD_KEY_'):
+                 check_one_keycode(prop, parsed.VALUE)
+ 

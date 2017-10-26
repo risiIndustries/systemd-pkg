@@ -1,17 +1,19 @@
-From 46ee71cfab1eebcd57109c5ee402d13a7b9d2468 Mon Sep 17 00:00:00 2001
+From d0553ece1ec2b4c586ac033ae2cb9baf22d0af33 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 27 Jun 2017 16:59:06 -0400
 Subject: [PATCH] resolved: define various packet sizes as unsigned
 
 This seems like the right thing to do, and apparently at least some compilers
 warn about signed/unsigned comparisons with DNS_PACKET_SIZE_MAX.
+
+(cherry picked from commit 64a21fdaca7c93f1c30b21f6fdbd2261798b161a)
 ---
  src/resolve/resolved-dns-packet.c | 2 +-
  src/resolve/resolved-dns-packet.h | 6 +++---
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/src/resolve/resolved-dns-packet.c b/src/resolve/resolved-dns-packet.c
-index c1ee755d9f..fd37363ece 100644
+index d1f0f760a4..a486216d68 100644
 --- a/src/resolve/resolved-dns-packet.c
 +++ b/src/resolve/resolved-dns-packet.c
 @@ -28,7 +28,7 @@
@@ -24,7 +26,7 @@ index c1ee755d9f..fd37363ece 100644
  
  typedef struct DnsPacketRewinder {
 diff --git a/src/resolve/resolved-dns-packet.h b/src/resolve/resolved-dns-packet.h
-index 05a7a844e4..1020db0221 100644
+index 3abcaf8cf3..5dff272fd9 100644
 --- a/src/resolve/resolved-dns-packet.h
 +++ b/src/resolve/resolved-dns-packet.h
 @@ -58,13 +58,13 @@ struct DnsPacketHeader {
@@ -44,6 +46,3 @@ index 05a7a844e4..1020db0221 100644
  
  struct DnsPacket {
          int n_ref;
--- 
-2.13.0
-

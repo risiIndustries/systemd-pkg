@@ -1,4 +1,4 @@
-From e3abee3dee32ae7cd8e937e44ace94ab7f45ede9 Mon Sep 17 00:00:00 2001
+From fa30043f5a3e4eaff50a72bad95601d582ac045d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 18 Jun 2017 16:07:57 -0400
 Subject: [PATCH] resolved: simplify alloc size calculation
@@ -9,13 +9,15 @@ close to the page size we would actually allocate less than requested.
 Reported by Chris Coulson <chris.coulson@canonical.com>.
 
 CVE-2017-9445
+
+(cherry picked from commit db848813bae4d28c524b3b6a7dad135e426659ce)
 ---
  src/resolve/resolved-dns-packet.c | 8 +-------
  src/resolve/resolved-dns-packet.h | 2 --
  2 files changed, 1 insertion(+), 9 deletions(-)
 
 diff --git a/src/resolve/resolved-dns-packet.c b/src/resolve/resolved-dns-packet.c
-index 8b620cb6a8..7262a50eee 100644
+index 240ee448f4..821b66e266 100644
 --- a/src/resolve/resolved-dns-packet.c
 +++ b/src/resolve/resolved-dns-packet.c
 @@ -47,13 +47,7 @@ int dns_packet_new(DnsPacket **ret, DnsProtocol protocol, size_t mtu) {
@@ -34,7 +36,7 @@ index 8b620cb6a8..7262a50eee 100644
          /* round up to next page size */
          a = PAGE_ALIGN(ALIGN(sizeof(DnsPacket)) + a) - ALIGN(sizeof(DnsPacket));
 diff --git a/src/resolve/resolved-dns-packet.h b/src/resolve/resolved-dns-packet.h
-index 7b7d4e14c9..05a7a844e4 100644
+index 2c92392e4d..3abcaf8cf3 100644
 --- a/src/resolve/resolved-dns-packet.h
 +++ b/src/resolve/resolved-dns-packet.h
 @@ -66,8 +66,6 @@ struct DnsPacketHeader {
@@ -46,6 +48,3 @@ index 7b7d4e14c9..05a7a844e4 100644
  struct DnsPacket {
          int n_ref;
          DnsProtocol protocol;
--- 
-2.13.0
-
