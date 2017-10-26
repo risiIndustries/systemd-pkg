@@ -46,6 +46,3 @@ index 7b7d4e14c9..05a7a844e4 100644
  struct DnsPacket {
          int n_ref;
          DnsProtocol protocol;
--- 
-2.13.0
-

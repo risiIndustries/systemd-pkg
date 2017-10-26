@@ -12,7 +12,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        231
-Release:        18%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        19%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -82,6 +82,9 @@ Patch0042:      0042-test-resolved-packet-add-a-simple-test-for-our-alloc.patch
 Patch0043:      0043-resolved-simplify-alloc-size-calculation.patch
 Patch0044:      0044-resolved-do-not-allocate-packets-with-minimum-size.patch
 Patch0045:      0045-resolved-define-various-packet-sizes-as-unsigned.patch
+Patch0046:      0046-virt-enable-detecting-QEMU-TCG-via-CPUID-6399.patch
+Patch0047:      0047-rfkill-fix-erroneous-behavior-when-polling-the-udev-.patch
+Patch0048:      0048-resolved-fix-loop-on-packets-with-pseudo-dns-types.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -981,6 +984,11 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_mandir}/man[1578]/systemd-nspawn.*
 
 %changelog
+* Thu Oct 26 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-19
+- systemd-detect-virt QEMU CPUID logic update
+- Fix rfkill on some thinkpads
+- Fix systemd-resolved DOS with crafted NSEC packets (LP#1725351)
+
 * Tue Jul 25 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 231-18
 - Add Requires: grep for libs subpackage (#1474529)
 

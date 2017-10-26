@@ -43,6 +43,3 @@ index 7262a50eee..c1ee755d9f 100644
  
          /* round up to next page size */
          a = PAGE_ALIGN(ALIGN(sizeof(DnsPacket)) + a) - ALIGN(sizeof(DnsPacket));
--- 
-2.13.0
-

@@ -44,6 +44,3 @@ index 05a7a844e4..1020db0221 100644
  
  struct DnsPacket {
          int n_ref;
--- 
-2.13.0
-
