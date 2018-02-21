@@ -1,4 +1,4 @@
-#global gitcommit 74d8f1c55b5aa46d2745fa4a74ae9fced6a3cab8
+%global gitcommit 5f8984e7a4f73275631da0db7cc016dbe8b9791b
 %{?gitcommit:%global gitcommitshort %(c=%{gitcommit}; echo ${c:0:7})}
 
 # We ship a .pc file but don't want to have a dep on pkg-config. We
@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        234
-Release:        9%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        10%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -45,108 +45,6 @@ GIT_DIR=../../src/systemd/.git git format-patch-ab --no-signature -M -N v234..v2
 i=1; for j in 0[0-8]*patch; do printf "Patch%04d:      %s\n" $i $j; i=$((i+1));done|xclip
 GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[67]* hwdb/parse_hwdb.py > hwdb.patch
 %endif
-
-Patch0001:      0001-escape-Fix-help-description-6352.patch
-Patch0002:      0002-build-sys-install-udev-rule-70-joystick.-rules-hwdb-.patch
-Patch0003:      0003-add-version-argument-to-help-function-6377.patch
-Patch0004:      0004-seccomp-arm64-x32-do-not-have-_sysctl.patch
-Patch0005:      0005-seccomp-arm64-does-not-have-mmap2.patch
-Patch0006:      0006-test-seccomp-arm64-does-not-have-access-and-poll.patch
-Patch0007:      0007-fstab-generator-ignore-x-systemd.device-timeout-for-.patch
-Patch0008:      0008-core-modify-resource-leak-by-SmackProcessLabel.patch
-Patch0009:      0009-core-dump-also-missed-security-context.patch
-Patch0010:      0010-journald-make-sure-we-retain-all-stream-fds-across-r.patch
-Patch0011:      0011-Use-config_parse_sec_fix_0-also-for-JobRunningTimeou.patch
-Patch0012:      0012-virt-enable-detecting-QEMU-TCG-via-CPUID-6399.patch
-Patch0013:      0013-test-condition-don-t-assume-that-all-non-root-users-.patch
-Patch0014:      0014-Revert-core-don-t-load-dropin-data-multiple-times-fo.patch
-Patch0015:      0015-bash-completion-use-the-first-argument-instead-of-th.patch
-Patch0016:      0016-meson-D-remote-and-D-importd-should-be-combo-options.patch
-Patch0017:      0017-cryptsetup-fix-infinite-timeout-6486.patch
-Patch0018:      0018-unit-when-JobTimeoutSec-is-turned-off-implicitly-tur.patch
-Patch0019:      0019-call-chase_symlinks-without-the-sysroot-prefix-6411.patch
-Patch0020:      0020-nspawn-downgrade-warning-when-we-get-sd_notify-messa.patch
-Patch0021:      0021-boot-efi-don-t-hard-fail-on-error-for-tpm-measure-64.patch
-Patch0022:      0022-rfkill-fix-erroneous-behavior-when-polling-the-udev-.patch
-Patch0023:      0023-core-Do-not-fail-perpetual-mount-units-without-fragm.patch
-Patch0024:      0024-process-util-update-the-end-pointer-of-the-process-n.patch
-Patch0025:      0025-dhcp-network-adjust-sockaddr-length-for-addresses-lo.patch
-Patch0026:      0026-service-attempt-to-execute-next-main-command-only-fo.patch
-Patch0027:      0027-namespace-avoid-assertion-failure-6649.patch
-Patch0028:      0028-terminal-reset-should-honour-default_utf8-kernel-set.patch
-Patch0029:      0029-networkd-do-not-fail-manager_connect_bus-if-dbus-is-.patch
-Patch0030:      0030-sd-bus-socket-only-transmit-auxillary-FDs-once-6603.patch
-Patch0031:      0031-device-make-sure-to-remove-all-device-units-sharing-.patch
-Patch0032:      0032-shutdown-don-t-remount-ro-network-filesystems.-6588.patch
-Patch0033:      0033-cryptsetup-generator-do-not-bind-to-the-decrypted-de.patch
-Patch0034:      0034-log-reopen-log-for-failed-assertions-6703.patch
-Patch0035:      0035-sd-bus-use-when-passing-arguments-to-ssh-6706.patch
-Patch0036:      0036-networkd-dont-crash-when-mtu-changes-6594.patch
-Patch0037:      0037-logind-remember-to-remove-run-systemd-shutdown-sched.patch
-Patch0038:      0038-logind-method_schedule_shutdown-already-rejects-empt.patch
-Patch0039:      0039-logind-add-missing-check-for-conflicting-operation-v.patch
-Patch0040:      0040-logind-respect-delay-inhibitors-in-scheduled-shutdow.patch
-Patch0041:      0041-logind-add-missing-resume-signal-when-we-fail-to-ini.patch
-Patch0042:      0042-logind-tighten-assertion-in-execute_shutdown_or_slee.patch
-Patch0043:      0043-tmpfiles-with-e-don-t-attempt-to-set-permissions-whe.patch
-Patch0044:      0044-man-fix-path-for-storing-random-seed.patch
-Patch0045:      0045-Load-virtio_rng-early-in-the-game-6710.patch
-Patch0046:      0046-tmpfiles-silently-ignore-any-path-that-passes-throug.patch
-Patch0047:      0047-6647-use-path_startswith-dev-in-cryptsetup-6732.patch
-Patch0048:      0048-systemd-mount-fix-that-wrong-argument-is-used-for-ar.patch
-Patch0049:      0049-systemd-mount-allow-to-specify-an-arbitrary-string-f.patch
-Patch0050:      0050-rfkill-Lookup-device-in-determine_state_file.patch
-Patch0051:      0051-rfkill-Delay-writes-until-exit-5768.patch
-Patch0052:      0052-systemctl-check-existence-of-all-units-not-just-the-.patch
-Patch0053:      0053-systemctl-fix-masking-of-template-units.patch
-Patch0054:      0054-networkd-send-dhcp-option-NTP-when-UseNTP-is-true-67.patch
-Patch0055:      0055-networkd-send-dhcp-timezone-option-when-UseTimezone-.patch
-Patch0056:      0056-journalctl-honor-quiet-when-vacuuming-6771.patch
-Patch0057:      0057-manager-when-reexecuting-try-to-connect-to-bus-only-.patch
-Patch0058:      0058-efivars-don-t-crash-when-somebody-wants-to-remove-an.patch
-Patch0059:      0059-util-make-get_block_device-available.patch
-Patch0060:      0060-shutdown-don-t-be-fooled-when-detaching-DM-devices-w.patch
-Patch0061:      0061-sd-bus-extend-D-Bus-authentication-timeout-considera.patch
-Patch0062:      0062-timer-don-t-use-persietent-file-timestamps-from-the-.patch
-Patch0063:      0063-shared-end-string-with-if-one-was-found-at-the-end-o.patch
-Patch0064:      0064-build-sys-bump-xslt-maxdepth-limit-6863.patch
-Patch0065:      0065-fileio-add-new-helper-call-read_line-as-bounded-getl.patch
-Patch0066:      0066-def-add-new-constant-LONG_LINE_MAX.patch
-Patch0067:      0067-fileio-rework-read_one_line_file-on-top-of-read_line.patch
-Patch0068:      0068-cgroup-util-replace-one-use-of-fgets-by-read_line.patch
-Patch0069:      0069-test-conf-parser-add-some-basic-tests-for-config_par.patch
-Patch0070:      0070-conf-parse-remove-4K-line-length-limit.patch
-Patch0071:      0071-fileio-use-_cleanup_-for-FILE-unlocking.patch
-Patch0072:      0072-test-conf-parser-use-_cleanup_.patch
-Patch0073:      0073-test-conf-parser-add-tests-for-the-new-long-lines-in.patch
-Patch0074:      0074-test-fileio-close-two-leaked-file-handles.patch
-Patch0075:      0075-test-fileio-also-test-read_line-with-actual-files.patch
-Patch0076:      0076-fileio-return-0-from-read_one_line_file-on-success.patch
-Patch0077:      0077-string-util-use-size_t-for-strjoina-macro-6914.patch
-Patch0078:      0078-mount-util-add-fusectl-to-list-of-API-VFS.patch
-Patch0079:      0079-units-do-not-kill-rescue-shell-when-machines.target-.patch
-Patch0080:      0080-units-express-Conflict-in-syslog.socket-instead-of-e.patch
-Patch0081:      0081-units-add-missing-ordering-deps-for-Conflicts-of-eme.patch
-Patch0082:      0082-units-add-missing-Before-shutdown.target-for-units-w.patch
-Patch0083:      0083-units-DefaultDependencies-already-implies-conflict-w.patch
-Patch0084:      0084-systemctl-supress-enable-disable-messages-when-q-is-.patch
-Patch0085:      0085-basic-env-util-drop-the-validation-when-deserializin.patch
-Patch0086:      0086-basic-env-util-don-t-relax-unesaping-of-serialized-e.patch
-Patch0087:      0087-networkd-Consider-linkLocalAddressing-state-while-co.patch
-Patch0088:      0088-networkd-don-t-stop-the-dhcp-server-if-it-s-not-conf.patch
-Patch0089:      0089-nspawn-Fix-calculation-of-capabilities-for-configura.patch
-Patch0090:      0090-timedatectl-stop-using-xstrftime.patch
-Patch0091:      0091-nspawn-EROFS-for-chowning-mount-points-is-not-fatal-.patch
-Patch0092:      0092-resolved-fix-loop-on-packets-with-pseudo-dns-types.patch
-Patch0093:      0093-cryptsetup-generator-add-a-helper-utility-to-create-.patch
-Patch0094:      0094-units-order-cryptsetup-pre.target-before-cryptsetup..patch
-Patch0095:      0095-units-add-remote-cryptsetup.target-and-remote-crypts.patch
-Patch0096:      0096-cryptsetup-generator-use-remote-cryptsetup.target-wh.patch
-Patch0097:      0097-units-add-Install-section-to-remote-cryptsetup.targe.patch
-Patch0098:      0098-units-replace-remote-cryptsetup-pre.target-with-remo.patch
-Patch0099:      0099-man-add-a-note-about-_netdev-usage.patch
-Patch0100:      0100-units-make-remote-cryptsetup.target-also-after-crypt.patch
-Patch0101:      0101-man-describe-how-machine-id-should-be-initialized-70.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -356,7 +254,7 @@ License:       LGPLv2+
 They can be useful to test systemd internals.
 
 %prep
-%setup -q %{?gitcommit:-n %{name}-%{gitcommit}}
+%setup -q %{?gitcommit:-n %{name}-stable-%{gitcommit}}
 
 %if %{num_patches}
     git init
@@ -1129,6 +1027,15 @@ getent passwd systemd-journal-upload &>/dev/null || useradd -r -l -g systemd-jou
 %{pkgdir}/tests
 
 %changelog
+* Wed Feb 21 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 234-10.git5f8984e
+- a few memory leaks and unitialized memory accesses
+- systemd-networkd Remote= must be a unicast address (upstream issue #8088)
+- add /run/systemd/user to the unit lookup path (upstream issue #8119)
+- various fixes for journalctl leaking file descriptors on very quick file
+  rotation (upstream issues #7998, #8198)
+- systemd-resolved aborting on malformed packets (upstream issue #7888,
+  oss-fuzz issue #5465)
+
 * Thu Oct 26 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 234-9
 - Use infinite timeouts for passwords during boot when JobTimeoutSec=0
 - Some tty utf8-mode fixes
