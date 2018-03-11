@@ -48,10 +48,12 @@ i=1; for j in 00*patch; do printf "Patch%04d:      %s\n" $i $j; i=$((i+1));done|
 GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[67]* hwdb/parse_hwdb.py > hwdb.patch
 %endif
 
+%if 0%{?dlrn} == 0
 Patch0001:      0001-test-cgroup-util-bail-out-when-running-under-mock.patch
 Patch0002:      0002-basic-fs-util-skip-fsync_directory_of_file-if-proc-s.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
+%endif
 
 %global num_patches %{lua: c=0; for i,p in ipairs(patches) do c=c+1; end; print(c);}
 
@@ -263,6 +265,7 @@ They can be useful to test systemd internals.
 %prep
 %setup -q %{?gitcommit:-n %{name}-stable-%{gitcommit}}
 
+%if 0%{?dlrn} == 0
 %if %{num_patches}
     git init
     git config user.email "systemd-maint@redhat.com"
@@ -272,6 +275,8 @@ They can be useful to test systemd internals.
 
     # Apply all the patches.
     git am %{patches}
+%endif
+
 %endif
 
 # Restore systemd-user pam config from before "removal of Fedora-specific bits"
@@ -423,6 +428,11 @@ install -Dm0644 -t %{buildroot}%{system_unit_dir}/systemd-udev-trigger.service.d
 install -Dm0755 -t %{buildroot}%{_prefix}/lib/kernel/install.d/ %{SOURCE11}
 
 install -D -t %{buildroot}/usr/lib/systemd/ %{SOURCE3}
+%if 0%{?dlrn} == 0
+mkdir -p %{buildroot}/etc/polkit-1/localauthority/10-vendor.d
+mv %{buildroot}/var/lib/polkit-1/localauthority/10-vendor.d/systemd-networkd.pkla \
+   %{buildroot}/etc/polkit-1/localauthority/10-vendor.d/
+%endif
 
 %find_lang %{name}
 
