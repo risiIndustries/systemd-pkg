@@ -107,6 +107,8 @@ BuildRequires:  git
 %endif
 BuildRequires:  meson >= 0.43
 BuildRequires:  gettext
+BuildRequires:  python3-pyparsing
+BuildRequires:  python3-evdev
 
 Requires(post): coreutils
 Requires(post): sed
