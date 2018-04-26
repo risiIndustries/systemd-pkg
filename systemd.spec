@@ -109,6 +109,7 @@ BuildRequires:  meson >= 0.43
 BuildRequires:  gettext
 BuildRequires:  python3-pyparsing
 BuildRequires:  python3-evdev
+BuildRequires:  perl(IPC::SysV)
 
 Requires(post): coreutils
 Requires(post): sed
