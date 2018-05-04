@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        234
-Release:        10%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        11%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -129,6 +129,8 @@ Conflicts:      initscripts < 9.56.1
 %if 0%{?fedora}
 Conflicts:      fedora-release < 23-0.12
 %endif
+
+Patch0001:      0001-shutdown-fix-incorrect-fscanf-result-check.patch
 
 %description
 systemd is a system and service manager that runs as PID 1 and starts
@@ -1027,6 +1029,9 @@ getent passwd systemd-journal-upload &>/dev/null || useradd -r -l -g systemd-jou
 %{pkgdir}/tests
 
 %changelog
+* Fri May  4 2018 Jan Synáček <jsynacek@redhat.com> - 234-11.git5f8984e
+- fix systemd-shutdown: Failed to parse /proc/self/moutinfo (#1554943)
+
 * Wed Feb 21 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 234-10.git5f8984e
 - a few memory leaks and unitialized memory accesses
 - systemd-networkd Remote= must be a unicast address (upstream issue #8088)

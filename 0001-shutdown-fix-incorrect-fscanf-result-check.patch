@@ -1,0 +1,28 @@
+From 63edce22867a8d2029842e3d8ba277547e628006 Mon Sep 17 00:00:00 2001
+From: Fedora systemd team <systemd-maint@redhat.com>
+Date: Fri, 4 May 2018 10:02:20 +0200
+Subject: [PATCH] shutdown: fix incorrect fscanf() result check
+
+(cherry picked from commit 3d4ec01269244c2d35a781abf748ea9ba57666e2)
+
+Resolves: #1554943
+---
+ src/core/umount.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/umount.c b/src/core/umount.c
+index 87c5aa9..7e9ea20 100644
+--- a/src/core/umount.c
++++ b/src/core/umount.c
+@@ -97,7 +97,7 @@ static int mount_points_list_get(MountPoint **head) {
+                            "%ms"        /* (11) mount options */
+                            "%*[^\n]",   /* some rubbish at the end */
+                            &path, &type, &options);
+-                if (k != 2) {
++                if (k != 3) {
+                         if (k == EOF)
+                                 break;
+ 
+-- 
+2.14.3
+
