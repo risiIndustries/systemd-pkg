@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        238
-Release:        8%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        9%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -701,6 +701,9 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Wed Jul 18 2018 Terje Rosten <terje.rosten@ntnu.no> - 238-9.git0e0aa59
+- Ignore return value from systemd-binfmt in scriptlet (#1565425)
+
 * Fri May 11 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 238-8.git0e0aa59
 - Backport a number of patches (documentation, hwdb updates)
 - Fixes for tmpfiles 'e' entries
