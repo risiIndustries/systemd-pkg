@@ -1,4 +1,4 @@
-%global gitcommit 0e0aa590a8ba759679efbd72e92c0ba4811aa1ec
+%global gitcommit 438ac26c9dee2abd8658f1f5c6627d2543558ffb
 %{?gitcommit:%global gitcommitshort %(c=%{gitcommit}; echo ${c:0:7})}
 
 # We ship a .pc file but don't want to have a dep on pkg-config. We
@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        238
-Release:        9%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        10%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -701,6 +701,21 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Mon Oct 29 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 238-10.git438ac26
+- Fix a local vulnerability from a race condition in chown-recursive (CVE-2018-15687, #1643367)
+- Fix a local vulnerability from invalid handling of long lines in state deserialization (CVE-2018-15686, #1643372)
+- Fix a remote vulnerability in DHCPv6 in systemd-networkd (CVE-2018-15688, #1643362)
+- Downgrade logging of various messages and add loging in other places
+- Many many fixes in error handling and minor memory leaks and such
+- Fix typos and omissions in documentation
+- Various smaller improvements to unit ordering and dependencies
+- Handling of invalid (intentionally corrupt) dbus messages is improved, fixing potential local DOS avenues
+- The target of symlinks links in .wants/ and .requires/ is now ignored. This fixes an issue where
+  the unit file would sometimes be loaded from such a symlink, leading to non-deterministic unit contents.
+- Filtering of kernel threads is improved. This fixes an issues with newer kernels where hybrid kernel/user
+  threads are used by bpfilter.
+- Catalog entries for the journal are improved (#1639482)
+
 * Wed Jul 18 2018 Terje Rosten <terje.rosten@ntnu.no> - 238-9.git0e0aa59
 - Ignore return value from systemd-binfmt in scriptlet (#1565425)
 
