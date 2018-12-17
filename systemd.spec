@@ -1,4 +1,4 @@
-%global commit 9f3aed1c7d20c12cc932b81e127d48edf855f36c
+%global commit 3bf819c4ca718a6bc4b3b871cf52a0d1b518967d
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        6%{?commit:.git%{shortcommit}}%{?dist}
+Release:        7%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -689,6 +689,14 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Mon Dec 17 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-7.git9f3aed1
+- Hibernation checks for resume= are rescinded (#1645870)
+- Various patches:
+  - memory issues in logind, networkd, journald (#1653068), sd-device, etc.
+  - Adaptations for newer meson, lz4, kernel
+  - Fixes for misleading bugs in documentation
+- net.ipv4.conf.all.rp_filter is changed from 1 to 2
+
 * Sun Oct 28 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-6.git9f3aed1
 - Fix a local vulnerability from a race condition in chown-recursive (CVE-2018-15687, #1639076)
 - Fix a local vulnerability from invalid handling of long lines in state deserialization (CVE-2018-15686, #1639071)
