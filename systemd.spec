@@ -1,4 +1,4 @@
-%global commit 3bf819c4ca718a6bc4b3b871cf52a0d1b518967d
+%global commit e339eaeac99642061166374e2246a1732ca49c0e
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        7%{?commit:.git%{shortcommit}}%{?dist}
+Release:        8%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -689,6 +689,14 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Fri Jan 11 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-8.gite339eae
+- systemd-journald and systemd-journal-remote reject entries which
+  contain too many fields (CVE-2018-16865, #1664973) and set limits on the
+  process' command line length (CVE-2018-16864, #1664972)
+- Fix out-of-bounds read when parsing a crafted syslog message in systemd-journald
+  (CVE-2018-16866, #1664975)
+- A signal is again used to stop user sessions instead of dbus (#1664491)
+
 * Mon Dec 17 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-7.git9f3aed1
 - Hibernation checks for resume= are rescinded (#1645870)
 - Various patches:
