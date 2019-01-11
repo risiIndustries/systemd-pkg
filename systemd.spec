@@ -1,4 +1,4 @@
-%global gitcommit 438ac26c9dee2abd8658f1f5c6627d2543558ffb
+%global gitcommit a76ee907b7e3199c21bf586bd3b27114ac746554
 %{?gitcommit:%global gitcommitshort %(c=%{gitcommit}; echo ${c:0:7})}
 
 # We ship a .pc file but don't want to have a dep on pkg-config. We
@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        238
-Release:        10%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        11%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -701,6 +701,13 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Fri Jan 11 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 238-11.gita76ee90
+- systemd-journald and systemd-journal-remote reject entries which
+  contain too many fields (CVE-2018-16865, #1664973) and set limits on the
+  process' command line length (CVE-2018-16864, #1664972)
+- Fix out-of-bounds read when parsing a crafted syslog message in systemd-journald
+  (CVE-2018-16866, #1664975)
+
 * Mon Oct 29 2018 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 238-10.git438ac26
 - Fix a local vulnerability from a race condition in chown-recursive (CVE-2018-15687, #1643367)
 - Fix a local vulnerability from invalid handling of long lines in state deserialization (CVE-2018-15686, #1643372)
