@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        8%{?commit:.git%{shortcommit}}%{?dist}
+Release:        9%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -105,6 +105,8 @@ Requires(post): coreutils
 Requires(post): sed
 Requires(post): acl
 Requires(post): grep
+# systemd-machine-id-setup requires libssl
+Requires(post): openssl-libs
 Requires(pre):  coreutils
 Requires(pre):  /usr/bin/getent
 Requires(pre):  /usr/sbin/groupadd
@@ -689,6 +691,10 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Fri Jan 25 2019 Adam Williamson <awilliam@redhat.com> - 239-9.gite339eae
+- Requires(post) openssl-libs to fix live image build machine-id issue
+  See: https://pagure.io/dusty/failed-composes/issue/960
+
 * Fri Jan 11 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-8.gite339eae
 - systemd-journald and systemd-journal-remote reject entries which
   contain too many fields (CVE-2018-16865, #1664973) and set limits on the
