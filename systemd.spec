@@ -1,4 +1,4 @@
-%global commit e339eaeac99642061166374e2246a1732ca49c0e
+%global commit 4dc7dce5cb9f61e135c5d5434a2e0ffc21439775
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        9%{?commit:.git%{shortcommit}}%{?dist}
+Release:        10%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -691,6 +691,10 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Thu Feb  7 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-10.git4dc7dce
+- Fix large memory usage by systemd-journald (#1665931)
+- Some minor fixes to systemd-nspawn, udevadm, documentation and logging
+
 * Fri Jan 25 2019 Adam Williamson <awilliam@redhat.com> - 239-9.gite339eae
 - Requires(post) openssl-libs to fix live image build machine-id issue
   See: https://pagure.io/dusty/failed-composes/issue/960
