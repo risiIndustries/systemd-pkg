@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        10%{?commit:.git%{shortcommit}}%{?dist}
+Release:        11%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -49,6 +49,8 @@ GIT_DIR=../../src/systemd/.git git format-patch-ab --no-signature -M -N v235..v2
 i=1; for j in 00*patch; do printf "Patch%04d:      %s\n" $i $j; i=$((i+1));done|xclip
 GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[67]* hwdb/parse_hwdb.py > hwdb.patch
 %endif
+
+Patch0001:      0001-Revert-journald-periodically-drop-cache-for-all-dead.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -691,6 +693,9 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Fri Feb  8 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-11.git4dc7dce
+- Revert one of the patches to reduce journald memory usage because of selinux troubles
+
 * Thu Feb  7 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-10.git4dc7dce
 - Fix large memory usage by systemd-journald (#1665931)
 - Some minor fixes to systemd-nspawn, udevadm, documentation and logging
