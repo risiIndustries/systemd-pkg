@@ -1,4 +1,4 @@
-%global commit 4dc7dce5cb9f61e135c5d5434a2e0ffc21439775
+%global commit 8bca4621fc003a148c70248c55aa877dfe61fd3f
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        11%{?commit:.git%{shortcommit}}%{?dist}
+Release:        12%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -693,6 +693,10 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Wed Feb 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-12.git8bca462
+- Prevent buffer overread in systemd-udevd
+- Properly validate dbus paths received over dbus (#1678394, CVE-2019-6454)
+
 * Fri Feb  8 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-11.git4dc7dce
 - Revert one of the patches to reduce journald memory usage because of selinux troubles
 
