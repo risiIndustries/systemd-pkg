@@ -1,4 +1,4 @@
-%global gitcommit a76ee907b7e3199c21bf586bd3b27114ac746554
+%global gitcommit 07f8cd571e22e892d68932fe9e7fcf92c7ca7d5c
 %{?gitcommit:%global gitcommitshort %(c=%{gitcommit}; echo ${c:0:7})}
 
 # We ship a .pc file but don't want to have a dep on pkg-config. We
@@ -13,7 +13,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        238
-Release:        11%{?gitcommit:.git%{gitcommitshort}}%{?dist}
+Release:        12%{?gitcommit:.git%{gitcommitshort}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -701,6 +701,11 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Wed Feb 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 238-12.git07f8cd5
+- Properly validate dbus paths received over dbus (#1678394, CVE-2019-6454)
+- systemd-networkd fixes: keep bond slave up if already attached, keep existing
+  ip addresses and routes
+
 * Fri Jan 11 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 238-11.gita76ee90
 - systemd-journald and systemd-journal-remote reject entries which
   contain too many fields (CVE-2018-16865, #1664973) and set limits on the
