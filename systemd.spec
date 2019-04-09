@@ -1,4 +1,4 @@
-%global commit cbf14c9500d5e6820fd7d96166ca0bf75c6850df
+%global commit 3d835d09f29151c97af7cb1116e192df711587ab
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        4%{?commit:.git%{shortcommit}}%{?dist}
+Release:        5%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -698,6 +698,20 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Tue Apr  9 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-5.git3d835d0
+- Backport more patches:
+  - shared/install: Preserve escape characters for escaped unit names
+      (https://github.com/coreos/bugs/issues/2569)
+  - timedate: fix emitted value when ntp client is enabled/disabled (#1696586)
+  - udev: run programs in the specified order (#1696784)
+  - core: add Manager::honor_device_enumeration flag
+      (https://pagure.io/fedora-silverblue/issue/8)
+  - Various fixes for systemd-networkd, systemd-portabled
+  - Dbus policy fixes
+  - Crash on systax error in sysusers (#1670679)
+  - Do not unescape mount paths received from libmount
+  - Some minor build fixes
+
 * Fri Mar 29 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-4.gitcbf14c9
 - Backport various patches from the v241..v242 range:
   kernel-install will not create the boot loader entry automatically (#1648907),
