@@ -1,4 +1,4 @@
-%global commit 3d835d09f29151c97af7cb1116e192df711587ab
+%global commit a2eaa1c027b9cde96a73d8c729cea33ed5e6e9db
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        5%{?commit:.git%{shortcommit}}%{?dist}
+Release:        6%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -154,6 +154,10 @@ date, locale, maintain a list of logged-in users, system accounts,
 runtime directories and settings, and daemons to manage simple network
 configuration, network time synchronization, log forwarding, and name
 resolution.
+%if 0%{stable}
+This package was built from the %{version}-stable branch of systemd,
+commit https://github.com/systemd/systemd-stable/commit/%{shortcommit}.
+%endif
 
 %package libs
 Summary:        systemd libraries
@@ -698,6 +702,10 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Fri Apr 12 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-6.gita2eaa1c
+- fstab-generator: use DefaultDependencies=no for /sysroot mounts (#1666920)
+- return proper error from nss-resolve and nss-mymachines on dbus disconnects
+
 * Tue Apr  9 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-5.git3d835d0
 - Backport more patches:
   - shared/install: Preserve escape characters for escaped unit names
