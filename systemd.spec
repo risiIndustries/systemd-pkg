@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        6%{?commit:.git%{shortcommit}}%{?dist}
+Release:        7%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -702,6 +702,9 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Tue Apr 16 2019 Adam Williamson <awilliam@redhat.com> - 241-7.gita2eaa1c
+- Rebuild with Meson fix for #1699099
+
 * Fri Apr 12 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-6.gita2eaa1c
 - fstab-generator: use DefaultDependencies=no for /sysroot mounts (#1666920)
 - return proper error from nss-resolve and nss-mymachines on dbus disconnects
