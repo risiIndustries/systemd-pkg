@@ -1,4 +1,4 @@
-%global commit a2eaa1c027b9cde96a73d8c729cea33ed5e6e9db
+%global commit 9ef65cb6b2de877dde1a6dadbe8e7056179fc3c5
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        7%{?commit:.git%{shortcommit}}%{?dist}
+Release:        8%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -702,6 +702,19 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Fri Apr 26 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-8.git9ef65cb
+- Fix hang in flush_accept (#1702358)
+- Fix handling of RUN keys in udevd
+- Some documentation and minor logging fixes
+- Backport the addition of RestrictSUIDSGID= from systemd-242 and enable
+  RestrictSUIDSGID=yes for systemd services which use DynamicUser=yes
+  (#1703356, CVE-2019-3843).
+
+  The defaults in v242 were changed to enable RestrictSUIDSGID=yes if
+  DynamicUser=yes is specified, but this backport doesn't do this and
+  RestrictSUIDSGID=yes has to be requested explicitly. Maintainers of
+  other services packages for Fedora should consider doing this.
+
 * Tue Apr 16 2019 Adam Williamson <awilliam@redhat.com> - 241-7.gita2eaa1c
 - Rebuild with Meson fix for #1699099
 
