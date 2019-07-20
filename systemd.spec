@@ -1,4 +1,4 @@
-%global commit 9ef65cb6b2de877dde1a6dadbe8e7056179fc3c5
+%global commit b67ecf218e00b48e965db3417eb25698818e712c
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -52,7 +52,6 @@ i=1; for j in 00*patch; do printf "Patch%04d:      %s\n" $i $j; i=$((i+1));done|
 GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[67]* hwdb/parse_hwdb.py > hwdb.patch
 %endif
 
-Patch0001:      0001-meson-stop-creating-enablement-symlinks-in-etc-durin.patch
 Patch0002:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
@@ -703,8 +702,11 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
-* Mon May  6 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-9.git9ef65cb
+* Sat Jul 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-9.gitb67ecf2
 - Stop re-enabling systemd units on upgrade (#1706629)
+- Ignore bad rdrand output on AMD CPUs (#1729268)
+- A bunch of backported patches from upstream: documentation, memory
+  access fixups, command output tweaks (#1708996)
 
 * Fri Apr 26 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-8.git9ef65cb
 - Fix hang in flush_accept (#1702358)
