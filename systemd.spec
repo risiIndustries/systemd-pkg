@@ -1,4 +1,4 @@
-%global commit 8bca4621fc003a148c70248c55aa877dfe61fd3f
+%global commit 7b65867eba52eff47b856cdf8e5afb0ed0b49820
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        12%{?commit:.git%{shortcommit}}%{?dist}
+Release:        13%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -693,6 +693,11 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Sat Jul 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-13.git7b65867
+- Fix systemd-mount with CIFS (#1708996)
+- Minor build and documentation fixes
+- Fix udev rule for Parallels video adapter
+
 * Wed Feb 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-12.git8bca462
 - Prevent buffer overread in systemd-udevd
 - Properly validate dbus paths received over dbus (#1678394, CVE-2019-6454)
