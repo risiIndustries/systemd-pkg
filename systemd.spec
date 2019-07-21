@@ -1,4 +1,4 @@
-%global commit 7b65867eba52eff47b856cdf8e5afb0ed0b49820
+%global commit f4afb950af885045e45e996b6afa3d2dac52de77
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -693,7 +693,7 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
-* Sat Jul 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-13.git7b65867
+* Sat Jul 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-13.gitf4afb95
 - Fix systemd-mount with CIFS (#1708996)
 - Minor build and documentation fixes
 - Fix udev rule for Parallels video adapter
