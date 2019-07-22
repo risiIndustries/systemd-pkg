@@ -696,7 +696,7 @@ fi
 * Sat Jul 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-13.gitf4afb95
 - Fix systemd-mount with CIFS (#1708996)
 - Minor build and documentation fixes
-- Fix udev rule for Parallels video adapter
+- Fix udev rule for Parallels video adapter (#1712842)
 
 * Wed Feb 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-12.git8bca462
 - Prevent buffer overread in systemd-udevd
