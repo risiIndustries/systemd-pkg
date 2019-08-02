@@ -1,4 +1,4 @@
-%global commit b67ecf218e00b48e965db3417eb25698818e712c
+%global commit 511646b8ac5c82f210b16920044465756913d238
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        9%{?commit:.git%{shortcommit}}%{?dist}
+Release:        10%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -703,6 +703,9 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Fri Aug  2 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-10.git511646b
+- Fix systemd-networkd incompatibility with kernel >= 5.2 (#1718192)
+
 * Sat Jul 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-9.gitb67ecf2
 - Stop re-enabling systemd units on upgrade (#1706629)
 - Ignore bad rdrand output on AMD CPUs (#1729268)
