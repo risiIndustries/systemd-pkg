@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        11%{?commit:.git%{shortcommit}}%{?dist}
+Release:        12%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -45,6 +45,8 @@ Source9:        20-yama-ptrace.conf
 Source10:       systemd-udev-trigger-no-reload.conf
 Source11:       20-grubby.install
 Source12:       systemd-user
+
+Source13:       https://raw.githubusercontent.com/systemd/systemd/v243/hwdb/60-keyboard.hwdb
 
 %if 0
 GIT_DIR=../../src/systemd/.git git format-patch-ab --no-signature -M -N v235..v235-stable
@@ -281,6 +283,8 @@ They can be useful to test systemd internals.
 
 %prep
 %autosetup -n %{?commit:%{name}%{?stable:-stable}-%{commit}}%{!?commit:%{name}%{?stable:-stable}-%{github_version}} -p1 -Sgit
+
+cp -v %{SOURCE13} hwdb/
 
 %build
 %define ntpvendor %(source /etc/os-release; echo ${ID})
@@ -704,6 +708,9 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Tue Sep  3 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-12.git1e19bcd
+- hwdb entries for keyboards are updated to the latest version (#1725717)
+
 * Tue Sep  3 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-11.git1e19bcd
 - Security issue: unprivileged users were allowed to change DNS
   servers configured in systemd-resolved. Now proper polkit authorization
