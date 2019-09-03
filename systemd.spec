@@ -54,6 +54,7 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 
 Patch0001:      0001-meson-stop-creating-enablement-symlinks-in-etc-durin.patch
 Patch0002:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
+Patch0003:      https://github.com/systemd/systemd/pull/13378/commits/3b69aff5651721de3f69815dcbcbe85ab94e94ce.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -709,6 +710,7 @@ fi
   is required.
 - Various minor fixes (memory issues, compat with newer kernels, log
   message improvements, etc.).
+- Add hwdb entry for HP laptops to fix "inverted screen" (#1717712)
 
 * Fri Aug  2 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-10.git511646b
 - Fix systemd-networkd incompatibility with kernel >= 5.2 (#1718192)
