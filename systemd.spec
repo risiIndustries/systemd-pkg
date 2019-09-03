@@ -1,4 +1,4 @@
-%global commit 511646b8ac5c82f210b16920044465756913d238
+%global commit 1e19bcd55e5f218152d094f8223de345e41dc870
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        10%{?commit:.git%{shortcommit}}%{?dist}
+Release:        11%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -703,6 +703,13 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Tue Sep  3 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-11.git1e19bcd
+- Security issue: unprivileged users were allowed to change DNS
+  servers configured in systemd-resolved. Now proper polkit authorization
+  is required.
+- Various minor fixes (memory issues, compat with newer kernels, log
+  message improvements, etc.).
+
 * Fri Aug  2 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-10.git511646b
 - Fix systemd-networkd incompatibility with kernel >= 5.2 (#1718192)
 
