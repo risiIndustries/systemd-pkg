@@ -1,4 +1,4 @@
-%global commit f4afb950af885045e45e996b6afa3d2dac52de77
+%global commit 33ccd6236d5f9761d3f06a90ec3b63903033bc1a
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        239
-Release:        13%{?commit:.git%{shortcommit}}%{?dist}
+Release:        14%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -43,6 +43,8 @@ Source9:        20-yama-ptrace.conf
 Source10:       systemd-udev-trigger-no-reload.conf
 Source11:       20-grubby.install
 Source12:       systemd-user
+
+Source13:       https://raw.githubusercontent.com/systemd/systemd/v243/hwdb/60-keyboard.hwdb
 
 %if 0
 GIT_DIR=../../src/systemd/.git git format-patch-ab --no-signature -M -N v235..v235-stable
@@ -261,6 +263,8 @@ They can be useful to test systemd internals.
 
 %prep
 %autosetup %{?commit:-n %{name}%{?stable:-stable}-%{commit}} -p1 -Sgit
+
+cp -v %{SOURCE13} hwdb/
 
 %build
 %define ntpvendor %(source /etc/os-release; echo ${ID})
@@ -693,6 +697,11 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Tue Sep  3 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-14.git33ccd62
+- Security issue: unprivileged users were allowed to change DNS
+  servers configured in systemd-resolved.
+- hwdb entries for keyboards are updated to the latest version (#1725717)
+
 * Sat Jul 20 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 239-13.gitf4afb95
 - Fix systemd-mount with CIFS (#1708996)
 - Minor build and documentation fixes
