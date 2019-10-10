@@ -1,4 +1,4 @@
-%global commit 1e19bcd55e5f218152d094f8223de345e41dc870
+%global commit 323cdf4d4d78a1e267e28f4d0c37d330d33f56af
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -708,6 +708,14 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Thu Oct 10 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-13.git323cdf4
+- Fix journalctl crash with low stack (#1743230)
+- Fix one crash in systemd-resolved (#1703598)
+- Fix operation of relabel-extra.d on directories
+- Make systemd-networks follow the RFC for DHPCv6 and radv timeouts
+- Make systemd-binfmt.service easier to work with no autofs (#1731772)
+- A bunch of smaller documentation fixes and improved log messages
+
 * Tue Sep  3 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-12.git1e19bcd
 - hwdb entries for keyboards are updated to the latest version (#1725717)
 
