@@ -14,7 +14,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        243.4
+Version:        243.5
 Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -706,6 +706,11 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Sun Dec 15 2019  <zbyszek@nano-f31> - 243.5-1
+- Latest bugfix release (systemd-networkd fixups, minor cleanups to
+  documentation).
+- Fix systemd-udev timeout on startup or shutdown (#1782879)
+
 * Tue Nov 19 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.4
 - Latest bugfix release. Systemd-stable snapshots will now be numbered.
 - Fix broken PrivateDevices filter on big-endian, s390x in particular (#1769148)
