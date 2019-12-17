@@ -58,8 +58,10 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
 Patch0001:      https://github.com/keszybz/systemd/commit/464a73411c13596a130a7a8f0ac00ca728e5f69e.patch
+Patch0002:      https://github.com/systemd/systemd-stable/commit/a0a1977d9a5dc28e6c1998d8d5cb712305bd0b50.patch
+Patch0003:      https://github.com/systemd/systemd-stable/commit/70e8c1978a9a688662eb1b3983370dd1cc415083.patch
 
-Patch0002:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
+Patch0900:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
