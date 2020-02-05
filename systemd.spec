@@ -14,7 +14,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        243.5
+Version:        243.6
 Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -58,8 +58,6 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
 Patch0001:      https://github.com/keszybz/systemd/commit/464a73411c13596a130a7a8f0ac00ca728e5f69e.patch
-Patch0002:      https://github.com/systemd/systemd-stable/commit/a0a1977d9a5dc28e6c1998d8d5cb712305bd0b50.patch
-Patch0003:      https://github.com/systemd/systemd-stable/commit/70e8c1978a9a688662eb1b3983370dd1cc415083.patch
 
 Patch0900:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 
@@ -708,6 +706,10 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Wed Feb  5 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.6-1
+- Pull in a bunch of bugfixes (#1774242, #1798414/CVE-2020-1712)
+- The hardware database is updated to v245-rc1
+
 * Sun Dec 15 2019  <zbyszek@nano-f31> - 243.5-1
 - Latest bugfix release (systemd-networkd fixups, minor cleanups to
   documentation).
