@@ -1,4 +1,4 @@
-%global commit 323cdf4d4d78a1e267e28f4d0c37d330d33f56af
+%global commit 18dd3fb491f71143e632105ba98cd91ca55c4701
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
 %global stable 1
@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        241
-Release:        12%{?commit:.git%{shortcommit}}%{?dist}
+Release:        14%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -46,8 +46,6 @@ Source10:       systemd-udev-trigger-no-reload.conf
 Source11:       20-grubby.install
 Source12:       systemd-user
 
-Source13:       https://raw.githubusercontent.com/systemd/systemd/v243/hwdb/60-keyboard.hwdb
-
 %if 0
 GIT_DIR=../../src/systemd/.git git format-patch-ab --no-signature -M -N v235..v235-stable
 i=1; for j in 00*patch; do printf "Patch%04d:      %s\n" $i $j; i=$((i+1));done|xclip
@@ -56,7 +54,6 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 
 Patch0001:      0001-meson-stop-creating-enablement-symlinks-in-etc-durin.patch
 Patch0002:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
-Patch0003:      https://github.com/systemd/systemd/pull/13378/commits/3b69aff5651721de3f69815dcbcbe85ab94e94ce.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -286,8 +283,6 @@ They can be useful to test systemd internals.
 
 %prep
 %autosetup -n %{?commit:%{name}%{?stable:-stable}-%{commit}}%{!?commit:%{name}%{?stable:-stable}-%{github_version}} -p1 -Sgit
-
-cp -v %{SOURCE13} hwdb/
 
 %build
 %define ntpvendor %(source /etc/os-release; echo ${ID})
@@ -711,6 +706,11 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Thu Feb  6 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-14.git18dd3fb
+- Pull in a bunch of bugfixes (#1798414/CVE-2020-1712, #1709547,
+  #1793980/CVE-2019-20386, #1708213, #1705522, #1614871)
+- The hardware database is updated to v245-rc1 (#1717712)
+
 * Thu Oct 10 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 241-13.git323cdf4
 - Fix journalctl crash with low stack (#1743230)
 - Fix one crash in systemd-resolved (#1703598)
