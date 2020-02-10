@@ -14,7 +14,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        243.6
+Version:        243.7
 Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -706,6 +706,10 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Mon Feb 10 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.7-1
+- Do not time out when resuming from hibernation (#1705522)
+- Revert patch causing issue with usb hubs (#1800820)
+
 * Wed Feb  5 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.6-1
 - Pull in a bunch of bugfixes (#1774242, #1798414/CVE-2020-1712)
 - The hardware database is updated to v245-rc1
