@@ -57,7 +57,7 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 %endif
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
-Patch0001:      https://github.com/keszybz/systemd/commit/464a73411c13596a130a7a8f0ac00ca728e5f69e.patch
+Patch0001:      use-bfq-scheduler.patch
 
 Patch0900:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 
@@ -708,6 +708,7 @@ fi
 %changelog
 * Thu Mar 26 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.8-1
 - Update to latest stable version
+- Modify the downstream udev rule to use bfq to only apply to disks (#1803500)
 
 * Mon Feb 10 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.7-1
 - Do not time out when resuming from hibernation (#1705522)
