@@ -15,7 +15,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        245~rc1
-Release:        3%{?commit:.git%{shortcommit}}%{?dist}
+Release:        4%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -69,6 +69,10 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 Patch0001:      https://github.com/keszybz/systemd/commit/464a73411c13596a130a7a8f0ac00ca728e5f69e.patch
 
 Patch0010:      https://github.com/systemd/systemd/commit/99fdffaa194cbfed659b0c1bfd0ace4bfcd2a245.patch
+
+Patch0002:      0001-sysusers-many-different-errnos-to-express-one-condit.patch
+Patch0003:      0002-basic-fs-util-add-a-version-of-chmod_and_chown-that-.patch
+Patch0004:      0003-sysusers-do-not-require-proc-to-be-mounted.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -742,6 +746,9 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Tue Mar  3 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245~rc1-4
+- Don't require /proc to be mounted for systemd-sysusers to work (#1807768)
+
 * Tue Feb 18 2020 Adam Williamson <awilliam@redhat.com> - 245~rc1-3
 - Revert 097537f0 to fix plymouth etc. running when they shouldn't (#1803293)
 
