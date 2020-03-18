@@ -1,7 +1,7 @@
 #global commit ef677436aa203c24816021dd698b57f219f0ff64
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
-# %%global stable 1
+%global stable 1
 
 # We ship a .pc file but don't want to have a dep on pkg-config. We
 # strip the automatically generated dep here and instead co-own the
@@ -12,10 +12,12 @@
 %global system_unit_dir %{pkgdir}/system
 %global user_unit_dir %{pkgdir}/user
 
+%bcond_without tests
+
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        245~rc1
-Release:        4%{?commit:.git%{shortcommit}}%{?dist}
+Version:        245.2
+Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -50,10 +52,6 @@ Source10:       systemd-udev-trigger-no-reload.conf
 Source11:       20-grubby.install
 Source12:       systemd-user
 
-# A stop-gap measure until
-# https://src.fedoraproject.org/rpms/fedora-release/pull-request/80 is merged.
-Source13:       99-default-disable-fallback.preset
-
 Source21:       macros.sysusers
 Source22:       sysusers.attr
 Source23:       sysusers.prov
@@ -66,13 +64,7 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 %endif
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
-Patch0001:      https://github.com/keszybz/systemd/commit/464a73411c13596a130a7a8f0ac00ca728e5f69e.patch
-
-Patch0010:      https://github.com/systemd/systemd/commit/99fdffaa194cbfed659b0c1bfd0ace4bfcd2a245.patch
-
-Patch0002:      0001-sysusers-many-different-errnos-to-express-one-condit.patch
-Patch0003:      0002-basic-fs-util-add-a-version-of-chmod_and_chown-that-.patch
-Patch0004:      0003-sysusers-do-not-require-proc-to-be-mounted.patch
+Patch0001:      use-bfq-scheduler.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -166,7 +158,7 @@ Conflicts:      initscripts < 9.56.1
 %if 0%{?fedora}
 Conflicts:      fedora-release < 23-0.12
 %endif
-Obsoletes:	timedatex < 0.6-3
+Obsoletes:      timedatex < 0.6-3
 Provides:       timedatex = 0.6-3
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1753381
@@ -256,9 +248,9 @@ Provides:       udev = %{version}
 Provides:       udev%{_isa} = %{version}
 Obsoletes:      udev < 183
 # https://bugzilla.redhat.com/show_bug.cgi?id=1377733#c9
-Recommends:     systemd-bootchart
+Suggests:       systemd-bootchart
 # https://bugzilla.redhat.com/show_bug.cgi?id=1408878
-Recommends:     kbd
+Requires:       kbd
 License:        LGPLv2+
 
 %description udev
@@ -473,8 +465,6 @@ install -D -t %{buildroot}/usr/lib/systemd/ %{SOURCE3}
 
 sed -i 's|#!/usr/bin/env python3|#!%{__python3}|' %{buildroot}/usr/lib/systemd/tests/run-unit-tests.py
 
-install -D -t %{buildroot}/usr/lib/systemd/user-preset/ %{SOURCE13}
-
 install -m 0644 -D -t %{buildroot}%{_rpmconfigdir}/macros.d/ %{SOURCE21}
 install -m 0644 -D -t %{buildroot}%{_rpmconfigdir}/fileattrs/ %{SOURCE22}
 install -m 0755 -D -t %{buildroot}%{_rpmconfigdir}/ %{SOURCE23}
@@ -520,7 +510,9 @@ python3 %{SOURCE2} %buildroot <<EOF
 EOF
 
 %check
-meson test -C %{_vpath_builddir} -t 3
+%if %{with tests}
+meson test -C %{_vpath_builddir} -t 6
+%endif
 
 #############################################################################################
 
@@ -547,7 +539,27 @@ getent passwd systemd-resolve &>/dev/null || useradd -r -u 193 -l -g systemd-res
 
 %post
 systemd-machine-id-setup &>/dev/null || :
-systemctl daemon-reexec &>/dev/null || kill -TERM 1 &>/dev/null || :
+
+systemctl daemon-reexec &>/dev/null || {
+  # systemd v239 had bug #9553 in D-Bus authentication of the private socket,
+  # which was later fixed in v240 by #9625.
+  #
+  # The end result is that a `systemctl daemon-reexec` call as root will fail
+  # when upgrading from systemd v239, which means the system will not start
+  # running the new version of systemd after this post install script runs.
+  #
+  # To work around this issue, let's fall back to using a `kill -TERM 1` to
+  # re-execute the daemon when the `systemctl daemon-reexec` call fails.
+  #
+  # In order to prevent issues when the reason why the daemon-reexec failed is
+  # not the aforementioned bug, let's only use this fallback when:
+  #   - we're upgrading this RPM package; and
+  #   - we confirm that systemd is running as PID1 on this system.
+  if [ $1 -gt 1 ] && [ -d /run/systemd/system ] ; then
+    kill -TERM 1 &>/dev/null || :
+  fi
+}
+
 journalctl --update-catalog &>/dev/null || :
 systemd-tmpfiles --create &>/dev/null || :
 
@@ -746,6 +758,25 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Wed Mar 18 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.2-1
+- Update to latest stable version (a few bug fixes for random things)
+  (#1798776, #1807485)
+- Modify the downstream udev rule to use bfq to only apply to disks (#1803500)
+- "Upgrade" dependency on kbd package from Recommends to Requires (#1408878)
+- Move systemd-bless-boot.service and systemd-boot-system-token.service to
+  systemd-udev subpackage (#1807462)
+- Move a bunch of other services to systemd-udev:
+  systemd-pstore.service, all fsck-related functionality,
+  systemd-volatile-root.service, systemd-verity-setup.service, and a few
+  other related files.
+- Fix namespace-related failure when starting systemd-homed (#1807465) and
+  group lookup failure in nss_systemd (#1809147)
+- Drop autogenerated BOOT_IMAGE= parameter from stored kernel command lines
+  (#1716164)
+- Update daemon-reexec fallback to check whether the system is booted with
+  systemd as PID 1 and check whether we're upgrading before using kill -TERM
+  on PID 1 (#1803240)
+
 * Tue Mar  3 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245~rc1-4
 - Don't require /proc to be mounted for systemd-sysusers to work (#1807768)
 
@@ -753,7 +784,7 @@ fi
 - Revert 097537f0 to fix plymouth etc. running when they shouldn't (#1803293)
 
 * Fri Feb  7 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245~rc1-2
-- Add default 'disable *' preset for user units (#1792474),
+- Add default 'disable *' preset for user units (#1792474, #1468501),
   see https://fedoraproject.org/wiki/Changes/Systemd_presets_for_user_units.
 - Add macro to generate "compat" scriptlets based off sysusers.d format
   and autogenerate user() and group() virtual provides (#1792462),
