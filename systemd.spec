@@ -58,6 +58,7 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
 Patch0001:      use-bfq-scheduler.patch
+Patch0002:      0001-kernel-install-strip-BOOT_IMAGE-from-kernel-options.patch
 
 Patch0900:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 
@@ -709,6 +710,7 @@ fi
 * Thu Mar 26 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.8-1
 - Update to latest stable version
 - Modify the downstream udev rule to use bfq to only apply to disks (#1803500)
+- Strip BOOT_IMAGE= from the kernel command-line in kernel-install (#1716164)
 
 * Mon Feb 10 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.7-1
 - Do not time out when resuming from hibernation (#1705522)
