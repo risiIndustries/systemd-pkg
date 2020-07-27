@@ -19,8 +19,8 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        245.6
-Release:        2%{?commit:.git%{shortcommit}}%{?dist}
+Version:        245.7
+Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -71,9 +71,6 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 Patch0001:      use-bfq-scheduler.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1803293
-Patch1000:      0001-Revert-job-Don-t-mark-as-redundant-if-deps-are-relev.patch
 
 %ifarch %{ix86} x86_64 aarch64
 %global have_gnu_efi 1
@@ -773,6 +770,13 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Mon Jul 27 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.7-1
+- A bunch of backported patches (#1853736, #1857783, #1830896,
+  #1846079, #1849238, #1843566, #1856122)
+- Handling of user names that resemble numerical uids is tightened (CVE-2020-13776,
+  #1845535)
+- The hardware database is updated to the upstream version (#1849797)
+
 * Tue Jun  2 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.6-2
 - Add self-obsoletes to fix upgrades from F31
 
