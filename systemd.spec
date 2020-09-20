@@ -14,7 +14,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        243.8
+Version:        243.9
 Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -58,7 +58,6 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
 Patch0001:      use-bfq-scheduler.patch
-Patch0002:      0001-kernel-install-strip-BOOT_IMAGE-from-kernel-options.patch
 
 Patch0900:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 
@@ -707,6 +706,12 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Sun Sep 20 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.9-1
+- Latest upstream stable version: uid parsing CVE-2020-13776,
+  fix build with µhttpd 0.9.71, smaller fixes for udevd, sd-boot, documentation,
+  shell completions, systemd-dissect, systemd-nspawn, kernel-install, tests)
+  (#1731557, #1876905, #1856273, #1878530)
+
 * Thu Mar 26 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.8-1
 - Update to latest stable version
 - Modify the downstream udev rule to use bfq to only apply to disks (#1803500)
