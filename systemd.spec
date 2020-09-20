@@ -72,6 +72,8 @@ Patch0001:      use-bfq-scheduler.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
+Patch0009:      https://github.com/systemd/systemd/pull/17050/commits/f58b96d3e8d1cb0dd3666bc74fa673918b586612.patch
+
 %ifarch %{ix86} x86_64 aarch64
 %global have_gnu_efi 1
 %endif
@@ -774,7 +776,9 @@ fi
 - Update to latest stable version (smaller fixes to the manager,
   homed, networkd, resolved, nspawn, sd-boot, bootctl, bless-boot,
   kernel-install, documentation, systemd-tty-ask-password-agent,
-  udevd, coredump, systemd-analyze, tests) (#1856273)
+  udevd, coredump, systemd-analyze, tests) (#1856273, #1876905,
+  #1731557, #1878530)
+- Do not fail in test because of kernel bug (#1803070)
 
 * Mon Jul 27 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.7-1
 - A bunch of backported patches (#1853736, #1857783, #1830896,
