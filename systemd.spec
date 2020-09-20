@@ -19,7 +19,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        245.7
+Version:        245.8
 Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -770,6 +770,12 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Sun Sep 20 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.8-1
+- Update to latest stable version (smaller fixes to the manager,
+  homed, networkd, resolved, nspawn, sd-boot, bootctl, bless-boot,
+  kernel-install, documentation, systemd-tty-ask-password-agent,
+  udevd, coredump, systemd-analyze, tests) (#1856273)
+
 * Mon Jul 27 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.7-1
 - A bunch of backported patches (#1853736, #1857783, #1830896,
   #1846079, #1849238, #1843566, #1856122)
