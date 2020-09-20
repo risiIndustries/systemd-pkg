@@ -63,6 +63,8 @@ Patch0900:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
+Patch0009:      https://github.com/systemd/systemd/pull/17050/commits/f58b96d3e8d1cb0dd3666bc74fa673918b586612.patch
+
 %ifarch %{ix86} x86_64 aarch64
 %global have_gnu_efi 1
 %endif
@@ -711,6 +713,7 @@ fi
   fix build with µhttpd 0.9.71, smaller fixes for udevd, sd-boot, documentation,
   shell completions, systemd-dissect, systemd-nspawn, kernel-install, tests)
   (#1731557, #1876905, #1856273, #1878530)
+- Do not fail in test because of kernel bug (#1803070)
 
 * Thu Mar 26 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 243.8-1
 - Update to latest stable version
