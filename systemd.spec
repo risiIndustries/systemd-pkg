@@ -64,6 +64,7 @@ Patch0900:      0002-Revert-units-set-NoNewPrivileges-for-all-long-runnin.patch
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 Patch0009:      https://github.com/systemd/systemd/pull/17050/commits/f58b96d3e8d1cb0dd3666bc74fa673918b586612.patch
+Patch0010:      0001-Revert-hashmap-make-sure-to-initialize-shared-hash-k.patch
 
 %ifarch %{ix86} x86_64 aarch64
 %global have_gnu_efi 1
