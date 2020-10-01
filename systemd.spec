@@ -16,11 +16,12 @@
 # cryptsetup, e.g. when re-building cryptsetup on a json-c SONAME-bump.
 %bcond_with    bootstrap
 %bcond_without tests
+%bcond_without lto
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        246.4
-Release:        2%{?dist}
+Version:        246.6
+Release:        3%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -78,6 +79,8 @@ Patch0005:      0004-test-path-use-Type-exec.patch
 Patch0006:      0001-test-acl-util-output-more-debug-info.patch
 Patch0007:      0001-Do-not-assert-in-test_add_acls_for_user.patch
 
+Patch0009:      https://github.com/systemd/systemd/pull/17050/commits/f58b96d3e8d1cb0dd3666bc74fa673918b586612.patch
+
 %ifarch %{ix86} x86_64 aarch64
 %global have_gnu_efi 1
 %endif
@@ -119,6 +122,7 @@ BuildRequires:  qrencode-devel
 BuildRequires:  libmicrohttpd-devel
 BuildRequires:  libxkbcommon-devel
 BuildRequires:  iptables-devel
+BuildRequires:  pkgconfig(libfido2)
 BuildRequires:  libxslt
 BuildRequires:  docbook-style-xsl
 BuildRequires:  pkgconfig
@@ -152,6 +156,7 @@ Requires:       dbus >= 1.9.18
 Requires:       %{name}-pam = %{version}-%{release}
 Requires:       %{name}-rpm-macros = %{version}-%{release}
 Requires:       %{name}-libs = %{version}-%{release}
+Recommends:     %{name}-networkd = %{version}-%{release}
 Recommends:     diffutils
 Requires:       util-linux
 Recommends:     libxkbcommon%{?_isa}
@@ -164,7 +169,7 @@ Provides:       system-setup-keyboard = 0.9
 # systemd-sysv-convert was removed in f20: https://fedorahosted.org/fpc/ticket/308
 Obsoletes:      systemd-sysv < 206
 # self-obsoletes so that dnf will install new subpackages on upgrade (#1260394)
-Obsoletes:      %{name} < 229-5
+Obsoletes:      %{name} < 246.6-2
 Provides:       systemd-sysv = 206
 Conflicts:      initscripts < 9.56.1
 %if 0%{?fedora}
@@ -172,6 +177,10 @@ Conflicts:      fedora-release < 23-0.12
 %endif
 Obsoletes:      timedatex < 0.6-3
 Provides:       timedatex = 0.6-3
+Conflicts:      %{name}-standalone-tmpfiles < %{version}-%{release}^
+Obsoletes:      %{name}-standalone-tmpfiles < %{version}-%{release}^
+Conflicts:      %{name}-standalone-sysusers < %{version}-%{release}^
+Obsoletes:      %{name}-standalone-sysusers < %{version}-%{release}^
 
 %description
 systemd is a system and service manager that runs as PID 1 and starts
@@ -309,6 +318,19 @@ and to write journal files from serialized journal contents.
 This package contains systemd-journal-gatewayd,
 systemd-journal-remote, and systemd-journal-upload.
 
+%package networkd
+Summary:        A system service that manages network configurations
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+License:        LGPLv2+
+# https://src.fedoraproject.org/rpms/systemd/pull-request/34
+Obsoletes:      systemd < 246.6-2
+
+%description networkd
+%{summary}.
+
+It detects and configures network devices as they appear,
+as well as creating virtual network devices.
+
 %package tests
 Summary:       Internal unit tests for systemd
 Requires:      %{name}%{?_isa} = %{version}-%{release}
@@ -317,6 +339,24 @@ License:       LGPLv2+
 %description tests
 "Installed tests" that are usually run as part of the build system.
 They can be useful to test systemd internals.
+
+%package standalone-tmpfiles
+Summary:       Standalone tmpfiles binary for use in non-systemd systems
+RemovePathPostfixes: .standalone
+
+%description standalone-tmpfiles
+Standalone tmpfiles binary with no dependencies on the systemd-shared library
+or other libraries from systemd-libs. This package conflicts with the main
+systemd package and is meant for use in non-systemd systems.
+
+%package standalone-sysusers
+Summary:       Standalone sysusers binary for use in non-systemd systems
+RemovePathPostfixes: .standalone
+
+%description standalone-sysusers
+Standalone sysusers binary with no dependencies on the systemd-shared library
+or other libraries from systemd-libs. This package conflicts with the main
+systemd package and is meant for use in non-systemd systems.
 
 %prep
 %autosetup -n %{?commit:%{name}%{?stable:-stable}-%{commit}}%{!?commit:%{name}%{?stable:-stable}-%{github_version}} -p1
@@ -367,11 +407,13 @@ CONFIGURE_OPTS=(
         -Dlibidn2=true
         -Dlibiptc=true
         -Dlibcurl=true
+        -Dlibfido2=true
         -Defi=true
         -Dgnu-efi=%{?have_gnu_efi:true}%{?!have_gnu_efi:false}
         -Dtpm=true
         -Dhwdb=true
         -Dsysusers=true
+        -Dstandalone-binaries=true
         -Ddefault-kill-user-processes=false
         -Dtests=unsafe
         -Dinstall-tests=true
@@ -381,7 +423,11 @@ CONFIGURE_OPTS=(
         -Dnobody-group=nobody
         -Dsplit-usr=false
         -Dsplit-bin=true
+%if %{with lto}
         -Db_lto=true
+%else
+        -Db_lto=false
+%endif
         -Db_ndebug=false
         -Dman=true
         -Dversion-tag=v%{version}-%{release}
@@ -484,7 +530,7 @@ EOF
 
 install -Dm0755 -t %{buildroot}%{_prefix}/lib/kernel/install.d/ %{SOURCE11}
 
-install -Dm0755 -t %{buildroot}%{_prefix}/lib/systemd/ %{SOURCE13}
+install -Dm0644 -t %{buildroot}%{_prefix}/lib/systemd/ %{SOURCE13}
 
 install -D -t %{buildroot}/usr/lib/systemd/ %{SOURCE3}
 
@@ -631,8 +677,6 @@ if [ $1 -eq 0 ] ; then
                 serial-getty@.service \
                 console-getty.service \
                 debug-shell.service \
-                systemd-networkd.service \
-                systemd-networkd-wait-online.service \
                 systemd-resolved.service \
                 systemd-homed.service \
                 >/dev/null || :
@@ -769,6 +813,14 @@ fi
 %systemd_postun_with_restart systemd-journal-upload.service
 %firewalld_reload
 
+%preun networkd
+if [ $1 -eq 0 ] ; then
+        systemctl disable --quiet \
+                systemd-networkd.service \
+                systemd-networkd-wait-online.service \
+                >/dev/null || :
+fi
+
 %global _docdir_fmt %{name}
 
 %files -f %{name}.lang -f .file-list-rest
@@ -807,9 +859,37 @@ fi
 
 %files journal-remote -f .file-list-remote
 
+%files networkd -f .file-list-networkd
+
 %files tests -f .file-list-tests
 
+%files standalone-tmpfiles -f .file-list-standalone-tmpfiles
+
+%files standalone-sysusers -f .file-list-standalone-sysusers
+
 %changelog
+* Wed Sep 30 2020 Dusty Mabe <dusty@dustymabe.com> - 246.6-3
+- Try to make files in subpackages (especially the networkd subpackage)
+  more appropriate.
+
+* Thu Sep 24 2020 Filipe Brandenburger <filbranden@gmail.com> - 246.6-2
+- Build a package with standalone binaries for non-systemd systems.
+  For now, only systemd-sysusers is included.
+
+* Thu Sep 24 2020 Christian Glombek <lorbus@fedoraproject.org> - 246.6-2
+- Split out networkd sub-package and add to main package as recommended dependency
+
+* Sun Sep 20 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.6-1
+- Update to latest stable release (various minor fixes: manager,
+  networking, bootct, kernel-install, systemd-dissect, systemd-homed,
+  fstab-generator, documentation) (#1876905)
+- Do not fail in test because of kernel bug (#1803070)
+
+* Sun Sep 13 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.5-1
+- Update to latest stable release (a bunch of small network-related
+  fixes in systemd-networkd and socket handling, documentation updates,
+  a bunch of fixes for error handling).
+
 * Sun Sep 13 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.4-2
 - Also remove existing file when creating /etc/resolv.conf symlink
   upon installation (#1873856 again)
