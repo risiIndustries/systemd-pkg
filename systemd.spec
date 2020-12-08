@@ -21,7 +21,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        246.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -432,6 +432,7 @@ CONFIGURE_OPTS=(
         -Db_ndebug=false
         -Dman=true
         -Dversion-tag=v%{version}-%{release}
+        -Dfallback-hostname=fedora
         -Ddefault-dnssec=no
         # https://bugzilla.redhat.com/show_bug.cgi?id=1867830
         -Ddefault-mdns=no
@@ -878,6 +879,9 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Tue Dec  8 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.7-2
+- Rebuild with fallback hostname change reverted.
+
 * Tue Dec  8 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.7-1
 - Update to latest stable release. Unfortunately this contains
   a fairly large number of patches for a stable release (180+).
