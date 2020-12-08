@@ -432,7 +432,6 @@ CONFIGURE_OPTS=(
         -Db_ndebug=false
         -Dman=true
         -Dversion-tag=v%{version}-%{release}
-        -Dfallback-hostname=fedora
         -Ddefault-dnssec=no
         # https://bugzilla.redhat.com/show_bug.cgi?id=1867830
         -Ddefault-mdns=no
@@ -883,6 +882,8 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 - Update to latest stable release. Unfortunately this contains
   a fairly large number of patches for a stable release (180+).
   Fixes rhbz#1879216, rhbz#1890632, rhbz#1891847, rhbz#1885101.
+- Unset fallback-hostname as plenty of applications expected localhost
+  to mean "default hostname" without ever standardising it (#1892235)
 
 * Wed Sep 30 2020 Dusty Mabe <dusty@dustymabe.com> - 246.6-3
 - Try to make files in subpackages (especially the networkd subpackage)
