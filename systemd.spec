@@ -20,8 +20,8 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        246.6
-Release:        3%{?dist}
+Version:        246.7
+Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -74,11 +74,9 @@ Patch0001:      use-bfq-scheduler.patch
 Patch0002:      0001-Revert-test-path-increase-timeout.patch
 Patch0003:      0002-test-path-more-debugging-information.patch
 Patch0004:      0003-test-path-do-not-fail-the-test-if-we-fail-to-start-s.patch
-Patch0005:      0004-test-path-use-Type-exec.patch
 
 Patch0006:      0001-test-acl-util-output-more-debug-info.patch
 Patch0007:      0001-Do-not-assert-in-test_add_acls_for_user.patch
-Patch0008:      0001-Document-some-reasonable-DNS-servers-in-the-example-.patch
 
 Patch0009:      https://github.com/systemd/systemd/pull/17050/commits/f58b96d3e8d1cb0dd3666bc74fa673918b586612.patch
 
@@ -881,6 +879,11 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Tue Dec  8 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.7-1
+- Update to latest stable release. Unfortunately this contains
+  a fairly large number of patches for a stable release (180+).
+  Fixes rhbz#1879216, rhbz#1890632, rhbz#1891847, rhbz#1885101.
+
 * Wed Sep 30 2020 Dusty Mabe <dusty@dustymabe.com> - 246.6-3
 - Try to make files in subpackages (especially the networkd subpackage)
   more appropriate.
