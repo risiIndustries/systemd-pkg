@@ -19,8 +19,8 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        245.8
-Release:        2%{?commit:.git%{shortcommit}}%{?dist}
+Version:        245.9
+Release:        1%{?commit:.git%{shortcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -69,10 +69,6 @@ GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
 Patch0001:      use-bfq-scheduler.patch
-
-Patch0002:      0001-basic-capability-util-let-cap_last_cap-return-unsign.patch
-Patch0003:      0002-capability-util-add-new-function-for-raising-setpcap.patch
-Patch0004:      0003-core-fix-securebits-setting.patch
 
 Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
@@ -776,6 +772,15 @@ fi
 %files tests -f .file-list-tests
 
 %changelog
+* Thu Dec 10 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.9-1
+- Latest stable release (various smaller fixes to documentation, shell
+  completions, support for newer kernels, compilation with newer meson and
+  glibc)
+- 'systemctl import-environment' will ignore variables deemed invalid, so
+  import-environment still works even if bash functions are exported (#1754395)
+- The pager will be executed in secure mode when systemctl and other tools
+  are executed under changed euid
+
 * Mon Sep 21 2020 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 245.8-2
 - Fix setting of secure bits (#1880882)
 
