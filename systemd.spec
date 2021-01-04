@@ -21,7 +21,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        246.9
-Release:        2%{?dist}
+Release:        3%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -80,6 +80,8 @@ Patch0006:      0001-test-acl-util-output-more-debug-info.patch
 Patch0007:      0001-Do-not-assert-in-test_add_acls_for_user.patch
 
 Patch0009:      https://github.com/systemd/systemd/pull/17050/commits/f58b96d3e8d1cb0dd3666bc74fa673918b586612.patch
+
+Patch0010:      systemd-246-nss-resolve-fallback.patch
 
 %ifarch %{ix86} x86_64 aarch64
 %global have_gnu_efi 1
@@ -880,6 +882,9 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Mon Jan  4 2021 Owen Taylor <otaylor@redhat.com> - 246.9-3
+- Fix nss-resolve to properly fallback in a Flatpak sandbox
+
 * Sat Jan  2 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.9-2
 - Fix bfq patch again (#1813219)
 
