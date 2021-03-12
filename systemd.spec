@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        246.10
+Version:        246.11
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -879,6 +879,9 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Fri Mar 12 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.11-1
+- Latest bugfix release (#1933137, #1935084).
+
 * Tue Feb  2 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.10-1
 - Latest bugfix release (#1903106, #1895937).
 - Fixes #1813219.
