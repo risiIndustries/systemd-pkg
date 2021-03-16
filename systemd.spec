@@ -21,7 +21,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 Version:        248~rc2
-Release:        6%{?dist}
+Release:        7%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        System and Service Manager
@@ -80,6 +80,9 @@ Patch0000:      https://github.com/systemd/systemd/pull/18892.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1931034
 Patch0001:      https://github.com/systemd/systemd/pull/18915.patch
+# https://github.com/systemd/systemd/pull/19009
+# Fixes more CNAME issues in stub resolver (#1933433)
+Patch0002:      19009.patch
 
 # Downstream-only patches (5000–9999)
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
@@ -958,6 +961,9 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Tue Mar 16 2021 Adam Williamson <awilliam@redhat.com> - 248~rc2-7
+- Backport PR #19009 to fix CNAME redirect resolving some more (#1933433)
+
 * Fri Mar 12 2021 Adam Williamson <awilliam@redhat.com> - 248~rc2-6
 - Disable resolved cache via config snippet (#1933433)
 
