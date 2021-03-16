@@ -82,7 +82,7 @@ Patch0000:      https://github.com/systemd/systemd/pull/18892.patch
 Patch0001:      https://github.com/systemd/systemd/pull/18915.patch
 # https://github.com/systemd/systemd/pull/19009
 # Fixes more CNAME issues in stub resolver (#1933433)
-Patch0002:      19009.patch
+Patch0002:      19009-rediff.patch
 
 # Downstream-only patches (5000–9999)
 # https://bugzilla.redhat.com/show_bug.cgi?id=1738828
