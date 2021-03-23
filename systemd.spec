@@ -959,7 +959,11 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 - Disable resolved cache via config snippet (#1940715)
 
 * Thu Mar 18 2021 Yu Watanabe <yuwatana@redhat.com> - 248~rc4-1
-- Latest upstream prelease.
+- Latest upstream prelease, see
+  https://github.com/systemd/systemd/blob/v248-rc4/NEWS.
+- A bunch of documentation updates, correctness fixes, and systemd-networkd
+  features.
+- Resolves #1933137, #1935084, #1933873, #1931181, #1933335, #1935062, #1927148.
 
 * Tue Mar 16 2021 Adam Williamson <awilliam@redhat.com> - 248~rc2-8
 - Drop the resolved cache disablement config snippet
