@@ -882,6 +882,7 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 * Tue Mar 23 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.12-1
 - Latest bugfix release (#1941335, some documentation and
   minor memory-access-correctness fixes).
+- Fix hang when processing timers during DST switch in Europe/Dublin timezone (#1941335)
 
 * Fri Mar 12 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.11-1
 - Latest bugfix release (#1933137, #1935084).
