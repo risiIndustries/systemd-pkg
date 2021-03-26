@@ -827,7 +827,20 @@ getent group systemd-network &>/dev/null || groupadd -r -g 192 systemd-network 2
 getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-network -d / -s /sbin/nologin -c "systemd Network Management" systemd-network &>/dev/null || :
 
 %post networkd
-%systemd_post systemd-networkd.service systemd-networkd-wait-online.service
+# systemd-networkd was split out in systemd-246.6-2.
+# Ideally, we would have a trigger scriptlet to record enablement
+# state when upgrading from systemd <= systemd-246.6-1. But, AFAICS,
+# rpm doesn't allow us to trigger on another package, short of
+# querying the rpm database ourselves, which seems risky. For rpm,
+# systemd and systemd-networkd are completely unrelated.  So let's use
+# a hack to detect if an old systemd version is currently present in
+# the file system.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1943263
+if [ $1 -eq 1 ] && ls /usr/lib/systemd/libsystemd-shared-24[0-6].so &>/dev/null; then
+    echo "Skipping presets for systemd-networkd.service, seems we are upgrading from old systemd."
+else
+    %systemd_post systemd-networkd.service systemd-networkd-wait-online.service
+fi
 
 %preun networkd
 %systemd_preun systemd-networkd.service systemd-networkd-wait-online.service
@@ -879,6 +892,10 @@ getent passwd systemd-network &>/dev/null || useradd -r -u 192 -l -g systemd-net
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Sat May 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.13-1
+- Do not preset systemd-networkd.service and systemd-networkd-wait-online.service
+  on upgrades from before systemd-networkd was split out (#1943263)
+
 * Wed Mar 24 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.13-1
 - Revert patch that seems to cause problems with dns resolution
 - A few minor fixes
