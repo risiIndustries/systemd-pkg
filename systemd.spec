@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        246.13
+Version:        246.14
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -892,9 +892,14 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
-* Sat May 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.13-1
+* Sat May 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.14-1
 - Do not preset systemd-networkd.service and systemd-networkd-wait-online.service
   on upgrades from before systemd-networkd was split out (#1943263)
+- A bunch of patches for systemd-resolved (#1944171, #1949670)
+- Fix for systemd-tmpfiles (#1944468)
+- Various fixes for systemd, systemd-run, systemd-networkd, bootctl,
+  the shutdown sequence, documentation, logging, libsystemd, and shell
+  completions.
 
 * Wed Mar 24 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.13-1
 - Revert patch that seems to cause problems with dns resolution
