@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        248.3
+Version:        248.4
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -974,6 +974,12 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Mon Jul 12 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.4-1
+- Assorted fixes (some systemd-resolved crashes, invalid
+  systemd-tmpfiles assertion, etc.)
+- systemd-networkd workaround for TALOS-2020-1142, CVE-2020-13529.
+- A big update of hardware descriptions.
+
 * Sat May 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.3-1
 - A fix for resolved crashes (#1946386, #1960227, #1950241)
 - Some minor fixes for documentation, systemd-networkd, systemd-run, bootctl.
