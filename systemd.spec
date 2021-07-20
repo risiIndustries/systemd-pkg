@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        248.4
+Version:        248.5
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -975,6 +975,12 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Tue Jul 20 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.5-1
+- Various minor documentation and correctness fixes.
+- CVE-2021-33910, #1984020: an unchecked stack allocation could be used to
+  crash systemd and cause the system to reboot by creating a very long
+  fuse mountpoint path.
+
 * Mon Jul 12 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.4-1
 - Assorted fixes (some systemd-resolved crashes, invalid
   systemd-tmpfiles assertion, etc.)
