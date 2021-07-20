@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        246.14
+Version:        246.15
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -892,6 +892,21 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Tue Jul 20 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.15-1
+- Various correctness and potential crash fixes (systemd-journald,
+  udev, systemctl, systemd, systemd-tmpfiles, systemd-resolved)
+- Better handling of very long sysfs paths
+- Compilation fixes for updated glibc and kernel headers
+- Addition of new syscalls to seccomp filters
+- Latvian and Spanish/Dvorak keyboard mappings
+- Shell completion fixes
+- Ignore FORCERENEW DHCP messages in systemd-networkd (TALOS-2020-1142,
+  CVE-2020-13529, #1959398)
+- by-uuid symlinks for ubifs volumes are now created
+- CVE-2021-33910, #1984020: an unchecked stack allocation could be used to
+  crash systemd and cause the system to reboot by creating a very long
+  fuse mountpoint path.
+
 * Sat May 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 246.14-1
 - Do not preset systemd-networkd.service and systemd-networkd-wait-online.service
   on upgrades from before systemd-networkd was split out (#1943263)
