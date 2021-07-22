@@ -651,9 +651,10 @@ getent group cdrom &>/dev/null || groupadd -r -g 11 cdrom &>/dev/null || :
 getent group utmp &>/dev/null || groupadd -r -g 22 utmp &>/dev/null || :
 getent group tape &>/dev/null || groupadd -r -g 33 tape &>/dev/null || :
 getent group dialout &>/dev/null || groupadd -r -g 18 dialout &>/dev/null || :
-getent group input &>/dev/null || groupadd -r input &>/dev/null || :
+getent group input &>/dev/null || groupadd -r -g 104 input &>/dev/null || :
 getent group kvm &>/dev/null || groupadd -r -g 36 kvm &>/dev/null || :
-getent group render &>/dev/null || groupadd -r render &>/dev/null || :
+getent group render &>/dev/null || groupadd -r -g 105 render &>/dev/null || :
+getent group sgx &>/dev/null || groupadd -r -g 106 sgx &>/dev/null || :
 getent group systemd-journal &>/dev/null || groupadd -r -g 190 systemd-journal 2>&1 || :
 
 getent group systemd-coredump &>/dev/null || groupadd -r systemd-coredump 2>&1 || :
@@ -975,6 +976,11 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Thu Jul 22 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.6-1
+- Create 'sgx' group (and also use soft-static uids for input and render,
+  see https://pagure.io/setup/c/df3194a7295c2ca3cfa923981b046f4bd2754825
+  and https://pagure.io/packaging-committee/issue/1078 (#1965815)
+
 * Tue Jul 20 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.5-1
 - Various minor documentation and correctness fixes.
 - CVE-2021-33910, #1984020: an unchecked stack allocation could be used to
