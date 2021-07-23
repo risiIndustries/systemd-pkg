@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        248.5
+Version:        248.6
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -980,6 +980,9 @@ fi
 - Create 'sgx' group (and also use soft-static uids for input and render,
   see https://pagure.io/setup/c/df3194a7295c2ca3cfa923981b046f4bd2754825
   and https://pagure.io/packaging-committee/issue/1078 (#1965815)
+- Various bugfixes (#1963428, #1975564)
+- Fix for a regression introduced in the previous release with
+  sd-event abort (#1984651)
 
 * Tue Jul 20 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.5-1
 - Various minor documentation and correctness fixes.
