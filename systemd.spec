@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        248.6
+Version:        248.7
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -976,6 +976,12 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Fri Aug  6 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.7-1
+- Latest bugfix release: improved compatibility with latest glibc,
+  various small documentation fixes, and fixes for systemd-networkd bridging,
+  other minor fixes.
+- systemctl set-property accepts glob patterns now (#1986258)
+
 * Thu Jul 22 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.6-1
 - Create 'sgx' group (and also use soft-static uids for input and render,
   see https://pagure.io/setup/c/df3194a7295c2ca3cfa923981b046f4bd2754825
