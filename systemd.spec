@@ -31,7 +31,7 @@ Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
 Version:        249.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -486,7 +486,6 @@ CONFIGURE_OPTS=(
         -Dversion-tag=v%{version}-%{release}
         -Dfallback-hostname=%[0%{?fedora}?"fedora":"localhost"]
         -Ddefault-dnssec=no
-        -Ddefault-dns-over-tls=opportunistic
         # https://bugzilla.redhat.com/show_bug.cgi?id=1867830
         -Ddefault-mdns=no
         -Ddefault-llmnr=resolve
@@ -1002,6 +1001,9 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Fri Oct 08 2021 Adam Williamson <awilliam@redhat.com> - 249.4-2
+- Don't build with -Ddefault-dns-over-tls=opportunistic (#2006393)
+
 * Tue Aug 24 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.4-1
 - Latest bugfix release: various fixes for systemd-networkd,
   systemd-resolved, systemd, systemd-boot.
