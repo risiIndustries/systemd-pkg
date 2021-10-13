@@ -20,7 +20,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        248.8
+Version:        248.9
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -976,6 +976,10 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Tue Oct 12 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.9-1
+- Rebuild of 248.8 with one patch removed (causing #2013386) and one patch
+  added (for #1998488).
+
 * Tue Oct 12 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.8-1
 - Latest bugfix release: fix for systemctl enable, documentation,
   systemd-networkd, -coredump, -timesyncd, -udev, -nspawn, -oomd,
