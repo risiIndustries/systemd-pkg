@@ -84,6 +84,7 @@ for file in files(buildroot):
         o = o_networkd
     elif '.so.' in n:
         o = o_libs
+
     elif re.search(r'''udev(?!\.pc)|
                        hwdb|
                        bootctl|
@@ -97,6 +98,7 @@ for file in files(buildroot):
                        random-seed|
                        modules-load|
                        timesync|
+                       crypttab|
                        cryptsetup|
                        kmod|
                        quota|
@@ -109,17 +111,27 @@ for file in files(buildroot):
                        repart|
                        gpt-auto|
                        volatile-root|
-                       verity-setup|
+                       veritysetup|
+                       integritysetup|
+                       integritytab|
                        remount-fs|
                        /boot$|
                        /boot/efi|
                        /kernel/|
                        /kernel$|
-                       /modprobe.d
-    ''', n, re.X):
+                       /modprobe.d|
+                       binfmt|
+                       sysctl|
+                       coredump|
+                       homed|home1|
+                       portabled|portable1
+    ''', n, re.X):     # coredumpctl, homectl, portablectl are included in the main package because
+                       # they can be used to interact with remote daemons. Also, the user could be
+                       # confused if those user-facing binaries are not available.
         o = o_udev
     elif re.search(r'10-oomd-.*defaults.conf|lib/systemd/oomd.conf.d', n, re.X):
         o = o_oomd_defaults
+
     elif n.endswith('.standalone'):
         if 'tmpfiles' in n:
             o = o_standalone_tmpfiles
@@ -127,6 +139,7 @@ for file in files(buildroot):
             o = o_standalone_sysusers
         else:
             assert False, 'Found .standalone not belonging to known packages'
+
     else:
         o = o_rest
 
