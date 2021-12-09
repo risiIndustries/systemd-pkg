@@ -221,6 +221,12 @@ Recommends:     libpcre2-8.so.0%{?elf_suffix}
 Recommends:     libpwquality.so.1%{?elf_suffix}
 Recommends:     libpwquality.so.1(LIBPWQUALITY_1.0)%{?elf_bits}
 Recommends:     libqrencode.so.4%{?elf_suffix}
+Recommends:     libbpf.so.0%{?elf_suffix}
+Recommends:     libbpf.so.0(LIBBPF_0.4.0)%{?elf_bits}
+
+# used by dissect, integritysetup, veritysetyp, growfs, repart, cryptenroll, home
+Recommends:     libcryptsetup.so.12%{?elf_suffix}
+Recommends:     libcryptsetup.so.12(CRYPTSETUP_2.4)%{?elf_bits}
 
 %description
 systemd is a system and service manager that runs as PID 1 and starts the rest
@@ -304,6 +310,17 @@ Provides:       udev = %{version}
 Provides:       udev%{_isa} = %{version}
 Obsoletes:      udev < 183
 
+# Recommends to replace normal Requires deps for stuff that is dlopen()ed
+# used by dissect, integritysetup, veritysetyp, growfs, repart, cryptenroll, home
+Recommends:     libcryptsetup.so.12%{?elf_suffix}
+Recommends:     libcryptsetup.so.12(CRYPTSETUP_2.4)%{?elf_bits}
+
+# used by home, cryptsetup, cryptenroll
+Recommends:     libfido2.so.1%{?elf_suffix}
+Recommends:     libtss2-esys.so.0%{?elf_suffix}
+Recommends:     libtss2-mu.so.0%{?elf_suffix}
+Recommends:     libtss2-rc.so.0%{?elf_suffix}
+
 # https://bugzilla.redhat.com/show_bug.cgi?id=1377733#c9
 Suggests:       systemd-bootchart
 # https://bugzilla.redhat.com/show_bug.cgi?id=1408878
@@ -317,6 +334,9 @@ Obsoletes:      u2f-hidraw-policy < 1.0.2-40
 This package contains systemd-udev and the rules and hardware database needed to
 manage device nodes. This package is necessary on physical machines and in
 virtual machines, but not in containers.
+
+It also contains tools to manage encrypted home areas and secrets bound to the
+machine.
 
 %package container
 # Name is the same as in Debian
@@ -374,6 +394,8 @@ Requires(post): %{name}
 Requires(post): grep
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Obsoletes:      %{name} < 249~~
+Requires:       libidn2.so.0%{?elf_suffix}
+Requires:       libidn2.so.0(IDN2_0.0.0)%{?elf_bits}
 
 %description resolved
 systemd-resolved is a system service that provides network name resolution to
@@ -1023,6 +1045,7 @@ fi
 %changelog
 * Tue Jan 11 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.7-2
 - Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
+- Add missing requirements for libfido2 and libtss2 (#1975827)
 
 * Mon Nov 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.7-2
 - Supress errors from update-helper when selinux is enabled (see #2023332)
