@@ -17,8 +17,8 @@
 %global elf_suffix ()%{elf_bits}
 %endif
 
-# Bootstrap may be needed to break intercircular dependencies with
-# cryptsetup, e.g. when re-building cryptsetup on a json-c SONAME-bump.
+# Bootstrap may be needed to break circular dependencies with cryptsetup,
+# e.g. when re-building cryptsetup on a json-c SONAME-bump.
 %bcond_with    bootstrap
 %bcond_without tests
 %bcond_without lto
@@ -30,8 +30,8 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        249.7
-Release:        2%{?dist}
+Version:        249.8
+Release:        1%{?dist}
 %else
 # determine the build information from local checkout
 Version:        %(tools/meson-vcs-tag.sh . error | sed -r 's/-([0-9])/.^\1/; s/-g/_g/')
@@ -1043,9 +1043,24 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
-* Tue Jan 11 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.7-2
+* Tue Jan 11 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.8-1
 - Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
 - Add missing requirements for libfido2 and libtss2 (#1975827)
+- Allow mprotect(2), arch_prctl(2) in @default seccomp filter, bpf(2) and /proc
+  for systemd-udev (#2027627)
+- Various documentation fixes (#1926323)
+- Introduce ExitType= service setting (#1956022)
+- Fix sysusers without /proc (#2036217)
+- Various fixes to condition handling (#1919538)
+- Bugfixes for the manager, systemd-networkd, systemd-journald and journalctl,
+  systemd-analyze, systemd-resolved, systemd-homed, shell completions,
+  systemd-detect-virt on MS Hyper-V, nss modules
+- Ordering of various units during early boot and shutdown is adjusted to fix
+  some corner cases
+- Maximum numbers of files are bumped for /dev and /tmp
+- fstab-generator now ignores root-on-nfs/cifs/iscsi and live (#2037233)
+- CVE-2021-3997, #2024639: systemd-tmpfiles would exhaust the stack and crash
+  during excessive recursion on a very deeply nested directory structure.
 
 * Mon Nov 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.7-2
 - Supress errors from update-helper when selinux is enabled (see #2023332)
