@@ -30,7 +30,7 @@
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
 %if %{without inplace}
-Version:        249.8
+Version:        249.9
 Release:        1%{?dist}
 %else
 # determine the build information from local checkout
@@ -1043,6 +1043,12 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Wed Jan 12 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.9-1
+- Revert the patches for  (#1956022), hopefully fixing (#2039888)
+- Some minor documentation fixes and a fix for journalctl
+- Make systemd-xdg-autostart-service ignore missing condition check binary
+  (related to #2038750, but does not fix it)
+
 * Tue Jan 11 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.8-1
 - Create /etc/resolv.conf symlink if nothing is present yet (#2032085)
 - Add missing requirements for libfido2 and libtss2 (#1975827)
@@ -1059,7 +1065,7 @@ fi
   some corner cases
 - Maximum numbers of files are bumped for /dev and /tmp
 - fstab-generator now ignores root-on-nfs/cifs/iscsi and live (#2037233)
-- CVE-2021-3997, #2024639: systemd-tmpfiles would exhaust the stack and crash
+- CVE-2021-3997, #2039383: systemd-tmpfiles would exhaust the stack and crash
   during excessive recursion on a very deeply nested directory structure.
 
 * Mon Nov 15 2021 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 249.7-2
