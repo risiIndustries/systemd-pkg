@@ -25,7 +25,7 @@
 
 Name:           systemd
 Url:            https://www.freedesktop.org/wiki/Software/systemd
-Version:        248.9
+Version:        248.10
 Release:        1%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
@@ -1003,6 +1003,23 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Thu Jan 13 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.10-1
+- Latest upstream bugfix release: fixes for the manager, sd-boot,
+  systemd-networkd, systemd-resolved, systemd-journald, systemd-homed,
+  unusual protocols are disabled in systemd-importd, utmp entries, nss
+  modules, VirtualBox virtualization detection, various documentation
+  updates
+- Users logged in locally get access to media nodes (webcams and such).
+- Make systemd-xdg-autostart-service ignore missing condition check binary
+  (related to #2038750, but does not fix it)
+- Allow mprotect(2), arch_prctl(2) in @default seccomp filter
+- Fix sysusers without /proc (#2036217)
+- Ordering of various units during early boot and shutdown is adjusted to fix
+  some corner cases
+- Maximum numbers of files are bumped for /dev and /tmp
+- CVE-2021-3997, #2039383: systemd-tmpfiles would exhaust the stack and crash
+  during excessive recursion on a very deeply nested directory structure
+
 * Thu Jan 13 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 248.9-1
 - Add missing requirements for libfido2 and libtss2 (#1975827)
 
