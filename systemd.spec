@@ -255,10 +255,6 @@ Obsoletes:      systemd-compat-libs < 230
 Obsoletes:      nss-myhostname < 0.4
 Provides:       nss-myhostname = 0.4
 Provides:       nss-myhostname%{_isa} = 0.4
-Requires(post): coreutils
-Requires(post): sed
-Requires(post): grep
-Requires(post): /usr/bin/getent
 
 %description libs
 Libraries for systemd and udev.
@@ -826,27 +822,6 @@ fi
 # a different package version.
 systemctl --no-reload preset systemd-oomd.service &>/dev/null || :
 
-%post libs
-%{?ldconfig}
-
-# check if nobody or nfsnobody is defined
-export SYSTEMD_NSS_BYPASS_SYNTHETIC=1
-if getent passwd nfsnobody &>/dev/null; then
-   test -f /etc/systemd/dont-synthesize-nobody || {
-       echo 'Detected system with nfsnobody defined, creating /etc/systemd/dont-synthesize-nobody'
-       mkdir -p /etc/systemd || :
-       : >/etc/systemd/dont-synthesize-nobody || :
-   }
-elif getent passwd nobody 2>/dev/null | grep -v 'nobody:[x*]:65534:65534:.*:/:/sbin/nologin' &>/dev/null; then
-   test -f /etc/systemd/dont-synthesize-nobody || {
-       echo 'Detected system with incompatible nobody defined, creating /etc/systemd/dont-synthesize-nobody'
-       mkdir -p /etc/systemd || :
-       : >/etc/systemd/dont-synthesize-nobody || :
-   }
-fi
-
-%{?ldconfig:%postun libs -p %ldconfig}
-
 %global udev_services systemd-udev{d,-settle,-trigger}.service systemd-udevd-{control,kernel}.socket systemd-timesyncd.service %{?have_gnu_efi:systemd-boot-update.service}
 
 %post udev
@@ -1031,6 +1006,9 @@ fi
 %files standalone-sysusers -f .file-list-standalone-sysusers
 
 %changelog
+* Wed Feb 16 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.3-3
+- Drop scriptlet for handling nobody user upgrades from Fedora <28
+
 * Thu Feb 10 2022 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 250.3-3
 - Add pam_namespace to systemd-user pam config (rhbz#2053098)
 
