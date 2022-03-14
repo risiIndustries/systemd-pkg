@@ -184,6 +184,7 @@ Requires:       %{name}-libs = %{version}-%{release}
 Recommends:     diffutils
 Requires:       (util-linux-core or util-linux)
 Recommends:     libxkbcommon%{?_isa}
+Provides:       systemd = %{version}-%{release}
 Provides:       /bin/systemctl
 Provides:       /sbin/shutdown
 Provides:       syslog
@@ -519,7 +520,7 @@ CONFIGURE_OPTS=(
         -Db_ndebug=false
         -Dman=true
         -Dversion-tag=v%{version}-%{release}
-        -Dfallback-hostname=%[0%{?fedora}?"fedora":"localhost"]
+        -Dfallback-hostname=%[0%{?fedora}?"risiOS":"localhost"]
         -Ddefault-dnssec=no
         -Ddefault-dns-over-tls=opportunistic
         # https://bugzilla.redhat.com/show_bug.cgi?id=1867830
